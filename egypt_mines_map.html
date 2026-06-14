@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light" data-lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AIT Dashboard</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iMzIiIGZpbGw9IiNGRjZCMzUiLz4KICA8dGV4dCB4PSIzMiIgeT0iNDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCxzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iNzAwIiBmb250LXNpemU9IjIyIiBmaWxsPSJ3aGl0ZSIgbGV0dGVyLXNwYWNpbmc9IjEiPkFJVDwvdGV4dD4KPC9zdmc+">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+:root{
+  --bg:#f0f2f5;--card:#fff;--text:#1a1a2e;--text-sec:#8892a4;--border:#e2e6ee;
+  --header1:#0d1b2a;--header2:#1b2d44;
+  --input-bg:#fff;--input-border:#dce2ef;
+  --map-tile-filter:none;--legend-bg:rgba(255,255,255,.97);
+  --org:#FF6B35;--tb-bg:#fff;--fb-bg:#fff;--card-border:#e8edf5;
+}
+[data-theme="dark"]{
+  --bg:#0f1419;--card:#1a2230;--text:#e8ecf2;--text-sec:#7d8aa0;--border:#2a3548;
+  --header1:#070b12;--header2:#0f1824;
+  --input-bg:#1f2937;--input-border:#374151;
+  --map-tile-filter:brightness(0.6) saturate(0.85);
+  --legend-bg:rgba(26,34,48,.96);
+  --tb-bg:#111827;--fb-bg:#111827;--card-border:#2a3548;
+}
+body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;color:var(--text);background:var(--bg);transition:background .25s,color .25s;display:flex;flex-direction:column;height:100%;overflow:hidden}
+
+/* ── FILTER BAR (matches dashboard style) ── */
+.mines-fb{background:var(--fb-bg);border-bottom:1px solid var(--card-border);padding:7px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0;transition:background .25s}
+.mines-fb .fl{font-size:10px;color:var(--text-sec);font-weight:600;white-space:nowrap}
+.mines-fb select{background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:4px 22px 4px 7px;font-size:11px;color:var(--text);font-family:inherit;cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5' fill='none'%3E%3Cpath d='M1 1l3.5 3L8 1' stroke='%238C9BAB' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;transition:background .25s,color .25s}
+.mines-fb select:focus{border-color:var(--org)}
+.mines-fb .sep{width:1px;height:18px;background:var(--border);flex-shrink:0}
+.layer-btn{display:flex;align-items:center;gap:5px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:4px 10px;font-size:11px;color:var(--text);cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap}
+.layer-btn:hover{border-color:var(--org)}
+.layer-btn.active{background:rgba(255,107,53,.1);border-color:var(--org);color:var(--org)}
+.btn-clr-mines{display:flex;align-items:center;gap:4px;background:none;border:1px solid var(--border);border-radius:5px;padding:4px 9px;font-size:11px;color:var(--text-sec);cursor:pointer;font-family:inherit;transition:all .2s;margin-left:auto}
+.btn-clr-mines:hover{border-color:#e74c3c;color:#e74c3c}
+
+/* ── STATS BAR ── */
+
+/* ── MAP ── */
+.mapwrap{flex:0 0 75vh;position:relative;overflow:hidden}
+#map{width:100%;height:100%}
+#map .leaflet-tile-pane{transition:filter .25s}
+[data-theme="dark"] #map .leaflet-tile-pane{filter:var(--map-tile-filter)}
+
+/* ── MINE CARDS GRID ── */
+.mines-grid-wrap{flex:0 0 auto;overflow-y:auto;background:var(--bg);padding:10px 14px;max-height:22vh}
+.mines-grid-wrap::-webkit-scrollbar{width:4px}
+.mines-grid-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.mines-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.mcard{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.mcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:transparent;transition:background .2s;border-radius:10px 10px 0 0}
+.mcard:hover{box-shadow:0 3px 12px rgba(0,0,0,.09);border-color:#c8d4e8}
+.mcard:hover::before,.mcard.active::before{background:#3b82f6}
+.mcard.active{border-color:#3b82f6;box-shadow:0 0 0 2px rgba(59,130,246,.15)}
+.chead{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.avatar{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;color:white}
+.cname{font-size:12px;font-weight:700;color:var(--text);line-height:1.2;flex:1}
+.csub{font-size:9.5px;color:var(--text-sec);margin-top:1px}
+.cbadges{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0}
+.blkbadge{background:#eff6ff;color:#1d4ed8;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:700;border:1px solid #bfdbfe;white-space:nowrap}
+.gbadge{border-radius:4px;padding:1px 5px;font-size:9px;font-weight:700;white-space:nowrap;border:1px solid transparent}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px 6px}
+.crow .key{color:var(--text-sec);font-size:9px;text-transform:uppercase;letter-spacing:.3px}
+.crow .val{color:var(--text);font-weight:600;font-size:11px;margin-top:1px}
+.breg{background:#dcfce7;color:#166534;border:1px solid #bbf7d0;border-radius:3px;padding:1px 5px;font-size:9px;font-weight:700}
+.bunreg{background:#fee2e2;color:#991b1b;border:1px solid #fecaca;border-radius:3px;padding:1px 5px;font-size:9px;font-weight:700}
+
+/* ── LEGEND ── */
+.legend{position:absolute;bottom:16px;left:10px;z-index:999;background:var(--legend-bg);border:1px solid var(--border);border-radius:10px;font-size:11px;direction:rtl;box-shadow:0 4px 16px rgba(0,0,0,.15);overflow:hidden;min-width:160px;max-height:calc(100% - 32px);overflow-y:auto;transition:background .25s,border-color .25s}
+.leg-hd{background:var(--header1);color:white;padding:7px 12px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;position:sticky;top:0}
+.leg-body{padding:9px 12px}
+.leg-sec{margin-bottom:8px}.leg-sec:last-child{margin-bottom:0}
+.leg-t{font-weight:700;font-size:9.5px;color:var(--text);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;padding-bottom:3px;border-bottom:1px solid var(--border)}
+.leg-i{display:flex;align-items:center;gap:6px;margin-bottom:3px;color:var(--text-sec);font-size:10.5px}
+.ldot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.lsq{width:15px;height:11px;border-radius:3px;flex-shrink:0;border:1.5px solid rgba(0,0,0,.2)}
+.lblue{width:15px;height:11px;border-radius:3px;flex-shrink:0;background:rgba(37,99,235,0.15);border:1.5px solid #2563eb}
+
+/* ── POPUP ── */
+.leaflet-popup-content-wrapper{border-radius:10px;font-family:'Segoe UI',Tahoma,Arial,sans-serif;min-width:200px;box-shadow:0 6px 20px rgba(0,0,0,.15);background:var(--card);color:var(--text)}
+.leaflet-popup-tip{background:var(--card)}
+.leaflet-popup-content{margin:12px 14px}
+.ptitle{font-size:14px;font-weight:800;margin-bottom:7px}
+.prow{display:flex;justify-content:space-between;gap:8px;margin:3px 0;font-size:11.5px;border-bottom:1px solid var(--border);padding-bottom:3px}
+.prow:last-child{border-bottom:none}.pkey{color:var(--text-sec)}.pval{font-weight:600;color:var(--text)}
+.pbadges{display:flex;gap:4px;margin-top:7px;flex-wrap:wrap}
+.pblk{background:#eff6ff;color:#1d4ed8;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:700;border:1px solid #bfdbfe}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){.mines-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.mines-grid{grid-template-columns:repeat(2,1fr)}.mines-grid-wrap{padding:8px}.mapwrap{flex:0 0 60vh}}
+@media(max-width:400px){.mines-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- HEADER: Title + Refresh -->
+<div id="map-header" style="background:var(--tb-bg);border-bottom:1px solid var(--card-border);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:12px">
+  <div style="display:flex;align-items:center;gap:10px;min-width:0">
+    <div style="width:36px;height:36px;background:var(--org);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:13px;flex-shrink:0">AIT</div>
+    <div style="min-width:0">
+      <div style="font-size:15px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">AIT Projects Portfolio — Mines Map</div>
+      <div style="font-size:10px;color:var(--text-sec)">Interactive map of all mining sites, zones, and samples</div>
+    </div>
+  </div>
+  <button onclick="loadMinesFromSheet()" style="display:flex;align-items:center;gap:6px;background:var(--org);color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;flex-shrink:0;white-space:nowrap">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
+    Refresh Data
+  </button>
+</div>
+
+<!-- FILTER BAR: Filters + KPIs + Layer Buttons + Clear -->
+<div class="mines-fb" id="minesFb" style="padding:10px 16px;gap:12px">
+  <!-- Filters Row -->
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%">
+    <span class="fl" data-i18n="matLabel">المادة</span>
+    <select id="fmat" onchange="applyFilters()">
+      <option value="" data-i18n="optAllMat">كل المواد</option>
+      <option value="magnetite">Magnetite</option>
+      <option value="hematite">Hematite</option>
+      <option value="limonite">Limonite</option>
+    </select>
+    <span class="fl" data-i18n="statusLabel">الحالة</span>
+    <select id="fstatus" onchange="applyFilters()">
+      <option value="" data-i18n="optAllStatus">كل الحالات</option>
+      <option value="registered" data-i18n="optRegistered">مسجل</option>
+      <option value="not_registered" data-i18n="optNotRegistered">غير مسجل</option>
+    </select>
+    <span class="fl" data-i18n="govLabel">المحافظة</span>
+    <select id="fgov" onchange="applyFilters()"><option value="" data-i18n="optAllGov">كل المحافظات</option></select>
+    <span class="fl" data-i18n="goldLabel">الذهب</span>
+    <select id="fgold" onchange="applyFilters()">
+      <option value="" data-i18n="optAllGold">كل الحزم</option>
+      <option value="A">Package A — 4,000$</option>
+      <option value="B">Package B — 3,500$</option>
+      <option value="C">Package C — 5,000$</option>
+      <option value="D">Package D — 8,000$</option>
+      <option value="E">Package E — 5,000$</option>
+      <option value="F">Package F — 5,500$</option>
+      <option value="G">Package G — 6,000$</option>
+      <option value="H">Package H — 6,500$</option>
+      <option value="I">Package I — 3,500$</option>
+    </select>
+  </div>
+
+  <!-- Second Row: KPIs + Layer Buttons + Clear -->
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;width:100%;border-top:1px solid var(--border);padding-top:10px;margin-top:4px">
+    <!-- KPI Cards (dashboard style) -->
+    <div id="stats-inline" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"></div>
+
+    <div class="sep"></div>
+
+    <!-- Layer Buttons -->
+    <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+      <button class="layer-btn" id="btn-blocks" onclick="toggleLayer('blocks')">
+        <span style="width:10px;height:10px;border-radius:2px;background:rgba(37,99,235,0.3);border:1.5px solid #2563eb;flex-shrink:0"></span>
+        <span data-i18n="btnBlocks">المربعات</span>
+      </button>
+      <button class="layer-btn" id="btn-gold" onclick="toggleLayer('gold')">
+        <span style="width:10px;height:10px;border-radius:50%;background:#FFD700;border:1.5px solid #B8860B;flex-shrink:0"></span>
+        <span data-i18n="btnGold">مربعات الذهب</span>
+      </button>
+    </div>
+
+    <button class="btn-clr-mines" onclick="clearMinesFilters()" style="margin-right:auto;margin-left:0">✕ <span data-i18n="clearBtn">مسح</span></button>
+  </div>
+</div>
+
+<!-- MAP -->
+<div class="mapwrap" id="mapwrap">
+  <div id="map"></div>
+  <div class="legend" id="legend">
+    <div class="leg-hd" data-i18n="legendTitle">مفتاح الخريطة</div>
+    <div class="leg-body">
+      <div class="leg-sec"><div class="leg-t" data-i18n="legendMaterial">نوع المادة</div>
+        <div class="leg-i"><div class="ldot" style="background:#059669"></div>Magnetite</div>
+        <div class="leg-i"><div class="ldot" style="background:#dc2626"></div>Hematite</div>
+        <div class="leg-i"><div class="ldot" style="background:#d97706"></div>Limonite</div>
+      </div>
+      <div class="leg-sec"><div class="leg-t" data-i18n="legendStatus">الحالة</div>
+        <div class="leg-i"><div class="ldot" style="background:#059669;border:2px solid #166534;box-sizing:border-box"></div><span data-i18n="legendRegistered">مسجل</span></div>
+        <div class="leg-i"><div class="ldot" style="background:#dc2626;border:2px solid #991b1b;box-sizing:border-box"></div><span data-i18n="legendNotRegistered">غير مسجل</span></div>
+      </div>
+      <div class="leg-sec" id="leg-blocks" style="display:none"><div class="leg-t" data-i18n="legendBlocksTitle">المربعات</div>
+        <div class="leg-i"><div class="lblue"></div><span data-i18n="legendBlocksItem">المربعات المفتوحة</span></div>
+      </div>
+      <div id="leg-gold" style="display:none">
+        <div class="leg-sec"><div class="leg-t" data-i18n="legendGoldOcc">مؤشرات الذهب</div>
+          <div class="leg-i"><svg width="14" height="14" viewBox="0 0 24 24"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" fill="#FFD700" stroke="#B8860B" stroke-width="1.5"/></svg><span data-i18n="legendGoldOccItem">مؤشرات الذهب</span></div>
+          <div class="leg-i"><div class="lblue"></div><span data-i18n="legendGoldBlocksItem">مربعات الذهب</span></div>
+          <div class="leg-i"><div class="lsq" style="background:rgba(134,239,172,0.4);border-color:#22c55e"></div><span data-i18n="legendInvestPlots">قطع أراضي استثمارية</span></div>
+        </div>
+        <div class="leg-sec"><div class="leg-t" data-i18n="legendPackages">الحزم</div>
+          <div class="leg-i"><div class="lsq" style="background:rgba(70,50,130,0.5);border-color:#4B3283"></div>A (4000$)</div>
+          <div class="leg-i"><div class="lsq" style="background:rgba(140,70,190,0.5);border-color:#8C46BE"></div>B (3500$)</div>
+          <div class="leg-i"><div class="lsq" style="background:rgba(0,155,135,0.5);border-color:#009B87"></div>C (5000$)</div>
+          <div class="leg-i"><div class="lsq" style="background:rgba(145,105,45,0.5);border-color:#91692D"></div>D (8000$)</div>
+          <div class="leg-i"><div class="lsq" style="background:rgba(105,65,175,0.5);border-color:#6941AF"></div>E (5000$)</div>
+          <div class="leg-i"><div class="lsq" style="background:rgba(45,125,205,0.5);border-color:#2D7DCD"></div>F (5500$)</div>
+          <div class="leg-i"><div class="lsq" style="background:rgba(175,55,95,0.5);border-color:#AF3760"></div>G (6000$)</div>
+          <div class="leg-i"><div class="lsq" style="background:rgba(205,65,105,0.5);border-color:#CD4169"></div>H (6500$)</div>
+          <div class="leg-i"><div class="lsq" style="background:rgba(0,145,125,0.5);border-color:#00917D"></div>I (3500$)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MINE CARDS GRID -->
+<div class="mines-grid-wrap">
+  <div class="mines-grid" id="mlist"></div>
+</div>
+<script>
+const mines=[
+  {name:"Dakhla",lng:28.786,lat:25.591,code:"D",gov:"الوادي الجديد",govEn:"New Valley",region:"موط",regionEn:"Mut",mat:"limonite",status:"registered",contract:"partnership",qty:60000,fe:0.51,owner:"Ahmed Megahed",phone:"01144999185",block:"خارج النطاق",blockEn:"Outside Range",gp:"—"},
+  {name:"Hurghada",lng:33.769,lat:26.997,code:"H",gov:"البحر الأحمر",govEn:"Red Sea",region:"الغردقة",regionEn:"Hurghada",mat:"hematite",status:"registered",contract:"partnership",qty:20000,fe:0.55,owner:"Ahmed Megahed",phone:"01144999185",block:"Fc75",blockEn:"Fc75",gp:"B"},
+  {name:"Marsa Alam 1",lng:34.131,lat:25.350,code:"M1",gov:"البحر الأحمر",govEn:"Red Sea",region:"مرسي علم",regionEn:"Marsa Alam",mat:"magnetite",status:"registered",contract:"partnership_with_equipment",qty:30000,fe:0.38,owner:"Khaled Al-Idrisi",phone:"01222222222",block:"Ee76",blockEn:"Ee76",gp:"E"},
+  {name:"Marsa Alam 2",lng:34.267,lat:25.267,code:"M2",gov:"البحر الأحمر",govEn:"Red Sea",region:"مرسي علم",regionEn:"Marsa Alam",mat:"magnetite",status:"not_registered",contract:"ownership",qty:55000,fe:0.45,owner:"AIT",phone:"01033333333",block:"Ee77",blockEn:"Ee77",gp:"E"},
+  {name:"Marsa Alam 3",lng:34.370,lat:25.654,code:"QUS1",gov:"البحر الأحمر",govEn:"Red Sea",region:"مرسي علم",regionEn:"Marsa Alam",mat:"magnetite",status:"not_registered",contract:"partnership",qty:1000,fe:0.25,owner:"—",phone:"01033335555",block:"Ef77",blockEn:"Ef77",gp:"C"},
+  {name:"Al Quseir",lng:34.228,lat:26.075,code:"QUS",gov:"البحر الأحمر",govEn:"Red Sea",region:"القصير",regionEn:"Al Quseir",mat:"magnetite",status:"registered",contract:"trade",qty:50000,fe:0.50,owner:"Mamdouh Ezz Eldin",phone:"01000000000",block:"Eh77",blockEn:"Eh77",gp:"C"},
+  {name:"Aswan - 1",lng:32.955,lat:24.136,code:"A01",gov:"أسوان",govEn:"Aswan",region:"أسوان",regionEn:"Aswan",mat:"hematite",status:"registered",contract:"trade",qty:25000,fe:0.54,owner:"Sayed Gaber",phone:"01000000000",block:"Ca71",blockEn:"Ca71",gp:"—"},
+  {name:"Aswan - 2",lng:33.128,lat:24.174,code:"A02",gov:"أسوان",govEn:"Aswan",region:"أسوان",regionEn:"Aswan",mat:"hematite",status:"not_registered",contract:"ownership",qty:0,fe:0.00,owner:"Mohamed Gamal",phone:"—",block:"Ca72",blockEn:"Ca72",gp:"H"},
+  {name:"Magnetite - 1",lng:33.407,lat:28.988,code:"M01",gov:"جنوب سيناء",govEn:"South Sinai",region:"أبو زنيمة",regionEn:"Abu Zenima",mat:"magnetite",status:"not_registered",contract:"ownership",qty:0,fe:0.50,owner:"Mohamed Gamal",phone:"01000000000",block:"خارج النطاق",blockEn:"Outside Range",gp:"A"},
+  {name:"Red Sea - 1",lng:33.834,lat:26.891,code:"RS01",gov:"البحر الأحمر",govEn:"Red Sea",region:"الغردقة",regionEn:"Hurghada",mat:"hematite",status:"registered",contract:"partnership_with_equipment",qty:0,fe:0.00,owner:"Hussein El Beheiry",phone:"—",block:"Fc75",blockEn:"Fc75",gp:"B"},
+  {name:"Aswan-3 El Mografat",lng:33.552,lat:27.449,code:"A03",gov:"البحر الأحمر",govEn:"Red Sea",region:"المنجروف",regionEn:"El Mografat",mat:"magnetite",status:"not_registered",contract:"ownership",qty:0,fe:0.00,owner:"Mamdouh Ezz Eldin",phone:"—",block:"Fe74",blockEn:"Fe74",gp:"A"},
+  {name:"Red Sea-2 Qusir BIF",lng:34.409,lat:25.672,code:"RS02",gov:"البحر الأحمر",govEn:"Red Sea",region:"القصير",regionEn:"Al Quseir",mat:"magnetite",status:"registered",contract:"trade",qty:50000,fe:0.50,owner:"Mamdouh Ezz Eldin",phone:"01000000000",block:"Ef77",blockEn:"Ef77",gp:"C"},
+  {name:"New Valley-1 El Dakhla",lng:28.902,lat:25.627,code:"NV01",gov:"الوادي الجديد",govEn:"New Valley",region:"موط",regionEn:"Mut",mat:"limonite",status:"registered",contract:"trade",qty:50000,fe:0.50,owner:"El Saleh company",phone:"01000000000",block:"خارج النطاق",blockEn:"Outside Range",gp:"—"},
+  {name:"Red Sea-3 Abo Agag",lng:33.649,lat:25.664,code:"RS03",gov:"البحر الأحمر",govEn:"Red Sea",region:"الغردقة",regionEn:"Hurghada",mat:"hematite",status:"registered",contract:"trade",qty:50000,fe:0.52,owner:"Ahmed Fawzy",phone:"01000000000",block:"Ef74",blockEn:"Ef74",gp:"D"},
+];
+
+// ── i18n & theme ──────────────────────────────────────────────────
+const I18N = {
+  ar:{
+    title:'خريطة المناجم التفاعلية',
+    subtitle:'شركة الياسمين الدولية للتجارة · خريطة التعدين المصرية',
+    btnBlocks:'المربعات',
+    btnGold:'مربعات الذهب',
+    optAllMat:'📦 كل أنواع المواد',
+    optAllStatus:'📋 كل الحالات',
+    optRegistered:'✅ مسجل',
+    optNotRegistered:'❌ غير مسجل',
+    optAllGov:'🗺️ كل المحافظات',
+    optAllGold:'⭐ كل حزم الذهب',
+    legendTitle:'مفتاح الخريطة',
+    legendMaterial:'نوع المادة',
+    legendStatus:'الحالة',
+    legendRegistered:'مسجل',
+    legendNotRegistered:'غير مسجل',
+    legendBlocksTitle:'المربعات — هيئة الثروة المعدنية',
+    legendBlocksItem:'المربعات المفتوحة (رسمي)',
+    legendGoldOcc:'مؤشرات الذهب',
+    legendGoldOccItem:'مؤشرات الذهب',
+    legendGoldBlocksItem:'مربعات الذهب',
+    legendInvestPlots:'قطع أراضي استثمارية',
+    legendPackages:'الحزم',
+    statMines:'المناجم',
+    statRegistered:'مسجل',
+    statQty:'طن/شهر',
+    statGov:'محافظات',
+    cardMaterial:'المادة',
+    cardStatus:'الحالة',
+    cardQty:'طن/شهر',
+    cardOwner:'المالك',
+    cardContract:'العقد',
+    popupCode:'كود',
+    popupLocation:'الموقع',
+    popupMaterial:'المادة',
+    popupStatus:'الحالة',
+    popupQty:'طن/شهر',
+    popupOwner:'المالك',
+    statusRegistered:'✅ مسجل',
+    statusNotRegistered:'❌ غير مسجل',
+    badgeRegistered:'مسجل',
+    badgeNotRegistered:'غير مسجل',
+    contracts:{partnership:'شراكة',ownership:'ملكية',trade:'تجارة',partnership_with_equipment:'شراكة بمعدات'},
+  },
+  en:{
+    title:'Interactive Mining Map',
+    subtitle:'Al Yasmein International For Trade · Egypt Mining Map',
+    btnBlocks:'Blocks ID',
+    btnGold:'Gold Blocks',
+    optAllMat:'📦 All Materials',
+    optAllStatus:'📋 All Statuses',
+    optRegistered:'✅ Registered',
+    optNotRegistered:'❌ Not Registered',
+    optAllGov:'🗺️ All Governorates',
+    optAllGold:'⭐ All Gold Packages',
+    legendTitle:'Map Legend',
+    legendMaterial:'Material Type',
+    legendStatus:'Status',
+    legendRegistered:'Registered',
+    legendNotRegistered:'Not Registered',
+    legendBlocksTitle:'Blocks ID — EMRA Official',
+    legendBlocksItem:'Open Blocks (EMRA Official)',
+    legendGoldOcc:'Gold Occurrences',
+    legendGoldOccItem:'Gold Occurrences',
+    legendGoldBlocksItem:'Gold Blocks',
+    legendInvestPlots:'Investment Land Plots',
+    legendPackages:'Packages',
+    statMines:'Mines',
+    statRegistered:'Registered',
+    statQty:'Ton/Month',
+    statGov:'Governorates',
+    cardMaterial:'Material',
+    cardStatus:'Status',
+    cardQty:'Ton/Month',
+    cardOwner:'Owner',
+    cardContract:'Contract',
+    popupCode:'Code',
+    popupLocation:'Location',
+    popupMaterial:'Material',
+    popupStatus:'Status',
+    popupQty:'Ton/Month',
+    popupOwner:'Owner',
+    statusRegistered:'✅ Registered',
+    statusNotRegistered:'❌ Not Registered',
+    badgeRegistered:'Registered',
+    badgeNotRegistered:'Not Registered',
+    contracts:{partnership:'Partnership',ownership:'Ownership',trade:'Trade',partnership_with_equipment:'Partnership w/ Equipment'},
+  }
+};
+let LANG = 'ar';
+let THEME = 'light';
+function t(key){ return (I18N[LANG] && I18N[LANG][key]) || I18N.ar[key] || key; }
+function applyI18n(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key = el.getAttribute('data-i18n');
+    el.textContent = t(key);
+  });
+}
+function toggleLang(){
+  LANG = LANG === 'ar' ? 'en' : 'ar';
+  document.documentElement.lang = LANG;
+  document.documentElement.dir = LANG === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.setAttribute('data-lang', LANG);
+  applyI18n();
+  populateGovDropdown();
+  renderStats(); renderCards(); drawMarkers();
+}
+function setLang(lang){
+  LANG = lang;
+  document.documentElement.lang = LANG;
+  document.documentElement.dir = LANG === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.setAttribute('data-lang', LANG);
+  applyI18n();
+  populateGovDropdown();
+  renderStats(); renderCards(); drawMarkers();
+}
+function toggleTheme(){
+  THEME = THEME === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', THEME);
+}
+function setTheme(theme){
+  THEME = theme;
+  document.documentElement.setAttribute('data-theme', THEME);
+}
+
+// Track if we're inside dashboard iframe
+let IS_EMBEDDED = false;
+
+// Listen for commands from parent dashboard
+window.addEventListener('message', function(e){
+  if(!e.data || !e.data.cmd) return;
+  if(e.data.cmd === 'setLang')     setLang(e.data.value);
+  if(e.data.cmd === 'setTheme')    setTheme(e.data.value);
+  if(e.data.cmd === 'toggleLayer') toggleLayer(e.data.value);
+  if(e.data.cmd === 'setEmbedded') { IS_EMBEDDED = e.data.value; toggleHeader(); }
+});
+
+function toggleHeader(){
+  const header = document.getElementById('map-header');
+  if(header) header.style.display = IS_EMBEDDED ? 'none' : '';
+}
+
+
+// EMRA Official Open Blocks - real coordinates extracted from EMRA attribute table (UTM Zone 36N converted)
+const EMRA_BLOCKS=[
+  {id:'Ba76',c:[[23.0,34.375],[23.0,34.5],[23.125,34.5],[23.125,34.375],[23.0,34.375]]},
+  {id:'Ba77',c:[[23.0,34.5],[23.0,34.625],[23.125,34.625],[23.125,34.5],[23.0,34.5]]},
+  {id:'Ba78',c:[[23.0,34.625],[23.0,34.75],[23.125,34.75],[23.125,34.625],[23.0,34.625]]},
+  {id:'Ba79',c:[[23.0,34.75],[23.0,34.875],[23.125,34.875],[23.125,34.75],[23.0,34.75]]},
+  {id:'Ba80',c:[[23.0,34.875],[23.0,35.0],[23.125,35.0],[23.125,34.875],[23.0,34.875]]},
+  {id:'Ba81',c:[[23.0,35.0],[23.0,35.125],[23.125,35.125],[23.125,35.0],[23.0,35.0]]},
+  {id:'Ba82',c:[[23.0,35.125],[23.0,35.25],[23.125,35.25],[23.0,35.125]]},
+  {id:'Bb76',c:[[23.125,34.375],[23.125,34.5],[23.25,34.5],[23.25,34.375],[23.125,34.375]]},
+  {id:'Bb77',c:[[23.125,34.5],[23.125,34.625],[23.25,34.625],[23.25,34.5],[23.125,34.5]]},
+  {id:'Bb78',c:[[23.125,34.625],[23.125,34.75],[23.25,34.75],[23.25,34.625],[23.125,34.625]]},
+  {id:'Bb79',c:[[23.125,34.75],[23.125,34.875],[23.25,34.875],[23.25,34.75],[23.125,34.75]]},
+  {id:'Bb80',c:[[23.125,34.875],[23.125,35.0],[23.25,35.0],[23.25,34.875],[23.125,34.875]]},
+  {id:'Bb81',c:[[23.125,35.0],[23.125,35.125],[23.25,35.125],[23.25,35.0],[23.125,35.0]]},
+  {id:'Bb82',c:[[23.125,35.125],[23.25,35.25],[23.25,35.125],[23.125,35.125]]},
+  {id:'Bb83',c:[[23.125,35.25],[23.125,35.375],[23.25,35.375],[23.25,35.25],[23.125,35.25]]},
+  {id:'Bc76',c:[[23.25,34.375],[23.25,34.5],[23.375,34.5],[23.375,34.375],[23.25,34.375]]},
+  {id:'Bc77',c:[[23.25,34.5],[23.25,34.625],[23.375,34.625],[23.375,34.5],[23.25,34.5]]},
+  {id:'Bc78',c:[[23.25,34.625],[23.25,34.75],[23.375,34.75],[23.375,34.625],[23.25,34.625]]},
+  {id:'Bc79',c:[[23.25,34.75],[23.25,34.875],[23.375,34.875],[23.375,34.75],[23.25,34.75]]},
+  {id:'Bc80',c:[[23.25,34.875],[23.25,35.0],[23.375,35.0],[23.375,34.875],[23.25,34.875]]},
+  {id:'Bc81',c:[[23.25,35.0],[23.25,35.125],[23.375,35.125],[23.375,35.0],[23.25,35.0]]},
+  {id:'Bc82',c:[[23.25,35.125],[23.25,35.25],[23.375,35.25],[23.375,35.125],[23.25,35.125]]},
+  {id:'Bc83',c:[[23.25,35.25],[23.25,35.375],[23.375,35.375],[23.375,35.25],[23.25,35.25]]},
+  {id:'Bd71',c:[[23.375,33.75],[23.375,33.875],[23.5,33.875],[23.5,33.75],[23.375,33.75]]},
+  {id:'Bd72',c:[[23.375,33.875],[23.375,34.0],[23.5,34.0],[23.5,33.875],[23.375,33.875]]},
+  {id:'Bd73',c:[[23.375,34.0],[23.375,34.125],[23.5,34.125],[23.5,34.0],[23.375,34.0]]},
+  {id:'Bd74',c:[[23.375,34.125],[23.375,34.25],[23.5,34.25],[23.5,34.125],[23.375,34.125]]},
+  {id:'Bd75',c:[[23.375,34.25],[23.375,34.375],[23.5,34.375],[23.5,34.25],[23.375,34.25]]},
+  {id:'Bd76',c:[[23.375,34.375],[23.375,34.5],[23.5,34.5],[23.5,34.375],[23.375,34.375]]},
+  {id:'Bd77',c:[[23.375,34.5],[23.375,34.625],[23.5,34.625],[23.5,34.5],[23.375,34.5]]},
+  {id:'Bd78',c:[[23.375,34.625],[23.375,34.75],[23.5,34.75],[23.5,34.625],[23.375,34.625]]},
+  {id:'Bd79',c:[[23.375,34.75],[23.375,34.875],[23.5,34.875],[23.5,34.75],[23.375,34.75]]},
+  {id:'Bd80',c:[[23.375,34.875],[23.375,35.0],[23.5,35.0],[23.5,34.875],[23.375,34.875]]},
+  {id:'Bd81',c:[[23.375,35.0],[23.375,35.125],[23.5,35.125],[23.5,35.0],[23.375,35.0]]},
+  {id:'Bd82',c:[[23.375,35.125],[23.375,35.25],[23.5,35.25],[23.5,35.125],[23.375,35.125]]},
+  {id:'Bd83',c:[[23.375,35.25],[23.375,35.375],[23.5,35.375],[23.5,35.25],[23.375,35.25]]},
+  {id:'Be71',c:[[23.5,33.75],[23.5,33.875],[23.625,33.875],[23.625,33.75],[23.5,33.75]]},
+  {id:'Be72',c:[[23.5,33.875],[23.5,34.0],[23.625,34.0],[23.625,33.875],[23.5,33.875]]},
+  {id:'Be73',c:[[23.5,34.0],[23.5,34.125],[23.625,34.125],[23.625,34.0],[23.5,34.0]]},
+  {id:'Be74',c:[[23.5,34.125],[23.5,34.25],[23.625,34.25],[23.625,34.125],[23.5,34.125]]},
+  {id:'Be75',c:[[23.5,34.25],[23.5,34.375],[23.625,34.375],[23.625,34.25],[23.5,34.25]]},
+  {id:'Be76',c:[[23.5,34.375],[23.5,34.5],[23.625,34.5],[23.625,34.375],[23.5,34.375]]},
+  {id:'Be77',c:[[23.5,34.5],[23.5,34.625],[23.625,34.625],[23.625,34.5],[23.5,34.5]]},
+  {id:'Be78',c:[[23.5,34.625],[23.5,34.75],[23.625,34.75],[23.625,34.625],[23.5,34.625]]},
+  {id:'Be80',c:[[23.5,34.875],[23.5,35.0],[23.625,35.0],[23.625,34.875],[23.5,34.875]]},
+  {id:'Be81',c:[[23.5,35.0],[23.5,35.125],[23.625,35.125],[23.625,35.0],[23.5,35.0]]},
+  {id:'Be82',c:[[23.5,35.125],[23.5,35.25],[23.625,35.25],[23.625,35.125],[23.5,35.125]]},
+  {id:'Be83',c:[[23.5,35.25],[23.5,35.375],[23.625,35.375],[23.625,35.25],[23.5,35.25]]},
+  {id:'Bf71',c:[[23.625,33.75],[23.625,33.875],[23.75,33.875],[23.75,33.75],[23.625,33.75]]},
+  {id:'Bf72',c:[[23.625,33.875],[23.625,34.0],[23.75,34.0],[23.75,33.875],[23.625,33.875]]},
+  {id:'Bf73',c:[[23.625,34.0],[23.625,34.125],[23.75,34.125],[23.75,34.0],[23.625,34.0]]},
+  {id:'Bf74',c:[[23.625,34.125],[23.625,34.25],[23.75,34.25],[23.75,34.125],[23.625,34.125]]},
+  {id:'Bf75',c:[[23.625,34.25],[23.625,34.375],[23.75,34.375],[23.75,34.25],[23.625,34.25]]},
+  {id:'Bf76',c:[[23.625,34.375],[23.625,34.5],[23.75,34.5],[23.75,34.375],[23.625,34.375]]},
+  {id:'Bf77',c:[[23.625,34.5],[23.625,34.625],[23.75,34.625],[23.75,34.5],[23.625,34.5]]},
+  {id:'Bf78',c:[[23.625,34.625],[23.625,34.75],[23.75,34.75],[23.75,34.625],[23.625,34.625]]},
+  {id:'Bf79',c:[[23.625,34.75],[23.625,34.875],[23.75,34.875],[23.75,34.75],[23.625,34.75]]},
+  {id:'Bf80',c:[[23.625,34.875],[23.625,35.0],[23.75,35.0],[23.75,34.875],[23.625,34.875]]},
+  {id:'Bf81',c:[[23.625,35.0],[23.625,35.125],[23.75,35.125],[23.75,35.0],[23.625,35.0]]},
+  {id:'Bf82',c:[[23.625,35.125],[23.625,35.25],[23.75,35.25],[23.75,35.125],[23.625,35.125]]},
+  {id:'Bf83',c:[[23.625,35.25],[23.625,35.375],[23.75,35.375],[23.75,35.25],[23.625,35.25]]},
+  {id:'Bg71',c:[[23.75,33.75],[23.75,33.875],[23.875,33.875],[23.875,33.75],[23.75,33.75]]},
+  {id:'Bg72',c:[[23.75,33.875],[23.75,34.0],[23.875,34.0],[23.875,33.875],[23.75,33.875]]},
+  {id:'Bg73',c:[[23.75,34.0],[23.75,34.125],[23.875,34.125],[23.875,34.0],[23.75,34.0]]},
+  {id:'Bg74',c:[[23.75,34.125],[23.75,34.25],[23.875,34.25],[23.875,34.125],[23.75,34.125]]},
+  {id:'Bg75',c:[[23.75,34.25],[23.75,34.375],[23.875,34.375],[23.875,34.25],[23.75,34.25]]},
+  {id:'Bg76',c:[[23.75,34.375],[23.75,34.5],[23.875,34.5],[23.875,34.375],[23.75,34.375]]},
+  {id:'Bg77',c:[[23.75,34.5],[23.75,34.625],[23.875,34.625],[23.875,34.5],[23.75,34.5]]},
+  {id:'Bg78',c:[[23.75,34.625],[23.75,34.75],[23.875,34.75],[23.875,34.625],[23.75,34.625]]},
+  {id:'Bg79',c:[[23.75,34.75],[23.75,34.875],[23.875,34.875],[23.875,34.75],[23.75,34.75]]},
+  {id:'Bg80',c:[[23.75,34.875],[23.75,35.0],[23.875,35.0],[23.875,34.875],[23.75,34.875]]},
+  {id:'Bg81',c:[[23.75,35.0],[23.75,35.125],[23.875,35.125],[23.875,35.0],[23.75,35.0]]},
+  {id:'Bg82',c:[[23.75,35.125],[23.75,35.25],[23.875,35.25],[23.875,35.125],[23.75,35.125]]},
+  {id:'Bg83',c:[[23.75,35.25],[23.75,35.375],[23.875,35.375],[23.875,35.25],[23.75,35.25]]},
+  {id:'Bh71',c:[[23.875,33.75],[23.875,33.875],[24.0,33.875],[24.0,33.75],[23.875,33.75]]},
+  {id:'Bh72',c:[[23.875,33.875],[23.875,34.0],[24.0,34.0],[24.0,33.875],[23.875,33.875]]},
+  {id:'Bh73',c:[[23.875,34.0],[23.875,34.125],[24.0,34.125],[24.0,34.0],[23.875,34.0]]},
+  {id:'Bh74',c:[[23.875,34.125],[23.875,34.25],[24.0,34.25],[24.0,34.125],[23.875,34.125]]},
+  {id:'Bh75',c:[[23.875,34.25],[23.875,34.375],[24.0,34.375],[24.0,34.25],[23.875,34.25]]},
+  {id:'Bh76',c:[[23.875,34.375],[23.875,34.5],[24.0,34.5],[24.0,34.375],[23.875,34.375]]},
+  {id:'Bh77',c:[[23.875,34.5],[23.875,34.625],[24.0,34.625],[24.0,34.5],[23.875,34.5]]},
+  {id:'Bh78',c:[[23.875,34.625],[23.875,34.75],[24.0,34.75],[24.0,34.625],[23.875,34.625]]},
+  {id:'Bh79',c:[[23.875,34.75],[23.875,34.875],[24.0,34.875],[24.0,34.75],[23.875,34.75]]},
+  {id:'Bh80',c:[[23.875,34.875],[23.875,35.0],[24.0,35.0],[24.0,34.875],[23.875,34.875]]},
+  {id:'Bh81',c:[[23.875,35.0],[23.875,35.125],[24.0,35.125],[24.0,35.0],[23.875,35.0]]},
+  {id:'Bh82',c:[[23.875,35.125],[23.875,35.25],[24.0,35.25],[24.0,35.125],[23.875,35.125]]},
+  {id:'Bh83',c:[[23.875,35.25],[23.875,35.375],[24.0,35.375],[24.0,35.25],[23.875,35.25]]},
+  {id:'Ca71',c:[[24.0,33.75],[24.0,33.875],[24.125,33.875],[24.125,33.75],[24.0,33.75]]},
+  {id:'Ca72',c:[[24.0,33.875],[24.0,34.0],[24.125,34.0],[24.125,33.875],[24.0,33.875]]},
+  {id:'Ca73',c:[[24.0,34.0],[24.0,34.125],[24.125,34.125],[24.125,34.0],[24.0,34.0]]},
+  {id:'Ca74',c:[[24.0,34.125],[24.0,34.25],[24.125,34.25],[24.125,34.125],[24.0,34.125]]},
+  {id:'Ca75',c:[[24.0,34.25],[24.0,34.375],[24.125,34.375],[24.125,34.25],[24.0,34.25]]},
+  {id:'Ca76',c:[[24.0,34.375],[24.0,34.5],[24.125,34.5],[24.125,34.375],[24.0,34.375]]},
+  {id:'Ca77',c:[[24.0,34.5],[24.0,34.625],[24.125,34.625],[24.125,34.5],[24.0,34.5]]},
+  {id:'Ca78',c:[[24.0,34.625],[24.0,34.75],[24.125,34.75],[24.125,34.625],[24.0,34.625]]},
+  {id:'Ca79',c:[[24.0,34.75],[24.0,34.875],[24.125,34.875],[24.125,34.75],[24.0,34.75]]},
+  {id:'Ca80',c:[[24.0,34.875],[24.0,35.0],[24.125,35.0],[24.125,34.875],[24.0,34.875]]},
+  {id:'Cb71',c:[[24.125,33.75],[24.125,33.875],[24.25,33.875],[24.25,33.75],[24.125,33.75]]},
+  {id:'Cb72',c:[[24.125,33.875],[24.125,34.0],[24.25,34.0],[24.25,33.875],[24.125,33.875]]},
+  {id:'Cb73',c:[[24.125,34.0],[24.125,34.125],[24.25,34.125],[24.25,34.0],[24.125,34.0]]},
+  {id:'Cb74',c:[[24.125,34.125],[24.125,34.25],[24.25,34.25],[24.25,34.125],[24.125,34.125]]},
+  {id:'Cb75',c:[[24.125,34.25],[24.125,34.375],[24.25,34.375],[24.25,34.25],[24.125,34.25]]},
+  {id:'Cb76',c:[[24.125,34.375],[24.125,34.5],[24.25,34.5],[24.25,34.375],[24.125,34.375]]},
+  {id:'Cb77',c:[[24.125,34.5],[24.125,34.625],[24.25,34.625],[24.25,34.5],[24.125,34.5]]},
+  {id:'Cb78',c:[[24.125,34.625],[24.125,34.75],[24.25,34.75],[24.25,34.625],[24.125,34.625]]},
+  {id:'Cb79',c:[[24.125,34.75],[24.125,34.875],[24.25,34.875],[24.25,34.75],[24.125,34.75]]},
+  {id:'Cb80',c:[[24.125,34.875],[24.125,35.0],[24.25,35.0],[24.25,34.875],[24.125,34.875]]},
+  {id:'Cc71',c:[[24.25,33.75],[24.25,33.875],[24.375,33.875],[24.375,33.75],[24.25,33.75]]},
+  {id:'Cc72',c:[[24.25,33.875],[24.25,34.0],[24.375,34.0],[24.375,33.875],[24.25,33.875]]},
+  {id:'Cc73',c:[[24.25,34.0],[24.25,34.125],[24.375,34.125],[24.375,34.0],[24.25,34.0]]},
+  {id:'Cc74',c:[[24.25,34.125],[24.25,34.25],[24.375,34.25],[24.375,34.125],[24.25,34.125]]},
+  {id:'Cc75',c:[[24.25,34.25],[24.25,34.375],[24.375,34.375],[24.375,34.25],[24.25,34.25]]},
+  {id:'Cc76',c:[[24.25,34.375],[24.25,34.5],[24.375,34.5],[24.375,34.375],[24.25,34.375]]},
+  {id:'Cc77',c:[[24.25,34.5],[24.25,34.625],[24.375,34.625],[24.375,34.5],[24.25,34.5]]},
+  {id:'Cc78',c:[[24.25,34.625],[24.25,34.75],[24.375,34.75],[24.375,34.625],[24.25,34.625]]},
+  {id:'Cc79',c:[[24.25,34.75],[24.25,34.875],[24.375,34.875],[24.375,34.75],[24.25,34.75]]},
+  {id:'Cc80',c:[[24.25,34.875],[24.25,35.0],[24.375,35.0],[24.375,34.875],[24.25,34.875]]},
+  {id:'Cd70',c:[[24.375,33.625],[24.375,33.75],[24.5,33.75],[24.5,33.625],[24.375,33.625]]},
+  {id:'Cd71',c:[[24.375,33.75],[24.375,33.875],[24.5,33.875],[24.5,33.75],[24.375,33.75]]},
+  {id:'Cd72',c:[[24.375,33.875],[24.375,34.0],[24.5,34.0],[24.5,33.875],[24.375,33.875]]},
+  {id:'Cd73',c:[[24.375,34.0],[24.375,34.125],[24.5,34.125],[24.5,34.0],[24.375,34.0]]},
+  {id:'Cd74',c:[[24.375,34.125],[24.375,34.25],[24.5,34.25],[24.5,34.125],[24.375,34.125]]},
+  {id:'Cd75',c:[[24.375,34.25],[24.375,34.375],[24.5,34.375],[24.5,34.25],[24.375,34.25]]},
+  {id:'Cd76',c:[[24.375,34.375],[24.375,34.5],[24.5,34.5],[24.5,34.375],[24.375,34.375]]},
+  {id:'Cd77',c:[[24.375,34.5],[24.375,34.625],[24.5,34.625],[24.5,34.5],[24.375,34.5]]},
+  {id:'Cd78',c:[[24.375,34.625],[24.375,34.75],[24.5,34.75],[24.5,34.625],[24.375,34.625]]},
+  {id:'Cd79',c:[[24.375,34.75],[24.375,34.875],[24.5,34.875],[24.5,34.75],[24.375,34.75]]},
+  {id:'Cd80',c:[[24.375,34.875],[24.375,35.0],[24.5,35.0],[24.5,34.875],[24.375,34.875]]},
+  {id:'Ce70',c:[[24.5,33.625],[24.5,33.75],[24.625,33.75],[24.625,33.625],[24.5,33.625]]},
+  {id:'Ce71',c:[[24.5,33.75],[24.5,33.875],[24.625,33.875],[24.625,33.75],[24.5,33.75]]},
+  {id:'Ce72',c:[[24.5,33.875],[24.5,34.0],[24.625,34.0],[24.625,33.875],[24.5,33.875]]},
+  {id:'Ce73',c:[[24.5,34.0],[24.5,34.125],[24.625,34.125],[24.625,34.0],[24.5,34.0]]},
+  {id:'Ce75',c:[[24.5,34.25],[24.5,34.375],[24.625,34.375],[24.625,34.25],[24.5,34.25]]},
+  {id:'Ce76',c:[[24.5,34.375],[24.5,34.5],[24.625,34.5],[24.625,34.375],[24.5,34.375]]},
+  {id:'Ce77',c:[[24.5,34.5],[24.5,34.625],[24.625,34.625],[24.625,34.5],[24.5,34.5]]},
+  {id:'Ce78',c:[[24.5,34.625],[24.5,34.75],[24.625,34.75],[24.625,34.625],[24.5,34.625]]},
+  {id:'Ce79',c:[[24.5,34.75],[24.5,34.875],[24.625,34.875],[24.625,34.75],[24.5,34.75]]},
+  {id:'Ce80',c:[[24.5,34.875],[24.5,35.0],[24.625,35.0],[24.625,34.875],[24.5,34.875]]},
+  {id:'Cf70',c:[[24.625,33.625],[24.625,33.75],[24.75,33.75],[24.75,33.625],[24.625,33.625]]},
+  {id:'Cf71',c:[[24.625,33.75],[24.625,33.875],[24.75,33.875],[24.75,33.75],[24.625,33.75]]},
+  {id:'Cf72',c:[[24.625,33.875],[24.625,34.0],[24.75,34.0],[24.75,33.875],[24.625,33.875]]},
+  {id:'Cf75',c:[[24.625,34.25],[24.625,34.375],[24.75,34.375],[24.75,34.25],[24.625,34.25]]},
+  {id:'Cf76',c:[[24.625,34.375],[24.625,34.5],[24.75,34.5],[24.75,34.375],[24.625,34.375]]},
+  {id:'Cf77',c:[[24.625,34.5],[24.625,34.625],[24.75,34.625],[24.75,34.5],[24.625,34.5]]},
+  {id:'Cf78',c:[[24.625,34.625],[24.625,34.75],[24.75,34.75],[24.75,34.625],[24.625,34.625]]},
+  {id:'Cf79',c:[[24.625,34.75],[24.625,34.875],[24.75,34.875],[24.75,34.75],[24.625,34.75]]},
+  {id:'Cf80',c:[[24.625,34.875],[24.625,35.0],[24.75,35.0],[24.75,34.875],[24.625,34.875]]},
+  {id:'Cg70',c:[[24.75,33.625],[24.75,33.75],[24.875,33.75],[24.875,33.625],[24.75,33.625]]},
+  {id:'Cg71',c:[[24.75,33.75],[24.75,33.875],[24.875,33.875],[24.875,33.75],[24.75,33.75]]},
+  {id:'Cg72',c:[[24.75,33.875],[24.75,34.0],[24.875,34.0],[24.875,33.875],[24.75,33.875]]},
+  {id:'Cg73',c:[[24.75,34.0],[24.75,34.125],[24.875,34.125],[24.875,34.0],[24.75,34.0]]},
+  {id:'Cg74',c:[[24.75,34.125],[24.75,34.25],[24.875,34.25],[24.875,34.125],[24.75,34.125]]},
+  {id:'Cg75',c:[[24.75,34.25],[24.75,34.375],[24.875,34.375],[24.875,34.25],[24.75,34.25]]},
+  {id:'Ch70',c:[[24.875,33.625],[24.875,33.75],[25.0,33.75],[25.0,33.625],[24.875,33.625]]},
+  {id:'Ch71',c:[[24.875,33.75],[24.875,33.875],[25.0,33.875],[25.0,33.75],[24.875,33.75]]},
+  {id:'Ch72',c:[[24.875,33.875],[24.875,34.0],[25.0,34.0],[25.0,33.875],[24.875,33.875]]},
+  {id:'Ch73',c:[[24.875,34.0],[24.875,34.125],[25.0,34.125],[25.0,34.0],[24.875,34.0]]},
+  {id:'Ch74',c:[[24.875,34.125],[24.875,34.25],[25.0,34.25],[25.0,34.125],[24.875,34.125]]},
+  {id:'Ch75',c:[[24.875,34.25],[24.875,34.375],[25.0,34.375],[25.0,34.25],[24.875,34.25]]},
+  {id:'Da74',c:[[25.0,34.125],[25.0,34.25],[25.125,34.25],[25.125,34.125],[25.0,34.125]]},
+  {id:'Db74',c:[[25.125,34.125],[25.125,34.25],[25.25,34.25],[25.25,34.125],[25.125,34.125]]},
+  {id:'Db75',c:[[25.125,34.25],[25.125,34.375],[25.25,34.375],[25.25,34.25],[25.125,34.25]]},
+  {id:'Db76',c:[[25.125,34.375],[25.125,34.5],[25.25,34.5],[25.25,34.375],[25.125,34.375]]},
+  {id:'Db77',c:[[25.125,34.5],[25.125,34.625],[25.25,34.625],[25.25,34.5],[25.125,34.5]]},
+  {id:'Db78',c:[[25.125,34.625],[25.125,34.75],[25.25,34.75],[25.25,34.625],[25.125,34.625]]},
+  {id:'Dc69',c:[[25.25,33.5],[25.25,33.625],[25.375,33.625],[25.375,33.5],[25.25,33.5]]},
+  {id:'Dc71',c:[[25.25,33.75],[25.25,33.875],[25.375,33.8125],[25.25,33.75]]},
+  {id:'Dc75',c:[[25.25,34.25],[25.25,34.375],[25.375,34.375],[25.375,34.25],[25.25,34.25]]},
+  {id:'Dc76',c:[[25.25,34.375],[25.25,34.5],[25.375,34.5],[25.375,34.375],[25.25,34.375]]},
+  {id:'Dd69',c:[[25.375,33.5],[25.375,33.625],[25.5,33.625],[25.5,33.5],[25.375,33.5]]},
+  {id:'Dd75',c:[[25.375,34.25],[25.375,34.375],[25.5,34.375],[25.5,34.25],[25.375,34.25]]},
+  {id:'Dd76',c:[[25.375,34.375],[25.375,34.5],[25.5,34.5],[25.5,34.375],[25.375,34.375]]},
+  {id:'De69',c:[[25.5,33.5],[25.5,33.625],[25.625,33.625],[25.625,33.5],[25.5,33.5]]},
+  {id:'De74',c:[[25.5,34.125],[25.5,34.25],[25.625,34.25],[25.625,34.125],[25.5,34.125]]},
+  {id:'De75',c:[[25.5,34.25],[25.5,34.375],[25.625,34.375],[25.625,34.25],[25.5,34.25]]},
+  {id:'De76',c:[[25.5,34.375],[25.5,34.5],[25.625,34.5],[25.625,34.375],[25.5,34.375]]},
+  {id:'Df69',c:[[25.625,33.5],[25.625,33.625],[25.75,33.625],[25.75,33.5],[25.625,33.5]]},
+  {id:'Df70',c:[[25.625,33.625],[25.625,33.75],[25.75,33.75],[25.75,33.625],[25.625,33.625]]},
+  {id:'Df71',c:[[25.625,33.75],[25.625,33.875],[25.75,33.875],[25.75,33.75],[25.625,33.75]]},
+  {id:'Df72',c:[[25.625,33.875],[25.625,34.0],[25.75,34.0],[25.75,33.875],[25.625,33.875]]},
+  {id:'Df74',c:[[25.625,34.125],[25.625,34.25],[25.75,34.25],[25.75,34.125],[25.625,34.125]]},
+  {id:'Df75',c:[[25.625,34.25],[25.625,34.375],[25.75,34.375],[25.75,34.25],[25.625,34.25]]},
+  {id:'Df76',c:[[25.625,34.375],[25.625,34.5],[25.75,34.5],[25.75,34.375],[25.625,34.375]]},
+  {id:'Dg69',c:[[25.75,33.5],[25.75,33.625],[25.875,33.625],[25.875,33.5],[25.75,33.5]]},
+  {id:'Dh68',c:[[25.875,33.375],[25.875,33.5],[26.0,33.5],[26.0,33.375],[25.875,33.375]]},
+  {id:'Ea68',c:[[26.0,33.375],[26.0,33.5],[26.125,33.5],[26.125,33.375],[26.0,33.375]]},
+  {id:'Ea71',c:[[26.0,33.75],[26.0,33.875],[26.125,33.875],[26.125,33.75],[26.0,33.75]]},
+  {id:'Ea72',c:[[26.0,33.875],[26.0,34.0],[26.125,34.0],[26.125,33.875],[26.0,33.875]]},
+  {id:'Ea73',c:[[26.0,34.0],[26.0,34.125],[26.125,34.125],[26.125,34.0],[26.0,34.0]]},
+  {id:'Ea74',c:[[26.0,34.125],[26.0,34.2],[26.125,34.225],[26.125,34.125],[26.0,34.125]]},
+  {id:'Eb68',c:[[26.125,33.375],[26.125,33.5],[26.25,33.5],[26.25,33.375],[26.125,33.375]]},
+  {id:'Eb71',c:[[26.125,33.75],[26.125,33.875],[26.25,33.875],[26.25,33.75],[26.125,33.75]]},
+  {id:'Eb73',c:[[26.125,34.0],[26.125,34.175],[26.22,34.205],[26.25,34.125],[26.25,34.0],[26.125,34.0]]},
+  {id:'Ec68',c:[[26.25,33.375],[26.25,33.5],[26.375,33.5],[26.375,33.375],[26.25,33.375]]},
+  {id:'Ec69',c:[[26.25,33.5],[26.25,33.625],[26.375,33.625],[26.375,33.5],[26.25,33.5]]},
+  {id:'Ec70',c:[[26.25,33.625],[26.25,33.75],[26.375,33.75],[26.375,33.625],[26.25,33.625]]},
+  {id:'Ec71',c:[[26.25,33.75],[26.25,33.875],[26.375,33.875],[26.375,33.75],[26.25,33.75]]},
+  {id:'Ec72',c:[[26.25,33.875],[26.25,34.05],[26.335,34.09],[26.375,34.0],[26.375,33.875],[26.25,33.875]]},
+  {id:'Ed66',c:[[26.375,33.125],[26.375,33.25],[26.5,33.25],[26.5,33.125],[26.375,33.125]]},
+  {id:'Ed70',c:[[26.375,33.625],[26.375,33.75],[26.5,33.75],[26.5,33.625],[26.375,33.625]]},
+  {id:'Ed72',c:[[26.375,33.875],[26.375,34.05],[26.47,34.08],[26.5,34.0],[26.5,33.875],[26.375,33.875]]},
+  {id:'Ee68',c:[[26.5,33.375],[26.5,33.5],[26.625,33.5],[26.625,33.375],[26.5,33.375]]},
+  {id:'Ee69',c:[[26.5,33.5],[26.5,33.625],[26.625,33.625],[26.625,33.5],[26.5,33.5]]},
+  {id:'Ee70',c:[[26.5,33.625],[26.5,33.75],[26.5875,33.75],[26.5875,33.6875],[26.625,33.6875],[26.625,33.625],[26.5,33.625]]},
+  {id:'Ee71',c:[[26.575,33.75],[26.575,33.875],[26.625,33.875],[26.625,33.75],[26.575,33.75]]},
+  {id:'Ee72',c:[[26.5,33.875],[26.5,34.04],[26.605,34.06],[26.625,34.0],[26.625,33.875],[26.5,33.875]]},
+  {id:'Ef68',c:[[26.625,33.375],[26.625,33.5],[26.75,33.5],[26.75,33.375],[26.625,33.375]]},
+  {id:'Ef69',c:[[26.625,33.5],[26.625,33.625],[26.75,33.625],[26.75,33.5],[26.625,33.5]]},
+  {id:'Ef70',c:[[26.625,33.625],[26.625,33.75],[26.75,33.75],[26.75,33.625],[26.625,33.625]]},
+  {id:'Ef71',c:[[26.625,33.75],[26.625,33.875],[26.75,33.875],[26.75,33.75],[26.625,33.75]]},
+  {id:'Eg67',c:[[26.75,33.25],[26.75,33.375],[26.875,33.375],[26.875,33.25],[26.75,33.25]]},
+  {id:'Eg68',c:[[26.75,33.375],[26.75,33.5],[26.875,33.5],[26.875,33.375],[26.75,33.375]]},
+  {id:'Eg69',c:[[26.75,33.5],[26.75,33.625],[26.875,33.625],[26.875,33.5],[26.75,33.5]]},
+  {id:'Eg70',c:[[26.75,33.625],[26.75,33.75],[26.875,33.75],[26.875,33.625],[26.75,33.625]]},
+  {id:'Eg71',c:[[26.75,33.75],[26.75,33.875],[26.875,33.875],[26.875,33.75],[26.75,33.75]]},
+  {id:'Eh65',c:[[26.875,33.0],[26.875,33.125],[27.0,33.125],[27.0,33.0],[26.875,33.0]]},
+  {id:'Eh66',c:[[26.875,33.125],[26.875,33.25],[27.0,33.25],[27.0,33.125],[26.875,33.125]]},
+  {id:'Eh67',c:[[26.875,33.25],[26.875,33.375],[27.0,33.375],[27.0,33.25],[26.875,33.25]]},
+  {id:'Eh68',c:[[26.875,33.375],[26.875,33.5],[27.0,33.5],[27.0,33.375],[26.875,33.375]]},
+  {id:'Eh69',c:[[26.875,33.5],[26.875,33.625],[27.0,33.625],[27.0,33.5],[26.875,33.5]]},
+  {id:'Eh70',c:[[26.875,33.625],[26.875,33.75],[27.0,33.75],[27.0,33.625],[26.875,33.625]]},
+  {id:'Fa65',c:[[27.0,33.0],[27.0,33.125],[27.125,33.125],[27.125,33.0],[27.0,33.0]]},
+  {id:'Fa66',c:[[27.0,33.125],[27.0,33.25],[27.125,33.25],[27.125,33.125],[27.0,33.125]]},
+  {id:'Fa67',c:[[27.0,33.25],[27.0,33.375],[27.125,33.375],[27.125,33.25],[27.0,33.25]]},
+  {id:'Fa68',c:[[27.0,33.375],[27.0,33.5],[27.125,33.5],[27.125,33.375],[27.0,33.375]]},
+  {id:'Fa69',c:[[27.0,33.5],[27.0,33.625],[27.125,33.625],[27.125,33.5],[27.0,33.5]]},
+  {id:'Fa70',c:[[27.0,33.625],[27.0,33.75],[27.125,33.75],[27.125,33.625],[27.0,33.625]]},
+  {id:'Fb65',c:[[27.125,33.0],[27.125,33.125],[27.25,33.125],[27.25,33.0],[27.125,33.0]]},
+  {id:'Fb66',c:[[27.125,33.125],[27.125,33.25],[27.25,33.25],[27.25,33.125],[27.125,33.125]]},
+  {id:'Fb67',c:[[27.125,33.25],[27.125,33.375],[27.25,33.375],[27.25,33.25],[27.125,33.25]]},
+  {id:'Fb68',c:[[27.125,33.375],[27.125,33.5],[27.25,33.5],[27.25,33.375],[27.125,33.375]]},
+  {id:'Fb69',c:[[27.125,33.5],[27.125,33.625],[27.25,33.625],[27.25,33.5],[27.125,33.5]]},
+  {id:'Fc63',c:[[27.25,32.75],[27.25,32.875],[27.375,32.875],[27.375,32.75],[27.25,32.75]]},
+  {id:'Fc64',c:[[27.25,32.875],[27.25,33.0],[27.375,33.0],[27.375,32.875],[27.25,32.875]]},
+  {id:'Fc65',c:[[27.25,33.0],[27.25,33.125],[27.375,33.125],[27.375,33.0],[27.25,33.0]]},
+  {id:'Fc66',c:[[27.25,33.125],[27.25,33.25],[27.375,33.25],[27.375,33.125],[27.25,33.125]]},
+  {id:'Fc67',c:[[27.25,33.25],[27.25,33.375],[27.375,33.375],[27.375,33.25],[27.25,33.25]]},
+  {id:'Fc68',c:[[27.25,33.375],[27.25,33.5],[27.375,33.5],[27.375,33.375],[27.25,33.375]]},
+  {id:'Fd63',c:[[27.375,32.75],[27.375,32.875],[27.5,32.875],[27.5,32.75],[27.375,32.75]]},
+  {id:'Fd64',c:[[27.375,32.875],[27.375,33.0],[27.5,33.0],[27.5,32.875],[27.375,32.875]]},
+  {id:'Fd65',c:[[27.375,33.0],[27.375,33.125],[27.5,33.125],[27.5,33.0],[27.375,33.0]]},
+  {id:'Fd66',c:[[27.375,33.125],[27.375,33.25],[27.5,33.25],[27.5,33.125],[27.375,33.125]]},
+  {id:'Fd67',c:[[27.375,33.25],[27.375,33.375],[27.5,33.375],[27.5,33.25],[27.375,33.25]]},
+  {id:'Fd68',c:[[27.375,33.375],[27.375,33.5],[27.5,33.5],[27.5,33.375],[27.375,33.375]]},
+  {id:'Fe62',c:[[27.5,32.625],[27.5,32.75],[27.625,32.75],[27.625,32.625],[27.5,32.625]]},
+  {id:'Fe63',c:[[27.5,32.75],[27.5,32.875],[27.625,32.875],[27.625,32.75],[27.5,32.75]]},
+  {id:'Fe64',c:[[27.5,32.875],[27.5,33.0],[27.625,33.0],[27.625,32.875],[27.5,32.875]]},
+  {id:'Fe65',c:[[27.5,33.0],[27.5,33.125],[27.625,33.125],[27.625,33.0],[27.5,33.0]]},
+  {id:'Fe66',c:[[27.5,33.125],[27.5,33.25],[27.625,33.25],[27.625,33.125],[27.5,33.125]]},
+  {id:'Fe67',c:[[27.5,33.25],[27.5,33.375],[27.625,33.375],[27.625,33.25],[27.5,33.25]]},
+  {id:'Ff62',c:[[27.625,32.625],[27.625,32.75],[27.75,32.75],[27.75,32.625],[27.625,32.625]]},
+  {id:'Ff63',c:[[27.625,32.75],[27.625,32.875],[27.75,32.875],[27.75,32.75],[27.625,32.75]]},
+  {id:'Ff64',c:[[27.625,32.875],[27.625,33.0],[27.75,33.0],[27.75,32.875],[27.625,32.875]]},
+  {id:'Ff65',c:[[27.625,33.0],[27.625,33.125],[27.75,33.125],[27.75,33.0],[27.625,33.0]]},
+  {id:'Ff66',c:[[27.625,33.125],[27.625,33.25],[27.75,33.25],[27.75,33.125],[27.625,33.125]]},
+  {id:'Fg62',c:[[27.75,32.625],[27.75,32.75],[27.875,32.75],[27.875,32.625],[27.75,32.625]]},
+  {id:'Fg66',c:[[27.75,33.125],[27.75,33.25],[27.875,33.25],[27.875,33.125],[27.75,33.125]]},
+  {id:'Fh62',c:[[27.875,32.625],[27.875,32.75],[28.0,32.75],[28.0,32.625],[27.875,32.625]]},
+  {id:'Fh64',c:[[27.875,32.875],[27.875,33.0],[28.0,33.0],[28.0,32.875],[27.875,32.875]]},
+  {id:'Fh65',c:[[27.875,33.0],[27.875,33.125],[28.0,33.125],[28.0,33.0],[27.875,33.0]]},
+  {id:'Fh66',c:[[27.875,33.125],[27.875,33.25],[28.0,33.25],[28.0,33.125],[27.875,33.125]]}
+];
+
+const GOLD_STARS=[
+  [28.1,32.5],
+  [28.0,33.2],
+  [27.9,32.8],
+  [27.8,32.4],
+  [27.7,33.0],
+  [27.6,32.6],
+  [27.5,33.3],
+  [27.4,32.9],
+  [27.3,33.5],
+  [27.2,33.0],
+  [27.1,33.2],
+  [27.0,32.7],
+  [27.8,33.6],
+  [27.5,32.3],
+  [27.3,32.5],
+  [27.6,33.8],
+  [27.4,34.0],
+  [27.1,33.8],
+  [27.2,34.2],
+  [26.9,33.4],
+  [26.8,33.8],
+  [26.7,33.3],
+  [26.6,33.6],
+  [26.5,34.0],
+  [26.4,33.5],
+  [26.8,34.2],
+  [26.3,33.8],
+  [26.2,33.6],
+  [26.1,34.0],
+  [26.0,34.4],
+  [25.9,33.8],
+  [25.8,34.2],
+  [26.3,34.3],
+  [26.1,34.6],
+  [26.2,34.8],
+  [25.9,34.6],
+  [26.0,33.5],
+  [25.8,33.5],
+  [26.3,33.4],
+  [25.6,33.0],
+  [25.5,32.7],
+  [25.4,33.3],
+  [25.3,32.9],
+  [25.7,33.4],
+  [25.2,33.2],
+  [25.5,33.6],
+  [25.3,34.3],
+  [25.1,34.6],
+  [25.4,34.7],
+  [25.0,34.2],
+  [25.2,34.9],
+  [24.9,33.5],
+  [24.8,34.0],
+  [24.6,33.8],
+  [24.5,34.3],
+  [24.7,34.6],
+  [24.4,33.5],
+  [24.3,34.0],
+  [24.2,33.8],
+  [24.8,35.0],
+  [24.6,35.2],
+  [25.0,34.8],
+  [25.1,35.0],
+  [24.9,35.2],
+  [25.0,35.4],
+  [24.5,34.8],
+  [24.3,35.0],
+  [24.1,34.5],
+  [23.9,34.8],
+  [24.0,35.2],
+  [23.8,33.8],
+  [23.7,34.3],
+  [24.2,35.4],
+  [24.0,34.0],
+  [23.6,35.0],
+  [23.8,35.4],
+  [24.4,35.6],
+  [23.5,35.2],
+  [23.1,34.8],
+  [23.2,35.3],
+  [23.0,35.6],
+  [23.3,35.8],
+  [24.0,32.2],
+  [23.5,32.6],
+  [23.0,33.0],
+  [22.8,33.5],
+  [22.6,34.2],
+  [22.5,35.0],
+  [23.1,36.0],
+  [22.8,35.6],
+  [24.5,35.8],
+  [25.6,35.4],
+  [26.5,35.2],
+  [27.0,34.8]
+];
+
+const GOLD_ZONES=[
+  {p:'A',price:'4,000$',fill:'rgba(70,50,130,0.35)',stroke:'#4B3283',tc:'#2d1f6e',bounds:[[27.00,31.50],[28.25,34.50]]},
+  {p:'B',price:'3,500$',fill:'rgba(140,70,190,0.3)',stroke:'#8C46BE',tc:'#6b21a8',bounds:[[26.25,32.50],[27.00,34.50]]},
+  {p:'C',price:'5,000$',fill:'rgba(0,155,135,0.3)',stroke:'#009B87',tc:'#0f766e',bounds:[[25.50,33.00],[26.25,35.00]]},
+  {p:'D',price:'8,000$',fill:'rgba(145,105,45,0.35)',stroke:'#91692D',tc:'#78350f',bounds:[[25.00,32.50],[25.75,33.75]]},
+  {p:'E',price:'5,000$',fill:'rgba(105,65,175,0.3)',stroke:'#6941AF',tc:'#5b21b6',bounds:[[24.75,33.75],[25.50,35.00]]},
+  {p:'F',price:'5,500$',fill:'rgba(45,125,205,0.3)',stroke:'#2D7DCD',tc:'#1d4ed8',bounds:[[24.00,32.50],[25.25,35.50]]},
+  {p:'G',price:'6,000$',fill:'rgba(45,165,65,0.3)',stroke:'#2DA541',tc:'#15803d',bounds:[[24.75,34.50],[25.25,35.50]]},
+  {p:'H',price:'6,500$',fill:'rgba(205,65,105,0.3)',stroke:'#CD4169',tc:'#9f1239',bounds:[[23.25,32.75],[24.75,35.75]]},
+  {p:'I',price:'3,500$',fill:'rgba(0,145,125,0.3)',stroke:'#00917D',tc:'#0f766e',bounds:[[22.75,34.25],[23.25,36.00]]},
+];
+// Investment land plots (kaolin/gold prospecting parcels) - shown in green like EMRA's display
+const GOLD_PLOTS=[
+  {id:'kk1',c:[[24.117,32.8317],[24.117,32.8437],[24.125,32.8437],[24.125,32.8317],[24.117,32.8317]]},
+  {id:'kk2',c:[[24.1161,32.8143],[24.1161,32.8263],[24.1241,32.8263],[24.1241,32.8143],[24.1161,32.8143]]},
+  {id:'kk7',c:[[24.1065,32.8053],[24.1065,32.8173],[24.1145,32.8173],[24.1145,32.8053],[24.1065,32.8053]]},
+  {id:'kk6',c:[[24.1065,32.8119],[24.1065,32.8239],[24.1145,32.8239],[24.1145,32.8119],[24.1065,32.8119]]},
+  {id:'kk5',c:[[24.1074,32.8203],[24.1074,32.8323],[24.1154,32.8323],[24.1154,32.8203],[24.1074,32.8203]]},
+  {id:'kk4',c:[[24.1074,32.8314],[24.1074,32.8434],[24.1154,32.8434],[24.1154,32.8314],[24.1074,32.8314]]},
+  {id:'kk3',c:[[24.107,32.835],[24.107,32.847],[24.115,32.847],[24.115,32.835],[24.107,32.835]]},
+  {id:'k11',c:[[24.0885,32.8275],[24.0885,32.8395],[24.0965,32.8395],[24.0965,32.8275],[24.0885,32.8275]]},
+  {id:'kk10',c:[[24.0945,32.834],[24.0945,32.846],[24.1025,32.846],[24.1025,32.834],[24.0945,32.834]]},
+  {id:'kk9',c:[[24.0885,32.8413],[24.0885,32.8533],[24.0965,32.8533],[24.0965,32.8413],[24.0885,32.8413]]},
+  {id:'kk14',c:[[24.0789,32.8275],[24.0789,32.8395],[24.0869,32.8395],[24.0869,32.8275],[24.0789,32.8275]]},
+  {id:'kk13',c:[[24.0789,32.834],[24.0789,32.846],[24.0869,32.846],[24.0869,32.834],[24.0789,32.834]]},
+  {id:'kk12',c:[[24.0789,32.8398],[24.0789,32.8518],[24.0869,32.8518],[24.0869,32.8398],[24.0789,32.8398]]},
+  {id:'kk8',c:[[24.0885,32.8587],[24.0885,32.8707],[24.0965,32.8707],[24.0965,32.8587],[24.0885,32.8587]]},
+  {id:'kk15',c:[[24.033,32.8683],[24.033,32.8803],[24.041,32.8803],[24.041,32.8683],[24.033,32.8683]]},
+  {id:'kk16',c:[[24.021,32.8683],[24.021,32.8803],[24.029,32.8803],[24.029,32.8683],[24.021,32.8683]]},
+  {id:'ks1',c:[[29.02845,33.36848],[29.02845,33.38048],[29.03645,33.38048],[29.03645,33.36848],[29.02845,33.36848]]},
+  {id:'ks2',c:[[29.021,33.379],[29.021,33.391],[29.029,33.391],[29.029,33.379],[29.021,33.379]]},
+  {id:'ks3',c:[[28.986,33.379],[28.986,33.391],[28.994,33.391],[28.994,33.379],[28.986,33.379]]},
+  {id:'ks4',c:[[28.94308,33.54534],[28.94308,33.55734],[28.95108,33.55734],[28.95108,33.54534],[28.94308,33.54534]]},
+  {id:'ks5',c:[[28.941,33.559],[28.941,33.571],[28.949,33.571],[28.949,33.559],[28.941,33.559]]},
+  {id:'ks6',c:[[28.89854,33.35808],[28.89854,33.37008],[28.90654,33.37008],[28.90654,33.35808],[28.89854,33.35808]]},
+  {id:'ks7',c:[[28.896,33.372],[28.896,33.384],[28.904,33.384],[28.904,33.372],[28.896,33.372]]},
+  {id:'ks8',c:[[28.8837,33.62856],[28.8837,33.64056],[28.8917,33.64056],[28.8917,33.62856],[28.8837,33.62856]]},
+  {id:'ks9',c:[[28.876,33.654],[28.876,33.666],[28.884,33.666],[28.884,33.654],[28.876,33.654]]},
+  {id:'ks10',c:[[28.83173,33.69723],[28.83173,33.70923],[28.83973,33.70923],[28.83973,33.69723],[28.83173,33.69723]]},
+  {id:'ks11',c:[[28.821,33.719],[28.821,33.731],[28.829,33.731],[28.829,33.719],[28.821,33.719]]}
+];
+const MC={magnetite:'#059669',hematite:'#dc2626',limonite:'#d97706'};
+const MATNAMES={
+  ar:{magnetite:'ماجنتيت',hematite:'هيماتيت',limonite:'ليمونيت'},
+  en:{magnetite:'Magnetite',hematite:'Hematite',limonite:'Limonite'}
+};
+const GC={A:{bg:'#ede9fe',tc:'#3b2080',sc:'#6450a0'},B:{bg:'#f5f3ff',tc:'#7c3aed',sc:'#9650c8'},C:{bg:'#ccfbf1',tc:'#0f766e',sc:'#00a08c'},D:{bg:'#fef3c7',tc:'#92400e',sc:'#966e32'},E:{bg:'#ede9fe',tc:'#6d28d9',sc:'#6e46b4'},F:{bg:'#dbeafe',tc:'#1e40af',sc:'#3282d2'},G:{bg:'#dcfce7',tc:'#166534',sc:'#32aa46'},H:{bg:'#ffe4e6',tc:'#9f1239',sc:'#d2466e'},I:{bg:'#ccfbf1',tc:'#115e59',sc:'#009682'}};
+const PRICES={A:'4,000$',B:'3,500$',C:'5,000$',D:'8,000$',E:'5,000$',F:'5,500$',G:'6,000$',H:'6,500$',I:'3,500$'};
+
+// Map
+const map=L.map('map',{center:[26.0,33.5],zoom:7,maxZoom:19});
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'Esri, Maxar, Earthstar Geographics',maxZoom:19,maxNativeZoom:19}).addTo(map);
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,maxNativeZoom:19,opacity:0.9}).addTo(map);
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,maxNativeZoom:13,opacity:0.9}).addTo(map);
+
+// Layers
+let blkL=null,goldL=null;
+const on={blocks:false,gold:false};
+
+// ── EMRA Blocks: render from real extracted coordinates ─────────────
+function makeBlocks() {
+  const g = L.layerGroup();
+  EMRA_BLOCKS.forEach(b=>{
+    const latlngs = b.c.map(p=>[p[0],p[1]]);
+    L.polygon(latlngs,{
+      color:'#2563eb',weight:0.8,opacity:0.9,fillColor:'#93c5fd',fillOpacity:0.18
+    }).bindPopup(
+      '<div style="direction:rtl"><b style="color:#1d4ed8;font-size:14px">'+b.id+'</b><br>'+
+      '<span style="font-size:11px;color:#666">Open Block — EMRA Official</span></div>',
+      {maxWidth:200}
+    ).addTo(g);
+    const lats=latlngs.map(p=>p[0]),lngs=latlngs.map(p=>p[1]);
+    const clat=(Math.min(...lats)+Math.max(...lats))/2;
+    const clng=(Math.min(...lngs)+Math.max(...lngs))/2;
+    L.marker([clat,clng],{
+      icon:L.divIcon({
+        html:'<span style="font-size:9px;font-weight:800;color:#1e3a8a;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;pointer-events:none">'+b.id+'</span>',
+        className:'',iconAnchor:[20,6]
+      }),interactive:false,zIndexOffset:200
+    }).addTo(g);
+  });
+  return g;
+}
+
+function pointInBounds(lat,lng,bounds){
+  return lat>=bounds[0][0] && lat<=bounds[1][0] && lng>=bounds[0][1] && lng<=bounds[1][1];
+}
+function blockCentroid(c){
+  const lats=c.map(p=>p[0]),lngs=c.map(p=>p[1]);
+  return [(Math.min(...lats)+Math.max(...lats))/2,(Math.min(...lngs)+Math.max(...lngs))/2];
+}
+function makeGold(){
+  const g=L.layerGroup();
+  // Render each EMRA block as an individual land-plot, shaded/labeled by its gold package
+  EMRA_BLOCKS.forEach(b=>{
+    const [clat,clng]=blockCentroid(b.c);
+    const zone = GOLD_ZONES.find(z=>pointInBounds(clat,clng,z.bounds));
+    if(!zone) return;
+    const latlngs=b.c.map(p=>[p[0],p[1]]);
+    L.polygon(latlngs,{
+      color:zone.stroke,weight:1.2,opacity:0.9,fillColor:zone.fill.replace(/,[\d.]+\)$/,',0.45)'),fillOpacity:1
+    }).bindPopup(
+      '<div style="direction:rtl;min-width:160px">'+
+      '<div style="font-size:14px;font-weight:800;color:'+zone.tc+';margin-bottom:4px">'+b.id+'</div>'+
+      '<div class="prow"><span class="pkey">Package</span><span class="pval" style="color:'+zone.tc+'">'+zone.p+'</span></div>'+
+      '<div class="prow"><span class="pkey">السعر</span><span class="pval" style="color:'+zone.tc+'">'+zone.price+'</span></div>'+
+      '</div>'
+    ).addTo(g);
+    // Plot letter/code label
+    L.marker([clat,clng],{
+      icon:L.divIcon({
+        html:'<div style="font-size:10px;font-weight:800;color:'+zone.tc+';white-space:nowrap;background:rgba(255,255,255,.85);padding:1px 4px;border-radius:3px;border:1px solid '+zone.stroke+';pointer-events:none">'+b.id+'</div>',
+        className:'',iconAnchor:[18,8]
+      }),interactive:false,zIndexOffset:300
+    }).addTo(g);
+  });
+  // Package zone outline + big letter marker (kept for overview/navigation)
+  GOLD_ZONES.forEach(z=>{
+    L.rectangle(z.bounds,{color:z.stroke,weight:2,opacity:0.8,fill:false,dashArray:'6,4'}).addTo(g);
+    const cl=(z.bounds[0][0]+z.bounds[1][0])/2,cn=(z.bounds[0][1]+z.bounds[1][1])/2;
+    L.marker([cl,cn],{icon:L.divIcon({html:'<div style="width:38px;height:38px;background:white;border:3px solid '+z.stroke+';border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;color:'+z.tc+';box-shadow:0 2px 10px rgba(0,0,0,0.35);font-family:Arial">'+z.p+'</div>',className:'',iconAnchor:[19,19]}),zIndexOffset:600}
+    ).bindPopup('<div style="direction:rtl;min-width:180px"><div style="font-size:16px;font-weight:800;color:'+z.tc+';margin-bottom:6px">Package '+z.p+'</div><div class="prow"><span class="pkey">السعر</span><span class="pval" style="color:'+z.tc+'">'+z.price+'</span></div></div>').addTo(g);
+  });
+  // Gold occurrence stars
+  const sv='<svg width="16" height="16" viewBox="0 0 24 24"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" fill="#FFD700" stroke="#B8860B" stroke-width="1.8"/></svg>';
+  GOLD_STARS.forEach(([la,ln])=>{L.marker([la,ln],{icon:L.divIcon({html:sv,className:'',iconAnchor:[8,8]}),interactive:false,zIndexOffset:500}).addTo(g);});
+  // Investment land plots (kk/ks parcels) - green outlined per EMRA style
+  GOLD_PLOTS.forEach(p=>{
+    const latlngs=p.c.map(pt=>[pt[0],pt[1]]);
+    L.polygon(latlngs,{color:'#22c55e',weight:1.5,opacity:0.95,fillColor:'#86efac',fillOpacity:0.25}).bindPopup(
+      '<div style="direction:rtl"><b style="color:#15803d;font-size:14px">'+p.id+'</b><br>'+
+      '<span style="font-size:11px;color:#666">قطعة أرض استثمارية</span></div>',{maxWidth:200}
+    ).addTo(g);
+    const [clat,clng]=blockCentroid(p.c);
+    L.marker([clat,clng],{
+      icon:L.divIcon({
+        html:'<span style="font-size:10px;font-weight:800;color:#15803d;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;pointer-events:none">'+p.id+'</span>',
+        className:'',iconAnchor:[14,6]
+      }),interactive:false,zIndexOffset:300
+    }).addTo(g);
+  });
+  return g;
+}
+
+function toggleLayer(name){
+  on[name]=!on[name];
+  document.getElementById('btn-'+name).classList.toggle('on',on[name]);
+  document.getElementById('leg-'+name).style.display=on[name]?'block':'none';
+  if(name==='blocks'){
+    if(on.blocks){if(!blkL)blkL=makeBlocks();blkL.addTo(map);}
+    else{if(blkL){map.removeLayer(blkL);blkL=null;}}
+  }
+  if(name==='gold'){
+    if(on.gold){if(!goldL)goldL=makeGold();goldL.addTo(map);}
+    else{if(goldL){map.removeLayer(goldL);goldL=null;}}
+  }
+}
+
+function mkIcon(m){const c=MC[m.mat]||'#888',bd=m.status==='registered'?'#16a34a':'#dc2626',lbl=m.code.length>4?m.code.slice(0,4):m.code;return L.divIcon({html:'<svg xmlns="http://www.w3.org/2000/svg" width="46" height="56"><circle cx="23" cy="22" r="20" fill="'+c+'" stroke="'+bd+'" stroke-width="3"/><text x="23" y="27" text-anchor="middle" fill="white" font-size="10" font-weight="800" font-family="Arial">'+lbl+'</text><polygon points="23,47 16,34 30,34" fill="'+c+'"/></svg>',className:'',iconSize:[46,56],iconAnchor:[23,52],popupAnchor:[0,-52]});}
+function pH(m){
+  const c=MC[m.mat]||'#888',gc=GC[m.gp],gb=m.gp!=='—'?'<span class="pblk" style="background:'+gc.bg+';color:'+gc.tc+';border-color:'+gc.sc+'">Pkg '+m.gp+' · '+PRICES[m.gp]+'</span>':'';
+  const gov = LANG==='en' ? (m.govEn||m.gov) : m.gov;
+  const region = LANG==='en' ? (m.regionEn||m.region) : m.region;
+  const block = LANG==='en' ? (m.blockEn||m.block) : m.block;
+  const mat = MATNAMES[LANG][m.mat] || m.mat;
+  const statusTxt = m.status==='registered' ? t('statusRegistered') : t('statusNotRegistered');
+  return '<div style="direction:'+(LANG==='ar'?'rtl':'ltr')+'"><div class="ptitle" style="color:'+c+'">⛏️ '+m.name+'</div>'+
+    '<div class="prow"><span class="pkey">'+t('popupCode')+'</span><span class="pval">'+m.code+'</span></div>'+
+    '<div class="prow"><span class="pkey">'+t('popupLocation')+'</span><span class="pval">'+gov+' · '+region+'</span></div>'+
+    '<div class="prow"><span class="pkey">'+t('popupMaterial')+'</span><span class="pval" style="color:'+c+'">'+mat+'</span></div>'+
+    '<div class="prow"><span class="pkey">'+t('popupStatus')+'</span><span class="pval">'+statusTxt+'</span></div>'+
+    '<div class="prow"><span class="pkey">'+t('popupQty')+'</span><span class="pval">'+m.qty.toLocaleString()+'</span></div>'+
+    '<div class="prow"><span class="pkey">Fe</span><span class="pval">'+Math.round(m.fe*100)+'%</span></div>'+
+    '<div class="prow"><span class="pkey">'+t('popupOwner')+'</span><span class="pval">'+m.owner+'</span></div>'+
+    '<div class="pbadges"><span class="pblk">'+block+'</span>'+gb+'</div></div>';
+}
+
+let markers=[],filtered=[...mines],selIdx=null;
+function drawMarkers(){markers.forEach(mk=>map.removeLayer(mk));markers=[];filtered.forEach(m=>{const mk=L.marker([m.lat,m.lng],{icon:mkIcon(m)}).addTo(map);mk.bindPopup(pH(m),{maxWidth:300});mk.on('click',()=>{selIdx=mines.indexOf(m);renderCards();});markers.push(mk);});}
+function renderStats(){
+  const tot=filtered.length,r=filtered.filter(m=>m.status==='registered').length,q=filtered.reduce((s,m)=>s+(m.qty||0),0),gvs=new Set(filtered.map(m=>m.gov)).size;
+  const fmt=n=>n>=1000?(n/1000).toFixed(0)+'K':n;
+  const el=document.getElementById('stats-inline');
+  if(!el) return;
+  el.innerHTML=`
+    <div style="background:#fff;border-radius:10px;padding:8px 14px;border-top:3px solid #2980B9;box-shadow:0 2px 8px rgba(0,0,0,.06);min-width:80px;text-align:center;transition:all .2s">
+      <div style="font-size:9px;font-weight:600;color:#8892a4;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Mines</div>
+      <div style="font-size:20px;font-weight:800;color:#2980B9;line-height:1">${tot}</div>
+    </div>
+    <div style="background:#fff;border-radius:10px;padding:8px 14px;border-top:3px solid #059669;box-shadow:0 2px 8px rgba(0,0,0,.06);min-width:80px;text-align:center;transition:all .2s">
+      <div style="font-size:9px;font-weight:600;color:#8892a4;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Registered</div>
+      <div style="font-size:20px;font-weight:800;color:#059669;line-height:1">${r}</div>
+    </div>
+    <div style="background:#fff;border-radius:10px;padding:8px 14px;border-top:3px solid #8E44AD;box-shadow:0 2px 8px rgba(0,0,0,.06);min-width:80px;text-align:center;transition:all .2s">
+      <div style="font-size:9px;font-weight:600;color:#8892a4;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Governorates</div>
+      <div style="font-size:20px;font-weight:800;color:#8E44AD;line-height:1">${gvs}</div>
+    </div>
+    <div style="background:#fff;border-radius:10px;padding:8px 14px;border-top:3px solid #FF6B35;box-shadow:0 2px 8px rgba(0,0,0,.06);min-width:80px;text-align:center;transition:all .2s">
+      <div style="font-size:9px;font-weight:600;color:#8892a4;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Ton/Month</div>
+      <div style="font-size:20px;font-weight:800;color:#FF6B35;line-height:1">${fmt(q)}</div>
+    </div>
+  `;
+}
+
+function clearMinesFilters(){
+  document.getElementById('fmat').value='';
+  document.getElementById('fstatus').value='';
+  document.getElementById('fgov').value='';
+  document.getElementById('fgold').value='';
+  applyFilters();
+}
+function renderCards(){
+  document.getElementById('mlist').innerHTML=filtered.map(m=>{
+    const idx=mines.indexOf(m),c=MC[m.mat]||'#888',gc=GC[m.gp];
+    const gb=m.gp!=='—'?'<span class="gbadge" style="background:'+gc.bg+';color:'+gc.tc+';border-color:'+gc.sc+'">'+m.gp+' · '+PRICES[m.gp]+'</span>':'';
+    const gov = LANG==='en' ? (m.govEn||m.gov) : m.gov;
+    const region = LANG==='en' ? (m.regionEn||m.region) : m.region;
+    const block = LANG==='en' ? (m.blockEn||m.block) : m.block;
+    const mat = MATNAMES[LANG][m.mat] || m.mat;
+    const statusBadge = m.status==='registered' ? t('badgeRegistered') : t('badgeNotRegistered');
+    const contractTxt = (I18N[LANG].contracts && I18N[LANG].contracts[m.contract]) || m.contract;
+    return '<div class="mcard'+(selIdx===idx?' active':'')+'" onclick="selMine('+idx+')">'+
+      '<div class="chead"><div class="avatar" style="background:'+c+'">'+m.code.slice(0,3)+'</div>'+
+      '<div><div class="cname">'+m.name+'</div><div class="csub">'+gov+' · '+region+'</div></div>'+
+      '<div class="cbadges"><span class="blkbadge">'+block+'</span>'+gb+'</div></div>'+
+      '<div class="cgrid">'+
+      '<div class="crow"><div class="key">'+t('cardMaterial')+'</div><div class="val" style="color:'+c+'">'+mat+'</div></div>'+
+      '<div class="crow"><div class="key">'+t('cardStatus')+'</div><div class="val"><span class="'+(m.status==='registered'?'breg':'bunreg')+'">'+statusBadge+'</span></div></div>'+
+      '<div class="crow"><div class="key">'+t('cardQty')+'</div><div class="val">'+m.qty.toLocaleString()+'</div></div>'+
+      '<div class="crow"><div class="key">Fe</div><div class="val">'+Math.round(m.fe*100)+'%</div></div>'+
+      '<div class="crow"><div class="key">'+t('cardOwner')+'</div><div class="val">'+m.owner+'</div></div>'+
+      '<div class="crow"><div class="key">'+t('cardContract')+'</div><div class="val">'+contractTxt+'</div></div>'+
+      '</div></div>';
+  }).join('');
+}
+function selMine(idx){selIdx=selIdx===idx?null:idx;renderCards();if(selIdx!==null){const m=mines[idx];map.setView([m.lat,m.lng],14,{animate:true});const fi=filtered.indexOf(m);if(fi>=0&&markers[fi])markers[fi].openPopup();}}
+function applyFilters(){const mat=document.getElementById('fmat').value,st=document.getElementById('fstatus').value,gov=document.getElementById('fgov').value,gld=document.getElementById('fgold').value;filtered=mines.filter(m=>(!mat||m.mat===mat)&&(!st||m.status===st)&&(!gov||m.gov===gov)&&(!gld||m.gp===gld));selIdx=null;renderStats();renderCards();drawMarkers();}
+function populateGovDropdown(){
+  const gs=document.getElementById('fgov');
+  const cur=gs.value;
+  // remove all but first option
+  while(gs.options.length>1) gs.remove(1);
+  const seen=new Set();
+  mines.forEach(m=>{
+    if(seen.has(m.gov)) return;
+    seen.add(m.gov);
+    const o=document.createElement('option');
+    o.value=m.gov; // value stays Arabic (used for filtering)
+    o.textContent = LANG==='en' ? (m.govEn||m.gov) : m.gov;
+    gs.appendChild(o);
+  });
+  gs.value=cur;
+}
+populateGovDropdown();
+renderStats();renderCards();drawMarkers();
+
+// Set map height: 45% of viewport minus fixed bars
+function setMapHeight(){
+  const fb = document.querySelector('.mines-fb');
+  const fbH = fb ? fb.offsetHeight : 38;
+  const mapH = Math.round(window.innerHeight * 0.75);
+  document.querySelector('.mapwrap').style.height = mapH + 'px';
+  map.invalidateSize();
+}
+window.addEventListener('resize', setMapHeight);
+setTimeout(setMapHeight, 100);
+
+// ================================================================
+// GOOGLE SHEETS LIVE CONNECTION (via Apps Script Web App — JSON)
+// نفس رابط الـ API المستخدم في AIT_Dashboard_Full.html
+// ================================================================
+const API_URL = 'https://script.google.com/macros/s/AKfycbxnABkMdBVa15wYgK91fieLUAFIpt8D0R3a9yVPSFnaAVr5ln-bCA4FgTOA4TT0BvrdXA/exec';
+
+// normalize free-text values from the sheet to the codes the map expects
+function normMat(v){
+  v=(v||'').toString().trim().toLowerCase();
+  if(v.includes('magnet')||v.includes('ماجنيتايت')||v.includes('مجنتيت'))return 'magnetite';
+  if(v.includes('hemat')||v.includes('هيماتيت'))return 'hematite';
+  if(v.includes('limon')||v.includes('ليمونيت'))return 'limonite';
+  return v||'magnetite';
+}
+function normStatus(v){
+  v=(v||'').toString().trim().toLowerCase();
+  if(v.includes('not')||v.includes('غير')||v.includes('unregis'))return 'not_registered';
+  if(v.includes('regist')||v.includes('مسجل'))return 'registered';
+  return v||'not_registered';
+}
+function normContract(v){
+  v=(v||'').toString().trim().toLowerCase();
+  if(v.includes('equip')||v.includes('بمعدات'))return 'partnership_with_equipment';
+  if(v.includes('partner')||v.includes('شراك'))return 'partnership';
+  if(v.includes('own')||v.includes('ملك'))return 'ownership';
+  if(v.includes('trade')||v.includes('تجار'))return 'trade';
+  return v||'ownership';
+}
+function normGp(v){
+  v=(v||'').toString().trim().toUpperCase();
+  return /^[A-I]$/.test(v) ? v : '—';
+}
+
+async function loadMinesFromSheet(){
+  if (!API_URL || API_URL.indexOf('PASTE_') === 0) {
+    console.warn('API_URL not configured — using built-in sample mines');
+    return;
+  }
+  try{
+    const res = await fetch(API_URL);
+    const data = await res.json();
+    const rows = Array.isArray(data.mines) ? data.mines : [];
+    if(rows.length===0) return; // no fact_mines data — keep built-in sample mines
+
+    const fresh = rows.map(r=>{
+      let fe = parseFloat(r.Avg_Fe)||0;
+      if(fe>1) fe = fe/100; // convert percentage (e.g. 50) to fraction (0.50)
+      const blockId = r['Blocks ID'] || r['Gohd Blocks'] || '—';
+      return {
+        name: r.Mine_Name || '—',
+        lng: parseFloat(r.Longitude)||0,
+        lat: parseFloat(r.Latitude)||0,
+        code: r.code || '—',
+        gov: r.Governorate || '—',
+        govEn: r.Governorate || '—',
+        region: r.Region || '—',
+        regionEn: r.Region || '—',
+        mat: normMat(r.Material_Type),
+        status: normStatus(r.Registration_Status),
+        contract: normContract(r.Contract_Type),
+        qty: parseFloat(r.Material_Qty_Ton_Per_Month)||0,
+        fe: fe,
+        owner: r.Owner_Name || '—',
+        phone: r.Owner_Phone || r.Contact_Phone || '—',
+        block: blockId,
+        blockEn: blockId,
+        gp: normGp(r.gp)
+      };
+    }).filter(m=>m.lat && m.lng); // skip rows without coordinates
+
+    if(fresh.length===0) return;
+    mines.length=0;
+    fresh.forEach(m=>mines.push(m));
+    filtered=mines.slice();
+    populateGovDropdown();
+    renderStats();renderCards();drawMarkers();
+  }catch(e){
+    console.error('Mines API fetch error:',e);
+  }
+}
+loadMinesFromSheet();
+setInterval(loadMinesFromSheet, 60000);
+
+</script>
+</body>
+</html>
