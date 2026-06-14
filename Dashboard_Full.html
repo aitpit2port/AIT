@@ -1,0 +1,1694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AIT Dashboard</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iMzIiIGZpbGw9IiNGRjZCMzUiLz4KICA8dGV4dCB4PSIzMiIgeT0iNDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCxzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iNzAwIiBmb250LXNpemU9IjIyIiBmaWxsPSJ3aGl0ZSIgbGV0dGVyLXNwYWNpbmc9IjEiPkFJVDwvdGV4dD4KPC9zdmc+">
+<!-- ============================================================
+  OG / Social sharing preview tags.
+  IMPORTANT: og:image, og:url MUST be replaced with real https:// links
+  after you host this file (data: URIs are NOT supported by
+  WhatsApp/Facebook/LinkedIn link-preview crawlers).
+  Replace YOUR-DOMAIN below with your hosting URL once available.
+============================================================ -->
+<meta property="og:title" content="AIT Projects Portfolio Dashboard">
+<meta property="og:description" content="Mining Operations Management — Budget, Expenses, Equipment, Production, Mines Map & Risk Tracking">
+<meta property="og:image" content="https://mmagdy-1986.github.io/AIT/ait_pit2port_banner.jpeg">
+<meta property="og:url" content="https://mmagdy-1986.github.io/AIT/Dashboard_Full.html">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AIT Projects Portfolio Dashboard">
+<meta name="twitter:description" content="Mining Operations Management — Budget, Expenses, Equipment, Production, Mines Map & Risk Tracking">
+<meta name="twitter:image" content="https://mmagdy-1986.github.io/AIT/ait_pit2port_banner.jpeg">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --navy:#1A2332;--navy2:#243347;--navy3:#2D3F55;
+  --org:#FF6B35;--orgd:#E55A25;--orgg:rgba(255,107,53,.14);
+  --wht:#FFFFFF;--off:#F7F8FC;--g100:#EEF1F6;--g200:#D8DDE8;--g400:#8C9BAB;--g600:#5A6B7A;
+  --grn:#1E8449;--grnl:#27AE60;--red:#C0392B;--redl:#E74C3C;
+  --blu:#1A5276;--blul:#2980B9;--yel:#F39C12;--pur:#6C3483;--tea:#117A65;
+  --sw:220px;--hh:62px;--r:12px;--rs:8px;
+  --sh:0 2px 12px rgba(26,35,50,.09);--shl:0 8px 32px rgba(26,35,50,.16);
+  --tr:.2s cubic-bezier(.4,0,.2,1);
+  /* Dark mode tokens (light defaults) */
+  --bg:var(--off);--card-bg:#fff;--card-border:var(--g100);
+  --txt:var(--navy);--txt2:var(--g600);--tb-bg:#fff;--fb-bg:#fff;
+}
+[data-theme="dark"]{
+  --bg:#0f1419;--card-bg:#1a2230;--card-border:#2a3548;
+  --txt:#e8ecf2;--txt2:#7d8aa0;--tb-bg:#111827;--fb-bg:#111827;
+  --off:#0f1419;--g100:#1e2a3a;--g200:#2a3548;--g400:#5a6b7a;--g600:#7d8aa0;
+  --navy:#0a1020;--navy2:#111827;--navy3:#1a2535;
+  --wht:#1a2230;--sh:0 2px 12px rgba(0,0,0,.4);--shl:0 8px 32px rgba(0,0,0,.5);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:13.5px}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);display:flex;min-height:100vh;overflow-x:hidden;transition:background .3s,color .3s}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--g200);border-radius:99px}
+
+/* ── SIDEBAR ── */
+.sb{width:var(--sw);background:var(--navy);min-height:100vh;position:fixed;left:0;top:0;z-index:100;display:flex;flex-direction:column}
+.sb-logo{padding:18px 16px 0;display:flex;align-items:center;gap:10px}
+.sb-ball{width:40px;height:40px;background:var(--org);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:14px;flex-shrink:0}
+.sb-txt{color:#fff;font-size:14px;font-weight:600;line-height:1.25}
+.sb-txt small{display:block;font-size:10px;font-weight:400;color:var(--g400);letter-spacing:.4px}
+.sb-nav{padding:22px 0 0;flex:1}
+.ni{display:flex;align-items:center;gap:9px;padding:9px 16px;color:var(--g400);cursor:pointer;transition:var(--tr);font-size:12px;font-weight:500;border-left:3px solid transparent;user-select:none}
+.ni:hover{color:#fff;background:var(--navy2)}
+.ni.active{color:#fff;background:var(--orgg);border-left-color:var(--org)}
+.ni .nn{width:19px;height:19px;background:var(--navy3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--g400);flex-shrink:0}
+.ni.active .nn{background:var(--org);color:#fff}
+.sb-foot{padding:14px 16px;border-top:1px solid var(--navy3)}
+.sb-fbtn{display:flex;align-items:center;gap:7px;color:var(--g400);font-size:11px;cursor:pointer;padding:6px 8px;border-radius:6px;transition:var(--tr)}
+.sb-fbt:hover{background:var(--navy2);color:#fff}
+
+/* ── MAIN ── */
+.main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-height:100vh}
+
+/* ── TOPBAR ── */
+.tb{height:var(--hh);background:var(--tb-bg);border-bottom:1px solid var(--card-border);display:flex;align-items:center;padding:0 22px;gap:14px;position:sticky;top:0;z-index:90;box-shadow:0 1px 5px rgba(26,35,50,.06);transition:background .3s}
+.tb-ttl{flex:1}
+.tb-ttl h1{font-size:16px;font-weight:700;color:var(--txt)}
+.tb-ttl p{font-size:11px;color:var(--txt2);margin-top:1px}
+.tb-acts{display:flex;align-items:center;gap:9px}
+.tb-sel{display:flex;align-items:center;gap:5px;background:var(--bg);border:1px solid var(--g200);border-radius:6px;padding:5px 9px;font-size:11.5px;color:var(--txt);cursor:pointer;transition:var(--tr)}
+.tb-sel:hover{border-color:var(--org)}
+.tb-sel select{background:var(--bg);border:none;outline:none;font-family:inherit;font-size:11.5px;color:var(--txt);cursor:pointer}
+.btn-ref{display:flex;align-items:center;gap:5px;background:var(--org);color:#fff;border:none;border-radius:6px;padding:7px 13px;font-size:11.5px;font-weight:600;cursor:pointer;transition:var(--tr);font-family:inherit}
+.btn-ref:hover{background:var(--orgd);transform:scale(1.02)}
+.btn-ref.sp svg{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── FILTER BAR ── */
+.fb{background:var(--fb-bg);border-bottom:1px solid var(--card-border);padding:9px 22px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;transition:background .3s}
+.fl{font-size:10px;color:var(--txt2);font-weight:500}
+.fs{background:var(--bg);border:1px solid var(--g200);border-radius:5px;padding:4px 22px 4px 7px;font-size:11px;color:var(--txt);font-family:inherit;cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5' fill='none'%3E%3Cpath d='M1 1l3.5 3L8 1' stroke='%238C9BAB' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;transition:var(--tr)}
+.fs:focus{border-color:var(--org)}
+.btn-clr{display:flex;align-items:center;gap:4px;background:none;border:1px solid var(--g200);border-radius:5px;padding:4px 9px;font-size:11px;color:var(--g600);cursor:pointer;font-family:inherit;transition:var(--tr);margin-left:auto}
+.btn-clr:hover{border-color:var(--redl);color:var(--redl)}
+
+/* ── PAGE CONTENT ── */
+.pg{padding:18px 22px 28px;flex:1;display:none}
+.pg.active{display:block}
+#pg-mines{padding:0!important}
+#pg-mines.active{display:block}
+
+/* ── KPI ROW ── */
+.kpi-row{display:grid;gap:11px;margin-bottom:16px}
+.kpi-r8{grid-template-columns:repeat(8,1fr)}
+.kpi-r4{grid-template-columns:repeat(4,1fr)}
+.kpi-r6{grid-template-columns:repeat(6,1fr)}
+
+.kc{background:var(--card-bg);border-radius:var(--r);padding:12px 13px 9px;box-shadow:var(--sh);border-top:3px solid transparent;transition:var(--tr),background .3s;position:relative;overflow:hidden}
+.kc:hover{transform:translateY(-2px);box-shadow:var(--shl)}
+.kc-lbl{font-size:9px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--txt2);margin-bottom:5px}
+.kc-val{font-size:19px;font-weight:700;line-height:1;color:var(--txt)}
+.kc-val.vc-org{color:var(--org)} .kc-val.vc-grn{color:var(--grnl)} .kc-val.vc-red{color:var(--redl)}
+.kc-val.vc-blu{color:var(--blul)} .kc-val.vc-pur{color:var(--pur)} .kc-val.vc-tea{color:var(--tea)}
+.kc-sub{font-size:9px;color:var(--txt2);margin-top:4px}
+.kc.cc-org{border-top-color:var(--org)} .kc.cc-grn{border-top-color:var(--grnl)}
+.kc.cc-red{border-top-color:var(--redl)} .kc.cc-blu{border-top-color:var(--blul)}
+.kc.cc-pur{border-top-color:var(--pur)} .kc.cc-tea{border-top-color:var(--tea)}
+.kc.cc-yel{border-top-color:var(--yel)} .kc.cc-nav{border-top-color:var(--navy3)}
+.badge{display:inline-flex;align-items:center;padding:1px 5px;border-radius:99px;font-size:9px;font-weight:600}
+.bg-grn{background:#E8F5E9;color:var(--grn)} .bg-red{background:#FEECEC;color:var(--redl)}
+.bg-org{background:#FFF3EE;color:var(--org)} .bg-yel{background:#FEF9E7;color:#9A7D0A}
+
+/* ── GRID ── */
+.cr{display:grid;gap:14px;margin-bottom:14px}
+.r2{grid-template-columns:1fr 1fr} .r3{grid-template-columns:1fr 1fr 1fr}
+.r4{grid-template-columns:repeat(4,1fr)}
+.r21{grid-template-columns:2fr 1fr} .r12{grid-template-columns:1fr 2fr}
+.r31{grid-template-columns:3fr 1fr}
+
+/* ── CARD ── */
+.card{background:var(--card-bg);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;transition:background .3s}
+.card-h{padding:12px 15px 9px;border-bottom:1px solid var(--card-border);display:flex;align-items:center;justify-content:space-between}
+.card-h h3{font-size:12px;font-weight:700;color:var(--txt)}
+.card-h p{font-size:10px;color:var(--txt2);margin-top:1px}
+.card-b{padding:13px 15px}
+.cw{position:relative}
+.cw canvas{width:100%!important}
+
+/* ── TABLES ── */
+.dt{width:100%;border-collapse:collapse}
+.dt th{background:var(--bg);color:var(--txt2);font-size:9.5px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;padding:7px 11px;text-align:left;border-bottom:1px solid var(--g200);white-space:nowrap}
+.dt td{padding:7px 11px;font-size:11px;color:var(--txt);border-bottom:1px solid var(--card-border)}
+.dt tr:last-child td{border-bottom:none}
+.dt tr:hover td{background:var(--bg)}
+.td-r{text-align:right} .td-m{font-family:'DM Mono',monospace;font-size:10.5px}
+.pill{display:inline-flex;align-items:center;padding:2px 7px;border-radius:99px;font-size:9.5px;font-weight:600}
+.pl-g{background:#E8F5E9;color:var(--grn)} .pl-r{background:#FEECEC;color:var(--redl)}
+.pl-o{background:#FFF3EE;color:var(--org)} .pl-b{background:#EBF5FB;color:var(--blul)}
+.pl-y{background:#FEF9E7;color:#9A7D0A} .pl-n{background:var(--g100);color:var(--g600)}
+
+/* ── MOBILE BOTTOM NAV ── */
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--navy);border-top:1px solid var(--navy3);z-index:200;padding:0 0 env(safe-area-inset-bottom)}
+.mob-nav-inner{display:flex;justify-content:space-around;align-items:center;height:54px}
+.mob-ni{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;cursor:pointer;flex:1;color:var(--g400);transition:var(--tr);font-size:10px;font-weight:500;border:none;background:none;font-family:inherit}
+.mob-ni.active{color:var(--org)}
+.mob-ni-icon{font-size:18px;line-height:1}
+.mob-ni-lbl{font-size:9px}
+.mob-more-menu{display:none;position:fixed;bottom:54px;left:0;right:0;background:var(--navy2);border-top:1px solid var(--navy3);z-index:199;padding:8px}
+.mob-more-menu.open{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mob-more-item{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--navy);border-radius:8px;cursor:pointer;color:var(--g400);font-size:12px;font-weight:500}
+.mob-more-item.active{color:var(--org)}
+@media(max-width:768px){
+  .sb{display:none!important}
+  .main{margin-left:0!important;margin-right:0!important}
+  .mob-nav{display:block}
+  .pg{padding:12px 14px 70px}
+  .tb{padding:0 14px}
+  .fb{padding:7px 14px}
+  .kpi-r8{grid-template-columns:repeat(2,1fr)!important}
+  .kpi-r4{grid-template-columns:repeat(2,1fr)!important}
+  .kpi-r6{grid-template-columns:repeat(2,1fr)!important}
+  .r2,.r3,.r4,.r21,.r12,.r31{grid-template-columns:1fr!important}
+  .tb-ttl h1{font-size:13px}
+  .tb-ttl p{display:none}
+  [id^="pg-mines"].active{height:calc(100vh - 54px - var(--hh))}
+}
+.pb{height:5px;background:var(--g100);border-radius:99px;overflow:hidden;margin-top:2px}
+.pf{height:100%;border-radius:99px;transition:width .5s ease}
+.dl-leg{list-style:none;padding:0}
+.dl-leg li{display:flex;align-items:center;gap:6px;font-size:10.5px;color:var(--txt);padding:2px 0}
+.dl-leg .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dl-leg .lv{margin-left:auto;font-family:'DM Mono',monospace;font-size:10px;color:var(--txt2)}
+.sec-ttl{font-size:10.5px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--txt2);margin-bottom:11px;display:flex;align-items:center;gap:7px}
+.sec-ttl::after{content:'';flex:1;height:1px;background:var(--g200)}
+.st-mini{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--card-border)}
+.st-mini:last-child{border-bottom:none}
+.st-mini .sk{font-size:11px;color:var(--txt2)} .st-mini .sv{font-size:11px;font-weight:700;color:var(--txt)}
+.foot{text-align:center;padding:9px 22px;font-size:10px;color:var(--txt2);border-top:1px solid var(--card-border);background:var(--tb-bg)}
+.ld-ov{position:fixed;inset:0;background:var(--navy);z-index:999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .4s}
+.ld-ov.done{opacity:0;pointer-events:none}
+.ld-sp{width:42px;height:42px;border:3px solid var(--navy3);border-top-color:var(--org);border-radius:50%;animation:spin .8s linear infinite}
+.inp-s{padding:5px 9px;border:1px solid var(--g200);border-radius:5px;font-size:11px;outline:none;width:200px;font-family:inherit}
+.inp-s:focus{border-color:var(--org)}
+.heat-cell{display:inline-flex;align-items:center;justify-content:center;width:100%;height:26px;border-radius:4px;font-size:9.5px;font-weight:600;color:#fff}
+</style>
+</head>
+<body>
+<!-- MOBILE BOTTOM NAV -->
+<nav class="mob-nav">
+  <div class="mob-nav-inner">
+    <button class="mob-ni active" onclick="goPageMob('exec',this)" id="mob-exec">
+      <span class="mob-ni-icon">📊</span><span class="mob-ni-lbl">Summary</span>
+    </button>
+    <button class="mob-ni" onclick="goPageMob('budget',this)" id="mob-budget">
+      <span class="mob-ni-icon">💰</span><span class="mob-ni-lbl">Budget</span>
+    </button>
+    <button class="mob-ni" onclick="goPageMob('expenses',this)" id="mob-expenses">
+      <span class="mob-ni-icon">🧾</span><span class="mob-ni-lbl">Expenses</span>
+    </button>
+    <button class="mob-ni" onclick="goPageMob('equipment',this)" id="mob-equipment">
+      <span class="mob-ni-icon">🚜</span><span class="mob-ni-lbl">Equipment</span>
+    </button>
+    <button class="mob-ni" onclick="toggleMobMore(this)" id="mob-more-btn">
+      <span class="mob-ni-icon">⋯</span><span class="mob-ni-lbl">More</span>
+    </button>
+  </div>
+</nav>
+<div class="mob-more-menu" id="mobMoreMenu">
+  <div class="mob-more-item" onclick="goPageMob('production',null);toggleMobMore(null)">⚙️ Production</div>
+  <div class="mob-more-item" onclick="goPageMob('vendors',null);toggleMobMore(null)">🤝 Vendors</div>
+  <div class="mob-more-item" onclick="goPageMob('cashflow',null);toggleMobMore(null)">📈 Cash Flow</div>
+  <div class="mob-more-item" onclick="goPageMob('risks',null);toggleMobMore(null)">⚠️ Risk & Alerts</div>
+  <div class="mob-more-item" onclick="goPageMob('mines',null);toggleMobMore(null)">🗺️ Mines Map</div>
+</div>
+
+<div class="ld-ov" id="ldOv">
+  <div class="sb-ball" style="width:52px;height:52px;font-size:18px">AIT</div>
+  <div class="ld-sp"></div>
+  <div style="color:var(--g400);font-size:12px">Loading Dashboard…</div>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="sb-ball">AIT</div>
+    <div class="sb-txt">AIT Projects<small>Dashboard</small></div>
+  </div>
+  <nav class="sb-nav" id="sbNav">
+    <div class="ni active" onclick="goPage('exec',this)"><div class="nn">1</div><span>📊</span><span>Executive Summary</span></div>
+    <div class="ni" onclick="goPage('budget',this)"><div class="nn">2</div><span>💰</span><span>Budget Overview</span></div>
+    <div class="ni" onclick="goPage('expenses',this)"><div class="nn">3</div><span>🧾</span><span>Expenses & Payments</span></div>
+    <div class="ni" onclick="goPage('equipment',this)"><div class="nn">4</div><span>🚜</span><span>Equipment</span></div>
+    <div class="ni" onclick="goPage('production',this)"><div class="nn">5</div><span>⚙️</span><span>Production</span></div>
+    <div class="ni" onclick="goPage('vendors',this)"><div class="nn">6</div><span>🤝</span><span>Vendors</span></div>
+    <div class="ni" onclick="goPage('cashflow',this)"><div class="nn">7</div><span>📈</span><span>Cash Flow</span></div>
+    <div class="ni" onclick="goPage('risks',this)"><div class="nn">8</div><span>⚠️</span><span>Risk & Alerts</span></div>
+    <div class="ni" onclick="goPage('mines',this)"><div class="nn">9</div><span>🗺️</span><span>Mines Map</span></div>
+  </nav>
+  <div class="sb-foot">
+    <div style="display:flex;gap:6px;margin-bottom:8px">
+      <button id="sb-lang-btn" onclick="sbToggleLang()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;background:var(--navy2);color:var(--g400);border:1px solid var(--navy3);border-radius:6px;padding:7px 8px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:var(--tr)" title="تغيير اللغة">🌐 <span id="sb-lang-lbl">AR → EN</span></button>
+      <button id="sb-theme-btn" onclick="sbToggleTheme()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;background:var(--navy2);color:var(--g400);border:1px solid var(--navy3);border-radius:6px;padding:7px 8px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:var(--tr)" title="Dark Mode">🌙 <span id="sb-theme-lbl">Dark</span></button>
+    </div>
+    <div style="font-size:10px;color:var(--g400);text-align:center;padding-top:4px">AIT Projects · v2.0</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- TOPBAR -->
+<div class="tb">
+  <div class="tb-ttl">
+    <h1 id="pgTitle">AIT Projects Portfolio — Executive Summary</h1>
+    <p id="pgSub">Overview of project financial performance and key indicators</p>
+  </div>
+  <div class="tb-acts">
+    <div class="tb-sel"><span style="font-size:10px;color:var(--g600)">Project</span>
+      <select id="fProject" onchange="applyF()">
+        <option value="all">All Projects</option>
+        <option value="Hub">Hub</option>
+        <option value="Marsa Alam Mine">Marsa Alam Mine</option>
+      </select></div>
+    <div class="tb-sel"><span style="font-size:10px;color:var(--g600)">Month</span>
+      <select id="fMonth" onchange="applyF()">
+        <option value="all">All Months</option>
+        <option value="April">April 2026</option>
+        <option value="May">May 2026</option>
+      </select></div>
+    <button class="btn-ref" id="refBtn" onclick="doRefresh(this)">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
+      Refresh Data</button>
+  </div>
+</div>
+
+<!-- FILTER BAR — dynamic per page -->
+<div class="fb" id="mainFb"></div>
+
+<!-- ===================== PAGE 1: EXEC SUMMARY ===================== -->
+<div class="pg active" id="pg-exec">
+  <div class="kpi-row kpi-r8" id="execKpis"></div>
+  <div class="cr r3">
+    <div class="card">
+      <div class="card-h"><div><h3>Expense Distribution by Category</h3><p>Budget allocation breakdown</p></div></div>
+      <div class="card-b" style="display:flex;gap:14px;align-items:center">
+        <div style="width:130px;height:130px;flex-shrink:0"><canvas id="c_catDonut"></canvas></div>
+        <ul class="dl-leg" id="catLeg" style="flex:1"></ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h"><div><h3>Budget vs Actual by Project</h3><p>EGP</p></div></div>
+      <div class="card-b"><div class="cw" style="height:155px"><canvas id="c_bvA"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><div><h3>Monthly Spending Trend</h3><p>Actual Expenses (EGP)</p></div></div>
+      <div class="card-b"><div class="cw" style="height:155px"><canvas id="c_monthly"></canvas></div></div>
+    </div>
+  </div>
+  <div class="cr r3">
+    <div class="card">
+      <div class="card-h"><div><h3>Payment Method Distribution</h3></div></div>
+      <div class="card-b" style="display:flex;gap:14px;align-items:center">
+        <div style="width:130px;height:130px;flex-shrink:0"><canvas id="c_methodDonut"></canvas></div>
+        <ul class="dl-leg" id="methodLeg" style="flex:1"></ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h"><div><h3>Paid vs Pending by Month</h3></div></div>
+      <div class="card-b"><div class="cw" style="height:155px"><canvas id="c_paidPend"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><div><h3>Budget Utilization % by Category</h3></div></div>
+      <div class="card-b" id="utilBars" style="max-height:185px;overflow-y:auto"></div>
+    </div>
+  </div>
+  <div class="cr r2">
+    <div class="card">
+      <div class="card-h"><div><h3>Top 10 Suppliers by Spend</h3><p>EGP</p></div></div>
+      <div style="max-height:250px;overflow-y:auto"><table class="dt" id="suppTbl"></table></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><div><h3>Project Status & Payer Breakdown</h3></div></div>
+      <div class="card-b" id="projStatus"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== PAGE 2: BUDGET ===================== -->
+<div class="pg" id="pg-budget">
+  <div class="kpi-row kpi-r4" id="budKpis"></div>
+  <div class="cr r2">
+    <div class="card">
+      <div class="card-h"><div><h3>Budget vs Actual by Category</h3><p>EGP — horizontal bar</p></div></div>
+      <div class="card-b"><div class="cw" style="height:280px"><canvas id="c_budCat"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><div><h3>Budget Allocation</h3></div></div>
+      <div class="card-b" style="display:flex;gap:18px;align-items:center">
+        <div style="width:170px;height:170px;flex-shrink:0"><canvas id="c_budDonut"></canvas></div>
+        <ul class="dl-leg" id="budDonutLeg" style="flex:1"></ul>
+      </div>
+    </div>
+  </div>
+  <div class="cr r21">
+    <div class="card">
+      <div class="card-h"><div><h3>Detailed Budget Table</h3></div></div>
+      <div style="max-height:290px;overflow-y:auto"><table class="dt" id="budTbl"></table></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><div><h3>Budget by Project/Month</h3></div></div>
+      <div class="card-b"><div class="cw" style="height:260px"><canvas id="c_budPM"></canvas></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== PAGE 3: EXPENSES ===================== -->
+<div class="pg" id="pg-expenses">
+  <div class="kpi-row kpi-r4" id="expKpis"></div>
+  <div class="cr r2">
+    <div class="card">
+      <div class="card-h"><div><h3>Daily Spending — April 2026</h3></div></div>
+      <div class="card-b"><div class="cw" style="height:185px"><canvas id="c_daily"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><div><h3>Spend by Payer</h3></div></div>
+      <div class="card-b" style="display:flex;gap:14px;align-items:center">
+        <div style="width:150px;height:150px;flex-shrink:0"><canvas id="c_payer"></canvas></div>
+        <ul class="dl-leg" id="payerLeg" style="flex:1"></ul>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-h">
+      <div><h3>Expense Log</h3><p id="expLogCnt">All transactions</p></div>
+      <input class="inp-s" id="expSrch" placeholder="Search supplier / notes…" oninput="filterExpTbl()">
+    </div>
+    <div style="max-height:370px;overflow-y:auto"><table class="dt" id="expTbl"></table></div>
+    <div style="padding:7px 14px;font-size:10px;color:var(--g600)" id="expPag"></div>
+  </div>
+</div>
+
+<!-- ===================== PAGE 4: EQUIPMENT ===================== -->
+<div class="pg" id="pg-equipment">
+  <div class="kpi-row kpi-r4" id="eqKpis"></div>
+  <div class="cr r2">
+    <div class="card">
+      <div class="card-h"><div><h3>Equipment Hours by Month</h3></div></div>
+      <div class="card-b"><div class="cw" style="height:210px"><canvas id="c_eqHours"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><div><h3>Equipment Cost by Month (EGP)</h3></div></div>
+      <div class="card-b"><div class="cw" style="height:210px"><canvas id="c_eqCost"></canvas></div></div>
+    </div>
+  </div>
+  <div class="cr r21">
+    <div class="card">
+      <div class="card-h"><div><h3>Equipment Summary Table</h3></div></div>
+      <div style="max-height:300px;overflow-y:auto"><table class="dt" id="eqTbl"></table></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><div><h3>Running Cost vs Monthly Rate</h3></div></div>
+      <div class="card-b"><div class="cw" style="height:260px"><canvas id="c_eqBar"></canvas></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== PAGE 5: PRODUCTION ===================== -->
+<div class="pg" id="pg-production">
+  <div class="kpi-row kpi-r4" id="prodKpis"></div>
+  <div class="cr r2">
+    <div class="card">
+      <div class="card-h"><div><h3>Hours per Equipment</h3><p>April + May 2026</p></div></div>
+      <div class="card-b"><div class="cw" style="height:210px"><canvas id="c_prodHours"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><div><h3>Running Cost per Equipment (EGP)</h3></div></div>
+      <div class="card-b"><div class="cw" style="height:210px"><canvas id="c_prodCost"></canvas></div></div>
+    </div>
+  </div>
+  <!-- Production input table -->
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-h">
+      <div><h3>⚙️  Production Input Table</h3><p>أدخل الطن المنتج يومياً — التكلفة/طن تتحسب أوتوماتيك</p></div>
+    </div>
+    <div class="card-b" style="padding:10px 14px;background:#FEF9E7;border-bottom:1px solid var(--g100)">
+      <div style="font-size:11px;color:#9A7D0A;font-weight:500">
+        🟡 اكتب الطن المنتج في العمود <strong>Tons Produced</strong> لكل معدة يومياً — تكلفة الطن هتتحسب تلقائياً
+      </div>
+    </div>
+    <div style="max-height:400px;overflow-y:auto"><table class="dt" id="prodTbl"></table></div>
+    <div style="padding:8px 14px;display:flex;gap:10px;align-items:center;border-top:1px solid var(--g100)">
+      <button onclick="saveProdData()" style="background:var(--org);color:#fff;border:none;border-radius:5px;padding:6px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💾 Save Production Data</button>
+      <span style="font-size:10px;color:var(--g600)" id="prodSaveMsg"></span>
+    </div>
+  </div>
+
+  <div class="cr r2">
+    <div class="card">
+      <div class="card-h"><div><h3>Cost per Ton by Equipment (EGP/ton)</h3></div></div>
+      <div class="card-b"><div class="cw" style="height:200px"><canvas id="c_cpt"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><div><h3>Productivity — Tons per Hour</h3></div></div>
+      <div class="card-b"><div class="cw" style="height:200px"><canvas id="c_tph"></canvas></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== PAGE 6: VENDORS ===================== -->
+<div class="pg" id="pg-vendors">
+  <div class="cr r2" style="margin-bottom:14px">
+    <div class="card">
+      <div class="card-h"><div><h3>Top 10 Suppliers by Spend</h3></div></div>
+      <div class="card-b"><div class="cw" style="height:240px"><canvas id="c_topSupp"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><div><h3>Contractors Master</h3></div></div>
+      <div style="max-height:270px;overflow-y:auto"><table class="dt" id="conTbl"></table></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-h"><div><h3>All Suppliers Log</h3></div></div>
+    <div style="max-height:320px;overflow-y:auto"><table class="dt" id="vendTbl"></table></div>
+  </div>
+</div>
+
+<!-- ===================== PAGE 7: CASH FLOW ===================== -->
+<div class="pg" id="pg-cashflow">
+  <div class="kpi-row kpi-r4" id="cfKpis"></div>
+  <div class="cr r2">
+    <div class="card">
+      <div class="card-h"><div><h3>Cumulative Spend Trend</h3></div></div>
+      <div class="card-b"><div class="cw" style="height:230px"><canvas id="c_cfCum"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><div><h3>Monthly Cash Out by Project</h3></div></div>
+      <div class="card-b"><div class="cw" style="height:230px"><canvas id="c_cfProj"></canvas></div></div>
+    </div>
+  </div>
+  <div class="cr r21">
+    <div class="card">
+      <div class="card-h"><div><h3>Payment Schedule</h3></div></div>
+      <div style="max-height:280px;overflow-y:auto"><table class="dt" id="cfTbl"></table></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><div><h3>Cash Flow Summary</h3></div></div>
+      <div class="card-b" style="display:flex;gap:16px;align-items:center">
+        <div style="width:160px;height:160px;flex-shrink:0"><canvas id="c_cfMethod"></canvas></div>
+        <ul class="dl-leg" id="cfMethodLeg" style="flex:1"></ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== PAGE 8: RISK & ALERTS ===================== -->
+<div class="pg" id="pg-risks">
+  <div class="kpi-row kpi-r4" id="riskKpis"></div>
+  <div class="cr r2">
+    <div class="card">
+      <div class="card-h"><div><h3>Budget Risk by Category</h3><p>Actual vs Budget — Over 100% = At Risk</p></div></div>
+      <div class="card-b"><div class="cw" style="height:240px"><canvas id="c_riskBar"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><div><h3>Alerts & Notifications</h3></div></div>
+      <div class="card-b" id="alertsDiv" style="max-height:260px;overflow-y:auto"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-h"><div><h3>Equipment — Running Cost vs Monthly Rate (Risk View)</h3></div></div>
+    <div style="max-height:300px;overflow-y:auto"><table class="dt" id="riskEqTbl"></table></div>
+  </div>
+</div>
+
+<!-- ===================== PAGE 9: MINES MAP ===================== -->
+<div class="pg" id="pg-mines" style="padding:0">
+  
+  <iframe id="mines-iframe" src="egypt_mines_map.html" title="Egypt Mines Map" style="width:100%;border:none;display:block;height:calc(100vh - 130px)"></iframe>
+</div>
+
+<div class="foot" style="background:var(--tb-bg);border-top:1px solid var(--card-border);color:var(--txt2)">All amounts are in EGP &nbsp;|&nbsp; Data: April–May 2026 &nbsp;|&nbsp; AIT Projects Portfolio Dashboard &nbsp;|&nbsp; <span id="lastUpdate"></span></div>
+</div>
+
+<script>
+// ================================================================
+// DATA — pulled directly from AIT_Database_Sheet
+// To connect Google Sheets: replace SHEET_ID below and uncomment fetch
+// ================================================================
+
+// ── RAW DATA ────────────────────────────────────────────────────
+// expenses: [date, month, project, payer, supplier, amount, method]
+const EXP = [
+["2026-04-06","April","Hub","Nadeem Bassem","النادي لتجارة المعادن",16000,"Bank Transfer"],
+["2026-04-06","April","Hub","Nadeem Bassem","المؤسسه الهندسية",129361,"Bank Transfer"],
+["2026-04-06","April","Hub","Ahmed El Gharabawy","",3005,"Cash Swypex"],
+["2026-04-06","April","Hub","Ahmed El Gharabawy","",1005,"Cash Swypex"],
+["2026-04-07","April","Hub","Ahmed El Gharabawy","",1000,"Cash Swypex"],
+["2026-04-07","April","Hub","Ahmed El Gharabawy","",505,"Cash Swypex"],
+["2026-04-07","April","Hub","Ahmed El Gharabawy","",1005,"Cash Swypex"],
+["2026-04-07","April","Hub","Ahmed El Gharabawy","",500,"Visa Swypex"],
+["2026-04-07","April","Hub","Ahmed El Gharabawy","",735,"Visa Swypex"],
+["2026-04-08","April","Hub","Ahmed El Gharabawy","",2005,"Cash Swypex"],
+["2026-04-08","April","Hub","Ahmed El Gharabawy","",5407,"Visa Swypex"],
+["2026-04-08","April","Hub","Ahmed El Gharabawy","",9890,"Visa Swypex"],
+["2026-04-08","April","Hub","Ahmed El Gharabawy","",2650,"Visa Swypex"],
+["2026-04-10","April","Hub","Ahmed El Gharabawy","",950,"Cash Swypex"],
+["2026-04-10","April","Hub","Ahmed El Gharabawy","",2055,"Cash Swypex"],
+["2026-04-10","April","Hub","Ahmed El Gharabawy","",6995,"Visa Swypex"],
+["2026-04-10","April","Hub","Ahmed El Gharabawy","",5540,"Visa Swypex"],
+["2026-04-10","April","Hub","Ahmed El Gharabawy","",1035,"Visa Swypex"],
+["2026-04-10","April","Hub","Ahmed El Gharabawy","",310,"Visa Swypex"],
+["2026-04-11","April","Hub","Ahmed El Gharabawy","",180,"Cash Swypex"],
+["2026-04-11","April","Hub","Ahmed El Gharabawy","",160,"Cash Swypex"],
+["2026-04-11","April","Hub","Ahmed El Gharabawy","",155,"Visa Swypex"],
+["2026-04-11","April","Hub","Ahmed El Gharabawy","",350,"Cash Swypex"],
+["2026-04-12","April","Hub","Ahmed El Gharabawy","",1005,"Cash Swypex"],
+["2026-04-12","April","Hub","Ahmed El Gharabawy","",200,"Cash Swypex"],
+["2026-04-12","April","Hub","Ahmed El Gharabawy","",1100,"Cash Swypex"],
+["2026-04-12","April","Marsa Alam Mine","Ahmed El Gharabawy","",400,"Cash Swypex"],
+["2026-04-12","April","Marsa Alam Mine","Ahmed El Gharabawy","",820,"Visa Swypex"],
+["2026-04-12","April","Marsa Alam Mine","Ahmed El Gharabawy","",1500,"Visa Swypex"],
+["2026-04-12","April","Hub","Ahmed El Gharabawy","",145.6,"Cash Swypex"],
+["2026-04-12","April","Hub","Ahmed El Gharabawy","",505,"Cash Swypex"],
+["2026-04-13","April","Marsa Alam Mine","Ahmed El Gharabawy","",1005,"Visa Swypex"],
+["2026-04-13","April","Hub","Ahmed El Gharabawy","",1505,"Cash Swypex"],
+["2026-04-13","April","Hub","Ahmed El Gharabawy","",500,"Cash Swypex"],
+["2026-04-13","April","Hub","Ahmed El Gharabawy","",1500,"Cash Swypex"],
+["2026-04-13","April","Hub","Ahmed El Gharabawy","",2605,"Cash Swypex"],
+["2026-04-13","April","Hub","Ahmed El Gharabawy","",2500,"Cash Swypex"],
+["2026-04-13","April","Hub","Ahmed El Gharabawy","",1005,"Cash Swypex"],
+["2026-04-13","April","Hub","Ahmed El Gharabawy","",220,"Cash Swypex"],
+["2026-04-13","April","Hub","Ahmed El Gharabawy","",800,"Cash Swypex"],
+["2026-04-13","April","Hub","Ahmed El Gharabawy","",1000,"Cash Swypex"],
+["2026-04-13","April","Marsa Alam Mine","Ahmed El Gharabawy","",300,"Visa Swypex"],
+["2026-04-13","April","Hub","Ahmed El Gharabawy","",13630,"Cash Swypex"],
+["2026-04-13","April","Hub","Ahmed El Gharabawy","",1870,"Visa Swypex"],
+["2026-04-13","April","Hub","Ahmed El Gharabawy","",4500,"Cash Swypex"],
+["2026-04-13","April","Marsa Alam Mine","Ahmed El Gharabawy","",1005,"Visa Swypex"],
+["2026-04-14","April","Hub","Ahmed El Gharabawy","",12015,"Cash Swypex"],
+["2026-04-14","April","Hub","Ahmed El Gharabawy","",505,"Cash Swypex"],
+["2026-04-14","April","Hub","Ahmed El Gharabawy","",1326.5,"Visa Swypex"],
+["2026-04-14","April","Hub","Ahmed El Gharabawy","",9055,"Visa Swypex"],
+["2026-04-14","April","Hub","Ahmed El Gharabawy","",3247,"Visa Swypex"],
+["2026-04-14","April","Hub","Ahmed El Gharabawy","",200,"Visa Swypex"],
+["2026-04-14","April","Hub","Ahmed El Gharabawy","",3369,"Visa Swypex"],
+["2026-04-14","April","Hub","Ahmed El Gharabawy","",462.4,"Visa Swypex"],
+["2026-04-14","April","Hub","Ahmed El Gharabawy","",660,"Cash Swypex"],
+["2026-04-14","April","Hub","Ahmed El Gharabawy","",870,"Cash Swypex"],
+["2026-04-14","April","Hub","Ahmed El Gharabawy","",3135,"Cash Swypex"],
+["2026-04-14","April","Hub","Ahmed El Gharabawy","",2005,"Visa Swypex"],
+["2026-04-14","April","Hub","Ahmed El Gharabawy","",20025,"Cash Swypex"],
+["2026-04-14","April","Hub","Ahmed El Gharabawy","",20025,"Cash Swypex"],
+["2026-04-14","April","Hub","Ahmed El Gharabawy","",25600,"Visa Swypex"],
+["2026-04-15","April","Hub","Ahmed El Gharabawy","",1205,"Cash Swypex"],
+["2026-04-15","April","Hub","Ahmed El Gharabawy","",4005,"Cash Swypex"],
+["2026-04-15","April","Hub","Ahmed El Gharabawy","",2305,"Cash Swypex"],
+["2026-04-15","April","Hub","Ahmed El Gharabawy","",1500,"Cash Swypex"],
+["2026-04-15","April","Hub","Ahmed El Gharabawy","",805,"Cash Swypex"],
+["2026-04-16","April","Hub","Ahmed El Gharabawy","",505,"Cash Swypex"],
+["2026-04-16","April","Hub","Ahmed El Gharabawy","",200,"Cash Swypex"],
+["2026-04-16","April","Hub","Ahmed El Gharabawy","",200,"Cash Swypex"],
+["2026-04-16","April","Hub","Ahmed El Gharabawy","",305,"Cash Swypex"],
+["2026-04-16","April","Hub","Ahmed El Gharabawy","",810,"Visa Swypex"],
+["2026-04-16","April","Hub","Ahmed El Gharabawy","",2000,"Cash Swypex"],
+["2026-04-16","April","Hub","Ahmed El Gharabawy","",505,"Cash Swypex"],
+["2026-04-16","April","Hub","Ahmed El Gharabawy","",940,"Visa Swypex"],
+["2026-04-17","April","Hub","Ahmed El Gharabawy","",5005,"Cash Swypex"],
+["2026-04-17","April","Hub","Ahmed El Gharabawy","",2000,"Cash Swypex"],
+["2026-04-17","April","Hub","Ahmed El Gharabawy","",3000,"Cash Swypex"],
+["2026-04-17","April","Hub","Ahmed El Gharabawy","",885,"Visa Swypex"],
+["2026-04-21","April","Hub","Nadeem Bassem","",55000,"Bank Transfer"],
+["2026-04-21","April","Hub","Nadeem Bassem","",6200,"Bank Transfer"],
+["2026-04-21","April","Hub","Nadeem Bassem","",2500,"Bank Transfer"],
+["2026-04-21","April","Marsa Alam Mine","Ahmed El Gharabawy","لابوار",1800,"Visa Swypex"],
+["2026-04-21","April","Marsa Alam Mine","Nadeem Bassem","ال سلم الله لتجارة المغناطيس",14820,"Bank Transfer"],
+["2026-04-22","April","Hub","Ahmed El Gharabawy","شل اوت",1000,"Visa Swypex"],
+["2026-04-22","April","Hub","Ahmed El Gharabawy","",1500,"Cash Swypex"],
+["2026-04-22","April","Hub","Ahmed El Gharabawy","",205,"Cash Swypex"],
+["2026-04-22","April","Hub","Ahmed El Gharabawy","",2205,"Cash Swypex"],
+["2026-04-23","April","Hub","Ahmed El Gharabawy","",3005,"Cash Swypex"],
+["2026-04-23","April","Hub","Ahmed El Gharabawy","",3005,"Cash Swypex"],
+["2026-04-23","April","Hub","Ahmed El Gharabawy","",840,"Visa Swypex"],
+["2026-04-24","April","Hub","Ahmed El Gharabawy","",2205,"Cash Swypex"],
+["2026-04-24","April","Hub","Ahmed El Gharabawy","",505,"Cash Swypex"],
+["2026-04-24","April","Hub","Ahmed El Gharabawy","الشوربحي",650,"Visa Swypex"],
+["2026-04-24","April","Hub","Ahmed El Gharabawy","الشوربجي",610,"Visa Swypex"],
+["2026-04-24","April","Hub","Ahmed El Gharabawy","",5005,"Cash Swypex"],
+["2026-04-24","April","Hub","Ahmed El Gharabawy","",1005,"Cash Swypex"],
+["2026-04-25","April","Hub","Ahmed El Gharabawy","",3005,"Cash Swypex"],
+["2026-04-25","April","Hub","Ahmed El Gharabawy","",1005,"Cash Swypex"],
+["2026-04-25","April","Hub","Ahmed El Gharabawy","",200,"Cash Swypex"],
+["2026-04-25","April","Marsa Alam Mine","Ahmed El Gharabawy","",700,"Cash Swypex"],
+["2026-04-26","April","Hub","Ahmed El Gharabawy","",120,"Cash Swypex"],
+["2026-04-27","April","Hub","Ahmed El Gharabawy","",350,"Cash Swypex"],
+["2026-04-27","April","Hub","Ahmed El Gharabawy","",130,"Cash Swypex"],
+["2026-04-27","April","Hub","Ahmed El Gharabawy","",500,"Cash Swypex"],
+["2026-04-28","April","Marsa Alam Mine","Ahmed El Gharabawy","الروماني لتجارة المعادن",22020,"Cash Swypex"],
+["2026-04-28","April","Marsa Alam Mine","Ahmed El Gharabawy","الشوربجي",925,"Visa Swypex"],
+["2026-04-28","April","Hub","Ahmed El Gharabawy","الشوربجي",3140,"Visa Swypex"],
+["2026-04-28","April","Marsa Alam Mine","Ahmed El Gharabawy","",1000,"Visa Swypex"],
+["2026-04-28","April","Hub","Ahmed El Gharabawy","",755,"Cash Swypex"],
+["2026-04-28","April","Hub","Ahmed El Gharabawy","",600,"Cash Swypex"],
+["2026-04-28","April","Hub","Ahmed El Gharabawy","",600,"Cash Swypex"],
+["2026-04-28","April","Hub","Ahmed El Gharabawy","",3005,"Cash Swypex"],
+["2026-04-28","April","Hub","Ahmed El Gharabawy","",2000,"Cash Swypex"],
+["2026-04-29","April","Hub","Ahmed El Gharabawy","",4005,"Cash Swypex"],
+["2026-04-29","April","Hub","Ahmed El Gharabawy","",1025,"Visa Swypex"],
+["2026-04-29","April","Hub","Ahmed El Gharabawy","",4000,"Cash Swypex"],
+["2026-04-29","April","Hub","Ahmed El Gharabawy","",600,"Cash Swypex"],
+["2026-04-29","April","Hub","Ahmed El Gharabawy","",300,"Cash Swypex"],
+["2026-04-29","April","Marsa Alam Mine","Nadeem Bassem","المتحدة للتجارة والتوريدات الافرول والسفتي",23165,"Bank Transfer"],
+["2026-04-30","April","Hub","Ahmed El Gharabawy","",7000,"Cash Swypex"],
+["2026-04-30","April","Hub","Ahmed El Gharabawy","",9000,"Cash Swypex"],
+["2026-04-30","April","Hub","Ahmed El Gharabawy","",6000,"Cash Swypex"],
+["2026-04-30","April","Hub","Ahmed El Gharabawy","",3400,"Cash Swypex"],
+["2026-04-30","April","Hub","Ahmed El Gharabawy","",200,"Cash Swypex"],
+["2026-04-30","April","Hub","Ahmed El Gharabawy","",2200,"Cash Swypex"],
+["2026-04-30","April","Marsa Alam Mine","Ahmed El Gharabawy","",1700,"Cash Swypex"],
+["2026-04-30","April","Hub","Ahmed El Gharabawy","",1500,"Cash Swypex"],
+["2026-05-01","April","Hub","Ahmed El Gharabawy","",1670,"Visa Swypex"],
+["2026-05-01","April","Hub","Ahmed El Gharabawy","",5100,"Cash Swypex"],
+["2026-05-01","April","Hub","Ahmed El Gharabawy","",605,"Cash Swypex"],
+["2026-05-01","April","Hub","Ahmed El Gharabawy","",305,"Cash Swypex"],
+["2026-05-01","April","Hub","Ahmed El Gharabawy","",520,"Visa Swypex"],
+["2026-05-03","April","Hub","Ahmed El Gharabawy","",1005,"Cash Swypex"],
+["2026-05-03","April","Hub","Ahmed El Gharabawy","الشوربجي",420,"Visa Swypex"],
+["2026-05-03","April","Hub","Ahmed El Gharabawy","",900,"Visa Swypex"],
+["2026-05-03","April","Hub","Ahmed El Gharabawy","",405,"Cash Swypex"],
+["2026-05-03","April","Hub","Ahmed El Gharabawy","",7205,"Cash Swypex"],
+["2026-05-04","May","Hub","Ahmed El Gharabawy","",550,"Visa Swypex"],
+["2026-05-04","May","Hub","Ahmed El Gharabawy","",4800,"Cash Swypex"],
+["2026-05-04","May","Hub","Ahmed El Gharabawy","",900,"Cash Swypex"],
+["2026-05-04","May","Hub","Ahmed El Gharabawy","",200,"Cash Swypex"],
+["2026-05-04","May","Hub","Ahmed El Gharabawy","",100,"Cash Swypex"],
+["2026-05-04","May","Hub","Ahmed El Gharabawy","",1005,"Cash Swypex"],
+["2026-05-04","May","Hub","Ahmed El Gharabawy","",1000,"Cash Swypex"],
+["2026-05-04","May","Marsa Alam Mine","Ahmed Sabry","جهاز قياس المغناطيس",20530,"Bank Transfer"],
+["2026-05-05","May","Hub","Ahmed El Gharabawy","",615,"Cash Swypex"],
+["2026-05-05","May","Hub","Ahmed El Gharabawy","",8500,"Cash Swypex"],
+["2026-05-05","May","Hub","Ahmed El Gharabawy","",1300,"Cash Swypex"],
+["2026-05-05","May","Hub","Ahmed El Gharabawy","",4000,"Cash Swypex"],
+["2026-05-05","May","Hub","Ahmed El Gharabawy","",300,"Cash Swypex"],
+["2026-05-05","May","Hub","Ahmed El Gharabawy","",270,"Cash Swypex"],
+["2026-05-05","May","Hub","Ahmed El Gharabawy","",180,"Visa Swypex"],
+["2026-05-05","May","Marsa Alam Mine","Ahmed Sabry","بيت المغناطيس",2280,"Bank Transfer"],
+["2026-05-05","May","Marsa Alam Mine","Ahmed Sabry","شراء 2 منخل ادوات معملية",2763,"Bank Transfer"],
+["2026-05-06","May","Hub","Ahmed El Gharabawy","",895,"Visa Swypex"],
+["2026-05-06","May","Hub","Ahmed El Gharabawy","",505,"Cash Swypex"],
+["2026-05-06","May","Hub","Ahmed El Gharabawy","",4000,"Cash Swypex"],
+["2026-05-06","May","Hub","Ahmed El Gharabawy","الشوربجي",550,"Visa Swypex"],
+["2026-05-06","May","Hub","Ahmed El Gharabawy","",297,"Visa Swypex"],
+["2026-05-07","May","Hub","Ahmed El Gharabawy","",895,"Visa Swypex"],
+["2026-05-07","May","Hub","Ahmed El Gharabawy","",4800,"Cash Swypex"],
+["2026-05-07","May","Hub","Ahmed El Gharabawy","",900,"Cash Swypex"],
+["2026-05-07","May","Hub","Ahmed El Gharabawy","",4005,"Cash Swypex"],
+["2026-05-07","May","Hub","Ahmed El Gharabawy","",305,"Cash Swypex"],
+["2026-05-07","May","Hub","Ahmed El Gharabawy","",4510,"Cash Swypex"],
+["2026-05-07","May","Marsa Alam Mine","Ahmed El Gharabawy","",3300,"Cash Swypex"],
+["2026-05-09","May","Hub","Ahmed El Gharabawy","",605,"Cash Swypex"],
+["2026-05-09","May","Hub","Ahmed El Gharabawy","",2200,"Cash Swypex"],
+["2026-05-09","May","Hub","Ahmed El Gharabawy","",705,"Cash Swypex"],
+["2026-05-09","May","Hub","Ahmed El Gharabawy","",100,"Cash Swypex"],
+["2026-05-09","May","Hub","Ahmed El Gharabawy","",900,"Cash Swypex"],
+["2026-05-10","May","Hub","Ahmed El Gharabawy","",4205,"Cash Swypex"],
+["2026-05-10","May","Hub","Ahmed El Gharabawy","",200,"Cash Swypex"],
+["2026-05-10","May","Hub","Ahmed El Gharabawy","",975,"Visa Swypex"],
+["2026-05-10","May","Hub","Ahmed El Gharabawy","",20020,"Cash Swypex"],
+["2026-05-11","May","Hub","Ahmed El Gharabawy","",5800,"Cash Swypex"],
+["2026-05-11","May","Hub","Ahmed El Gharabawy","",4005,"Cash Swypex"],
+["2026-05-11","May","Hub","Ahmed El Gharabawy","الشوربجي",2265,"Visa Swypex"],
+["2026-05-11","May","Hub","Ahmed El Gharabawy","الشوربجي",295,"Visa Swypex"],
+["2026-05-11","May","Hub","Ahmed El Gharabawy","",50,"Visa Swypex"],
+["2026-05-11","May","Hub","Ahmed El Gharabawy","",5005,"Cash Swypex"],
+["2026-05-11","May","Hub","Ahmed El Gharabawy","",1005,"Cash Swypex"],
+["2026-05-12","May","Hub","Ahmed El Gharabawy","",5005,"Cash Swypex"],
+["2026-05-12","May","Hub","Ahmed El Gharabawy","",605,"Cash Swypex"],
+["2026-05-12","May","Hub","Ahmed El Gharabawy","",830,"Visa Swypex"],
+["2026-05-12","May","Hub","Ahmed El Gharabawy","",505,"Cash Swypex"],
+["2026-05-13","May","Marsa Alam Mine","Ahmed El Gharabawy","",8320,"Cash Swypex"],
+["2026-05-13","May","Hub","Ahmed El Gharabawy","",4200,"Cash Swypex"],
+["2026-05-13","May","Hub","Ahmed El Gharabawy","",3000,"Cash Swypex"],
+["2026-05-14","May","Hub","Ahmed El Gharabawy","",990,"Cash Swypex"],
+["2026-05-14","May","Hub","Ahmed El Gharabawy","",400,"Cash Swypex"],
+["2026-05-14","May","Hub","Ahmed El Gharabawy","",1250,"Cash Swypex"],
+["2026-05-14","May","Hub","Ahmed El Gharabawy","",600,"Cash Swypex"],
+["2026-05-14","May","Hub","Ahmed El Gharabawy","اولاد الضبع",3600,"Cash Swypex"],
+["2026-05-14","May","Hub","Ahmed El Gharabawy","",200,"Cash Swypex"],
+["2026-05-14","May","Hub","Ahmed El Gharabawy","",3705,"Cash Swypex"],
+["2026-05-14","May","Hub","Ahmed El Gharabawy","",2505,"Cash Swypex"],
+["2026-05-14","May","Hub","Ahmed El Gharabawy","",4980,"Cash Swypex"],
+["2026-05-14","May","Hub","Ahmed El Gharabawy","",850,"Cash Swypex"],
+["2026-05-14","May","Hub","Ahmed El Gharabawy","",256,"Visa Swypex"],
+["2026-05-15","May","Hub","Ahmed El Gharabawy","",1065,"Cash Swypex"],
+["2026-05-15","May","Hub","Ahmed El Gharabawy","",140,"Cash Swypex"],
+["2026-05-16","May","Hub","Ahmed El Gharabawy","",3365,"Visa Swypex"],
+["2026-05-16","May","Hub","Ahmed El Gharabawy","",1430,"Cash Swypex"],
+["2026-05-16","May","Hub","Ahmed El Gharabawy","",320,"Cash Swypex"],
+["2026-05-16","May","Hub","Ahmed El Gharabawy","",130,"Cash Swypex"],
+["2026-05-16","May","Hub","Ahmed El Gharabawy","",1500,"Cash Swypex"],
+["2026-05-16","May","Hub","Ahmed El Gharabawy","",400,"Cash Swypex"],
+["2026-05-16","May","Hub","Ahmed El Gharabawy","",400,"Cash Swypex"],
+["2026-05-16","May","Hub","Ahmed El Gharabawy","",300,"Cash Swypex"],
+["2026-05-16","May","Hub","Ahmed El Gharabawy","",850,"Visa Swypex"],
+["2026-05-16","May","Hub","Ahmed El Gharabawy","",1605,"Cash Swypex"],
+["2026-05-17","May","Marsa Alam Mine","Ahmed El Gharabawy","",1000,"Cash Swypex"],
+["2026-05-17","May","Marsa Alam Mine","Ahmed El Gharabawy","",2005,"Cash Swypex"],
+["2026-05-17","May","Marsa Alam Mine","Ahmed El Gharabawy","",6000,"Cash Swypex"],
+["2026-05-17","May","Marsa Alam Mine","Ahmed El Gharabawy","",2005,"Cash Swypex"],
+["2026-05-19","May","Marsa Alam Mine","Ahmed El Gharabawy","",805,"Cash Swypex"],
+["2026-05-19","May","Marsa Alam Mine","Ahmed El Gharabawy","",250,"Cash Swypex"],
+["2026-05-19","May","Marsa Alam Mine","Ahmed El Gharabawy","",805,"Cash Swypex"],
+["2026-05-20","May","Marsa Alam Mine","Ahmed El Gharabawy","",1605,"Cash Swypex"],
+["2026-05-20","May","Marsa Alam Mine","Ahmed El Gharabawy","",2000,"Cash Swypex"],
+["2026-05-20","May","Marsa Alam Mine","Ahmed El Gharabawy","",1000,"Cash Swypex"],
+["2026-05-20","May","Marsa Alam Mine","Ahmed El Gharabawy","",600,"Cash Swypex"],
+["2026-05-21","May","Hub","Ahmed El Gharabawy","",905,"Cash Swypex"],
+["2026-05-21","May","Marsa Alam Mine","Ahmed El Gharabawy","",300,"Cash Swypex"],
+["2026-05-22","May","Marsa Alam Mine","Ahmed El Gharabawy","",1090,"Visa Swypex"],
+["2026-05-22","May","Marsa Alam Mine","Ahmed El Gharabawy","",2005,"Cash Swypex"],
+["2026-05-22","May","Marsa Alam Mine","Ahmed El Gharabawy","",950,"Visa Swypex"],
+["2026-05-24","May","Hub","Nadeem Bassem","",55000,"Bank Transfer"],
+];
+
+// budget: [project, month, category, item, budget, required, paid]
+const BUD = [
+["Hub","April","Fixed","Rent",55000,0,0],
+["Hub","April","Utilities","Electricity",3000,0,0],
+["Hub","April","Utilities","Non-Potable Water",1000,0,0],
+["Hub","April","Security Services","Security",13000,0,0],
+["Hub","April","Site Services","Cleaning Services",10000,0,0],
+["Hub","April","Site Services","Internet",5000,0,0],
+["Hub","April","Site Services","CCTV Maintenance",5000,0,0],
+["Hub","April","Manpower","Mechanical Supervisor",25000,0,0],
+["Hub","April","Manpower","Crusher Operator",15000,0,0],
+["Hub","April","Temporary Staffing","Electrical Engineer",30000,0,0],
+["Hub","April","Manpower","Helper",12000,0,0],
+["Hub","April","Manpower","Outsourced Helpers",30000,0,0],
+["Hub","April","Contractors","Contractor Works",20000,0,0],
+["Hub","April","Transportation","Truck Transport",20000,0,0],
+["Hub","April","Tools & Equipment","Site Preparation Tools",250000,0,0],
+["Hub","April","Management Support","Engineers Meal Allowance",60000,0,0],
+["Hub","April","Management Support","Engineers Transportation",20000,0,0],
+["Hub","April","Maintenance","Spare Parts & Upgrades",300000,0,0],
+["Hub","April","CAPEX / Setup","Workers Accommodation Setup",54766.9,0,0],
+["Hub","April","Utilities","Potable Water",6200,0,0],
+["Hub","April","Site Services","Workers Meal Allowance",62000,0,0],
+["Hub","May","Fixed","Rent Hub",55000,55000,0],
+["Hub","May","Accommodation","Rent Flat",20000,0,20000],
+["Hub","May","Utilities","Electricity",7000,7000,0],
+["Hub","May","Utilities","Non-Potable Water",10000,8000,20000],
+["Hub","May","Security Services","Security",13000,13000,0],
+["Hub","May","Site Services","CCTV Maintenance",5000,5000,0],
+["Hub","May","Temporary Staffing","Electrical Engineer",30000,0,0],
+["Hub","May","Manpower","Helper",12000,0,0],
+["Hub","May","Manpower","Outsourced Helpers",30000,0,0],
+["Hub","May","Tools & Equipment","Site Preparation Tools",20000,0,0],
+["Hub","May","Management Support","Supervision & Travel",31500,0,0],
+["Hub","May","Maintenance","Spare Parts & Upgrades",1000000,700000,0],
+["Hub","May","Utilities","Potable Water",6200,0,0],
+["Hub","May","Site Services","Workers Meal Allowance",62000,0,0],
+["Hub","May","HSE","Safety Tools & PPE",100000,0,0],
+["Hub","May","Fuel Expense","Fuel Expense",10000,0,0],
+["Hub","May","Transportation","Truck Transport",20000,0,0],
+["Hub","May","Manpower","Workers Transportation",12000,12000,0],
+["Marsa Alam Mine","April","Management Support","Rent Flat",10000,0,0],
+["Marsa Alam Mine","April","Site Services Management","Vehicle Rental",35000,0,0],
+["Marsa Alam Mine","April","Site Services Management","Camp Setup",15000,0,0],
+["Marsa Alam Mine","April","Site Services Management","Water Tanks Setup",11000,0,0],
+["Marsa Alam Mine","April","Site Services Management","Fuel Tank Setup",11000,0,0],
+["Marsa Alam Mine","April","Security Services","Security",30000,0,0],
+["Marsa Alam Mine","April","Transport Services","Driver Allowance",15000,0,0],
+["Marsa Alam Mine","April","Site Services","Helper",30000,0,0],
+["Marsa Alam Mine","April","Equipment Leasing","Loader Rental",495000,0,0],
+["Marsa Alam Mine","April","Equipment Leasing","Truck Transport",36000,0,0],
+["Marsa Alam Mine","April","Equipment Leasing","Grader Rental",350000,0,0],
+["Marsa Alam Mine","April","Water for Road Preparation","Water Tanks Setup",140000,0,0],
+["Marsa Alam Mine","April","Equipment Purchasing","Grader Rental",150000,50000,0],
+["Marsa Alam Mine","April","Management Support","Engineers Transportation",8530,0,0],
+["Marsa Alam Mine","April","Tools & Equipment","Site Preparation Tools",15745,0,0],
+["Marsa Alam Mine","April","CAPEX / Setup","Workers Accommodation",23720,0,0],
+["Marsa Alam Mine","May","Management Support","Rent Flat",10000,10000,0],
+["Marsa Alam Mine","May","Site Services Management","Vehicle Rental",35000,35000,0],
+["Marsa Alam Mine","May","Security Services","Mine Supervisor",55000,55000,0],
+["Marsa Alam Mine","May","Transport Services","Driver Allowance",15000,17000,0],
+["Marsa Alam Mine","May","Site Services","Helper",30000,30000,0],
+["Marsa Alam Mine","May","Equipment Leasing","Loader Rental",495000,0,0],
+["Marsa Alam Mine","May","Equipment Leasing","Truck Transport",36000,0,0],
+["Marsa Alam Mine","May","Equipment Leasing","Excavator Rental",0,0,0],
+["Marsa Alam Mine","May","Equipment Leasing","Grader Rental",350000,250000,0],
+["Marsa Alam Mine","May","Management Support","Engineers Transportation",30000,30000,0],
+["Marsa Alam Mine","May","CAPEX / Setup","Generator & Lighting",171000,71000,100000],
+];
+
+// equipment: [date, month, equipment, contractor, hours]
+const EQL = [
+["2026-04-14","April","Loader","محمد إسماعيل محمد إبراهيم",0.77],
+["2026-04-15","April","Loader","محمد إسماعيل محمد إبراهيم",6.0],
+["2026-04-15","April","Loader","محمد إسماعيل محمد إبراهيم",2.0],
+["2026-04-16","April","Loader","محمد إسماعيل محمد إبراهيم",6.0],
+["2026-04-17","April","Loader","محمد إسماعيل محمد إبراهيم",2.0],
+["2026-04-17","April","Loader","محمد إسماعيل محمد إبراهيم",5.0],
+["2026-04-18","April","Loader","محمد إسماعيل محمد إبراهيم",8.0],
+["2026-04-18","April","Loader","محمد إسماعيل محمد إبراهيم",2.5],
+["2026-04-19","April","Loader","محمد إسماعيل محمد إبراهيم",9.0],
+["2026-04-19","April","Loader","محمد إسماعيل محمد إبراهيم",3.0],
+["2026-04-20","April","Loader","محمد إسماعيل محمد إبراهيم",9.0],
+["2026-04-20","April","Loader","محمد إسماعيل محمد إبراهيم",3.0],
+["2026-04-22","April","Loader","محمد إسماعيل محمد إبراهيم",6.0],
+["2026-04-22","April","Loader","محمد إسماعيل محمد إبراهيم",4.0],
+["2026-04-23","April","Loader","محمد إسماعيل محمد إبراهيم",7.0],
+["2026-04-23","April","Loader","محمد إسماعيل محمد إبراهيم",6.0],
+["2026-04-24","April","Loader","محمد إسماعيل محمد إبراهيم",3.0],
+["2026-04-24","April","Loader","محمد إسماعيل محمد إبراهيم",7.0],
+["2026-04-25","April","Loader","محمد إسماعيل محمد إبراهيم",6.5],
+["2026-04-25","April","Loader","محمد إسماعيل محمد إبراهيم",8.5],
+["2026-04-26","April","Loader","محمد إسماعيل محمد إبراهيم",4.5],
+["2026-04-26","April","Loader","محمد إسماعيل محمد إبراهيم",6.5],
+["2026-04-27","April","Loader","محمد إسماعيل محمد إبراهيم",9.0],
+["2026-04-27","April","Loader","محمد إسماعيل محمد إبراهيم",4.0],
+["2026-04-28","April","Loader","محمد إسماعيل محمد إبراهيم",6.0],
+["2026-04-28","April","Loader","محمد إسماعيل محمد إبراهيم",7.0],
+["2026-04-29","April","Loader","محمد إسماعيل محمد إبراهيم",8.0],
+["2026-04-29","April","Loader","محمد إسماعيل محمد إبراهيم",5.0],
+["2026-04-30","April","Loader","محمد إسماعيل محمد إبراهيم",5.5],
+["2026-04-30","April","Loader","محمد إسماعيل محمد إبراهيم",7.5],
+["2026-04-28","April","Truck","محمد إسماعيل محمد إبراهيم",4.5],
+["2026-04-28","April","Truck","محمد إسماعيل محمد إبراهيم",3.5],
+["2026-04-30","April","Truck","محمد إسماعيل محمد إبراهيم",3.5],
+["2026-04-30","April","Truck","محمد إسماعيل محمد إبراهيم",2.5],
+["2026-05-01","May","Truck","محمد إسماعيل محمد إبراهيم",3.83],
+["2026-05-01","May","Truck","محمد إسماعيل محمد إبراهيم",5.0],
+["2026-04-26","April","Excavator","محمد إسماعيل محمد إبراهيم",1.0],
+["2026-04-26","April","Excavator","محمد إسماعيل محمد إبراهيم",4.5],
+["2026-04-27","April","Excavator","محمد إسماعيل محمد إبراهيم",5.0],
+["2026-04-27","April","Excavator","محمد إسماعيل محمد إبراهيم",4.0],
+["2026-04-28","April","Excavator","محمد إسماعيل محمد إبراهيم",6.0],
+["2026-04-28","April","Excavator","محمد إسماعيل محمد إبراهيم",4.0],
+["2026-04-29","April","Excavator","محمد إسماعيل محمد إبراهيم",6.5],
+["2026-04-29","April","Excavator","محمد إسماعيل محمد إبراهيم",5.0],
+["2026-04-30","April","Excavator","محمد إسماعيل محمد إبراهيم",7.0],
+["2026-04-30","April","Excavator","محمد إسماعيل محمد إبراهيم",5.5],
+["2026-05-01","May","Excavator","محمد إسماعيل محمد إبراهيم",7.0],
+["2026-05-01","May","Excavator","محمد إسماعيل محمد إبراهيم",1.0],
+["2026-05-02","May","Excavator","محمد إسماعيل محمد إبراهيم",7.0],
+["2026-05-02","May","Excavator","محمد إسماعيل محمد إبراهيم",3.0],
+["2026-05-03","May","Excavator","محمد إسماعيل محمد إبراهيم",2.5],
+["2026-05-03","May","Excavator","محمد إسماعيل محمد إبراهيم",9.0],
+["2026-05-04","May","Excavator","محمد إسماعيل محمد إبراهيم",4.17],
+["2026-05-04","May","Excavator","محمد إسماعيل محمد إبراهيم",4.5],
+["2026-04-14","April","Grader","EGY-Tech Power",8.0],
+["2026-04-15","April","Grader","EGY-Tech Power",8.0],
+["2026-04-16","April","Grader","EGY-Tech Power",8.0],
+["2026-04-17","April","Grader","EGY-Tech Power",8.0],
+["2026-04-18","April","Grader","EGY-Tech Power",8.0],
+["2026-04-19","April","Grader","EGY-Tech Power",8.0],
+["2026-04-20","April","Grader","EGY-Tech Power",8.0],
+["2026-04-21","April","Grader","EGY-Tech Power",8.0],
+["2026-04-22","April","Grader","EGY-Tech Power",8.0],
+["2026-04-23","April","Grader","EGY-Tech Power",8.0],
+["2026-04-24","April","Grader","EGY-Tech Power",8.0],
+["2026-04-25","April","Grader","EGY-Tech Power",8.0],
+["2026-04-26","April","Grader","EGY-Tech Power",8.0],
+["2026-04-27","April","Grader","EGY-Tech Power",8.0],
+["2026-04-28","April","Grader","EGY-Tech Power",8.0],
+["2026-04-29","April","Grader","EGY-Tech Power",8.0],
+["2026-04-30","April","Grader","EGY-Tech Power",8.0],
+["2026-05-01","May","Grader","EGY-Tech Power",8.0],
+["2026-05-02","May","Grader","EGY-Tech Power",8.0],
+["2026-05-03","May","Grader","EGY-Tech Power",8.0],
+["2026-05-04","May","Grader","EGY-Tech Power",8.0],
+["2026-05-05","May","Grader","EGY-Tech Power",8.0],
+["2026-05-06","May","Grader","EGY-Tech Power",8.0],
+["2026-05-07","May","Grader","EGY-Tech Power",8.0],
+["2026-05-08","May","Grader","EGY-Tech Power",8.0],
+["2026-05-09","May","Grader","EGY-Tech Power",8.0],
+["2026-05-10","May","Grader","EGY-Tech Power",8.0],
+];
+
+// Equipment dim: [id, type, contractor, hourly, monthly, transport, status]
+const EQD = [
+  ["L01","Loader","محمد إسماعيل محمد إبراهيم",1650,396000,0,"Active"],
+  ["T01","Truck","محمد إسماعيل محمد إبراهيم",1500,360000,0,"Active"],
+  ["E01","Excavator","محمد إسماعيل محمد إبراهيم",1800,432000,65000,"Active"],
+  ["G01","Grader","EGY-Tech Power",1800,600000,100000,"Active"],
+];
+
+const CONTRACTORS = [
+  {id:"CON001",name:"EGY-Tech Power",rep:"عمر نور الدين",pos:"Owner",mobile:"01025866909",bank:"بنك مصر"},
+  {id:"CON002",name:"محمد إسماعيل محمد إبراهيم",rep:"محمد إسماعيل",pos:"مالك المعدة",mobile:"01285836844",bank:"—"},
+  {id:"CON003",name:"المصري للتوريدات",rep:"محمد احمد حافظ",pos:"Owner",mobile:"—",bank:"البنك العربي"},
+];
+
+// Production data (editable — stored in localStorage)
+let PROD_DATA = {};
+
+// ================================================================
+// HELPERS
+// ================================================================
+const EQ_RATE = Object.fromEntries(EQD.map(r=>[r[1],r[2]]));
+const EQ_RATE_H = Object.fromEntries(EQD.map(r=>[r[1],r[3]]));
+const EQ_RATE_M = Object.fromEntries(EQD.map(r=>[r[1],r[4]]));
+
+let FILTERS = {project:'all',month:'all',payer:'all',method:'all',cat:'all',eq:'all'};
+let CHARTS = {};
+
+const PAL = ['#FF6B35','#2980B9','#1E8449','#8E44AD','#F39C12','#117A65','#C0392B','#1A5276','#D68910','#6C3483','#148F77','#922B21'];
+
+function fmt(n){if(n>=1e6)return(n/1e6).toFixed(2)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return Math.round(n).toLocaleString()}
+function fmtF(n){return Math.round(n).toLocaleString('en',{maximumFractionDigits:0})}
+
+function fE(){return EXP.filter(r=>{
+  if(FILTERS.project!='all'&&r[2]!=FILTERS.project)return false;
+  if(FILTERS.month!='all'&&r[1]!=FILTERS.month)return false;
+  if(FILTERS.payer!='all'&&r[3]!=FILTERS.payer)return false;
+  if(FILTERS.method!='all'&&r[6]!=FILTERS.method)return false;
+  return true;
+})}
+function fB(){return BUD.filter(r=>{
+  if(FILTERS.project!='all'&&r[0]!=FILTERS.project)return false;
+  if(FILTERS.month!='all'&&r[1]!=FILTERS.month)return false;
+  if(FILTERS.cat!='all'&&r[2]!=FILTERS.cat)return false;
+  return true;
+})}
+function fEQ(){return EQL.filter(r=>{
+  if(FILTERS.month!='all'&&r[1]!=FILTERS.month)return false;
+  if(FILTERS.eq!='all'&&r[2]!=FILTERS.eq)return false;
+  return true;
+})}
+
+function getChartColors(){
+  const isDark = document.documentElement.getAttribute('data-theme')==='dark';
+  return {
+    grid: isDark ? '#2a3548' : '#EEF1F6',
+    ticks: isDark ? '#7d8aa0' : '#5A6B7A',
+    legend: isDark ? '#e8ecf2' : '#1A2332',
+  };
+}
+const GRID = { color: 'var(--g100)' };
+const TICKS = { font: { size: 9.5 } };
+
+
+function mkC(id,type,data,opts={}){
+  const el=document.getElementById(id); if(!el)return;
+  if(CHARTS[id]){CHARTS[id].destroy();}
+  const cc=getChartColors();
+  Chart.defaults.color = cc.ticks;
+  const def={responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false,labels:{color:cc.legend,font:{size:10}}},tooltip:{backgroundColor:'#1A2332',titleColor:'#fff',bodyColor:'#D8DDE8',padding:9,callbacks:{label:c=>' '+fmtF(c.raw)+' EGP'}}},
+    scales:{x:{grid:{color:cc.grid},ticks:{color:cc.ticks,font:{size:9.5}}},y:{grid:{color:cc.grid},ticks:{color:cc.ticks,font:{size:9.5}}}},
+    animation:{duration:500}};
+  CHARTS[id]=new Chart(el,{type,data,options:deepM(def,opts)});
+}
+function deepM(a,b){const r=Object.assign({},a);for(const k in b){if(b[k]&&typeof b[k]==='object'&&!Array.isArray(b[k]))r[k]=deepM(a[k]||{},b[k]);else r[k]=b[k];}return r;}
+
+// ================================================================
+// PAGE-SPECIFIC FILTER BAR
+// ================================================================
+const PAGE_FILTERS = {
+  exec:      [],
+  budget:    ['project','month','category'],
+  expenses:  ['project','month','payer','method','category'],
+  equipment: ['month','equipment'],
+  production:['month','equipment'],
+  vendors:   [],
+  cashflow:  ['project','month'],
+  risks:     ['project'],
+  mines:     [],
+};
+
+const FILTER_LABELS = {
+  project:'Project', month:'Month', payer:'Paid By',
+  method:'Payment Method', category:'Category', equipment:'Equipment'
+};
+
+function buildSelect(id, label, options, val='all'){
+  const opts = ['<option value="all">All '+label+'</option>',
+    ...options.map(o=>`<option value="${o}"${o===val?' selected':''}>${o}</option>`)].join('');
+  return `<span class="fl">${label}</span>
+    <select class="fs" id="f_${id}" onchange="applyF()">${opts}</select>`;
+}
+
+function renderFilterBar(page){
+  const fb = document.getElementById('mainFb');
+  const filters = PAGE_FILTERS[page]||[];
+  if(!filters.length || page==='mines'){ fb.style.display='none'; return; }
+  fb.style.display='';
+
+  const parts = [];
+  if(filters.includes('project')){
+    const projs=[...new Set(EXP.map(r=>r[2]).concat(BUD.map(r=>r[0])))].filter(Boolean).sort();
+    parts.push(buildSelect('project','Project',projs,FILTERS.project));
+  }
+  if(filters.includes('month')){
+    const months=[...new Set(EXP.map(r=>r[1]).concat(BUD.map(r=>r[1])))].filter(Boolean);
+    parts.push(buildSelect('month','Month',months,FILTERS.month));
+  }
+  if(filters.includes('payer')){
+    const payers=[...new Set(EXP.map(r=>r[3]))].filter(Boolean).sort();
+    parts.push(buildSelect('payer','Paid By',payers,FILTERS.payer));
+  }
+  if(filters.includes('method')){
+    const methods=[...new Set(EXP.map(r=>r[6]))].filter(Boolean).sort();
+    parts.push(buildSelect('method','Method',methods,FILTERS.method));
+  }
+  if(filters.includes('category')){
+    const cats=[...new Set(BUD.map(r=>r[2]))].filter(Boolean).sort();
+    parts.push(buildSelect('category','Category',cats,FILTERS.cat));
+  }
+  if(filters.includes('equipment')){
+    const eqs=[...new Set(EQL.map(r=>r[2]))].filter(Boolean).sort();
+    parts.push(buildSelect('equipment','Equipment',eqs,FILTERS.eq));
+  }
+  parts.push(`<button class="btn-clr" onclick="clearF()">✕ Clear</button>`);
+  fb.innerHTML = parts.join('');
+}
+
+function populateFilters(){ /* now handled dynamically in renderFilterBar */ }
+
+function applyF(){
+  FILTERS.project = document.getElementById('f_project')?.value||'all';
+  FILTERS.month   = document.getElementById('f_month')?.value||'all';
+  FILTERS.payer   = document.getElementById('f_payer')?.value||'all';
+  FILTERS.method  = document.getElementById('f_method')?.value||'all';
+  FILTERS.cat     = document.getElementById('f_category')?.value||'all';
+  FILTERS.eq      = document.getElementById('f_equipment')?.value||'all';
+  const activePage = document.querySelector('.pg.active');
+  if(activePage) renderPage(activePage.id.replace('pg-',''));
+}
+
+function clearF(){
+  FILTERS={project:'all',month:'all',payer:'all',method:'all',cat:'all',eq:'all'};
+  const activePage = document.querySelector('.pg.active');
+  if(activePage){ renderFilterBar(activePage.id.replace('pg-','')); renderPage(activePage.id.replace('pg-','')); }
+}
+
+// ================================================================
+// PAGE 1: EXECUTIVE SUMMARY
+// ================================================================
+function renderExec(){
+  const exp=fE(),bud=fB();
+  const totalSpend=exp.reduce((s,r)=>s+r[5],0);
+  const totalBudget=bud.reduce((s,r)=>s+r[4],0);
+  const pending=bud.reduce((s,r)=>s+(r[5]-r[6]),0);
+  const paidTD=bud.reduce((s,r)=>s+r[6],0);
+  const util=totalBudget>0?totalSpend/totalBudget:0;
+
+  document.getElementById('execKpis').innerHTML=[
+    {l:'Total Budget',v:fmt(totalBudget)+' EGP',s:'All Projects',cc:'cc-blu',vc:'vc-blu'},
+    {l:'Actual Spend',v:fmt(totalSpend)+' EGP',s:(util*100).toFixed(1)+'% Utilized',cc:'cc-org',vc:'vc-org'},
+    {l:'Remaining Budget',v:fmt(totalBudget-totalSpend)+' EGP',s:'Available',cc:'cc-grn',vc:'vc-grn'},
+    {l:'Pending Payments',v:fmt(pending)+' EGP',s:'Required',cc:'cc-yel',vc:'vc-org'},
+    {l:'Paid to Date',v:fmt(paidTD)+' EGP',s:'Budget payments',cc:'cc-tea',vc:'vc-tea'},
+    {l:'Budget Utilization',v:(util*100).toFixed(1)+'%',s:'of Total Budget',cc:'cc-pur',vc:'vc-pur'},
+    {l:'Transactions',v:exp.length,s:'Expense records',cc:'cc-nav',vc:''},
+    {l:'Projects',v:2,s:'Hub + Marsa Alam Mine',cc:'cc-red',vc:'vc-red'},
+  ].map(k=>`<div class="kc ${k.cc}"><div class="kc-lbl">${k.l}</div><div class="kc-val ${k.vc}">${k.v}</div><div class="kc-sub">${k.s}</div></div>`).join('');
+
+  // Category donut
+  const catM={};bud.forEach(r=>{catM[r[2]]=(catM[r[2]]||0)+r[4];});
+  const catE=Object.entries(catM).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  mkC('c_catDonut','doughnut',{labels:catE.map(([k])=>k),datasets:[{data:catE.map(([,v])=>v),backgroundColor:PAL,borderWidth:2,borderColor:'#fff',hoverOffset:5}]},{cutout:'66%',plugins:{tooltip:{callbacks:{label:c=>` ${c.label}: ${fmt(c.raw)} EGP`}}}});
+  const catT=catE.reduce((s,[,v])=>s+v,0);
+  document.getElementById('catLeg').innerHTML=catE.map(([k,v],i)=>`<li><span class="dot" style="background:${PAL[i]}"></span>${k}<span class="lv">${fmt(v)} (${(v/catT*100).toFixed(0)}%)</span></li>`).join('');
+
+  // Budget vs actual
+  const projs=['Hub','Marsa Alam Mine'];
+  mkC('c_bvA','bar',{labels:projs,datasets:[
+    {label:'Budget',data:projs.map(p=>bud.filter(r=>r[0]==p).reduce((s,r)=>s+r[4],0)),backgroundColor:'rgba(41,128,185,.8)',borderRadius:7},
+    {label:'Actual',data:projs.map(p=>exp.filter(r=>r[2]==p).reduce((s,r)=>s+r[5],0)),backgroundColor:'rgba(255,107,53,.85)',borderRadius:7},
+  ]},{plugins:{legend:{display:true,position:'top',labels:{font:{size:9},boxWidth:10}}},scales:{y:{grid:GRID,ticks:{...TICKS,callback:v=>fmt(v)}},x:{grid:{display:false},ticks:TICKS}}});
+
+  // Monthly
+  const months=['April','May'];
+  mkC('c_monthly','bar',{labels:months,datasets:[{data:months.map(m=>exp.filter(r=>r[1]==m).reduce((s,r)=>s+r[5],0)),backgroundColor:['rgba(255,107,53,.85)','rgba(41,128,185,.85)'],borderRadius:8}]},{scales:{y:{grid:GRID,ticks:{...TICKS,callback:v=>fmt(v)}},x:{grid:{display:false}}}});
+
+  // Method donut
+  const mM={};exp.forEach(r=>{mM[r[6]]=(mM[r[6]]||0)+r[5];});
+  const mE=Object.entries(mM).sort((a,b)=>b[1]-a[1]);
+  const mC=['#FF6B35','#2980B9','#1E8449'];
+  mkC('c_methodDonut','doughnut',{labels:mE.map(([k])=>k),datasets:[{data:mE.map(([,v])=>v),backgroundColor:mC,borderWidth:2,borderColor:'#fff',hoverOffset:4}]},{cutout:'64%'});
+  const mT=mE.reduce((s,[,v])=>s+v,0);
+  document.getElementById('methodLeg').innerHTML=mE.map(([k,v],i)=>`<li><span class="dot" style="background:${mC[i]}"></span>${k}<span class="lv">${fmt(v)} (${(v/mT*100).toFixed(0)}%)</span></li>`).join('');
+
+  // Paid vs pending
+  mkC('c_paidPend','bar',{labels:months,datasets:[
+    {label:'Paid',data:months.map(m=>bud.filter(r=>r[1]==m).reduce((s,r)=>s+r[6],0)),backgroundColor:'rgba(30,132,73,.8)',borderRadius:6},
+    {label:'Pending',data:months.map(m=>bud.filter(r=>r[1]==m).reduce((s,r)=>s+(r[5]-r[6]),0)),backgroundColor:'rgba(243,156,18,.7)',borderRadius:6},
+  ]},{plugins:{legend:{display:true,position:'top',labels:{font:{size:9},boxWidth:10}}},scales:{y:{grid:GRID,ticks:{...TICKS,callback:v=>fmt(v)}},x:{grid:{display:false}}}});
+
+  // Util bars
+  const utilM={};bud.forEach(r=>{if(!utilM[r[2]])utilM[r[2]]={b:0,req:0};utilM[r[2]].b+=r[4];utilM[r[2]].req+=r[5];});
+  document.getElementById('utilBars').innerHTML=Object.entries(utilM).sort((a,b)=>b[1].b-a[1].b).map(([cat,{b,req}])=>{
+    const p=b>0?Math.min(req/b*100,100):0;const ov=b>0&&req>b;
+    return`<div style="margin-bottom:7px"><div style="display:flex;justify-content:space-between;font-size:9.5px;color:var(--g600);margin-bottom:1px"><span>${cat}</span><span>${p.toFixed(0)}%</span></div><div class="pb"><div class="pf" style="width:${p}%;background:${ov?'var(--redl)':'var(--org)'}"></div></div></div>`;
+  }).join('');
+
+  // Suppliers table
+  const sM={};exp.forEach(r=>{const s=r[4]||`[${r[3]}]`;sM[s]=(sM[s]||0)+r[5];});
+  const top10=Object.entries(sM).filter(([k])=>k&&!k.startsWith('[Nadeem') &&!k.startsWith('[Ahmed')).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const sAll=Object.entries(sM).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const sTotal=Object.values(sM).reduce((s,v)=>s+v,0);
+  document.getElementById('suppTbl').innerHTML=`<thead><tr><th>#</th><th>Supplier</th><th class="td-r">Amount (EGP)</th><th class="td-r">%</th></tr></thead><tbody>${sAll.map(([n,v],i)=>`<tr><td style="color:var(--g400)">${i+1}</td><td>${n}</td><td class="td-r td-m">${fmtF(v)}</td><td class="td-r"><span class="pill pl-o">${(v/sTotal*100).toFixed(1)}%</span></td></tr>`).join('')}</tbody>`;
+
+  // Project status
+  document.getElementById('projStatus').innerHTML=['Hub','Marsa Alam Mine'].map(p=>{
+    const b=bud.filter(r=>r[0]==p).reduce((s,r)=>s+r[4],0);
+    const e=exp.filter(r=>r[2]==p).reduce((s,r)=>s+r[5],0);
+    const u=b>0?e/b*100:0;const st=u<=100?'On Track':'Over Budget';
+    return`<div class="st-mini"><span class="sk">🏗 ${p}</span><span class="sv" style="display:flex;align-items:center;gap:7px">${fmt(e)} / ${fmt(b)} EGP <span class="pill ${u<=100?'pl-g':'pl-r'}">${st}</span></span></div><div style="padding:3px 0 8px"><div class="pb"><div class="pf" style="width:${Math.min(u,100)}%;background:${u>100?'var(--redl)':'var(--org)'}"></div></div><div style="font-size:9px;color:var(--g400);margin-top:1px">${u.toFixed(1)}% utilized</div></div>`;
+  }).join('')+`<div style="margin-top:10px;font-size:9.5px;font-weight:700;color:var(--g600);text-transform:uppercase;letter-spacing:.5px">Spend by Payer</div>`+[...new Set(exp.map(r=>r[3]))].map(py=>{
+    const v=exp.filter(r=>r[3]==py).reduce((s,r)=>s+r[5],0);
+    return`<div class="st-mini"><span class="sk">👤 ${py}</span><span class="sv">${fmt(v)} EGP</span></div>`;
+  }).join('');
+}
+
+// ================================================================
+// PAGE 2: BUDGET
+// ================================================================
+function renderBudget(){
+  const exp=fE(),bud=fB();
+  const tb=bud.reduce((s,r)=>s+r[4],0),te=exp.reduce((s,r)=>s+r[5],0);
+  const pending=bud.reduce((s,r)=>s+(r[5]-r[6]),0);
+  const util=tb>0?te/tb:0;
+  document.getElementById('budKpis').innerHTML=[
+    {l:'Total Budget',v:fmt(tb)+' EGP',cc:'cc-blu',vc:'vc-blu'},
+    {l:'Actual Spend',v:fmt(te)+' EGP',cc:'cc-org',vc:'vc-org'},
+    {l:'Remaining Budget',v:fmt(tb-te)+' EGP',cc:'cc-grn',vc:'vc-grn'},
+    {l:'Pending Payments',v:fmt(pending)+' EGP',cc:'cc-yel',vc:'vc-org'},
+  ].map(k=>`<div class="kc ${k.cc}"><div class="kc-lbl">${k.l}</div><div class="kc-val ${k.vc}">${k.v}</div><div class="kc-sub">${(util*100).toFixed(1)}% utilized</div></div>`).join('');
+
+  const catM={};bud.forEach(r=>{if(!catM[r[2]])catM[r[2]]={b:0,req:0};catM[r[2]].b+=r[4];catM[r[2]].req+=r[5];});
+  const cats=Object.entries(catM).sort((a,b)=>b[1].b-a[1].b).slice(0,10);
+  mkC('c_budCat','bar',{labels:cats.map(([k])=>k),datasets:[
+    {label:'Budget',data:cats.map(([,v])=>v.b),backgroundColor:'rgba(41,128,185,.75)',borderRadius:4},
+    {label:'Required',data:cats.map(([,v])=>v.req),backgroundColor:'rgba(255,107,53,.85)',borderRadius:4},
+  ]},{indexAxis:'y',plugins:{legend:{display:true,position:'top',labels:{font:{size:9},boxWidth:10}}},scales:{x:{grid:GRID,ticks:{...TICKS,callback:v=>fmt(v)}},y:{grid:{display:false},ticks:TICKS}}});
+
+  mkC('c_budDonut','doughnut',{labels:cats.map(([k])=>k),datasets:[{data:cats.map(([,v])=>v.b),backgroundColor:PAL,borderWidth:2,borderColor:'#fff'}]},{cutout:'60%',plugins:{tooltip:{callbacks:{label:c=>` ${c.label}: ${fmt(c.raw)} EGP`}}}});
+  const bt=cats.reduce((s,[,v])=>s+v.b,0);
+  document.getElementById('budDonutLeg').innerHTML=cats.map(([k,v],i)=>`<li><span class="dot" style="background:${PAL[i]}"></span>${k}<span class="lv">${(v.b/bt*100).toFixed(1)}%</span></li>`).join('');
+
+  document.getElementById('budTbl').innerHTML=`<thead><tr><th>Project</th><th>Month</th><th>Category</th><th>Item</th><th class="td-r">Budget</th><th class="td-r">Required</th><th class="td-r">Remaining</th><th>Status</th></tr></thead><tbody>${bud.map(r=>{const rem=r[4]-r[5];return`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td style="color:var(--g600)">${r[3]}</td><td class="td-r td-m">${fmtF(r[4])}</td><td class="td-r td-m">${fmtF(r[5])}</td><td class="td-r td-m" style="color:${rem>=0?'var(--grnl)':'var(--redl)'}">${fmtF(rem)}</td><td><span class="pill ${rem>=0?'pl-g':'pl-r'}">${rem>=0?'On Track':'Over'}</span></td></tr>`;}).join('')}</tbody>`;
+
+  const pm={};bud.forEach(r=>{const k=`${r[0]}|${r[1]}`;if(!pm[k])pm[k]={b:0,e:0};pm[k].b+=r[4];});exp.forEach(r=>{const k=`${r[2]}|${r[1]}`;if(pm[k])pm[k].e+=r[5];});
+  const pmE=Object.entries(pm);
+  mkC('c_budPM','bar',{labels:pmE.map(([k])=>k.replace('|',' | ')),datasets:[
+    {label:'Budget',data:pmE.map(([,v])=>v.b),backgroundColor:'rgba(41,128,185,.75)',borderRadius:5},
+    {label:'Actual',data:pmE.map(([,v])=>v.e),backgroundColor:'rgba(255,107,53,.85)',borderRadius:5},
+  ]},{plugins:{legend:{display:true,position:'top',labels:{font:{size:9},boxWidth:10}}},scales:{y:{grid:GRID,ticks:{...TICKS,callback:v=>fmt(v)}},x:{grid:{display:false},ticks:TICKS}}});
+}
+
+// ================================================================
+// PAGE 3: EXPENSES
+// ================================================================
+let expPg=0; const expPS=50;
+function renderExpenses(){
+  const exp=fE();
+  const ts=exp.reduce((s,r)=>s+r[5],0);
+  document.getElementById('expKpis').innerHTML=[
+    {l:'Total Spend',v:fmt(ts)+' EGP',cc:'cc-org',vc:'vc-org'},
+    {l:'Transactions',v:exp.length,cc:'cc-blu',vc:'vc-blu'},
+    {l:'Avg per Transaction',v:fmt(exp.length?ts/exp.length:0)+' EGP',cc:'cc-pur',vc:'vc-pur'},
+    {l:'Paid to Date',v:fmt(fB().reduce((s,r)=>s+r[6],0))+' EGP',cc:'cc-grn',vc:'vc-grn'},
+  ].map(k=>`<div class="kc ${k.cc}"><div class="kc-lbl">${k.l}</div><div class="kc-val ${k.vc}">${k.v}</div><div class="kc-sub"> </div></div>`).join('');
+
+  const dM={};exp.filter(r=>r[1]=='April').forEach(r=>{dM[r[0]]=(dM[r[0]]||0)+r[5];});
+  const dE=Object.entries(dM).sort();
+  mkC('c_daily','bar',{labels:dE.map(([k])=>k.slice(5)),datasets:[{data:dE.map(([,v])=>v),backgroundColor:'rgba(255,107,53,.75)',borderRadius:4}]},{scales:{y:{grid:GRID,ticks:{...TICKS,callback:v=>fmt(v)}},x:{grid:{display:false},ticks:{...TICKS,maxRotation:45}}}});
+
+  const pM={};exp.forEach(r=>{pM[r[3]]=(pM[r[3]]||0)+r[5];});
+  const pE=Object.entries(pM).sort((a,b)=>b[1]-a[1]);
+  const pC=['#FF6B35','#2980B9','#1E8449'];
+  mkC('c_payer','doughnut',{labels:pE.map(([k])=>k),datasets:[{data:pE.map(([,v])=>v),backgroundColor:pC,borderWidth:2,borderColor:'#fff'}]},{cutout:'58%'});
+  const pT=pE.reduce((s,[,v])=>s+v,0);
+  document.getElementById('payerLeg').innerHTML=pE.map(([k,v],i)=>`<li><span class="dot" style="background:${pC[i]}"></span>${k}<span class="lv">${fmt(v)} (${(v/pT*100).toFixed(0)}%)</span></li>`).join('');
+
+  renderExpTbl();
+}
+function renderExpTbl(){
+  const search=(document.getElementById('expSrch')||{value:''}).value.toLowerCase();
+  const exp=fE().filter(r=>!search||r[4].toLowerCase().includes(search)||r[3].toLowerCase().includes(search));
+  const pg=exp.slice(expPg*expPS,(expPg+1)*expPS);
+  document.getElementById('expLogCnt').textContent=`${exp.length} transactions`;
+  document.getElementById('expTbl').innerHTML=`<thead><tr><th>Date</th><th>Month</th><th>Project</th><th>Paid By</th><th>Supplier</th><th class="td-r">Amount (EGP)</th><th>Method</th></tr></thead><tbody>${pg.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]||'—'}</td><td class="td-r td-m">${fmtF(r[5])}</td><td><span class="pill pl-b" style="font-size:8.5px">${r[6]}</span></td></tr>`).join('')}</tbody>`;
+  const tp=Math.ceil(exp.length/expPS);
+  document.getElementById('expPag').textContent=`Showing ${expPg*expPS+1}–${Math.min((expPg+1)*expPS,exp.length)} of ${exp.length}  |  Page ${expPg+1}/${tp||1}`;
+}
+function filterExpTbl(){expPg=0;renderExpTbl();}
+
+// ================================================================
+// PAGE 4: EQUIPMENT
+// ================================================================
+function renderEquipment(){
+  const eql=fEQ();
+  const eqs=[...new Set(EQL.map(r=>r[2]))];
+  const totalH=eql.reduce((s,r)=>s+r[4],0);
+  const totalC=eql.reduce((s,r)=>s+r[4]*(EQ_RATE_H[r[2]]||0),0);
+
+  document.getElementById('eqKpis').innerHTML=[
+    {l:'Total Hours',v:totalH.toFixed(1)+' hrs',cc:'cc-tea',vc:'vc-tea'},
+    {l:'Total Running Cost',v:fmt(totalC)+' EGP',cc:'cc-org',vc:'vc-org'},
+    {l:'Active Equipment',v:eqs.length+' units',cc:'cc-grn',vc:'vc-grn'},
+    {l:'April Cost',v:fmt(eql.filter(r=>r[1]=='April').reduce((s,r)=>s+r[4]*(EQ_RATE_H[r[2]]||0),0))+' EGP',cc:'cc-blu',vc:'vc-blu'},
+  ].map(k=>`<div class="kc ${k.cc}"><div class="kc-lbl">${k.l}</div><div class="kc-val ${k.vc}">${k.v}</div><div class="kc-sub"> </div></div>`).join('');
+
+  const months=['April','May'];
+  mkC('c_eqHours','bar',{labels:eqs,datasets:months.map((m,i)=>({label:m,data:eqs.map(e=>EQL.filter(r=>r[2]==e&&r[1]==m).reduce((s,r)=>s+r[4],0)),backgroundColor:i==0?'rgba(255,107,53,.8)':'rgba(41,128,185,.8)',borderRadius:5}))},{plugins:{legend:{display:true,position:'top',labels:{font:{size:9},boxWidth:10}}},scales:{y:{grid:GRID,ticks:TICKS},x:{grid:{display:false},ticks:TICKS}}});
+  mkC('c_eqCost','bar',{labels:eqs,datasets:months.map((m,i)=>({label:m,data:eqs.map(e=>EQL.filter(r=>r[2]==e&&r[1]==m).reduce((s,r)=>s+r[4]*(EQ_RATE_H[r[2]]||0),0)),backgroundColor:i==0?'rgba(255,107,53,.8)':'rgba(41,128,185,.8)',borderRadius:5}))},{plugins:{legend:{display:true,position:'top',labels:{font:{size:9},boxWidth:10}}},scales:{y:{grid:GRID,ticks:{...TICKS,callback:v=>fmt(v)}},x:{grid:{display:false},ticks:TICKS}}});
+
+  const pivot={};EQL.forEach(r=>{const k=`${r[2]}|${r[1]}`;if(!pivot[k])pivot[k]={et:r[2],mo:r[1],hrs:0,cont:r[3]};pivot[k].hrs+=r[4];});
+  document.getElementById('eqTbl').innerHTML=`<thead><tr><th>Equipment</th><th>Month</th><th>Contractor</th><th>Total Hours</th><th class="td-r">Rate/hr</th><th class="td-r">Running Cost</th><th class="td-r">Monthly Rate</th><th>Status</th></tr></thead><tbody>${Object.values(pivot).map(({et,mo,hrs,cont})=>{const hr=EQ_RATE_H[et]||0;const mr=EQ_RATE_M[et]||0;const cost=Math.round(hrs*hr);const diff=cost-mr;return`<tr><td><strong>${et}</strong></td><td>${mo}</td><td>${cont}</td><td>${hrs.toFixed(2)}</td><td class="td-r td-m">${fmtF(hr)}</td><td class="td-r td-m">${fmtF(cost)}</td><td class="td-r td-m">${fmtF(mr)}</td><td><span class="pill ${diff>0?'pl-r':diff<0?'pl-g':'pl-n'}">${diff>0?'Over Rate':diff<0?'Under Rate':'On Rate'}</span></td></tr>`;}).join('')}</tbody>`;
+
+  mkC('c_eqBar','bar',{labels:eqs,datasets:[
+    {label:'Running Cost',data:eqs.map(e=>EQL.filter(r=>r[2]==e).reduce((s,r)=>s+r[4]*(EQ_RATE_H[r[2]]||0),0)),backgroundColor:'rgba(255,107,53,.8)',borderRadius:5},
+    {label:'Monthly Rate',data:eqs.map(e=>EQ_RATE_M[e]||0),backgroundColor:'rgba(41,128,185,.6)',borderRadius:5},
+  ]},{plugins:{legend:{display:true,position:'top',labels:{font:{size:9},boxWidth:10}}},scales:{y:{grid:GRID,ticks:{...TICKS,callback:v=>fmt(v)}},x:{grid:{display:false},ticks:TICKS}}});
+}
+
+// ================================================================
+// PAGE 5: PRODUCTION
+// ================================================================
+function loadProdData(){
+  try{PROD_DATA=JSON.parse(localStorage.getItem('ait_prod_data')||'{}');}catch(e){PROD_DATA={};}
+}
+function saveProdData(){
+  const rows=document.querySelectorAll('#prodTbl tbody tr');
+  rows.forEach(tr=>{
+    const key=tr.dataset.key;
+    const input=tr.querySelector('input');
+    if(key&&input){
+      const tons=parseFloat(input.value)||0;
+      if(tons>0)PROD_DATA[key]=tons;else delete PROD_DATA[key];
+    }
+  });
+  localStorage.setItem('ait_prod_data',JSON.stringify(PROD_DATA));
+  document.getElementById('prodSaveMsg').textContent='✅ Saved! '+new Date().toLocaleTimeString();
+  renderProductionCharts();
+}
+function renderProduction(){
+  loadProdData();
+  const eqs=[...new Set(EQL.map(r=>r[2]))];
+  const totalH=EQL.reduce((s,r)=>s+r[4],0);
+  const totalC=EQL.reduce((s,r)=>s+r[4]*(EQ_RATE_H[r[2]]||0),0);
+  const totalTons=Object.values(PROD_DATA).reduce((s,v)=>s+v,0);
+  const avgCPT=totalTons>0?totalC/totalTons:0;
+
+  document.getElementById('prodKpis').innerHTML=[
+    {l:'Total Operating Hours',v:totalH.toFixed(1)+' hrs',cc:'cc-tea',vc:'vc-tea'},
+    {l:'Total Running Cost',v:fmt(totalC)+' EGP',cc:'cc-org',vc:'vc-org'},
+    {l:'Total Tons Produced',v:fmt(totalTons)+' ton',cc:'cc-grn',vc:'vc-grn'},
+    {l:'Avg Cost per Ton',v:totalTons>0?fmt(avgCPT)+' EGP/ton':'Enter tons↓',cc:'cc-pur',vc:'vc-pur'},
+  ].map(k=>`<div class="kc ${k.cc}"><div class="kc-lbl">${k.l}</div><div class="kc-val ${k.vc}">${k.v}</div><div class="kc-sub"> </div></div>`).join('');
+
+  // Hours by equipment bar
+  mkC('c_prodHours','bar',{labels:eqs,datasets:[{label:'Total Hours',data:eqs.map(e=>EQL.filter(r=>r[2]==e).reduce((s,r)=>s+r[4],0)),backgroundColor:PAL,borderRadius:7}]},{plugins:{tooltip:{callbacks:{label:c=>` ${c.raw.toFixed(2)} hrs`}}},scales:{y:{grid:GRID,ticks:TICKS},x:{grid:{display:false},ticks:TICKS}}});
+  mkC('c_prodCost','bar',{labels:eqs,datasets:[{label:'Running Cost',data:eqs.map(e=>EQL.filter(r=>r[2]==e).reduce((s,r)=>s+r[4]*(EQ_RATE_H[r[2]]||0),0)),backgroundColor:PAL,borderRadius:7}]},{scales:{y:{grid:GRID,ticks:{...TICKS,callback:v=>fmt(v)}},x:{grid:{display:false},ticks:TICKS}}});
+
+  // Production input table
+  const pivot={};EQL.forEach(r=>{const k=`${r[1]}|${r[2]}|${r[0]}`;if(!pivot[k])pivot[k]={date:r[0],mo:r[1],et:r[2],cont:r[3],hrs:0};pivot[k].hrs+=r[4];});
+  const rows=Object.entries(pivot).sort(([a],[b])=>a.localeCompare(b));
+  document.getElementById('prodTbl').innerHTML=`<thead><tr><th>Date</th><th>Month</th><th>Equipment</th><th>Hours</th><th class="td-r">Rate/hr</th><th class="td-r">Running Cost</th><th>🟡 Tons Produced</th><th class="td-r">Cost/Ton (EGP)</th><th class="td-r">Ton/Hour</th></tr></thead><tbody>${rows.map(([k,{date,mo,et,hrs}])=>{const hr=EQ_RATE_H[et]||0;const cost=Math.round(hrs*hr);const tons=PROD_DATA[k]||0;const cpt=tons>0?Math.round(cost/tons):0;const tph=hrs>0&&tons>0?(tons/hrs).toFixed(2):'';return`<tr data-key="${k}"><td>${date}</td><td>${mo}</td><td><strong>${et}</strong></td><td>${hrs.toFixed(2)}</td><td class="td-r td-m">${fmtF(hr)}</td><td class="td-r td-m">${fmtF(cost)}</td><td style="background:#FEF9E7"><input type="number" min="0" step="0.1" value="${tons||''}" placeholder="0" style="width:80px;padding:3px 6px;border:1px solid var(--g200);border-radius:4px;font-size:11px;text-align:right;background:transparent"></td><td class="td-r td-m" style="color:${cpt>0?'var(--org)':'var(--g400)'}">${cpt>0?fmtF(cpt):'—'}</td><td class="td-r td-m">${tph||'—'}</td></tr>`;}).join('')}</tbody>`;
+
+  renderProductionCharts();
+}
+function renderProductionCharts(){
+  const eqs=[...new Set(EQL.map(r=>r[2]))];
+  const cptByEq={};const tphByEq={};
+  eqs.forEach(e=>{
+    const rows=EQL.filter(r=>r[2]==e);
+    const hrs=rows.reduce((s,r)=>s+r[4],0);
+    const cost=rows.reduce((s,r)=>s+r[4]*(EQ_RATE_H[r[2]]||0),0);
+    let tons=0;
+    rows.forEach(r=>{const k=`${r[1]}|${r[2]}|${r[0]}`;tons+=(PROD_DATA[k]||0);});
+    cptByEq[e]=tons>0?Math.round(cost/tons):0;
+    tphByEq[e]=hrs>0&&tons>0?+(tons/hrs).toFixed(2):0;
+  });
+  mkC('c_cpt','bar',{labels:eqs,datasets:[{label:'Cost per Ton (EGP)',data:eqs.map(e=>cptByEq[e]),backgroundColor:PAL,borderRadius:7}]},{plugins:{tooltip:{callbacks:{label:c=>` ${fmtF(c.raw)} EGP/ton`}}},scales:{y:{grid:GRID,ticks:{...TICKS,callback:v=>fmtF(v)}},x:{grid:{display:false},ticks:TICKS}}});
+  mkC('c_tph','bar',{labels:eqs,datasets:[{label:'Tons per Hour',data:eqs.map(e=>tphByEq[e]),backgroundColor:PAL.slice(2),borderRadius:7}]},{plugins:{tooltip:{callbacks:{label:c=>` ${c.raw.toFixed(2)} ton/hr`}}},scales:{y:{grid:GRID,ticks:TICKS},x:{grid:{display:false},ticks:TICKS}}});
+}
+
+// ================================================================
+// PAGE 6: VENDORS
+// ================================================================
+function renderVendors(){
+  const exp=fE();
+  const sM={};exp.forEach(r=>{const s=r[4]||`[${r[3]}]`;if(!sM[s])sM[s]={total:0,n:0,payer:r[3],method:r[6]};sM[s].total+=r[5];sM[s].n++;});
+  const sorted=Object.entries(sM).sort((a,b)=>b[1].total-a[1].total);
+  const top10=sorted.slice(0,10);
+  mkC('c_topSupp','bar',{labels:top10.map(([k])=>k.substring(0,22)),datasets:[{data:top10.map(([,v])=>v.total),backgroundColor:PAL,borderRadius:5}]},{indexAxis:'y',scales:{x:{grid:GRID,ticks:{...TICKS,callback:v=>fmt(v)}},y:{grid:{display:false},ticks:{...TICKS,font:{size:9}}}}});
+  document.getElementById('conTbl').innerHTML=`<thead><tr><th>ID</th><th>Name</th><th>Rep.</th><th>Mobile</th><th>Bank</th></tr></thead><tbody>${CONTRACTORS.map(c=>`<tr><td><span class="pill pl-b">${c.id}</span></td><td><strong>${c.name}</strong></td><td>${c.rep}</td><td>${c.mobile}</td><td>${c.bank}</td></tr>`).join('')}</tbody>`;
+  document.getElementById('vendTbl').innerHTML=`<thead><tr><th>#</th><th>Supplier</th><th>Payer</th><th class="td-r">Total (EGP)</th><th>Transactions</th><th>Method</th></tr></thead><tbody>${sorted.map(([n,{total,n:cnt,payer,method}],i)=>`<tr><td style="color:var(--g400)">${i+1}</td><td>${n}</td><td>${payer}</td><td class="td-r td-m">${fmtF(total)}</td><td><span class="pill pl-n">${cnt}</span></td><td>${method}</td></tr>`).join('')}</tbody>`;
+}
+
+// ================================================================
+// PAGE 7: CASH FLOW
+// ================================================================
+function renderCashFlow(){
+  const exp=fE(),bud=fB();
+  const months=['April','May'];
+  const mSpend=months.map(m=>exp.filter(r=>r[1]==m).reduce((s,r)=>s+r[5],0));
+  const cum=[mSpend[0],mSpend[0]+mSpend[1]];
+  const tb=bud.reduce((s,r)=>s+r[4],0);
+
+  document.getElementById('cfKpis').innerHTML=[
+    {l:'Total Cash Out',v:fmt(mSpend.reduce((s,v)=>s+v,0))+' EGP',cc:'cc-red',vc:'vc-red'},
+    {l:'April Cash Out',v:fmt(mSpend[0])+' EGP',cc:'cc-org',vc:'vc-org'},
+    {l:'May Cash Out',v:fmt(mSpend[1])+' EGP',cc:'cc-blu',vc:'vc-blu'},
+    {l:'Budget Remaining',v:fmt(tb-mSpend.reduce((s,v)=>s+v,0))+' EGP',cc:'cc-grn',vc:'vc-grn'},
+  ].map(k=>`<div class="kc ${k.cc}"><div class="kc-lbl">${k.l}</div><div class="kc-val ${k.vc}">${k.v}</div><div class="kc-sub"> </div></div>`).join('');
+
+  mkC('c_cfCum','line',{labels:months,datasets:[
+    {label:'Cumulative',data:cum,borderColor:'#FF6B35',backgroundColor:'rgba(255,107,53,.1)',borderWidth:2.5,fill:true,tension:.4,pointRadius:5,pointBackgroundColor:'#FF6B35'},
+    {label:'Monthly',data:mSpend,borderColor:'#2980B9',backgroundColor:'rgba(41,128,185,.08)',borderWidth:2,fill:false,tension:.4,pointRadius:5,pointBackgroundColor:'#2980B9'},
+  ]},{plugins:{legend:{display:true,position:'top',labels:{font:{size:9},boxWidth:10}}},scales:{y:{grid:GRID,ticks:{...TICKS,callback:v=>fmt(v)}},x:{grid:{display:false}}}});
+
+  const projs=['Hub','Marsa Alam Mine'];
+  mkC('c_cfProj','bar',{labels:months,datasets:projs.map((p,i)=>({label:p,data:months.map(m=>exp.filter(r=>r[2]==p&&r[1]==m).reduce((s,r)=>s+r[5],0)),backgroundColor:i==0?'rgba(255,107,53,.8)':'rgba(41,128,185,.8)',borderRadius:5}))},{plugins:{legend:{display:true,position:'top',labels:{font:{size:9},boxWidth:10}}},scales:{y:{grid:GRID,ticks:{...TICKS,callback:v=>fmt(v)}},x:{grid:{display:false}}}});
+
+  const budPending=bud.filter(r=>r[5]>r[6]);
+  document.getElementById('cfTbl').innerHTML=`<thead><tr><th>Project</th><th>Month</th><th>Category</th><th>Item</th><th class="td-r">Required (EGP)</th><th class="td-r">Paid</th><th class="td-r">Pending</th><th>Status</th></tr></thead><tbody>${budPending.map(r=>{const pend=r[5]-r[6];return`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td style="color:var(--g600)">${r[3]}</td><td class="td-r td-m">${fmtF(r[5])}</td><td class="td-r td-m">${fmtF(r[6])}</td><td class="td-r td-m" style="color:var(--org)">${fmtF(pend)}</td><td><span class="pill pl-y">Pending</span></td></tr>`;}).join('')}</tbody>`;
+
+  const mM={};exp.forEach(r=>{mM[r[6]]=(mM[r[6]]||0)+r[5];});
+  const mE=Object.entries(mM).sort((a,b)=>b[1]-a[1]);
+  const mC=['#FF6B35','#2980B9','#1E8449'];
+  mkC('c_cfMethod','doughnut',{labels:mE.map(([k])=>k),datasets:[{data:mE.map(([,v])=>v),backgroundColor:mC,borderWidth:2,borderColor:'#fff'}]},{cutout:'58%'});
+  const mT=mE.reduce((s,[,v])=>s+v,0);
+  document.getElementById('cfMethodLeg').innerHTML=mE.map(([k,v],i)=>`<li><span class="dot" style="background:${mC[i]}"></span>${k}<span class="lv">${fmt(v)} (${(v/mT*100).toFixed(0)}%)</span></li>`).join('');
+}
+
+// ================================================================
+// PAGE 8: RISK & ALERTS
+// ================================================================
+function renderRisks(){
+  const exp=fE(),bud=fB();
+  const totalB=bud.reduce((s,r)=>s+r[4],0);
+  const totalE=exp.reduce((s,r)=>s+r[5],0);
+  const util=totalB>0?totalE/totalB:0;
+  const overBudget=util>1;
+
+  document.getElementById('riskKpis').innerHTML=[
+    {l:'Budget Status',v:overBudget?'Over Budget':'On Track',cc:overBudget?'cc-red':'cc-grn',vc:overBudget?'vc-red':'vc-grn'},
+    {l:'Utilization',v:(util*100).toFixed(1)+'%',cc:'cc-org',vc:'vc-org'},
+    {l:'Over-Budget Categories',v:Object.entries(bud.reduce((m,r)=>{if(!m[r[2]])m[r[2]]={b:0,req:0};m[r[2]].b+=r[4];m[r[2]].req+=r[5];return m;},{})).filter(([,{b,req}])=>req>b).length,cc:'cc-red',vc:'vc-red'},
+    {l:'Pending Payments',v:bud.filter(r=>r[5]>r[6]).length+' items',cc:'cc-yel',vc:'vc-org'},
+  ].map(k=>`<div class="kc ${k.cc}"><div class="kc-lbl">${k.l}</div><div class="kc-val ${k.vc}">${k.v}</div><div class="kc-sub"> </div></div>`).join('');
+
+  const catM={};bud.forEach(r=>{if(!catM[r[2]])catM[r[2]]={b:0,req:0};catM[r[2]].b+=r[4];catM[r[2]].req+=r[5];});
+  const cats=Object.entries(catM).sort((a,b)=>b[1].b-a[1].b).slice(0,10);
+  mkC('c_riskBar','bar',{labels:cats.map(([k])=>k),datasets:[
+    {label:'Budget',data:cats.map(([,v])=>v.b),backgroundColor:'rgba(41,128,185,.7)',borderRadius:4},
+    {label:'Required',data:cats.map(([,v])=>v.req),backgroundColor:cats.map(([,v])=>v.req>v.b?'rgba(192,57,43,.85)':'rgba(30,132,73,.7)'),borderRadius:4},
+  ]},{indexAxis:'y',plugins:{legend:{display:true,position:'top',labels:{font:{size:9},boxWidth:10}}},scales:{x:{grid:GRID,ticks:{...TICKS,callback:v=>fmt(v)}},y:{grid:{display:false},ticks:{...TICKS,font:{size:9}}}}});
+
+  const alerts=[];
+  if(util>0.9)alerts.push({type:'danger',icon:'🚨',msg:`Budget utilization at ${(util*100).toFixed(1)}% — approaching limit`});
+  const overCats=Object.entries(catM).filter(([,{b,req}])=>req>b).map(([k])=>k);
+  if(overCats.length>0)alerts.push({type:'warning',icon:'⚠️',msg:`Categories over budget: ${overCats.join(', ')}`});
+  const pendingPay=bud.filter(r=>r[5]>r[6]);
+  if(pendingPay.length>0)alerts.push({type:'info',icon:'⏰',msg:`${pendingPay.length} pending payments totaling ${fmt(pendingPay.reduce((s,r)=>s+(r[5]-r[6]),0))} EGP`});
+  const eqOverRate=Object.values(Object.fromEntries(EQL.reduce((m,r)=>{const k=r[2];if(!m.has(k))m.set(k,0);m.set(k,m.get(k)+r[4]*(EQ_RATE_H[r[2]]||0));return m;},new Map()))).filter((_,i)=>{const e=EQL.map(r=>r[2]).filter((v,i,a)=>a.indexOf(v)==i)[i];return _>(EQ_RATE_M[e]||Infinity);});
+  if(eqOverRate.length>0)alerts.push({type:'warning',icon:'🚜',msg:`${eqOverRate.length} equipment unit(s) running cost exceeds monthly rate`});
+  alerts.push({type:'success',icon:'✅',msg:`Total ${exp.length} transactions recorded across ${[...new Set(exp.map(r=>r[2]))].length} projects`});
+
+  document.getElementById('alertsDiv').innerHTML=alerts.map(a=>`<div style="display:flex;align-items:flex-start;gap:9px;padding:8px 11px;border-radius:6px;margin-bottom:6px;background:${a.type=='danger'?'#FEECEC':a.type=='warning'?'#FEF9E7':a.type=='info'?'#EBF5FB':'#E8F5E9'};color:${a.type=='danger'?'var(--red)':a.type=='warning'?'#7D6608':a.type=='info'?'var(--blu)':'var(--grn)'};font-size:11px"><span style="font-size:14px">${a.icon}</span><span>${a.msg}</span></div>`).join('');
+
+  const pivot={};EQL.forEach(r=>{const k=`${r[2]}|${r[1]}`;if(!pivot[k])pivot[k]={et:r[2],mo:r[1],hrs:0};pivot[k].hrs+=r[4];});
+  document.getElementById('riskEqTbl').innerHTML=`<thead><tr><th>Equipment</th><th>Month</th><th>Hours</th><th class="td-r">Running Cost</th><th class="td-r">Monthly Rate</th><th class="td-r">Difference</th><th>Risk</th></tr></thead><tbody>${Object.values(pivot).map(({et,mo,hrs})=>{const hr=EQ_RATE_H[et]||0;const mr=EQ_RATE_M[et]||0;const cost=Math.round(hrs*hr);const diff=cost-mr;const risk=diff>100000?'High':diff>0?'Medium':'Low';return`<tr><td><strong>${et}</strong></td><td>${mo}</td><td>${hrs.toFixed(2)}</td><td class="td-r td-m">${fmtF(cost)}</td><td class="td-r td-m">${fmtF(mr)}</td><td class="td-r td-m" style="color:${diff>0?'var(--redl)':'var(--grnl)'}">${diff>0?'+':''}${fmtF(diff)}</td><td><span class="pill ${diff>100000?'pl-r':diff>0?'pl-y':'pl-g'}">${risk}</span></td></tr>`;}).join('')}</tbody>`;
+}
+
+// ================================================================
+// MASTER RENDER + PAGE SWITCH
+// ================================================================
+const PAGE_META={
+  exec:  ['AIT Projects Portfolio — Executive Summary','Overview of project financial performance and key indicators'],
+  budget:['AIT Projects Portfolio — Budget Overview','All Projects Budget Performance with Drill-down'],
+  expenses:['AIT Projects Portfolio — Expenses & Payment Plan','All Projects Expense Tracking and Payment Scheduling'],
+  equipment:['AIT Projects Portfolio — Equipment Operations','Equipment hours, costs, and contractor breakdown'],
+  production:['AIT Projects Portfolio — Production Analytics','Equipment production, cost per ton, and efficiency metrics'],
+  vendors:['AIT Projects Portfolio — Vendor & Procurement','Manage vendors, contracts, and procurement performance'],
+  cashflow:['AIT Projects Portfolio — Cash Flow Forecast','Projected cash inflows and outflows across all projects'],
+  risks:['AIT Projects Portfolio — Risk & Alerts','Monitor project risks, issues, and alerts proactively'],
+  mines:['AIT Projects Portfolio — Mines Map','Interactive map of all mining sites, zones, and samples'],
+};
+
+function renderPage(page){
+  if(page=='exec')renderExec();
+  else if(page=='budget')renderBudget();
+  else if(page=='expenses')renderExpenses();
+  else if(page=='equipment')renderEquipment();
+  else if(page=='production')renderProduction();
+  else if(page=='vendors')renderVendors();
+  else if(page=='cashflow')renderCashFlow();
+  else if(page=='risks')renderRisks();
+  else if(page=='mines'){/* iframe handles its own rendering */ syncMinesSettings();}
+}
+
+function goPage(page,el){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.getElementById('pg-'+page).classList.add('active');
+  if(el) el.classList.add('active');
+  const [t,s]=PAGE_META[page]||['AIT Dashboard',''];
+  document.getElementById('pgTitle').textContent=t;
+  document.getElementById('pgSub').textContent=s;
+  // hide topbar selects on mines page
+  const tbSels=document.querySelectorAll('.tb-sel');
+  if(page==='mines') tbSels.forEach(s=>s.style.display='none');
+  else tbSels.forEach(s=>s.style.display='');
+  renderFilterBar(page);
+  renderPage(page);
+}
+
+function goPageMob(page, el){
+  // sync desktop sidebar
+  const sideEl = document.querySelector(`.ni[onclick*="'${page}'"]`);
+  goPage(page, sideEl||null);
+  // update mobile nav active state
+  document.querySelectorAll('.mob-ni').forEach(b=>b.classList.remove('active'));
+  const mobEl = document.getElementById('mob-'+page);
+  if(mobEl) mobEl.classList.add('active');
+  else document.getElementById('mob-more-btn').classList.add('active');
+}
+
+function toggleMobMore(btn){
+  const menu = document.getElementById('mobMoreMenu');
+  menu.classList.toggle('open');
+}
+
+function doRefresh(btn){
+  btn.classList.add('sp');btn.disabled=true;
+  setTimeout(()=>{
+    const page=document.querySelector('.pg.active').id.replace('pg-','');
+    renderPage(page);
+    btn.classList.remove('sp');btn.disabled=false;
+  },700);
+}
+
+// ================================================================
+// LANG & THEME — control dashboard + mines map iframe
+// ================================================================
+let SB_LANG  = 'en';
+let SB_THEME = 'light';
+
+// Arabic translations for dashboard UI
+const AR = {
+  'Executive Summary':'الملخص التنفيذي','Budget Overview':'نظرة الميزانية',
+  'Expenses & Payments':'المصروفات والمدفوعات','Equipment':'المعدات',
+  'Production':'الإنتاج','Vendors':'الموردون','Cash Flow':'التدفق النقدي',
+  'Risk & Alerts':'المخاطر والتنبيهات','Mines Map':'خريطة المناجم',
+  'AIT Projects':'مشاريع AIT','Dashboard':'لوحة التحكم',
+  'All Projects':'كل المشاريع','All Months':'كل الشهور',
+  'Refresh Data':'تحديث البيانات','Paid By':'دفع بواسطة',
+  'Method':'الطريقة','Category':'الفئة','Equipment':'المعدات',
+  'All':'الكل','Clear':'مسح','Last updated':'آخر تحديث',
+  'Data:':'البيانات:','All amounts are in EGP':'جميع المبالغ بالجنيه المصري',
+  'AIT Projects Portfolio Dashboard':'داشبورد محفظة مشاريع AIT',
+};
+
+function sbApplyLang(){
+  const isAr = SB_LANG === 'ar';
+  document.documentElement.lang = SB_LANG;
+  document.documentElement.dir  = isAr ? 'rtl' : 'ltr';
+  document.getElementById('sb-lang-lbl').textContent = isAr ? 'EN' : 'AR';
+  // translate nav items
+  const navMap = {
+    exec:'Executive Summary',budget:'Budget Overview',expenses:'Expenses & Payments',
+    equipment:'Equipment',production:'Production',vendors:'Vendors',
+    cashflow:'Cash Flow',risks:'Risk & Alerts',mines:'Mines Map'
+  };
+  document.querySelectorAll('.ni').forEach(ni=>{
+    const spans = ni.querySelectorAll('span');
+    if(spans.length >= 2){
+      const key = spans[spans.length-1].textContent.trim();
+      const arKey = Object.entries(navMap).find(([,v])=>v===key || Object.values(AR).includes(key));
+      // find by page onclick
+    }
+  });
+  // translate sidebar brand
+  document.querySelector('.sb-txt').innerHTML = `${isAr?'مشاريع AIT':'AIT Projects'}<small>${isAr?'لوحة التحكم':'Dashboard'}</small>`;
+  // translate nav labels
+  const navLabels = {exec:'Executive Summary',budget:'Budget Overview',expenses:'Expenses & Payments',
+    equipment:'Equipment',production:'Production',vendors:'Vendors',
+    cashflow:'Cash Flow',risks:'Risk & Alerts',mines:'Mines Map'};
+  const navArLabels = {exec:'الملخص التنفيذي',budget:'نظرة الميزانية',expenses:'المصروفات والمدفوعات',
+    equipment:'المعدات',production:'الإنتاج',vendors:'الموردون',
+    cashflow:'التدفق النقدي',risks:'المخاطر والتنبيهات',mines:'خريطة المناجم'};
+  document.querySelectorAll('.ni').forEach(ni=>{
+    const fn = ni.getAttribute('onclick')||'';
+    const m = fn.match(/goPage\('(\w+)'/);
+    if(m){
+      const page = m[1];
+      const label = isAr ? navArLabels[page] : navLabels[page];
+      if(label){
+        const spans = ni.querySelectorAll('span');
+        spans[spans.length-1].textContent = label;
+      }
+    }
+  });
+  // translate topbar filter labels
+  const tbProject = document.querySelector('.tb-sel span');
+  if(tbProject) tbProject.textContent = isAr ? 'المشروع' : 'Project';
+  document.querySelectorAll('.tb-sel span').forEach((s,i)=>{
+    if(i===0) s.textContent = isAr ? 'المشروع' : 'Project';
+    if(i===1) s.textContent = isAr ? 'الشهر' : 'Month';
+  });
+  const refBtn = document.getElementById('refBtn');
+  if(refBtn) refBtn.childNodes[refBtn.childNodes.length-1].textContent = ' '+(isAr?'تحديث':'Refresh Data');
+  // translate filter bar labels
+  document.querySelectorAll('.fl').forEach(fl=>{
+    const t = fl.textContent.trim();
+    const map = {'Paid By':'دفع بواسطة','Method':'الطريقة','Category':'الفئة','Equipment':'المعدات',
+      'دفع بواسطة':'Paid By','الطريقة':'Method','الفئة':'Category','المعدات':'Equipment'};
+    if(isAr && map[t]) fl.textContent = map[t];
+    else if(!isAr && map[t]) fl.textContent = map[t];
+  });
+  const clrBtn = document.querySelector('.btn-clr');
+  if(clrBtn) clrBtn.innerHTML = (isAr ? '✕ مسح' : '✕ Clear');
+  // translate mines toolbar
+  document.querySelectorAll('#pg-mines button').forEach(b=>{
+    if(b.id==='btn-blocks-dash') b.innerHTML = b.innerHTML; // keep icons, update text if needed
+  });
+}
+
+function sbToggleLang(){
+  SB_LANG = SB_LANG === 'en' ? 'ar' : 'en';
+  const isAr = SB_LANG === 'ar';
+  document.documentElement.setAttribute('dir', isAr ? 'rtl' : 'ltr');
+  document.documentElement.setAttribute('lang', SB_LANG);
+  document.getElementById('sb-lang-lbl').textContent = isAr ? 'EN' : 'AR → EN';
+  // flip sidebar border from left to right for RTL
+  document.querySelectorAll('.ni').forEach(ni=>{
+    ni.style.borderLeft = isAr ? 'none' : '';
+    ni.style.borderRight = isAr ? '3px solid transparent' : '';
+  });
+  document.querySelectorAll('.ni.active').forEach(ni=>{
+    if(isAr){ ni.style.borderRight='3px solid var(--org)'; ni.style.borderLeft='none'; }
+    else { ni.style.borderLeft=''; ni.style.borderRight=''; }
+  });
+  // flip main margin
+  const main = document.querySelector('.main');
+  if(isAr){ main.style.marginLeft='0'; main.style.marginRight='var(--sw)'; }
+  else { main.style.marginLeft='var(--sw)'; main.style.marginRight='0'; }
+  // flip sidebar position
+  const sb = document.querySelector('.sb');
+  if(isAr){ sb.style.left='auto'; sb.style.right='0'; }
+  else { sb.style.left='0'; sb.style.right='auto'; }
+  sbApplyLang();
+  sbSendToMines('setLang', SB_LANG);
+}
+
+function sbToggleTheme(){
+  SB_THEME = SB_THEME === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', SB_THEME);
+  const isDark = SB_THEME === 'dark';
+  document.getElementById('sb-theme-lbl').textContent = isDark ? 'Light' : 'Dark';
+  document.getElementById('sb-theme-btn').innerHTML = (isDark ? '☀️ ' : '🌙 ') + '<span id="sb-theme-lbl">' + (isDark ? 'Light' : 'Dark') + '</span>';
+  // re-render all charts with new colors
+  const activePage = document.querySelector('.pg.active');
+  if(activePage) renderPage(activePage.id.replace('pg-',''));
+  sbSendToMines('setTheme', SB_THEME);
+}
+
+function sbSendToMines(cmd, value){
+  const iframe = document.getElementById('mines-iframe');
+  if(iframe && iframe.contentWindow)
+    iframe.contentWindow.postMessage({cmd, value}, '*');
+}
+
+function minesCmd(cmd, value){
+  sbSendToMines(cmd, value);
+}
+
+function syncMinesSettings(){
+  setTimeout(()=>{
+    sbSendToMines('setLang',  SB_LANG);
+    sbSendToMines('setTheme', SB_THEME);
+    sbSendToMines('setEmbedded', true);  // tell map it's inside dashboard
+  }, 800);
+}
+
+// ================================================================
+// ================================================================
+// ضع هنا رابط الـ Web App بعد عمل Deploy في Apps Script
+// شكله: https://script.google.com/macros/s/XXXXXXXXXXXX/exec
+const API_URL = 'https://script.google.com/macros/s/AKfycbxnABkMdBVa15wYgK91fieLUAFIpt8D0R3a9yVPSFnaAVr5ln-bCA4FgTOA4TT0BvrdXA/exec';
+
+async function loadFromSheets() {
+  if (!API_URL || API_URL.indexOf('PASTE_') === 0) {
+    console.warn('API_URL not configured — using built-in sample data');
+    return;
+  }
+  try {
+    const res = await fetch(API_URL);
+    const data = await res.json();
+
+    // ── Expenses ──
+    if (Array.isArray(data.expenses) && data.expenses.length) {
+      EXP.length = 0;
+      data.expenses.forEach(r => EXP.push([
+        r.date, r.month, r.project, r.paid_by, r.supplier || '',
+        Math.abs(parseFloat(r.amount_egp) || 0), r.payment_method
+      ]));
+    }
+
+    // ── Budget ──
+    if (Array.isArray(data.budget) && data.budget.length) {
+      BUD.length = 0;
+      data.budget.forEach(r => BUD.push([
+        r.project, r.month, r.category, r.item,
+        parseFloat(r.budget_egp) || 0, parseFloat(r.required_egp) || 0, parseFloat(r.paid_egp) || 0
+      ]));
+    }
+
+    // ── Equipment log ──
+    if (Array.isArray(data.equipment_log) && data.equipment_log.length) {
+      EQL.length = 0;
+      data.equipment_log.forEach(r => EQL.push([
+        r.date, r.month, r.equipment, r.contractor,
+        Math.abs(parseFloat(r.total_hours) || 0)
+      ]));
+    }
+
+    document.getElementById('lastUpdate').textContent = 'Last updated: ' + new Date().toLocaleString();
+    const ap = document.querySelector('.pg.active')?.id.replace('pg-','') || 'exec';
+    renderFilterBar(ap);
+    renderPage(ap);
+  } catch (e) {
+    console.error('Apps Script fetch error:', e);
+    document.getElementById('lastUpdate').textContent = 'Data: April–May 2026 (offline — using sample data)';
+  }
+}
+
+// Call on load, then refresh every 60 seconds:
+loadFromSheets();
+setInterval(loadFromSheets, 60000);
+
+// ================================================================
+// INIT
+// ================================================================
+window.addEventListener('load',()=>{
+  renderFilterBar('exec');
+  renderPage('exec');
+  document.getElementById('lastUpdate').textContent='Data: April–May 2026';
+  setTimeout(()=>{document.getElementById('ldOv').classList.add('done');},600);
+});
+</script>
+</body>
+</html>
