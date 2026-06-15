@@ -15,6 +15,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 /* ============================================================
    ROOT & THEME VARIABLES
@@ -274,8 +276,12 @@ button,select,input{font-family:inherit;font-size:inherit}
 .kc-trend.up{color:var(--green)} .kc-trend.dn{color:var(--red)}
 
 /* CHARTS */
-.cw{position:relative}
-.cw canvas{max-width:100%}
+.cw{position:relative;width:100%}
+.cw canvas{max-width:100%!important;width:100%!important}
+.card-b .cw{display:block}
+/* Chart 3D shadow effect on cards */
+.card:has(canvas){box-shadow:var(--shadow2);transition:transform var(--tr),box-shadow var(--tr)}
+.card:has(canvas):hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(253,72,14,.15)}
 
 /* TABLES */
 .tbl-wrap{overflow-x:auto;max-height:320px;overflow-y:auto}
@@ -401,6 +407,10 @@ tbody tr:hover td{background:var(--bg3)}
 #pg-mines{padding:0;display:none}
 #pg-mines.active{display:flex;flex-direction:column;height:calc(100vh - 52px)}
 #mines-iframe{width:100%;border:none;flex:1;min-height:0}
+/* When mines page active, hide main topbar and filterbar */
+.mines-active .tb{display:none}
+.mines-active .filterBar{display:none}
+.mines-active #pg-mines.active{height:100vh}
 </style>
 </head>
 <body>
@@ -948,14 +958,18 @@ function goPage(page, el) {
   document.getElementById('pgTitle').textContent = title;
   document.getElementById('pgSub').textContent   = sub;
 
-  // Filter bar
+  // Filter bar + topbar handling for mines
   if (page === 'mines') {
     document.getElementById('filterBar').classList.add('hidden');
     document.getElementById('footerBar').style.display = 'none';
+    document.getElementById('mainArea').classList.add('mines-active');
+    document.querySelector('.tb').style.display = 'none';
     syncMinesSettings();
   } else {
     document.getElementById('filterBar').classList.remove('hidden');
     document.getElementById('footerBar').style.display = '';
+    document.getElementById('mainArea').classList.remove('mines-active');
+    document.querySelector('.tb').style.display = '';
     renderFilterBar(page);
   }
 
@@ -1089,7 +1103,7 @@ function renderFilterBar(page) {
   const filters = PAGE_FILTERS[page] || [];
   if (!filters.length || !API_DATA) { fb.innerHTML = ''; return; }
 
-  // Build option lists
+  const isAr = LANG === 'ar';
   const expenses = API_DATA?.expenses?.log || [];
   const budget   = API_DATA?.budget?.by_category || [];
   const lots     = API_DATA?.lots || [];
@@ -1100,22 +1114,40 @@ function renderFilterBar(page) {
   const cats     = [...new Set([...expenses.map(r=>r.category||''), ...budget.map(r=>r.category||'')])].filter(Boolean).sort();
   const mines    = [...new Set(lots.map(r=>r.mine||''))].filter(Boolean).sort();
 
-  const sel = (id, label, options, key) => {
-    const opts = ['<option value="all">All ' + label + '</option>',
+  const L = {
+    project:       isAr ? 'المشروع'   : 'Project',
+    month:         isAr ? 'الشهر'     : 'Month',
+    method:        isAr ? 'الطريقة'   : 'Method',
+    category:      isAr ? 'الفئة'     : 'Category',
+    severity:      isAr ? 'الخطورة'   : 'Severity',
+    status_filter: isAr ? 'الحالة'    : 'Status',
+    mine:          isAr ? 'المنجم'    : 'Mine',
+    all_project:   isAr ? 'كل المشاريع'  : 'All Projects',
+    all_month:     isAr ? 'كل الشهور'   : 'All Months',
+    all_method:    isAr ? 'كل الطرق'    : 'All Methods',
+    all_category:  isAr ? 'كل الفئات'   : 'All Categories',
+    all_severity:  isAr ? 'كل المستويات': 'All Severities',
+    all_status:    isAr ? 'كل الحالات'  : 'All Statuses',
+    all_mine:      isAr ? 'كل المناجم'  : 'All Mines',
+    clear:         isAr ? '✕ مسح'      : '✕ Clear',
+  };
+
+  const sel = (key, label, options, allLabel) => {
+    const opts = [`<option value="all">${allLabel}</option>`,
       ...options.map(o => `<option value="${o}"${FILTERS[key]===o?' selected':''}>${o}</option>`)].join('');
-    return `<span class="fl">${label}</span><select class="fs" id="f_${id}" onchange="applyFilter('${key}',this.value)">${opts}</select>`;
+    return `<span class="fl">${label}</span><select class="fs" onchange="applyFilter('${key}',this.value)">${opts}</select>`;
   };
 
   const parts = [];
-  if (filters.includes('project'))       parts.push(sel('project','Project',projects,'project'));
-  if (filters.includes('month'))         parts.push(sel('month','Month',months,'month'));
-  if (filters.includes('method'))        parts.push(sel('method','Method',methods,'method'));
-  if (filters.includes('category'))      parts.push(sel('category','Category',cats,'category'));
-  if (filters.includes('severity'))      parts.push(sel('severity','Severity',['Critical','High','Medium','Low'],'severity'));
-  if (filters.includes('status_filter')) parts.push(sel('status_filter','Status',['In Progress','Completed','Delayed','Planned'],'status_filter'));
-  if (filters.includes('mine'))          parts.push(sel('mine','Mine',mines,'mine'));
+  if (filters.includes('project'))       parts.push(sel('project',       L.project,       projects, L.all_project));
+  if (filters.includes('month'))         parts.push(sel('month',         L.month,         months,   L.all_month));
+  if (filters.includes('method'))        parts.push(sel('method',        L.method,        methods,  L.all_method));
+  if (filters.includes('category'))      parts.push(sel('category',      L.category,      cats,     L.all_category));
+  if (filters.includes('severity'))      parts.push(sel('severity',      L.severity,      ['Critical','High','Medium','Low'], L.all_severity));
+  if (filters.includes('status_filter')) parts.push(sel('status_filter', L.status_filter, ['In Progress','Completed','Delayed','Planned'], L.all_status));
+  if (filters.includes('mine'))          parts.push(sel('mine',          L.mine,          mines,    L.all_mine));
 
-  fb.innerHTML = parts.join('') + `<button class="fb-clr" onclick="clearFilters()">${LANG==='ar'?'✕ مسح':'✕ Clear'}</button>`;
+  fb.innerHTML = parts.join('') + `<button class="fb-clr" onclick="clearFilters()">${L.clear}</button>`;
 }
 
 function applyFilter(key, val) {
@@ -1137,141 +1169,209 @@ function clearFilters() {
 // ============================================================
 function exportExcel() {
   if (!API_DATA) return;
-  const wb   = XLSX.utils.book_new();
-  const acc  = 'FD480E';
-  const dark = '0D1117';
-  const mid  = '161B22';
+  const btn = document.querySelector('.tb-export.excel');
+  if (btn) { btn.textContent = '⏳ Preparing...'; btn.disabled = true; }
 
-  function styleHeader(ws, range, color) {
-    if (!ws['!ref']) return;
-    XLSX.utils.sheet_set_range_style && console.log('styled');
+  try {
+    const wb = XLSX.utils.book_new();
+
+    // Helper: build sheet with header row
+    function makeSheet(rows, headers, labels) {
+      if (!rows || !rows.length) return null;
+      const data = [labels || headers, ...rows.map(r => headers.map(h => {
+        const v = r[h];
+        return (v === null || v === undefined) ? '' : v;
+      }))];
+      const ws = XLSX.utils.aoa_to_sheet(data);
+      // Column widths
+      ws['!cols'] = labels.map(l => ({ wch: Math.max(l.length + 4, 14) }));
+      return ws;
+    }
+
+    // Helper: add sheet to workbook
+    function addSheet(name, rows, headers, labels) {
+      const ws = makeSheet(rows, headers, labels);
+      if (ws) XLSX.utils.book_append_sheet(wb, ws, name.substring(0, 31));
+    }
+
+    // ── Sheet 1: Executive KPIs ──────────────────────────────
+    addSheet('📊 Executive KPIs',
+      API_DATA.exec?.kpis || [],
+      ['label','value','note'],
+      ['Indicator','Value','Note']
+    );
+
+    // ── Sheet 2: Budget by Category ─────────────────────────
+    addSheet('💰 Budget Overview',
+      API_DATA.budget?.by_category || [],
+      ['category','budget','actual','remaining','variance','util','status'],
+      ['Category','Budget (EGP)','Actual (EGP)','Remaining (EGP)','Variance (EGP)','Util %','Status']
+    );
+
+    // ── Sheet 3: Expense Log ────────────────────────────────
+    addSheet('🧾 Expenses Log',
+      API_DATA.expenses?.log || [],
+      ['date','category','vendor','amount','method','due','status','comments'],
+      ['Date','Category','Vendor','Amount (EGP)','Method','Due Date','Status','Comments']
+    );
+
+    // ── Sheet 4: Cost Analysis ──────────────────────────────
+    addSheet('📉 Cost Analysis',
+      API_DATA.cost?.details || [],
+      ['category','item','center','vendor','actual','budget','variance','var_pct','status'],
+      ['Category','Item','Cost Center','Vendor','Actual (EGP)','Budget (EGP)','Variance','Var %','Status']
+    );
+
+    // ── Sheet 5: Cash Flow ──────────────────────────────────
+    const cf = [...(API_DATA.cashflow?.inflow_outflow||[]), ...(API_DATA.cashflow?.forecast_6m||[])];
+    addSheet('📈 Cash Flow',
+      cf,
+      ['month','inflow','outflow','net'],
+      ['Month','Inflow (EGP)','Outflow (EGP)','Net (EGP)']
+    );
+
+    // ── Sheet 6: Risks ──────────────────────────────────────
+    addSheet('⚠️ Risk Register',
+      API_DATA.risks?.register || [],
+      ['id','title','project','category','severity','score','status','owner'],
+      ['Risk ID','Title','Project','Category','Severity','Score','Status','Owner']
+    );
+
+    // ── Sheet 7: Vendors ────────────────────────────────────
+    addSheet('🤝 Vendors',
+      API_DATA.vendors?.top_vendors || [],
+      ['name','category','commitments','paid','balance','perf'],
+      ['Vendor Name','Category','Commitments (EGP)','Paid (EGP)','Balance (EGP)','Performance']
+    );
+
+    // ── Sheet 8: Approvals ──────────────────────────────────
+    addSheet('✅ Approvals',
+      API_DATA.approvals?.by_type || [],
+      ['type','total','approved','pending','avg_time'],
+      ['Approval Type','Total','Approved','Pending','Avg Time (days)']
+    );
+
+    // ── Sheet 9: Performance ────────────────────────────────
+    addSheet('🏆 Performance',
+      API_DATA.performance?.projects || [],
+      ['project','status','schedule','cost','scope','quality','overall'],
+      ['Project','Status','Schedule %','Cost %','Scope %','Quality %','Overall %']
+    );
+
+    // ── Sheet 10: Production ────────────────────────────────
+    addSheet('⚙️ Production',
+      API_DATA.production?.lots || API_DATA.lots || [],
+      ['updated','mine','batch','qty_ton','volume','avg_fe'],
+      ['Last Update','Mine','Batch','Qty (Ton)','Volume (m³)','Avg Fe%']
+    );
+
+    // ── Sheet 11: Quality Samples ───────────────────────────
+    addSheet('🔬 Quality Samples',
+      (API_DATA.quality?.samples || API_DATA.samples || []).slice(0, 500),
+      ['date','mine','batch','Fe','SiO2','Al2O3','CaO','MgO','Moisture'],
+      ['Date','Mine','Batch','Fe%','SiO2%','Al2O3%','CaO%','MgO%','Moisture%']
+    );
+
+    const filename = `AIT_Dashboard_${new Date().toISOString().substring(0,10)}.xlsx`;
+    XLSX.writeFile(wb, filename);
+  } catch(e) {
+    console.error('Excel error:', e);
+    alert('Excel export error: ' + e.message);
+  } finally {
+    if (btn) { btn.textContent = '⬇ Excel'; btn.disabled = false; }
   }
-
-  function addSheet(name, rows, headers, headerLabels) {
-    if (!rows || !rows.length) return;
-    const data = [headerLabels || headers, ...rows.map(r => headers.map(h => r[h] !== undefined ? r[h] : ''))];
-    const ws = XLSX.utils.aoa_to_sheet(data);
-    // Column widths
-    ws['!cols'] = headers.map(() => ({ wch: 18 }));
-    // Freeze header row
-    ws['!freeze'] = { xSplit: 0, ySplit: 1 };
-    XLSX.utils.book_append_sheet(wb, ws, name.substring(0, 31));
-  }
-
-  // ── Sheet 1: Executive KPIs ──
-  const kpis = API_DATA.exec?.kpis || [];
-  addSheet('Executive KPIs', kpis, ['label','value','note'],['Indicator','Value','Note']);
-
-  // ── Sheet 2: Budget by Category ──
-  const budCats = API_DATA.budget?.by_category || [];
-  addSheet('Budget Overview', budCats,
-    ['category','budget','actual','remaining','variance','util','status'],
-    ['Category','Budget (EGP)','Actual (EGP)','Remaining (EGP)','Variance (EGP)','Util %','Status']);
-
-  // ── Sheet 3: Expense Log ──
-  const expLog = API_DATA.expenses?.log || [];
-  addSheet('Expenses Log', expLog,
-    ['date','category','vendor','amount','method','due','status','comments'],
-    ['Date','Category','Vendor','Amount (EGP)','Method','Due Date','Status','Comments']);
-
-  // ── Sheet 4: Cost Analysis ──
-  const costD = API_DATA.cost?.details || [];
-  addSheet('Cost Analysis', costD,
-    ['category','item','center','vendor','actual','budget','variance','var_pct','status'],
-    ['Category','Item','Cost Center','Vendor','Actual (EGP)','Budget (EGP)','Variance','Var%','Status']);
-
-  // ── Sheet 5: Cash Flow ──
-  const cf6m = API_DATA.cashflow?.forecast_6m || [];
-  addSheet('Cash Flow Forecast', cf6m,
-    ['month','inflow','outflow','net'],
-    ['Month','Inflow (EGP)','Outflow (EGP)','Net (EGP)']);
-
-  // ── Sheet 6: Risks ──
-  const risks = API_DATA.risks?.register || [];
-  addSheet('Risk Register', risks,
-    ['id','title','project','category','severity','score','status','owner'],
-    ['Risk ID','Title','Project','Category','Severity','Score','Status','Owner']);
-
-  // ── Sheet 7: Vendors ──
-  const vendors = API_DATA.vendors?.top_vendors || [];
-  addSheet('Vendor & Procurement', vendors,
-    ['name','category','commitments','paid','balance','perf'],
-    ['Vendor','Category','Commitments (EGP)','Paid (EGP)','Balance (EGP)','Performance']);
-
-  // ── Sheet 8: Approvals ──
-  const appTypes = API_DATA.approvals?.by_type || [];
-  addSheet('Approval Workflow', appTypes,
-    ['type','total','approved','pending','avg_time'],
-    ['Approval Type','Total','Approved','Pending','Avg Time (days)']);
-
-  // ── Sheet 9: Performance ──
-  const perf = API_DATA.performance?.projects || [];
-  addSheet('Monthly Performance', perf,
-    ['project','status','schedule','cost','scope','quality','overall'],
-    ['Project','Status','Schedule %','Cost %','Scope %','Quality %','Overall %']);
-
-  // ── Sheet 10: Production ──
-  const lots = API_DATA.production?.lots || API_DATA.lots || [];
-  addSheet('Production Lots', lots,
-    ['updated','mine','batch','qty_ton','volume','avg_fe'],
-    ['Last Update','Mine','Batch','Quantity (Ton)','Volume (m³)','Avg Fe%']);
-
-  // ── Sheet 11: Quality ──
-  const samples = API_DATA.quality?.samples || API_DATA.samples || [];
-  addSheet('Quality Samples', samples.slice(0,500),
-    ['date','mine','batch','Fe','SiO2','Al2O3','CaO','MgO','Moisture'],
-    ['Date','Mine','Batch','Fe%','SiO2%','Al2O3%','CaO%','MgO%','Moisture%']);
-
-  const filename = `AIT_Dashboard_Export_${new Date().toISOString().substring(0,10)}.xlsx`;
-  XLSX.writeFile(wb, filename);
 }
 
 // ============================================================
 // EXPORT — PDF (print-optimized with page breaks)
 // ============================================================
-function exportPdf() {
-  // Add print styles dynamically
-  const printStyle = document.createElement('style');
-  printStyle.id = 'printStyle';
-  printStyle.innerHTML = `
-    @media print {
-      @page { size: A4 landscape; margin: 15mm; }
-      body { background: white !important; color: #0d1117 !important; }
-      #loginScreen, .mob-nav, .mob-more-menu, #ld { display: none !important; }
-      .sb { display: none !important; }
-      .main { margin: 0 !important; }
-      .tb { position: relative !important; background: #0d1117 !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .tb-refresh, #exportBtns, .sb-toggle { display: none !important; }
-      .tb-title h1 { color: white !important; }
-      .card { break-inside: avoid; border: 1px solid #ddd !important; box-shadow: none !important; margin-bottom: 8px; }
-      .kc { break-inside: avoid; border: 1px solid #ddd !important; }
-      .kpi-grid { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 8px !important; }
-      .g2 { display: grid !important; grid-template-columns: 1fr 1fr !important; }
-      .g21 { display: grid !important; grid-template-columns: 2fr 1fr !important; }
-      .content { overflow: visible !important; padding: 10px !important; }
-      canvas { max-width: 100% !important; }
-      table { font-size: 9px !important; }
-      thead th { background: #fd480e !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .kc.orange { border-top-color: #fd480e !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .kc.green  { border-top-color: #16a34a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .kc.red    { border-top-color: #dc2626 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .kc.blue   { border-top-color: #2563eb !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .print-page-break { page-break-before: always; }
-      .foot { display: block !important; }
+async function exportPdf() {
+  const btn = document.querySelector('.tb-export.pdf');
+  if (btn) { btn.textContent = '⏳ Generating...'; btn.disabled = true; }
+
+  try {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    const pageW = 297, pageH = 210;
+
+    // Pages to export (all accessible pages except mines)
+    const pagesToExport = (USER?.pages || []).filter(p => p !== 'mines');
+
+    for (let i = 0; i < pagesToExport.length; i++) {
+      const page = pagesToExport[i];
+
+      // Switch to this page temporarily
+      const prevPage = CURRENT_PAGE;
+      document.querySelectorAll('.pg').forEach(p => p.classList.remove('active'));
+      const pgEl = document.getElementById('pg-' + page);
+      if (!pgEl) continue;
+      pgEl.classList.add('active');
+      renderPage(page);
+
+      // Wait for charts to render
+      await new Promise(r => setTimeout(r, 400));
+
+      // Add header bar
+      if (i > 0) pdf.addPage();
+      pdf.setFillColor(13, 17, 23);
+      pdf.rect(0, 0, pageW, 14, 'F');
+      pdf.setFillColor(253, 72, 14);
+      pdf.rect(0, 0, 3, 14, 'F');
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(12);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('AIT Projects Dashboard', 8, 9);
+      pdf.setFontSize(9);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(139, 148, 158);
+      pdf.text(PAGE_META[page]?.[0] || page, 8, 13.5);
+      pdf.setTextColor(253, 72, 14);
+      pdf.text(new Date().toLocaleDateString('en-GB'), pageW - 8, 9, { align: 'right' });
+
+      // Capture page content
+      const contentEl = document.getElementById('pageContent');
+      const canvas = await html2canvas(contentEl, {
+        scale: 1.5,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#f0f2f5',
+        width: contentEl.scrollWidth,
+        height: Math.min(contentEl.scrollHeight, 2000),
+        windowWidth: contentEl.scrollWidth,
+      });
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.92);
+      const imgW    = pageW;
+      const imgH    = (canvas.height * imgW) / canvas.width;
+      const maxH    = pageH - 16;
+      const finalH  = Math.min(imgH, maxH);
+
+      pdf.addImage(imgData, 'JPEG', 0, 15, imgW, finalH);
+
+      // Footer
+      pdf.setFillColor(13, 17, 23);
+      pdf.rect(0, pageH - 6, pageW, 6, 'F');
+      pdf.setTextColor(139, 148, 158);
+      pdf.setFontSize(7);
+      pdf.text('AIT Projects Portfolio Dashboard  |  All amounts in EGP  |  ' + (API_DATA?.lastUpdated || ''), 4, pageH - 2);
+      pdf.text((i + 1) + ' / ' + pagesToExport.length, pageW - 4, pageH - 2, { align: 'right' });
+
+      // Restore
+      pgEl.classList.remove('active');
     }
-  `;
-  document.head.appendChild(printStyle);
-  // Show current page charts with values
-  Chart.helpers && Object.values(CHARTS).forEach(ch => {
-    if (ch.options?.plugins?.datalabels) return;
-  });
-  window.print();
-  // Remove print styles after print dialog closes
-  setTimeout(() => {
-    const el = document.getElementById('printStyle');
-    if (el) el.remove();
-  }, 2000);
+
+    // Restore original page
+    const origEl = document.getElementById('pg-' + CURRENT_PAGE);
+    if (origEl) origEl.classList.add('active');
+    renderPage(CURRENT_PAGE);
+
+    pdf.save(`AIT_Dashboard_${new Date().toISOString().substring(0,10)}.pdf`);
+  } catch(e) {
+    console.error('PDF error:', e);
+    alert('PDF error: ' + e.message + '\nTry closing the sidebar first.');
+  } finally {
+    if (btn) { btn.textContent = '⬇ PDF'; btn.disabled = false; }
+  }
 }
 
 // ============================================================
@@ -1290,37 +1390,80 @@ function mkChart(id, type, data, opts = {}, onClickFilter = null) {
   if (CHARTS[id]) { CHARTS[id].destroy(); delete CHARTS[id]; }
   const c = gc();
   Chart.defaults.color = c.txt;
+  Chart.defaults.font.family = 'Inter, sans-serif';
 
-  const isPie = type === 'doughnut' || type === 'pie';
+  const isPie = type === 'doughnut' || type === 'pie' || type === 'radar';
+
+  // 3D shadow plugin
+  const shadowPlugin = {
+    id: 'shadow_' + id,
+    beforeDatasetsDraw(chart) {
+      const ctx = chart.ctx;
+      ctx.save();
+      ctx.shadowColor = THEME === 'dark' ? 'rgba(253,72,14,0.2)' : 'rgba(0,0,0,0.12)';
+      ctx.shadowBlur  = 10;
+      ctx.shadowOffsetY = 3;
+    },
+    afterDatasetsDraw(chart) { chart.ctx.restore(); }
+  };
+
   const defaults = {
-    responsive: true, maintainAspectRatio: false,
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: isPie ? 'nearest' : 'index', intersect: isPie },
     plugins: {
       legend: { display: false },
-      tooltip: { backgroundColor: '#0d1117', titleColor: '#fff', bodyColor: '#8b949e', padding: 10, cornerRadius: 6 },
+      tooltip: {
+        backgroundColor: THEME === 'dark' ? 'rgba(22,27,34,0.97)' : 'rgba(13,17,23,0.93)',
+        titleColor: '#fd480e',
+        bodyColor: THEME === 'dark' ? '#e6edf3' : '#1a2030',
+        borderColor: '#fd480e',
+        borderWidth: 1,
+        padding: 12,
+        cornerRadius: 8,
+        titleFont: { size: 12, weight: '600' },
+        bodyFont: { size: 11 },
+        callbacks: {
+          label: ctx => {
+            const v = ctx.raw;
+            if (typeof v === 'number' && !isPie) return '  ' + (ctx.dataset.label||'') + ': ' + fmtF(v) + ' EGP';
+            if (typeof v === 'number' && isPie) {
+              const tot = ctx.dataset.data.reduce((s,x)=>s+x,0);
+              return '  ' + ctx.label + ': ' + fmtNum(v) + ' (' + (tot>0?Math.round(v/tot*100):0) + '%)';
+            }
+            return '  ' + (ctx.dataset.label||'') + ': ' + v;
+          }
+        }
+      },
     },
-    animation: { duration: 400 },
+    animation: { duration: 700, easing: 'easeOutQuart' },
+    elements: {
+      bar:   { borderRadius: 6, borderSkipped: false },
+      line:  { tension: 0.4, borderWidth: 2.5 },
+      point: { radius: 4, hoverRadius: 8, borderWidth: 2.5, borderColor: '#fff' },
+      arc:   { borderWidth: 2, hoverOffset: 8 },
+    },
   };
+
   if (!isPie) {
     defaults.scales = {
-      x: { grid: { color: c.grid }, ticks: { color: c.txt, font: { size: 10 } } },
-      y: { grid: { color: c.grid }, ticks: { color: c.txt, font: { size: 10 } } },
+      x: { grid: { color: c.grid, lineWidth: 0.5 }, ticks: { color: c.txt, font: { size: 10 }, maxRotation: 45 } },
+      y: { grid: { color: c.grid, lineWidth: 0.5 }, ticks: { color: c.txt, font: { size: 10 }, callback: v => fmtNum(v) } },
     };
   }
 
   // Chart click → filter dashboard
   if (onClickFilter) {
-    defaults.onClick = (evt, elements) => {
-      if (!elements.length) return;
-      const idx = elements[0].index;
-      const label = data.labels?.[idx];
+    defaults.onClick = (evt, elements, chart) => {
+      if (!elements.length) { applyFilter(onClickFilter.key, 'all'); return; }
+      const idx   = elements[0].index;
+      const label = chart.data.labels?.[idx];
       if (label && onClickFilter.key) {
         applyFilter(onClickFilter.key, label === FILTERS[onClickFilter.key] ? 'all' : label);
       }
     };
-    defaults.plugins.tooltip.callbacks = {
-      ...defaults.plugins.tooltip.callbacks,
-      title: (items) => (items[0]?.label || '') + ' — click to filter',
-    };
+    defaults.plugins.tooltip.callbacks.footer = items =>
+      ['🔍 ' + (LANG==='ar'?'انقر للتصفية:':'Click to filter: ') + (items[0]?.label||'')];
   }
 
   function deepMerge(a, b) {
@@ -1331,7 +1474,7 @@ function mkChart(id, type, data, opts = {}, onClickFilter = null) {
     }
     return r;
   }
-  CHARTS[id] = new Chart(el, { type, data, options: deepMerge(defaults, opts) });
+  CHARTS[id] = new Chart(el, { type, data, options: deepMerge(defaults, opts), plugins: [shadowPlugin] });
   if (onClickFilter) el.style.cursor = 'pointer';
 }
 
@@ -1414,19 +1557,53 @@ function renderExec() {
       });
     }
   }
-  renderKpis('execKpis', kpis, '');
+  const isAr = LANG === 'ar';
+  const L = {
+    budget:    isAr ? 'الميزانية'      : 'Budget',
+    actual:    isAr ? 'الفعلي'         : 'Actual',
+    paid:      isAr ? 'المدفوع'        : 'Paid',
+    pending:   isAr ? 'المعلق'         : 'Pending',
+  };
+
+  // Translate KPI labels if Arabic
+  if (isAr) {
+    const arKpiLabels = {
+      'TOTAL BUDGET':'إجمالي الميزانية','ACTUAL SPEND':'الإنفاق الفعلي',
+      'REMAINING BUDGET':'الميزانية المتبقية','OVER BUDGET AMOUNT':'تجاوز الميزانية',
+      'PAID TO DATE':'المدفوع حتى الآن','PENDING PAYMENTS':'المدفوعات المعلقة',
+      'BUDGET UTILIZATION':'نسبة الاستخدام','OVERDUE / ALERTS':'التأخيرات / التنبيهات',
+    };
+    kpis = (kpis||[]).map(k => ({...k, label: arKpiLabels[k.label] || k.label}));
+  }
+
+  renderKpis('execKpis', kpis || [], '');
   const c = gc();
 
-  // Budget vs Actual - with click filter on category
+  // Update card headers if Arabic
+  if (isAr) {
+    const headers = {
+      'Budget vs Actual by Category (EGP)': 'الميزانية مقابل الفعلي حسب الفئة',
+      'Expense Distribution': 'توزيع المصروفات',
+      'Monthly Spending Trend (EGP)': 'الاتجاه الشهري للإنفاق',
+      'Budget Utilization % by Category': 'نسبة استخدام الميزانية حسب الفئة',
+      'Top Alerts & Notifications': 'أهم التنبيهات والإشعارات',
+      'Project Overall Status': 'الحالة الإجمالية للمشاريع',
+      'Top 5 Vendors by Expenses': 'أبرز 5 موردين حسب الإنفاق',
+    };
+    document.querySelectorAll('#pg-exec .card-h h3').forEach(h => {
+      const ar = headers[h.textContent.trim()];
+      if (ar) h.textContent = ar;
+    });
+  }
   if (bva.length) {
     mkChart('c_bvA','bar',{
       labels: bva.map(r=>r.category),
       datasets:[
-        {label:'Budget', data:bva.map(r=>r.budget||0), backgroundColor:'rgba(88,166,255,.8)', borderRadius:4},
-        {label:'Actual', data:bva.map(r=>r.actual||0), backgroundColor:'rgba(253,72,14,.85)',  borderRadius:4},
+        {label:L.budget, data:bva.map(r=>r.budget||0), backgroundColor:'rgba(88,166,255,.88)', borderRadius:5},
+        {label:L.actual, data:bva.map(r=>r.actual||0), backgroundColor:'rgba(253,72,14,.88)',  borderRadius:5},
       ]
     },{
-      plugins:{legend:{display:true,labels:{color:c.txt,font:{size:10},boxWidth:10}}},
+      plugins:{legend:{display:true,position:"top",labels:{color:c.txt,font:{size:10},boxWidth:10}}},
       scales:{x:{grid:{color:c.grid},ticks:{color:c.txt,font:{size:9},maxRotation:45}},y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>fmtNum(v)}}}
     }, {key:'category'});
   }
