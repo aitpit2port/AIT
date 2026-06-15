@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AIT Projects Dashboard</title>
+<meta property="og:title" content="AIT Projects Portfolio Dashboard">
+<meta property="og:description" content="Mining Operations Management — Budget, Expenses, Equipment, Production, Mines Map & Risk Tracking">
+<meta property="og:image" content="https://aitpit2port.github.io/AIT/ait_pit2port_banner.jpeg">
+<meta property="og:url" content="https://aitpit2port.github.io/AIT/Dashboard_Full.html">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://aitpit2port.github.io/AIT/ait_pit2port_banner.jpeg">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iMzIiIGZpbGw9IiNmZDQ4MGUiLz48dGV4dCB4PSIzMiIgeT0iNDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCxzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iNzAwIiBmb250LXNpemU9IjIyIiBmaWxsPSJ3aGl0ZSI+QUlUPC90ZXh0Pjwvc3ZnPg==">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+/* ============================================================
+   ROOT & THEME VARIABLES
+   ============================================================ */
+:root {
+  --accent:   #fd480e;
+  --accent2:  #e03d0a;
+  --accentbg: rgba(253,72,14,.12);
+
+  /* Light mode */
+  --bg:       #f0f2f5;
+  --bg2:      #ffffff;
+  --bg3:      #f8f9fc;
+  --sidebar:  #0d1117;
+  --sb2:      #161b22;
+  --sb3:      #21262d;
+  --card:     #ffffff;
+  --border:   #e1e5eb;
+  --border2:  #30363d;
+  --txt:      #1a2030;
+  --txt2:     #5a6478;
+  --txt3:     #8b949e;
+  --shadow:   0 1px 8px rgba(0,0,0,.08);
+  --shadow2:  0 4px 20px rgba(0,0,0,.12);
+  --green:    #16a34a;
+  --greenbg:  #dcfce7;
+  --yellow:   #d97706;
+  --yellowbg: #fef3c7;
+  --red:      #dc2626;
+  --redbg:    #fee2e2;
+  --blue:     #2563eb;
+  --bluebg:   #dbeafe;
+  --chart-grid: rgba(0,0,0,.06);
+  --chart-txt:  #5a6478;
+  --tr: .2s ease;
+}
+[data-theme="dark"] {
+  --bg:       #0d1117;
+  --bg2:      #161b22;
+  --bg3:      #0d1117;
+  --card:     #161b22;
+  --border:   #21262d;
+  --border2:  #30363d;
+  --txt:      #e6edf3;
+  --txt2:     #8b949e;
+  --txt3:     #6e7681;
+  --shadow:   0 1px 8px rgba(0,0,0,.4);
+  --shadow2:  0 4px 20px rgba(0,0,0,.6);
+  --green:    #3fb950;
+  --greenbg:  #0d2b0d;
+  --yellow:   #f0883e;
+  --yellowbg: #2b1a0d;
+  --red:      #f85149;
+  --redbg:    #2b0d0d;
+  --blue:     #58a6ff;
+  --bluebg:   #0d1a2b;
+  --chart-grid: rgba(255,255,255,.06);
+  --chart-txt:  #8b949e;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Inter',sans-serif;font-size:13px;background:var(--bg);color:var(--txt);transition:background var(--tr),color var(--tr)}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+button,select,input{font-family:inherit;font-size:inherit}
+
+/* ============================================================
+   LOGIN SCREEN
+   ============================================================ */
+#loginScreen{
+  position:fixed;inset:0;background:var(--sidebar);display:flex;align-items:center;justify-content:center;z-index:9999;
+}
+#loginScreen.hidden{display:none}
+.login-box{
+  background:var(--bg2);border-radius:16px;padding:40px;width:100%;max-width:400px;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);text-align:center;
+}
+.login-logo{width:64px;height:64px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:22px;font-weight:700;color:#fff}
+.login-title{font-size:20px;font-weight:700;color:var(--txt);margin-bottom:4px}
+.login-sub{font-size:12px;color:var(--txt2);margin-bottom:28px}
+.login-field{margin-bottom:14px;text-align:left}
+.login-field label{font-size:11px;font-weight:600;color:var(--txt2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.login-field input{width:100%;padding:10px 14px;background:var(--bg3);border:1.5px solid var(--border);border-radius:8px;color:var(--txt);font-size:13px;outline:none;transition:border var(--tr)}
+.login-field input:focus{border-color:var(--accent)}
+.login-btn{width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer;transition:background var(--tr);margin-top:8px}
+.login-btn:hover{background:var(--accent2)}
+.login-btn:disabled{opacity:.6;cursor:not-allowed}
+.login-err{color:var(--red);font-size:12px;margin-top:10px;min-height:18px}
+.login-loading{color:var(--txt2);font-size:12px;margin-top:10px}
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+.app{display:flex;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+.sb{
+  width:220px;background:var(--sidebar);display:flex;flex-direction:column;
+  flex-shrink:0;border-right:1px solid var(--border2);transition:width var(--tr);overflow:hidden;
+  position:relative;z-index:100;
+}
+.sb.collapsed{width:60px}
+.sb-head{padding:16px 14px;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.sb-logo{width:36px;height:36px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+.sb-brand{overflow:hidden;white-space:nowrap}
+.sb-brand strong{display:block;font-size:13px;font-weight:700;color:#fff}
+.sb-brand span{font-size:10px;color:var(--txt3)}
+.sb-toggle{margin-left:auto;background:none;border:none;color:var(--txt3);cursor:pointer;padding:4px;flex-shrink:0;font-size:14px}
+.sb-nav{flex:1;overflow-y:auto;padding:8px 0}
+.ni{
+  display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;
+  color:var(--txt3);font-size:12px;font-weight:500;transition:all var(--tr);
+  border-left:3px solid transparent;white-space:nowrap;position:relative;
+  user-select:none;
+}
+.ni:hover{background:var(--sb2);color:#fff}
+.ni.active{background:var(--accentbg);color:var(--accent);border-left-color:var(--accent)}
+.ni-num{
+  width:20px;height:20px;background:var(--sb2);border-radius:4px;
+  display:flex;align-items:center;justify-content:center;font-size:10px;
+  font-weight:700;color:var(--txt3);flex-shrink:0;transition:var(--tr);
+}
+.ni.active .ni-num{background:var(--accent);color:#fff}
+.ni-icon{font-size:14px;flex-shrink:0;width:16px;text-align:center}
+.ni-lbl{overflow:hidden;transition:opacity var(--tr)}
+.sb.collapsed .ni-lbl,.sb.collapsed .sb-brand,.sb.collapsed .sb-foot-inner{opacity:0;pointer-events:none}
+.sb.collapsed .ni{justify-content:center;padding:9px}
+.sb.collapsed .ni-num{display:none}
+.sb-foot{padding:10px 14px;border-top:1px solid var(--border2);flex-shrink:0}
+.sb-foot-inner{display:flex;gap:6px;margin-bottom:8px;white-space:nowrap;overflow:hidden}
+.sb-fbtn{
+  flex:1;display:flex;align-items:center;justify-content:center;gap:5px;
+  background:var(--sb2);color:var(--txt3);border:1px solid var(--border2);
+  border-radius:6px;padding:6px 8px;font-size:11px;font-weight:500;cursor:pointer;
+  transition:all var(--tr);min-width:0;
+}
+.sb-fbtn:hover{background:var(--sb3);color:#fff}
+.sb-fbtn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.sb-user{font-size:10px;color:var(--txt3);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* TOP BAR */
+.tb{
+  height:52px;background:var(--bg2);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0;
+  box-shadow:var(--shadow);position:relative;z-index:50;
+}
+.tb-title h1{font-size:16px;font-weight:700;color:var(--txt);line-height:1}
+.tb-title p{font-size:10px;color:var(--txt2);margin-top:1px}
+.tb-spacer{flex:1}
+.tb-date{
+  display:flex;align-items:center;gap:6px;background:var(--bg3);
+  border:1px solid var(--border);border-radius:6px;padding:5px 10px;
+  font-size:11px;color:var(--txt2);
+}
+.tb-refresh{
+  display:flex;align-items:center;gap:6px;background:var(--accent);color:#fff;
+  border:none;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:600;
+  cursor:pointer;transition:background var(--tr);
+}
+.tb-refresh:hover{background:var(--accent2)}
+.tb-refresh.spinning .ri{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ri{display:inline-block}
+
+/* FILTER BAR */
+.fb{
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  padding:8px 20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  flex-shrink:0;transition:var(--tr);
+}
+.fb.hidden{display:none}
+.fl{font-size:10px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.4px;white-space:nowrap}
+.fs{
+  background:var(--bg3);border:1.5px solid var(--border);border-radius:6px;
+  padding:5px 24px 5px 9px;font-size:11px;color:var(--txt);
+  cursor:pointer;outline:none;
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238b949e' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 7px center;
+  transition:border var(--tr);
+}
+.fs:focus{border-color:var(--accent)}
+.fb-clr{
+  background:none;border:1.5px solid var(--border);border-radius:6px;
+  padding:5px 10px;font-size:11px;color:var(--txt2);cursor:pointer;
+  transition:var(--tr);margin-left:auto;
+}
+.fb-clr:hover{border-color:var(--red);color:var(--red)}
+.fb-export{
+  display:flex;align-items:center;gap:5px;background:var(--bg3);
+  border:1.5px solid var(--border);border-radius:6px;padding:5px 10px;
+  font-size:11px;color:var(--txt2);cursor:pointer;transition:var(--tr);
+}
+.fb-export:hover{border-color:var(--accent);color:var(--accent)}
+
+/* PAGE CONTENT */
+.content{flex:1;overflow-y:auto;padding:18px 20px 28px}
+.pg{display:none}
+.pg.active{display:block}
+
+/* CARDS & GRID */
+.card{background:var(--card);border-radius:10px;border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden;transition:background var(--tr),border var(--tr)}
+.card-h{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-h h3{font-size:12px;font-weight:600;color:var(--txt);letter-spacing:.2px}
+.card-h p{font-size:10px;color:var(--txt2);margin-top:1px}
+.card-b{padding:14px 16px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.g21{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px}
+.g12{display:grid;grid-template-columns:1fr 2fr;gap:14px;margin-bottom:14px}
+.mb{margin-bottom:14px}
+
+/* KPI CARDS */
+.kpi-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:10px;margin-bottom:16px}
+.kpi-grid.k4{grid-template-columns:repeat(4,1fr)}
+.kpi-grid.k6{grid-template-columns:repeat(6,1fr)}
+.kpi-grid.k7{grid-template-columns:repeat(7,1fr)}
+.kc{
+  background:var(--card);border-radius:10px;padding:14px 14px 12px;
+  border:1px solid var(--border);box-shadow:var(--shadow);
+  border-top:3px solid transparent;transition:all var(--tr);position:relative;overflow:hidden;
+}
+.kc:hover{transform:translateY(-2px);box-shadow:var(--shadow2)}
+.kc::before{content:'';position:absolute;top:0;right:0;width:50px;height:50px;border-radius:0 0 0 50px;opacity:.06}
+.kc.orange{border-top-color:var(--accent)} .kc.orange::before{background:var(--accent)}
+.kc.green{border-top-color:var(--green)}   .kc.green::before{background:var(--green)}
+.kc.red{border-top-color:var(--red)}       .kc.red::before{background:var(--red)}
+.kc.blue{border-top-color:var(--blue)}     .kc.blue::before{background:var(--blue)}
+.kc.yellow{border-top-color:var(--yellow)} .kc.yellow::before{background:var(--yellow)}
+.kc.white{border-top-color:var(--border)}
+.kc-lbl{font-size:9px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--txt2);margin-bottom:6px}
+.kc-val{font-size:20px;font-weight:700;line-height:1;color:var(--txt)}
+.kc-val.orange{color:var(--accent)} .kc-val.green{color:var(--green)}
+.kc-val.red{color:var(--red)}       .kc-val.blue{color:var(--blue)}
+.kc-val.yellow{color:var(--yellow)}
+.kc-note{font-size:10px;color:var(--txt2);margin-top:5px}
+.kc-trend{font-size:10px;font-weight:500;margin-top:4px}
+.kc-trend.up{color:var(--green)} .kc-trend.dn{color:var(--red)}
+
+/* CHARTS */
+.cw{position:relative}
+.cw canvas{max-width:100%}
+
+/* TABLES */
+.tbl-wrap{overflow-x:auto;max-height:320px;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:11px}
+thead th{
+  background:var(--bg3);color:var(--accent);font-size:9px;font-weight:700;
+  letter-spacing:.5px;text-transform:uppercase;padding:8px 12px;
+  text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;
+  position:sticky;top:0;
+}
+tbody td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--txt);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--bg3)}
+.td-r{text-align:right}
+.td-m{font-weight:600}
+.td-s{font-size:10px;color:var(--txt2)}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;white-space:nowrap}
+.badge.green{background:var(--greenbg);color:var(--green)}
+.badge.red{background:var(--redbg);color:var(--red)}
+.badge.yellow{background:var(--yellowbg);color:var(--yellow)}
+.badge.blue{background:var(--bluebg);color:var(--blue)}
+.badge.orange{background:var(--accentbg);color:var(--accent)}
+.badge.gray{background:var(--bg3);color:var(--txt2)}
+
+/* PROGRESS BAR */
+.pb{height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:4px}
+.pf{height:100%;border-radius:3px;transition:width .4s ease}
+
+/* ALERT ITEM */
+.alert-item{
+  display:flex;align-items:flex-start;gap:10px;padding:10px 12px;
+  border-radius:8px;margin-bottom:8px;border-left:3px solid;font-size:11px;
+}
+.alert-item.critical{background:var(--redbg);border-color:var(--red)}
+.alert-item.high{background:var(--yellowbg);border-color:var(--yellow)}
+.alert-item.medium{background:var(--bluebg);border-color:var(--blue)}
+.alert-item.low{background:var(--greenbg);border-color:var(--green)}
+.alert-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.alert-body strong{display:block;color:var(--txt);font-weight:600;margin-bottom:2px}
+.alert-body span{color:var(--txt2)}
+.alert-amt{margin-left:auto;font-weight:700;color:var(--txt);white-space:nowrap;font-size:12px}
+
+/* LEGEND */
+.leg{list-style:none;display:flex;flex-direction:column;gap:5px}
+.leg li{display:flex;align-items:center;gap:7px;font-size:10.5px;color:var(--txt)}
+.leg .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.leg .lv{margin-left:auto;font-weight:600;color:var(--txt2);font-size:10px}
+
+/* STATUS GRID */
+.status-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.status-item{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--bg3);border-radius:6px;font-size:11px}
+.status-key{color:var(--txt2)}
+
+/* SECTION TITLE */
+.sec-ttl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--txt2);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.sec-ttl::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* FOOTER */
+.foot{text-align:center;padding:8px 20px;font-size:10px;color:var(--txt3);border-top:1px solid var(--border);background:var(--bg2);flex-shrink:0}
+
+/* LOADING OVERLAY */
+.ld{position:fixed;inset:0;background:var(--sidebar);display:flex;align-items:center;justify-content:center;z-index:9998;transition:opacity .4s}
+.ld.done{opacity:0;pointer-events:none}
+.ld-inner{text-align:center}
+.ld-logo{width:60px;height:60px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;margin:0 auto 16px;animation:pulse 1.2s ease infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.ld-txt{color:#fff;font-size:14px;font-weight:500}
+.ld-sub{color:var(--txt3);font-size:11px;margin-top:4px}
+
+/* MOBILE */
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--sidebar);border-top:1px solid var(--border2);z-index:200;padding:0 0 env(safe-area-inset-bottom)}
+.mob-nav-inner{display:flex;justify-content:space-around;height:54px;align-items:center}
+.mob-ni{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px;cursor:pointer;color:var(--txt3);font-size:9px;font-weight:500;border:none;background:none;font-family:inherit;flex:1}
+.mob-ni.active{color:var(--accent)}
+.mob-ni-icon{font-size:18px;line-height:1}
+.mob-more-menu{display:none;position:fixed;bottom:54px;left:0;right:0;background:var(--sb2);border-top:1px solid var(--border2);z-index:199;padding:10px;grid-template-columns:1fr 1fr;gap:6px}
+.mob-more-menu.open{display:grid}
+.mob-more-item{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--sidebar);border-radius:8px;cursor:pointer;color:var(--txt3);font-size:11px;font-weight:500}
+.mob-more-item:hover,.mob-more-item.active{color:var(--accent)}
+
+@media(max-width:768px){
+  .sb{display:none}
+  .main{margin-left:0!important}
+  .mob-nav{display:block}
+  .content{padding:12px 14px 68px}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)!important}
+  .g2,.g3,.g21,.g12{grid-template-columns:1fr!important}
+}
+
+/* MINES PAGE */
+#pg-mines{padding:0;display:none}
+#pg-mines.active{display:flex;flex-direction:column;height:calc(100vh - 52px)}
+#mines-iframe{width:100%;border:none;flex:1;min-height:0}
+</style>
+</head>
+<body>
+
+<!-- ── LOADING ─────────────────────────────────────────────── -->
+<div class="ld" id="ld">
+  <div class="ld-inner">
+    <div class="ld-logo">AIT</div>
+    <div class="ld-txt">AIT Projects Dashboard</div>
+    <div class="ld-sub">Loading...</div>
+  </div>
+</div>
+
+<!-- ── LOGIN ──────────────────────────────────────────────── -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">AIT</div>
+    <div class="login-title">AIT Projects Dashboard</div>
+    <div class="login-sub">Sign in to access your dashboard</div>
+    <div class="login-field">
+      <label>Email Address</label>
+      <input type="email" id="loginEmail" placeholder="your@email.com" autocomplete="email">
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">Sign In</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- ── APP ────────────────────────────────────────────────── -->
+<div class="app" id="appWrap" style="display:none">
+
+  <!-- SIDEBAR -->
+  <aside class="sb" id="sidebar">
+    <div class="sb-head">
+      <div class="sb-logo">AIT</div>
+      <div class="sb-brand">
+        <strong>AIT Projects</strong>
+        <span>Portfolio Dashboard</span>
+      </div>
+      <button class="sb-toggle" onclick="toggleSidebar()" title="Collapse">◀</button>
+    </div>
+    <nav class="sb-nav" id="sbNav"></nav>
+    <div class="sb-foot">
+      <div class="sb-foot-inner">
+        <button class="sb-fbtn" id="btnLang" onclick="toggleLang()">🌐 <span id="langLbl">AR</span></button>
+        <button class="sb-fbtn" id="btnTheme" onclick="toggleTheme()">🌙 <span id="themeLbl">Dark</span></button>
+      </div>
+      <div class="sb-user" id="sbUser">● Live Data</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main" id="mainArea">
+
+    <!-- TOP BAR -->
+    <div class="tb">
+      <div class="tb-title">
+        <h1 id="pgTitle">Executive Summary</h1>
+        <p id="pgSub">Overview of project financial performance and key indicators</p>
+      </div>
+      <div class="tb-spacer"></div>
+      <div class="tb-date" id="tbDate">📅 —</div>
+      <button class="tb-refresh" id="refBtn" onclick="refreshData()">
+        <span class="ri" id="refreshIcon">🔄</span> Refresh
+      </button>
+    </div>
+
+    <!-- FILTER BAR (dynamic per page) -->
+    <div class="fb" id="filterBar"></div>
+
+    <!-- PAGE CONTENT -->
+    <div class="content" id="pageContent">
+
+      <!-- PAGE 1: EXECUTIVE SUMMARY -->
+      <div class="pg active" id="pg-exec">
+        <div class="kpi-grid" id="execKpis"></div>
+        <div class="g21 mb">
+          <div class="card">
+            <div class="card-h"><div><h3>Budget vs Actual by Category (EGP)</h3></div></div>
+            <div class="card-b"><div class="cw" style="height:220px"><canvas id="c_bvA"></canvas></div></div>
+          </div>
+          <div class="card">
+            <div class="card-h"><div><h3>Expense Distribution</h3></div></div>
+            <div class="card-b" style="display:flex;align-items:center;gap:14px">
+              <div style="width:130px;height:130px;flex-shrink:0"><canvas id="c_expDist"></canvas></div>
+              <ul class="leg" id="expDistLeg" style="flex:1"></ul>
+            </div>
+          </div>
+        </div>
+        <div class="g2 mb">
+          <div class="card">
+            <div class="card-h"><div><h3>Monthly Spending Trend (EGP)</h3></div></div>
+            <div class="card-b"><div class="cw" style="height:180px"><canvas id="c_monthly"></canvas></div></div>
+          </div>
+          <div class="card">
+            <div class="card-h"><div><h3>Budget Utilization % by Category</h3></div></div>
+            <div class="card-b" id="utilBars" style="max-height:195px;overflow-y:auto"></div>
+          </div>
+        </div>
+        <div class="g2 mb">
+          <div class="card">
+            <div class="card-h"><div><h3>Top Alerts & Notifications</h3></div></div>
+            <div class="card-b" id="execAlerts" style="max-height:220px;overflow-y:auto"></div>
+          </div>
+          <div class="card">
+            <div class="card-h"><div><h3>Project Overall Status</h3></div></div>
+            <div class="card-b">
+              <div class="status-grid" id="projStatus"></div>
+              <div class="sec-ttl" style="margin-top:14px">Top 5 Vendors by Expenses</div>
+              <table><thead><tr><th>Vendor</th><th class="td-r">Amount (EGP)</th></tr></thead><tbody id="topVendTbl"></tbody></table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 2: PROJECT TIMELINE -->
+      <div class="pg" id="pg-timeline">
+        <div class="kpi-grid k7" id="tlKpis"></div>
+        <div class="g2 mb">
+          <div class="card">
+            <div class="card-h"><div><h3>Tasks by Status</h3></div></div>
+            <div class="card-b" style="display:flex;align-items:center;gap:14px">
+              <div style="width:130px;height:130px;flex-shrink:0"><canvas id="c_tlStatus"></canvas></div>
+              <ul class="leg" id="tlStatusLeg" style="flex:1"></ul>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-h"><div><h3>Tasks by Owner</h3></div></div>
+            <div class="card-b"><div class="cw" style="height:150px"><canvas id="c_tlOwner"></canvas></div></div>
+          </div>
+        </div>
+        <div class="card mb">
+          <div class="card-h"><div><h3>Task Details</h3></div></div>
+          <div class="tbl-wrap"><table><thead><tr><th>WBS</th><th>Task</th><th>Owner</th><th>Phase</th><th>Start</th><th>Due</th><th>Complete</th><th>Status</th><th>Delay</th><th>Comments</th></tr></thead><tbody id="tlTbl"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- PAGE 3: BUDGET OVERVIEW -->
+      <div class="pg" id="pg-budget">
+        <div class="kpi-grid k7" id="budKpis"></div>
+        <div class="g21 mb">
+          <div class="card">
+            <div class="card-h"><div><h3>Budget vs Actual by Category (EGP)</h3></div></div>
+            <div class="card-b"><div class="cw" style="height:220px"><canvas id="c_budCat"></canvas></div></div>
+          </div>
+          <div class="card">
+            <div class="card-h"><div><h3>Budget Allocation by Category</h3></div></div>
+            <div class="card-b" style="display:flex;align-items:center;gap:14px">
+              <div style="width:130px;height:130px;flex-shrink:0"><canvas id="c_budAlloc"></canvas></div>
+              <ul class="leg" id="budAllocLeg" style="flex:1"></ul>
+            </div>
+          </div>
+        </div>
+        <div class="card mb">
+          <div class="card-h"><div><h3>Detailed Budget Summary</h3></div></div>
+          <div class="tbl-wrap"><table><thead><tr><th>Category</th><th class="td-r">Budget (EGP)</th><th class="td-r">Actual (EGP)</th><th class="td-r">Remaining</th><th class="td-r">Variance</th><th>Status</th></tr></thead><tbody id="budTbl"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- PAGE 4: EXPENSES & PAYMENTS -->
+      <div class="pg" id="pg-expenses">
+        <div class="kpi-grid" id="expKpis"></div>
+        <div class="g2 mb">
+          <div class="card">
+            <div class="card-h"><div><h3>Monthly Spending Trend (EGP)</h3></div></div>
+            <div class="card-b"><div class="cw" style="height:200px"><canvas id="c_expTrend"></canvas></div></div>
+          </div>
+          <div class="card">
+            <div class="card-h"><div><h3>Paid vs Pending by Month</h3></div></div>
+            <div class="card-b"><div class="cw" style="height:200px"><canvas id="c_paidPend"></canvas></div></div>
+          </div>
+        </div>
+        <div class="card mb">
+          <div class="card-h"><div><h3>Expense Log & Payment Plan</h3></div></div>
+          <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Category</th><th>Vendor</th><th class="td-r">Amount (EGP)</th><th>Method</th><th>Due Date</th><th>Status</th><th>Comments</th></tr></thead><tbody id="expTbl"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- PAGE 5: COST ANALYSIS -->
+      <div class="pg" id="pg-cost">
+        <div class="kpi-grid k7" id="costKpis"></div>
+        <div class="g21 mb">
+          <div class="card">
+            <div class="card-h"><div><h3>Top 10 Items by Actual Spend (EGP)</h3></div></div>
+            <div class="card-b"><div class="cw" style="height:250px"><canvas id="c_top10"></canvas></div></div>
+          </div>
+          <div class="card">
+            <div class="card-h"><div><h3>Spend Distribution by Cost Center</h3></div></div>
+            <div class="card-b" style="display:flex;align-items:center;gap:14px">
+              <div style="width:130px;height:130px;flex-shrink:0"><canvas id="c_costCenter"></canvas></div>
+              <ul class="leg" id="costCenterLeg" style="flex:1"></ul>
+            </div>
+          </div>
+        </div>
+        <div class="card mb">
+          <div class="card-h"><div><h3>Detailed Cost Analysis</h3></div></div>
+          <div class="tbl-wrap"><table><thead><tr><th>Category</th><th>Item</th><th>Cost Center</th><th>Vendor</th><th class="td-r">Actual (EGP)</th><th class="td-r">Budget (EGP)</th><th class="td-r">Variance</th><th class="td-r">Var%</th><th>Status</th></tr></thead><tbody id="costTbl"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- PAGE 6: CASH FLOW FORECAST -->
+      <div class="pg" id="pg-cashflow">
+        <div class="kpi-grid k6" id="cfKpis"></div>
+        <div class="card mb">
+          <div class="card-h"><div><h3>Cash Flow Trend — Inflow vs Outflow (EGP)</h3></div></div>
+          <div class="card-b"><div class="cw" style="height:220px"><canvas id="c_cfTrend"></canvas></div></div>
+        </div>
+        <div class="g2 mb">
+          <div class="card">
+            <div class="card-h"><div><h3>Cash Flow by Project (This Month)</h3></div></div>
+            <div class="tbl-wrap"><table><thead><tr><th>Project</th><th class="td-r">Inflow</th><th class="td-r">Outflow</th><th class="td-r">Net</th></tr></thead><tbody id="cfProjTbl"></tbody></table></div>
+          </div>
+          <div class="card">
+            <div class="card-h"><div><h3>6-Month Forecast (EGP)</h3></div></div>
+            <div class="tbl-wrap"><table><thead><tr><th>Month</th><th class="td-r">Inflow</th><th class="td-r">Outflow</th><th class="td-r">Net</th></tr></thead><tbody id="cf6mTbl"></tbody></table></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 7: RISK & ALERTS -->
+      <div class="pg" id="pg-risks">
+        <div class="kpi-grid k6" id="riskKpis"></div>
+        <div class="g2 mb">
+          <div class="card">
+            <div class="card-h"><div><h3>Risks by Category</h3></div></div>
+            <div class="card-b" style="display:flex;align-items:center;gap:14px">
+              <div style="width:150px;height:150px;flex-shrink:0"><canvas id="c_riskCat"></canvas></div>
+              <ul class="leg" id="riskCatLeg" style="flex:1"></ul>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-h"><div><h3>Risks by Severity</h3></div></div>
+            <div class="card-b"><div class="cw" style="height:160px"><canvas id="c_riskSev"></canvas></div></div>
+          </div>
+        </div>
+        <div class="card mb">
+          <div class="card-h"><div><h3>Top Risks Register</h3></div></div>
+          <div class="tbl-wrap"><table><thead><tr><th>ID</th><th>Risk Title</th><th>Project</th><th>Category</th><th>Severity</th><th class="td-r">Score</th><th>Status</th><th>Owner</th></tr></thead><tbody id="riskTbl"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- PAGE 8: VENDOR & PROCUREMENT -->
+      <div class="pg" id="pg-vendors">
+        <div class="kpi-grid k6" id="vendKpis"></div>
+        <div class="g2 mb">
+          <div class="card">
+            <div class="card-h"><div><h3>Top Vendors by Commitment (EGP)</h3></div></div>
+            <div class="tbl-wrap" style="max-height:240px"><table><thead><tr><th>Vendor</th><th>Category</th><th class="td-r">Commitments</th><th class="td-r">Paid</th><th class="td-r">Pay%</th><th>Perf.</th></tr></thead><tbody id="vendTbl"></tbody></table></div>
+          </div>
+          <div class="card">
+            <div class="card-h"><div><h3>Contracts Expiring Soon</h3></div></div>
+            <div class="tbl-wrap" style="max-height:240px"><table><thead><tr><th>Contract</th><th>Vendor</th><th>Project</th><th>Expiry</th><th class="td-r">Value</th></tr></thead><tbody id="conTbl"></tbody></table></div>
+          </div>
+        </div>
+        <div class="card mb">
+          <div class="card-h"><div><h3>Spend by Category (EGP)</h3></div></div>
+          <div class="card-b"><div class="cw" style="height:180px"><canvas id="c_vendCat"></canvas></div></div>
+        </div>
+      </div>
+
+      <!-- PAGE 9: APPROVAL WORKFLOW -->
+      <div class="pg" id="pg-approvals">
+        <div class="kpi-grid k6" id="appKpis"></div>
+        <div class="g2 mb">
+          <div class="card">
+            <div class="card-h"><div><h3>Requests by Status</h3></div></div>
+            <div class="card-b" style="display:flex;align-items:center;gap:14px">
+              <div style="width:150px;height:150px;flex-shrink:0"><canvas id="c_appStatus"></canvas></div>
+              <ul class="leg" id="appStatusLeg" style="flex:1"></ul>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-h"><div><h3>Requests by Type</h3></div></div>
+            <div class="card-b"><div class="cw" style="height:160px"><canvas id="c_appType"></canvas></div></div>
+          </div>
+        </div>
+        <div class="card mb">
+          <div class="card-h"><div><h3 style="color:var(--yellow)">⚠ Bottlenecks — Pending &gt; 7 Days</h3></div></div>
+          <div class="tbl-wrap"><table><thead><tr><th>Request ID</th><th>Project</th><th>Approval Type</th><th>Pending Since</th><th class="td-r">Days Pending</th><th>Approver</th></tr></thead><tbody id="appBotTbl"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- PAGE 10: MONTHLY PERFORMANCE -->
+      <div class="pg" id="pg-performance">
+        <div class="kpi-grid k6" id="perfKpis"></div>
+        <div class="g2 mb">
+          <div class="card">
+            <div class="card-h"><div><h3>Project Performance by Status</h3></div></div>
+            <div class="card-b" style="display:flex;align-items:center;gap:14px">
+              <div style="width:150px;height:150px;flex-shrink:0"><canvas id="c_perfStatus"></canvas></div>
+              <ul class="leg" id="perfStatusLeg" style="flex:1"></ul>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-h"><div><h3>Budget Utilization Trend (%)</h3></div></div>
+            <div class="card-b"><div class="cw" style="height:160px"><canvas id="c_perfUtil"></canvas></div></div>
+          </div>
+        </div>
+        <div class="card mb">
+          <div class="card-h"><div><h3>Top 5 Projects by Performance</h3></div></div>
+          <div class="tbl-wrap"><table><thead><tr><th>Project</th><th>Status</th><th class="td-r">Schedule</th><th class="td-r">Cost</th><th class="td-r">Scope</th><th class="td-r">Quality</th><th class="td-r">Overall Score</th></tr></thead><tbody id="perfTbl"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- PAGE 11: PRODUCTION / LOTS -->
+      <div class="pg" id="pg-production">
+        <div class="kpi-grid k6" id="prodKpis"></div>
+        <div class="g2 mb">
+          <div class="card">
+            <div class="card-h"><div><h3>Tonnage by Mine</h3></div></div>
+            <div class="card-b"><div class="cw" style="height:200px"><canvas id="c_prodTon"></canvas></div></div>
+          </div>
+          <div class="card">
+            <div class="card-h"><div><h3>Avg Fe% by Mine</h3></div></div>
+            <div class="card-b"><div class="cw" style="height:200px"><canvas id="c_prodFe"></canvas></div></div>
+          </div>
+        </div>
+        <div class="card mb">
+          <div class="card-h"><div><h3>Production Lots Log</h3></div></div>
+          <div class="tbl-wrap"><table><thead><tr><th>Last Update</th><th>Mine</th><th>Batch</th><th class="td-r">Qty (Ton)</th><th class="td-r">Volume (m³)</th><th class="td-r">Avg Fe%</th></tr></thead><tbody id="prodTbl"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- PAGE 12: QUALITY / SAMPLES -->
+      <div class="pg" id="pg-quality">
+        <div class="kpi-grid k6" id="qualKpis"></div>
+        <div class="g2 mb">
+          <div class="card">
+            <div class="card-h"><div><h3>Avg Fe% by Mine</h3></div></div>
+            <div class="card-b"><div class="cw" style="height:200px"><canvas id="c_qualFe"></canvas></div></div>
+          </div>
+          <div class="card">
+            <div class="card-h"><div><h3>SiO2% vs Al2O3% by Mine</h3></div></div>
+            <div class="card-b"><div class="cw" style="height:200px"><canvas id="c_qualSi"></canvas></div></div>
+          </div>
+        </div>
+        <div class="card mb">
+          <div class="card-h"><div><h3>XRF Sample Analysis</h3></div></div>
+          <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Mine</th><th>Batch</th><th class="td-r">Fe%</th><th class="td-r">SiO2%</th><th class="td-r">Al2O3%</th><th class="td-r">CaO%</th><th class="td-r">MgO%</th><th class="td-r">Moisture%</th></tr></thead><tbody id="qualTbl"></tbody></table></div>
+        </div>
+      </div>
+
+    </div><!-- end #pageContent -->
+
+    <!-- PAGE 13: MINES MAP (outside content scroll) -->
+    <div class="pg" id="pg-mines">
+      <iframe id="mines-iframe" src="egypt_mines_map.html" title="Mines Map"></iframe>
+    </div>
+
+    <div class="foot" id="footerBar">All amounts are in EGP &nbsp;|&nbsp; AIT Projects Portfolio Dashboard &nbsp;|&nbsp; <span id="lastUpdate">—</span></div>
+  </div><!-- end .main -->
+</div><!-- end .app -->
+
+<!-- MOBILE NAV -->
+<nav class="mob-nav" id="mobNav">
+  <div class="mob-nav-inner">
+    <button class="mob-ni active" onclick="goPageMob('exec',this)" id="mob-exec"><span class="mob-ni-icon">📊</span><span>Summary</span></button>
+    <button class="mob-ni" onclick="goPageMob('budget',this)" id="mob-budget"><span class="mob-ni-icon">💰</span><span>Budget</span></button>
+    <button class="mob-ni" onclick="goPageMob('expenses',this)" id="mob-expenses"><span class="mob-ni-icon">🧾</span><span>Expenses</span></button>
+    <button class="mob-ni" onclick="goPageMob('risks',this)" id="mob-risks"><span class="mob-ni-icon">⚠️</span><span>Risks</span></button>
+    <button class="mob-ni" onclick="toggleMobMore()" id="mob-more-btn"><span class="mob-ni-icon">⋯</span><span>More</span></button>
+  </div>
+</nav>
+<div class="mob-more-menu" id="mobMoreMenu">
+  <div class="mob-more-item" onclick="goPageMob('timeline',null);toggleMobMore()">📅 Timeline</div>
+  <div class="mob-more-item" onclick="goPageMob('cost',null);toggleMobMore()">📉 Cost</div>
+  <div class="mob-more-item" onclick="goPageMob('cashflow',null);toggleMobMore()">📈 Cash Flow</div>
+  <div class="mob-more-item" onclick="goPageMob('vendors',null);toggleMobMore()">🤝 Vendors</div>
+  <div class="mob-more-item" onclick="goPageMob('approvals',null);toggleMobMore()">✅ Approvals</div>
+  <div class="mob-more-item" onclick="goPageMob('performance',null);toggleMobMore()">🏆 Performance</div>
+  <div class="mob-more-item" onclick="goPageMob('production',null);toggleMobMore()">⚙️ Production</div>
+  <div class="mob-more-item" onclick="goPageMob('quality',null);toggleMobMore()">🔬 Quality</div>
+  <div class="mob-more-item" onclick="goPageMob('mines',null);toggleMobMore()">🗺️ Mines Map</div>
+</div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const API_URL = 'https://script.google.com/macros/s/AKfycbxfAYmntTA0nN5gpsr8WWC7lwB-Zf6j1vLr9iyzHl5AzzEJM3OjNEnOU64diMHzzIqj6g/exec';
+
+const PAGE_META = {
+  exec:        ['Executive Summary',        'Overview of project financial performance and key indicators'],
+  timeline:    ['Project Timeline / Gantt', 'All Projects Schedule Overview'],
+  budget:      ['Budget Overview',          'All Projects Budget Performance'],
+  expenses:    ['Expenses & Payment Plan',  'Expense Tracking and Payment Scheduling'],
+  cost:        ['Cost Analysis',            'By category, cost center, vendor, and spend drivers'],
+  cashflow:    ['Cash Flow Forecast',       'Projected cash inflows and outflows across all projects'],
+  risks:       ['Risk & Alerts',            'Monitor project risks, issues, and alerts proactively'],
+  vendors:     ['Vendor & Procurement',     'Manage vendors, contracts, and procurement performance'],
+  approvals:   ['Approval Workflow',        'Track approvals, review cycles, and bottlenecks'],
+  performance: ['Monthly Performance Report','Comprehensive performance overview — April 2026'],
+  production:  ['Production / Lots',        'Daily production batches, tonnage, and Fe% by mine'],
+  quality:     ['Quality / Samples',        'XRF chemical analysis — Fe%, SiO2%, Al2O3% and more'],
+  mines:       ['Mines Map',                'Interactive map of all mining sites, zones, and samples'],
+};
+
+const PAGE_ICONS = {
+  exec:'📊',timeline:'📅',budget:'💰',expenses:'🧾',cost:'📉',
+  cashflow:'📈',risks:'⚠️',vendors:'🤝',approvals:'✅',performance:'🏆',
+  production:'⚙️',quality:'🔬',mines:'🗺️',
+};
+
+const PAGE_FILTERS = {
+  exec:        [],
+  timeline:    ['project','status_filter'],
+  budget:      ['project','category'],
+  expenses:    ['project','month','method','category'],
+  cost:        ['project','category'],
+  cashflow:    ['project'],
+  risks:       ['project','severity'],
+  vendors:     [],
+  approvals:   [],
+  performance: [],
+  production:  ['mine'],
+  quality:     ['mine'],
+  mines:       [],
+};
+
+const COLORS = ['#fd480e','#3fb950','#58a6ff','#f0883e','#bc8cff','#39d353','#ffa657','#ff7b72','#a5d6ff','#d2a8ff','#56d364','#e3b341'];
+const PAL    = COLORS;
+
+// ============================================================
+// STATE
+// ============================================================
+let API_DATA    = null;
+let USER        = null;
+let LANG        = 'en';
+let THEME       = 'light';
+let SB_OPEN     = true;
+let FILTERS     = { project:'all', month:'all', method:'all', category:'all', severity:'all', status_filter:'all', mine:'all' };
+let CHARTS      = {};
+let CURRENT_PAGE = 'exec';
+
+// ============================================================
+// AUTH
+// ============================================================
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  const err   = document.getElementById('loginErr');
+  const btn   = document.getElementById('loginBtn');
+  err.textContent = '';
+  if (!email) { err.textContent = 'Please enter your email.'; return; }
+  if (!pass)  { err.textContent = 'Please enter your password.'; return; }
+  btn.disabled = true;
+  btn.textContent = 'Signing in...';
+  try {
+    const res  = await fetch(API_URL + '?action=checkAuth&email=' + encodeURIComponent(email));
+    const data = await res.json();
+    if (!data.active) {
+      err.textContent = data.message || 'Access denied.';
+      btn.disabled = false; btn.textContent = 'Sign In';
+      return;
+    }
+    USER = data;
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('appWrap').style.display = 'flex';
+    buildSidebar();
+    await loadData();
+  } catch(e) {
+    err.textContent = 'Connection error. Please try again.';
+  }
+  btn.disabled = false; btn.textContent = 'Sign In';
+}
+
+// Enter key login
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !document.getElementById('loginScreen').classList.contains('hidden')) doLogin();
+});
+
+// ============================================================
+// SIDEBAR
+// ============================================================
+function buildSidebar() {
+  const nav  = document.getElementById('sbNav');
+  nav.innerHTML = '';
+  if (!USER || !USER.pages) return;
+  USER.pages.forEach((p, i) => {
+    const ni = document.createElement('div');
+    ni.className = 'ni' + (i === 0 ? ' active' : '');
+    ni.onclick = () => goPage(p, ni);
+    ni.innerHTML = `<div class="ni-num">${i+1}</div><span class="ni-icon">${PAGE_ICONS[p]||'📄'}</span><span class="ni-lbl">${PAGE_META[p]?.[0]||p}</span>`;
+    nav.appendChild(ni);
+  });
+  document.getElementById('sbUser').textContent = '● ' + (USER.name || USER.email);
+  // Show first page
+  if (USER.pages.length) goPage(USER.pages[0], nav.firstChild);
+}
+
+function toggleSidebar() {
+  SB_OPEN = !SB_OPEN;
+  document.getElementById('sidebar').classList.toggle('collapsed', !SB_OPEN);
+  document.querySelector('.sb-toggle').textContent = SB_OPEN ? '◀' : '▶';
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function goPage(page, el) {
+  CURRENT_PAGE = page;
+  document.querySelectorAll('.pg').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
+
+  const pgEl = document.getElementById('pg-' + page);
+  if (pgEl) pgEl.classList.add('active');
+  if (el) el.classList.add('active');
+
+  const [title, sub] = PAGE_META[page] || ['Dashboard', ''];
+  document.getElementById('pgTitle').textContent = title;
+  document.getElementById('pgSub').textContent   = sub;
+
+  // Filter bar
+  if (page === 'mines') {
+    document.getElementById('filterBar').classList.add('hidden');
+    document.getElementById('footerBar').style.display = 'none';
+    syncMinesSettings();
+  } else {
+    document.getElementById('filterBar').classList.remove('hidden');
+    document.getElementById('footerBar').style.display = '';
+    renderFilterBar(page);
+  }
+
+  // Date
+  const now = new Date();
+  document.getElementById('tbDate').textContent = '📅 ' + now.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+
+  if (API_DATA) renderPage(page);
+}
+
+function goPageMob(page, el) {
+  document.querySelectorAll('.mob-ni').forEach(b => b.classList.remove('active'));
+  const mobEl = document.getElementById('mob-' + page);
+  if (mobEl) mobEl.classList.add('active');
+  else document.getElementById('mob-more-btn').classList.add('active');
+  const sideEl = document.querySelector(`.ni[onclick*="'${page}'"]`);
+  goPage(page, sideEl);
+}
+
+function toggleMobMore() {
+  document.getElementById('mobMoreMenu').classList.toggle('open');
+}
+
+// ============================================================
+// DATA LOADING
+// ============================================================
+async function loadData(forceRefresh = false) {
+  if (!USER) return;
+  const action = forceRefresh ? 'refresh' : 'data';
+  try {
+    const res  = await fetch(API_URL + `?action=${action}&email=${encodeURIComponent(USER.email)}`);
+    const data = await res.json();
+    if (data.error) { console.error('API error:', data.error); return; }
+    API_DATA = data;
+    document.getElementById('lastUpdate').textContent = 'Last updated: ' + (data.lastUpdated || new Date().toLocaleString());
+    renderPage(CURRENT_PAGE);
+    document.getElementById('ld').classList.add('done');
+  } catch(e) {
+    console.error('Load error:', e);
+    document.getElementById('lastUpdate').textContent = 'Connection error — using cached data';
+    document.getElementById('ld').classList.add('done');
+  }
+}
+
+async function refreshData() {
+  const btn  = document.getElementById('refBtn');
+  const icon = document.getElementById('refreshIcon');
+  btn.classList.add('spinning');
+  btn.disabled = true;
+  await loadData(true);
+  btn.classList.remove('spinning');
+  btn.disabled = false;
+}
+
+// Auto-refresh every 60 seconds
+setInterval(() => { if (API_DATA) loadData(); }, 60000);
+
+// ============================================================
+// FILTER BAR
+// ============================================================
+function renderFilterBar(page) {
+  const fb      = document.getElementById('filterBar');
+  const filters = PAGE_FILTERS[page] || [];
+  if (!filters.length || !API_DATA) { fb.innerHTML = ''; return; }
+
+  // Build option lists
+  const expenses = API_DATA?.expenses?.log || [];
+  const budget   = API_DATA?.budget?.by_category || [];
+  const lots     = API_DATA?.lots || [];
+
+  const projects = [...new Set([...expenses.map(r=>r.project||''), ...budget.map(r=>r.category||'')])].filter(Boolean).sort();
+  const months   = [...new Set(expenses.map(r=>r.date?.substring(0,7)||''))].filter(Boolean).sort();
+  const methods  = [...new Set(expenses.map(r=>r.method||''))].filter(Boolean).sort();
+  const cats     = [...new Set([...expenses.map(r=>r.category||''), ...budget.map(r=>r.category||'')])].filter(Boolean).sort();
+  const mines    = [...new Set(lots.map(r=>r.mine||''))].filter(Boolean).sort();
+
+  const sel = (id, label, options, key) => {
+    const opts = ['<option value="all">All ' + label + '</option>',
+      ...options.map(o => `<option value="${o}"${FILTERS[key]===o?' selected':''}>${o}</option>`)].join('');
+    return `<span class="fl">${label}</span><select class="fs" id="f_${id}" onchange="applyFilter('${key}',this.value)">${opts}</select>`;
+  };
+
+  const parts = [];
+  if (filters.includes('project'))       parts.push(sel('project','Project',projects,'project'));
+  if (filters.includes('month'))         parts.push(sel('month','Month',months,'month'));
+  if (filters.includes('method'))        parts.push(sel('method','Method',methods,'method'));
+  if (filters.includes('category'))      parts.push(sel('category','Category',cats,'category'));
+  if (filters.includes('severity'))      parts.push(sel('severity','Severity',['Critical','High','Medium','Low'],'severity'));
+  if (filters.includes('status_filter')) parts.push(sel('status_filter','Status',['In Progress','Completed','Delayed','Planned'],'status_filter'));
+  if (filters.includes('mine'))          parts.push(sel('mine','Mine',mines,'mine'));
+
+  // Export buttons (if user has permission)
+  const exportParts = [];
+  if (USER?.canExcel) exportParts.push(`<button class="fb-export" onclick="exportExcel()">⬇ Excel</button>`);
+  if (USER?.canPdf)   exportParts.push(`<button class="fb-export" onclick="exportPdf()">⬇ PDF</button>`);
+
+  fb.innerHTML = parts.join('') + `<button class="fb-clr" onclick="clearFilters()">✕ Clear</button>` + exportParts.join('');
+}
+
+function applyFilter(key, val) {
+  FILTERS[key] = val;
+  renderPage(CURRENT_PAGE);
+}
+
+function clearFilters() {
+  Object.keys(FILTERS).forEach(k => FILTERS[k] = 'all');
+  renderFilterBar(CURRENT_PAGE);
+  renderPage(CURRENT_PAGE);
+}
+
+// ============================================================
+// EXPORT
+// ============================================================
+function exportExcel() {
+  if (!API_DATA) return;
+  const d = API_DATA[CURRENT_PAGE];
+  if (!d) return;
+  // Find table data
+  let rows = d.log || d.tasks || d.lots || d.samples || d.register || d.top_vendors || [];
+  if (!rows.length) rows = d.by_category || [];
+  if (!rows.length) { alert('No tabular data to export on this page.'); return; }
+  const ws   = XLSX.utils.json_to_sheet(rows);
+  const wb   = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, PAGE_META[CURRENT_PAGE]?.[0] || 'Data');
+  XLSX.writeFile(wb, `AIT_${CURRENT_PAGE}_${new Date().toISOString().substring(0,10)}.xlsx`);
+}
+
+function exportPdf() {
+  window.print();
+}
+
+// ============================================================
+// CHART HELPERS
+// ============================================================
+function gc() {
+  return {
+    grid: getComputedStyle(document.documentElement).getPropertyValue('--chart-grid').trim() || 'rgba(0,0,0,.06)',
+    txt:  getComputedStyle(document.documentElement).getPropertyValue('--chart-txt').trim()  || '#5a6478',
+  };
+}
+
+function mkChart(id, type, data, opts = {}) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (CHARTS[id]) { CHARTS[id].destroy(); delete CHARTS[id]; }
+  const c = gc();
+  Chart.defaults.color = c.txt;
+  const defaults = {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { backgroundColor: '#0d1117', titleColor: '#fff', bodyColor: '#8b949e', padding: 10, cornerRadius: 6 },
+    },
+    scales: {
+      x: { grid: { color: c.grid }, ticks: { color: c.txt, font: { size: 10 } } },
+      y: { grid: { color: c.grid }, ticks: { color: c.txt, font: { size: 10 } } },
+    },
+    animation: { duration: 400 },
+  };
+  function deepMerge(a, b) {
+    const r = { ...a };
+    for (const k in b) {
+      if (b[k] && typeof b[k] === 'object' && !Array.isArray(b[k])) r[k] = deepMerge(a[k] || {}, b[k]);
+      else r[k] = b[k];
+    }
+    return r;
+  }
+  CHARTS[id] = new Chart(el, { type, data, options: deepMerge(defaults, opts) });
+}
+
+function fmtNum(v) {
+  const n = Math.abs(parseFloat(v) || 0);
+  if (n >= 1e9) return (v / 1e9).toFixed(2) + 'B';
+  if (n >= 1e6) return (v / 1e6).toFixed(2) + 'M';
+  if (n >= 1e3) return (v / 1e3).toFixed(0) + 'K';
+  return (parseFloat(v) || 0).toLocaleString();
+}
+function fmtF(v) { return (parseFloat(v) || 0).toLocaleString('en-EG', { maximumFractionDigits: 0 }); }
+
+// ============================================================
+// KPI RENDERER
+// ============================================================
+function renderKpis(containerId, kpis, gridClass = '') {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.className = 'kpi-grid ' + (gridClass || (kpis.length <= 4 ? 'k4' : kpis.length <= 6 ? 'k6' : kpis.length <= 7 ? 'k7' : ''));
+  el.innerHTML = kpis.map(k => {
+    const color = k.color || 'orange';
+    const val = typeof k.value === 'number'
+      ? (k.fmt === 'percent' ? k.value + '%' : k.fmt === 'currency' ? fmtNum(k.value) : k.value.toLocaleString())
+      : (k.value || '—');
+    const trend = k.note && k.note.includes('+') ? 'up' : k.note && k.note.includes('-') ? 'dn' : '';
+    return `<div class="kc ${color}">
+      <div class="kc-lbl">${k.label}</div>
+      <div class="kc-val ${color}">${val}</div>
+      ${k.note ? `<div class="kc-trend ${trend}">${k.note}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// PAGE RENDERERS
+// ============================================================
+function renderPage(page) {
+  if (!API_DATA) return;
+  const map = {
+    exec: renderExec, timeline: renderTimeline, budget: renderBudget,
+    expenses: renderExpenses, cost: renderCost, cashflow: renderCashFlow,
+    risks: renderRisks, vendors: renderVendors, approvals: renderApprovals,
+    performance: renderPerformance, production: renderProduction,
+    quality: renderQuality, mines: () => syncMinesSettings(),
+  };
+  if (map[page]) map[page]();
+}
+
+// ── PAGE 1: EXECUTIVE SUMMARY ───────────────────────────────
+function renderExec() {
+  const d = API_DATA.exec;
+  if (!d) return;
+  renderKpis('execKpis', d.kpis, '');
+  const c = gc();
+
+  // Budget vs Actual
+  if (d.budget_vs_actual?.length) {
+    mkChart('c_bvA','bar',{
+      labels: d.budget_vs_actual.map(r=>r.category),
+      datasets:[
+        {label:'Budget', data:d.budget_vs_actual.map(r=>r.budget), backgroundColor:'rgba(88,166,255,.8)', borderRadius:4},
+        {label:'Actual', data:d.budget_vs_actual.map(r=>r.actual), backgroundColor:'rgba(253,72,14,.85)',  borderRadius:4},
+      ]
+    },{plugins:{legend:{display:true,labels:{color:c.txt,font:{size:10},boxWidth:10}}},scales:{x:{grid:{color:c.grid},ticks:{color:c.txt,font:{size:9}}},y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>fmtNum(v)}}}});
+  }
+
+  // Expense distribution donut
+  if (d.expense_dist?.length) {
+    const items = d.expense_dist.slice(0,8);
+    mkChart('c_expDist','doughnut',{
+      labels: items.map(r=>r.category),
+      datasets:[{data:items.map(r=>r.amount),backgroundColor:PAL,borderWidth:2,borderColor:'var(--card)',hoverOffset:4}]
+    },{cutout:'65%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.label+': '+fmtNum(c.raw)+' EGP'}}}});
+    const tot = items.reduce((s,r)=>s+r.amount,0);
+    document.getElementById('expDistLeg').innerHTML = items.map((r,i)=>
+      `<li><span class="dot" style="background:${PAL[i]}"></span>${r.category}<span class="lv">${fmtNum(r.amount)}</span></li>`).join('');
+  }
+
+  // Monthly trend
+  if (d.monthly_trend?.length) {
+    mkChart('c_monthly','line',{
+      labels: d.monthly_trend.map(r=>r.month),
+      datasets:[{label:'Actual',data:d.monthly_trend.map(r=>r.actual),borderColor:'#fd480e',backgroundColor:'rgba(253,72,14,.1)',tension:.4,fill:true,pointRadius:4,pointBackgroundColor:'#fd480e'}]
+    },{plugins:{legend:{display:false}},scales:{x:{grid:{color:c.grid},ticks:{color:c.txt,font:{size:9}}},y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>fmtNum(v)}}}});
+  }
+
+  // Util bars
+  if (d.util_by_cat?.length) {
+    document.getElementById('utilBars').innerHTML = d.util_by_cat.map(r=>{
+      const u = Math.min(r.util||0, 100);
+      const col = r.util>100?'var(--red)':r.util>90?'var(--yellow)':'var(--accent)';
+      return `<div style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--txt2);margin-bottom:2px">
+          <span>${r.category}</span><span style="color:${col};font-weight:600">${r.util||0}%</span>
+        </div>
+        <div class="pb"><div class="pf" style="width:${u}%;background:${col}"></div></div>
+      </div>`;
+    }).join('');
+  }
+
+  // Alerts
+  if (d.alerts?.length) {
+    const sev = {'Critical':'critical','High':'high','Medium':'medium','Low':'low'};
+    const icons = {'Critical':'🔴','High':'🟠','Medium':'🔵','Low':'🟢'};
+    document.getElementById('execAlerts').innerHTML = d.alerts.map(a=>
+      `<div class="alert-item ${sev[a.severity]||'medium'}">
+        <div class="alert-icon">${icons[a.severity]||'⚠️'}</div>
+        <div class="alert-body"><strong>${a.type}</strong><span>${a.note||''}</span></div>
+        <div class="alert-amt">${a.amount>0?fmtF(a.amount)+' EGP':''}</div>
+      </div>`).join('');
+  }
+
+  // Project status
+  if (d.project_status) {
+    const ps = d.project_status;
+    const badgeCl = v => v==='On Track'?'green':v==='At Risk'?'yellow':v==='Good'?'green':'blue';
+    document.getElementById('projStatus').innerHTML = Object.entries(ps).map(([k,v])=>
+      `<div class="status-item"><span class="status-key">${k.charAt(0).toUpperCase()+k.slice(1)}</span><span class="badge ${badgeCl(v)}">${v}</span></div>`).join('');
+  }
+
+  // Top vendors table
+  if (d.top_vendors?.length) {
+    document.getElementById('topVendTbl').innerHTML = d.top_vendors.map(v=>
+      `<tr><td>${v.name}</td><td class="td-r td-m">${fmtF(v.commitments)}</td></tr>`).join('');
+  }
+}
+
+// ── PAGE 2: PROJECT TIMELINE ────────────────────────────────
+function renderTimeline() {
+  const d = API_DATA.timeline;
+  if (!d) return;
+  renderKpis('tlKpis', d.kpis, 'k7');
+  const c = gc();
+  const STATUS_COLORS = {Completed:'#3fb950','In Progress':'#58a6ff',Planned:'#8b949e',Delayed:'#f85149'};
+
+  if (d.by_status) {
+    const keys = Object.keys(d.by_status);
+    mkChart('c_tlStatus','doughnut',{
+      labels:keys,datasets:[{data:keys.map(k=>d.by_status[k]),backgroundColor:keys.map(k=>STATUS_COLORS[k]||'#8b949e'),borderWidth:2,borderColor:'var(--card)',hoverOffset:4}]
+    },{cutout:'65%',plugins:{legend:{display:false}}});
+    document.getElementById('tlStatusLeg').innerHTML = keys.map(k=>
+      `<li><span class="dot" style="background:${STATUS_COLORS[k]}"></span>${k}<span class="lv">${d.by_status[k]}</span></li>`).join('');
+  }
+
+  if (d.by_owner?.length) {
+    mkChart('c_tlOwner','bar',{
+      labels:d.by_owner.map(r=>r.owner),datasets:[{data:d.by_owner.map(r=>r.count),backgroundColor:'rgba(253,72,14,.8)',borderRadius:4}]
+    },{indexAxis:'y',scales:{x:{grid:{color:c.grid},ticks:{color:c.txt}},y:{grid:{display:false},ticks:{color:c.txt,font:{size:9}}}}});
+  }
+
+  if (d.tasks?.length) {
+    const STATUS_BADGE = {Completed:'green','In Progress':'blue',Delayed:'red',Planned:'gray'};
+    document.getElementById('tlTbl').innerHTML = d.tasks.map(t=>`<tr>
+      <td><strong>${t.wbs}</strong></td><td>${t.title}</td><td>${t.owner}</td><td>${t.phase}</td>
+      <td>${t.start}</td><td>${t.due}</td>
+      <td><div style="display:flex;align-items:center;gap:6px"><div class="pb" style="width:60px"><div class="pf" style="width:${Math.min(t.complete,100)}%;background:var(--accent)"></div></div><span style="font-size:10px">${t.complete}%</span></div></td>
+      <td><span class="badge ${STATUS_BADGE[t.status]||'gray'}">${t.status}</span></td>
+      <td style="color:${t.delay>0?'var(--red)':'var(--green)'}">${t.delay>0?'+'+t.delay+'d':'0'}</td>
+      <td class="td-s">${t.comments||'—'}</td>
+    </tr>`).join('');
+  }
+}
+
+// ── PAGE 3: BUDGET OVERVIEW ─────────────────────────────────
+function renderBudget() {
+  const d = API_DATA.budget;
+  if (!d) return;
+  renderKpis('budKpis', d.kpis, 'k7');
+  const c = gc();
+  const cats = (FILTERS.category !== 'all' ? d.by_category?.filter(r=>r.category===FILTERS.category) : d.by_category) || [];
+
+  mkChart('c_budCat','bar',{
+    labels:cats.map(r=>r.category),
+    datasets:[
+      {label:'Budget', data:cats.map(r=>r.budget), backgroundColor:'rgba(88,166,255,.8)', borderRadius:4},
+      {label:'Actual', data:cats.map(r=>r.actual), backgroundColor:'rgba(253,72,14,.85)',  borderRadius:4},
+    ]
+  },{plugins:{legend:{display:true,labels:{color:c.txt,font:{size:10},boxWidth:10}}},scales:{x:{grid:{color:c.grid},ticks:{color:c.txt,font:{size:9}}},y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>fmtNum(v)}}}});
+
+  if (d.allocation_pct?.length) {
+    const alloc = d.allocation_pct.slice(0,8);
+    mkChart('c_budAlloc','doughnut',{
+      labels:alloc.map(r=>r.category),datasets:[{data:alloc.map(r=>r.pct),backgroundColor:PAL,borderWidth:2,borderColor:'var(--card)',hoverOffset:4}]
+    },{cutout:'65%',plugins:{legend:{display:false}}});
+    document.getElementById('budAllocLeg').innerHTML = alloc.map((r,i)=>
+      `<li><span class="dot" style="background:${PAL[i]}"></span>${r.category}<span class="lv">${r.pct}%</span></li>`).join('');
+  }
+
+  document.getElementById('budTbl').innerHTML = cats.map(r=>{
+    const v=r.variance||0;const s=r.status||'On Track';
+    return `<tr>
+      <td><strong>${r.category}</strong></td>
+      <td class="td-r">${fmtF(r.budget)}</td>
+      <td class="td-r">${fmtF(r.actual)}</td>
+      <td class="td-r">${fmtF(r.remaining||0)}</td>
+      <td class="td-r" style="color:${v<0?'var(--red)':'var(--green)'};">${v>=0?'+':''}${fmtF(v)}</td>
+      <td><span class="badge ${s==='Over Budget'?'red':s==='At Risk'?'yellow':'green'}">${s}</span></td>
+    </tr>`;}).join('');
+}
+
+// ── PAGE 4: EXPENSES ────────────────────────────────────────
+function renderExpenses() {
+  const d = API_DATA.expenses;
+  if (!d) return;
+  renderKpis('expKpis', d.kpis, '');
+  const c = gc();
+  const trend = d.monthly_trend || [];
+
+  mkChart('c_expTrend','line',{
+    labels:trend.map(r=>r.month),
+    datasets:[{label:'Actual',data:trend.map(r=>r.actual),borderColor:'#fd480e',backgroundColor:'rgba(253,72,14,.1)',tension:.4,fill:true,pointRadius:4,pointBackgroundColor:'#fd480e'}]
+  },{plugins:{legend:{display:false}},scales:{x:{grid:{color:c.grid},ticks:{color:c.txt,font:{size:9}}},y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>fmtNum(v)}}}});
+
+  mkChart('c_paidPend','bar',{
+    labels:trend.map(r=>r.month),
+    datasets:[
+      {label:'Paid',    data:trend.map(r=>r.paid),    backgroundColor:'rgba(63,185,80,.8)',  borderRadius:4},
+      {label:'Pending', data:trend.map(r=>r.pending),  backgroundColor:'rgba(240,136,62,.8)', borderRadius:4},
+    ]
+  },{plugins:{legend:{display:true,labels:{color:c.txt,font:{size:10},boxWidth:10}}},scales:{x:{stacked:true,grid:{color:c.grid},ticks:{color:c.txt,font:{size:9}}},y:{stacked:true,grid:{color:c.grid},ticks:{color:c.txt,callback:v=>fmtNum(v)}}}});
+
+  // Filter log
+  let log = d.log || [];
+  if (FILTERS.category !== 'all') log = log.filter(r=>r.category===FILTERS.category);
+  if (FILTERS.month !== 'all')    log = log.filter(r=>r.date?.startsWith(FILTERS.month));
+  if (FILTERS.method !== 'all')   log = log.filter(r=>r.method===FILTERS.method);
+  const STATUS_BADGE = {Paid:'green',Scheduled:'blue',Overdue:'red',Review:'yellow'};
+  document.getElementById('expTbl').innerHTML = log.slice(0,50).map(r=>`<tr>
+    <td>${r.date||'—'}</td><td>${r.category||'—'}</td><td>${r.vendor||'—'}</td>
+    <td class="td-r td-m">${fmtF(r.amount)}</td><td>${r.method||'—'}</td>
+    <td>${r.due||'—'}</td>
+    <td><span class="badge ${STATUS_BADGE[r.status]||'gray'}">${r.status||'—'}</span></td>
+    <td class="td-s">${r.comments||'—'}</td>
+  </tr>`).join('');
+}
+
+// ── PAGE 5: COST ANALYSIS ───────────────────────────────────
+function renderCost() {
+  const d = API_DATA.cost;
+  if (!d) return;
+  renderKpis('costKpis', d.kpis, 'k7');
+  const c = gc();
+
+  if (d.top10?.length) {
+    mkChart('c_top10','bar',{
+      labels:d.top10.map(r=>(r.item||'').substring(0,30)),
+      datasets:[{data:d.top10.map(r=>r.spend),backgroundColor:PAL,borderRadius:4}]
+    },{indexAxis:'y',scales:{x:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>fmtNum(v)}},y:{grid:{display:false},ticks:{color:c.txt,font:{size:9}}}}});
+  }
+
+  if (d.cost_centers?.length) {
+    const items = d.cost_centers.slice(0,8);
+    mkChart('c_costCenter','doughnut',{
+      labels:items.map(r=>r.center),datasets:[{data:items.map(r=>r.spend),backgroundColor:PAL,borderWidth:2,borderColor:'var(--card)',hoverOffset:4}]
+    },{cutout:'65%',plugins:{legend:{display:false}}});
+    document.getElementById('costCenterLeg').innerHTML = items.map((r,i)=>
+      `<li><span class="dot" style="background:${PAL[i]}"></span>${r.center}<span class="lv">${r.pct}%</span></li>`).join('');
+  }
+
+  let details = d.details || [];
+  if (FILTERS.category !== 'all') details = details.filter(r=>r.category===FILTERS.category);
+  document.getElementById('costTbl').innerHTML = details.map(r=>`<tr>
+    <td>${r.category||'—'}</td><td>${r.item||'—'}</td><td>${r.center||'—'}</td><td>${r.vendor||'—'}</td>
+    <td class="td-r td-m">${fmtF(r.actual)}</td><td class="td-r">${fmtF(r.budget)}</td>
+    <td class="td-r" style="color:${r.variance>0?'var(--red)':'var(--green)'}">${r.variance>0?'+':''}${fmtF(r.variance)}</td>
+    <td class="td-r" style="color:${r.var_pct>0?'var(--red)':'var(--green)'}">${r.var_pct>0?'+':''}${r.var_pct}%</td>
+    <td><span class="badge ${r.status==='Over Budget'?'red':r.status==='On Track'?'green':'blue'}">${r.status||'—'}</span></td>
+  </tr>`).join('');
+}
+
+// ── PAGE 6: CASH FLOW ───────────────────────────────────────
+function renderCashFlow() {
+  const d = API_DATA.cashflow;
+  if (!d) return;
+  renderKpis('cfKpis', d.kpis, 'k6');
+  const c = gc();
+
+  if (d.inflow_outflow?.length) {
+    mkChart('c_cfTrend','bar',{
+      labels:d.inflow_outflow.map(r=>r.month),
+      datasets:[
+        {label:'Inflow',  data:d.inflow_outflow.map(r=>r.inflow),  backgroundColor:'rgba(88,166,255,.8)',  borderRadius:4},
+        {label:'Outflow', data:d.inflow_outflow.map(r=>r.outflow), backgroundColor:'rgba(253,72,14,.85)',  borderRadius:4},
+      ]
+    },{plugins:{legend:{display:true,labels:{color:c.txt,font:{size:10},boxWidth:10}}},scales:{x:{grid:{color:c.grid},ticks:{color:c.txt,font:{size:9}}},y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>fmtNum(v)}}}});
+  }
+
+  const netCol = v => v>=0?'var(--green)':'var(--red)';
+  document.getElementById('cfProjTbl').innerHTML = (d.by_project||[]).map(r=>`<tr>
+    <td><strong>${r.project}</strong></td>
+    <td class="td-r" style="color:var(--green)">${fmtF(r.inflow)}</td>
+    <td class="td-r" style="color:var(--accent)">${fmtF(r.outflow)}</td>
+    <td class="td-r td-m" style="color:${netCol(r.net)}">${r.net>=0?'+':''}${fmtF(r.net)}</td>
+  </tr>`).join('');
+
+  document.getElementById('cf6mTbl').innerHTML = (d.forecast_6m||[]).map(r=>`<tr>
+    <td><strong>${r.month}</strong></td>
+    <td class="td-r" style="color:var(--green)">${fmtF(r.inflow)}</td>
+    <td class="td-r" style="color:var(--accent)">${fmtF(r.outflow)}</td>
+    <td class="td-r td-m" style="color:${netCol(r.net)}">${r.net>=0?'+':''}${fmtF(r.net)}</td>
+  </tr>`).join('');
+}
+
+// ── PAGE 7: RISK & ALERTS ───────────────────────────────────
+function renderRisks() {
+  const d = API_DATA.risks;
+  if (!d) return;
+  renderKpis('riskKpis', d.kpis, 'k6');
+  const c = gc();
+  const SEV_COLORS = {Critical:'#f85149',High:'#f0883e',Medium:'#58a6ff',Low:'#3fb950',Informational:'#8b949e'};
+
+  if (d.by_category?.length) {
+    mkChart('c_riskCat','doughnut',{
+      labels:d.by_category.map(r=>r.category),
+      datasets:[{data:d.by_category.map(r=>r.count),backgroundColor:PAL,borderWidth:2,borderColor:'var(--card)',hoverOffset:4}]
+    },{cutout:'60%',plugins:{legend:{display:false}}});
+    document.getElementById('riskCatLeg').innerHTML = d.by_category.map((r,i)=>
+      `<li><span class="dot" style="background:${PAL[i]}"></span>${r.category} (${r.count})<span class="lv">${d.register?.length?Math.round(r.count/d.register.length*100):0}%</span></li>`).join('');
+  }
+
+  if (d.by_severity?.length) {
+    mkChart('c_riskSev','bar',{
+      labels:d.by_severity.map(r=>r.severity),
+      datasets:[{data:d.by_severity.map(r=>r.count),backgroundColor:d.by_severity.map(r=>SEV_COLORS[r.severity]||'#8b949e'),borderRadius:4}]
+    },{scales:{x:{grid:{color:c.grid},ticks:{color:c.txt}},y:{grid:{color:c.grid},ticks:{color:c.txt}}}});
+  }
+
+  let reg = d.register || [];
+  if (FILTERS.severity !== 'all') reg = reg.filter(r=>r.severity===FILTERS.severity);
+  const SEV_BADGE = {Critical:'red',High:'yellow',Medium:'blue',Low:'green'};
+  const STA_BADGE = {Open:'red',Monitoring:'yellow',Closed:'green'};
+  document.getElementById('riskTbl').innerHTML = reg.map(r=>`<tr>
+    <td><strong>${r.id}</strong></td><td>${r.title}</td><td>${r.project}</td><td>${r.category}</td>
+    <td><span class="badge ${SEV_BADGE[r.severity]||'gray'}">${r.severity}</span></td>
+    <td class="td-r td-m" style="color:${r.score>=20?'var(--red)':r.score>=10?'var(--yellow)':'var(--green)'}">${r.score}</td>
+    <td><span class="badge ${STA_BADGE[r.status]||'gray'}">${r.status}</span></td>
+    <td>${r.owner}</td>
+  </tr>`).join('');
+}
+
+// ── PAGE 8: VENDORS ─────────────────────────────────────────
+function renderVendors() {
+  const d = API_DATA.vendors;
+  if (!d) return;
+  renderKpis('vendKpis', d.kpis, 'k6');
+  const c = gc();
+
+  document.getElementById('vendTbl').innerHTML = (d.top_vendors||[]).map(v=>{
+    const p = Math.round((v.pct||0)*100);
+    return `<tr>
+      <td><strong>${v.name}</strong></td><td>${v.category||'—'}</td>
+      <td class="td-r td-m">${fmtF(v.commitments)}</td><td class="td-r">${fmtF(v.paid)}</td>
+      <td class="td-r"><div style="display:flex;align-items:center;gap:5px"><div class="pb" style="width:50px"><div class="pf" style="width:${Math.min(p,100)}%;background:var(--accent)"></div></div>${p}%</div></td>
+      <td><span class="badge ${v.perf==='Excellent'?'green':v.perf==='Good'?'blue':'yellow'}">${v.perf||'—'}</span></td>
+    </tr>`;}).join('');
+
+  document.getElementById('conTbl').innerHTML = (d.contracts||[]).map(r=>`<tr>
+    <td><strong>${r.id}</strong></td><td>${r.vendor}</td><td>${r.project}</td>
+    <td style="color:var(--yellow)">${r.expiry}</td><td class="td-r td-m">${fmtF(r.value)}</td>
+  </tr>`).join('');
+
+  if (d.spend_by_cat?.length) {
+    const items = d.spend_by_cat.slice(0,8);
+    mkChart('c_vendCat','bar',{
+      labels:items.map(r=>r.category),
+      datasets:[{data:items.map(r=>r.amount),backgroundColor:PAL,borderRadius:4}]
+    },{scales:{x:{grid:{color:c.grid},ticks:{color:c.txt,font:{size:9}}},y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>fmtNum(v)}}}});
+  }
+}
+
+// ── PAGE 9: APPROVALS ───────────────────────────────────────
+function renderApprovals() {
+  const d = API_DATA.approvals;
+  if (!d) return;
+  renderKpis('appKpis', d.kpis, 'k6');
+  const c = gc();
+  const STA_COLORS = {Approved:'#3fb950',Pending:'#f0883e',Returned:'#bc8cff',Rejected:'#f85149'};
+
+  if (d.by_status) {
+    const keys = Object.keys(d.by_status);
+    mkChart('c_appStatus','doughnut',{
+      labels:keys,datasets:[{data:keys.map(k=>d.by_status[k]),backgroundColor:keys.map(k=>STA_COLORS[k]||'#8b949e'),borderWidth:2,borderColor:'var(--card)',hoverOffset:4}]
+    },{cutout:'60%',plugins:{legend:{display:false}}});
+    document.getElementById('appStatusLeg').innerHTML = keys.map(k=>
+      `<li><span class="dot" style="background:${STA_COLORS[k]}"></span>${k}<span class="lv">${d.by_status[k]}</span></li>`).join('');
+  }
+
+  if (d.by_type?.length) {
+    mkChart('c_appType','bar',{
+      labels:d.by_type.map(r=>r.type),
+      datasets:[
+        {label:'Approved',data:d.by_type.map(r=>r.approved),backgroundColor:'rgba(63,185,80,.8)',borderRadius:4},
+        {label:'Pending', data:d.by_type.map(r=>r.pending), backgroundColor:'rgba(240,136,62,.7)',borderRadius:4},
+      ]
+    },{indexAxis:'y',plugins:{legend:{display:true,labels:{color:c.txt,font:{size:9},boxWidth:8}}},scales:{x:{stacked:true,grid:{color:c.grid},ticks:{color:c.txt}},y:{stacked:true,grid:{display:false},ticks:{color:c.txt,font:{size:9}}}}});
+  }
+
+  document.getElementById('appBotTbl').innerHTML = (d.bottlenecks||[]).map(r=>`<tr>
+    <td><strong>${r.id}</strong></td><td>${r.project}</td><td>${r.type}</td><td>${r.since}</td>
+    <td class="td-r td-m" style="color:var(--red)">${r.days}</td><td>${r.approver}</td>
+  </tr>`).join('');
+}
+
+// ── PAGE 10: PERFORMANCE ────────────────────────────────────
+function renderPerformance() {
+  const d = API_DATA.performance;
+  if (!d) return;
+  renderKpis('perfKpis', d.kpis, 'k6');
+  const c = gc();
+  const STA_COLORS = {'On Track':'#3fb950','At Risk':'#f0883e','Off Track':'#f85149'};
+
+  if (d.by_status) {
+    const keys = Object.keys(d.by_status);
+    mkChart('c_perfStatus','doughnut',{
+      labels:keys,datasets:[{data:keys.map(k=>d.by_status[k]),backgroundColor:keys.map(k=>STA_COLORS[k]||'#8b949e'),borderWidth:2,borderColor:'var(--card)',hoverOffset:4}]
+    },{cutout:'60%',plugins:{legend:{display:false}}});
+    document.getElementById('perfStatusLeg').innerHTML = keys.map(k=>
+      `<li><span class="dot" style="background:${STA_COLORS[k]}"></span>${k} <span class="lv">${d.by_status[k]}</span></li>`).join('');
+  }
+
+  if (d.util_trend?.length) {
+    mkChart('c_perfUtil','line',{
+      labels:d.util_trend.map(r=>r.month),
+      datasets:[{label:'Utilization %',data:d.util_trend.map(r=>r.util),borderColor:'#fd480e',backgroundColor:'rgba(253,72,14,.1)',tension:.4,fill:true,pointRadius:4,pointBackgroundColor:'#fd480e'}]
+    },{plugins:{legend:{display:false}},scales:{x:{grid:{color:c.grid},ticks:{color:c.txt,font:{size:9}}},y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>v+'%'},max:100}}});
+  }
+
+  const STA_BADGE = {'On Track':'green','At Risk':'yellow','Off Track':'red'};
+  document.getElementById('perfTbl').innerHTML = (d.projects||[]).map(r=>`<tr>
+    <td><strong>${r.project}</strong></td>
+    <td><span class="badge ${STA_BADGE[r.status]||'gray'}">${r.status}</span></td>
+    <td class="td-r">${r.schedule}%</td><td class="td-r">${r.cost}%</td>
+    <td class="td-r">${r.scope}%</td><td class="td-r">${r.quality}%</td>
+    <td class="td-r td-m" style="color:${r.overall>=80?'var(--green)':r.overall>=60?'var(--yellow)':'var(--red)'}">${r.overall}%</td>
+  </tr>`).join('');
+}
+
+// ── PAGE 11: PRODUCTION / LOTS ──────────────────────────────
+function renderProduction() {
+  const d = API_DATA.production;
+  if (!d) return;
+  renderKpis('prodKpis', d.kpis, 'k6');
+  const c = gc();
+  const byMine = (FILTERS.mine !== 'all' ? d.by_mine?.filter(r=>r.mine===FILTERS.mine) : d.by_mine) || [];
+
+  mkChart('c_prodTon','bar',{
+    labels:byMine.map(r=>r.mine),
+    datasets:[{label:'Tons',data:byMine.map(r=>r.qty_ton),backgroundColor:'rgba(253,72,14,.85)',borderRadius:4}]
+  },{scales:{x:{grid:{color:c.grid},ticks:{color:c.txt,font:{size:9}}},y:{grid:{color:c.grid},ticks:{color:c.txt}}}});
+
+  mkChart('c_prodFe','bar',{
+    labels:byMine.map(r=>r.mine),
+    datasets:[{label:'Avg Fe%',data:byMine.map(r=>r.avg_fe),backgroundColor:'rgba(88,166,255,.8)',borderRadius:4}]
+  },{scales:{x:{grid:{color:c.grid},ticks:{color:c.txt,font:{size:9}}},y:{grid:{color:c.grid},ticks:{color:c.txt}}}});
+
+  let lots = d.lots || [];
+  if (FILTERS.mine !== 'all') lots = lots.filter(r=>r.mine===FILTERS.mine);
+  document.getElementById('prodTbl').innerHTML = lots.slice(0,50).map(r=>`<tr>
+    <td class="td-s">${r.updated||'—'}</td><td><strong>${r.mine||'—'}</strong></td>
+    <td>${r.batch||'—'}</td><td class="td-r td-m">${fmtF(r.qty_ton)}</td>
+    <td class="td-r">${fmtF(r.volume)}</td>
+    <td class="td-r" style="color:var(--accent);font-weight:600">${r.avg_fe}%</td>
+  </tr>`).join('');
+}
+
+// ── PAGE 12: QUALITY / SAMPLES ──────────────────────────────
+function renderQuality() {
+  const d = API_DATA.quality;
+  if (!d) return;
+  renderKpis('qualKpis', d.kpis, 'k6');
+  const c = gc();
+  const byMine = (FILTERS.mine !== 'all' ? d.by_mine?.filter(r=>r.mine===FILTERS.mine) : d.by_mine) || [];
+
+  mkChart('c_qualFe','bar',{
+    labels:byMine.map(r=>r.mine),
+    datasets:[{label:'Avg Fe%',data:byMine.map(r=>r.avg_fe),backgroundColor:'rgba(253,72,14,.85)',borderRadius:4}]
+  },{scales:{x:{grid:{color:c.grid},ticks:{color:c.txt,font:{size:9}}},y:{grid:{color:c.grid},ticks:{color:c.txt}}}});
+
+  mkChart('c_qualSi','bar',{
+    labels:byMine.map(r=>r.mine),
+    datasets:[
+      {label:'SiO2%', data:byMine.map(r=>r.avg_sio2),    backgroundColor:'rgba(88,166,255,.8)',  borderRadius:4},
+      {label:'Al2O3%',data:byMine.map(r=>r.avg_al2o3||0),backgroundColor:'rgba(63,185,80,.7)',   borderRadius:4},
+    ]
+  },{plugins:{legend:{display:true,labels:{color:c.txt,font:{size:10},boxWidth:10}}},scales:{x:{grid:{color:c.grid},ticks:{color:c.txt,font:{size:9}}},y:{grid:{color:c.grid},ticks:{color:c.txt}}}});
+
+  let samples = d.samples || [];
+  if (FILTERS.mine !== 'all') samples = samples.filter(r=>r.mine===FILTERS.mine);
+  document.getElementById('qualTbl').innerHTML = samples.slice(0,50).map(r=>`<tr>
+    <td class="td-s">${r.date||'—'}</td><td><strong>${r.mine||'—'}</strong></td><td>${r.batch||'—'}</td>
+    <td class="td-r td-m" style="color:var(--accent)">${r.Fe||0}%</td>
+    <td class="td-r">${r.SiO2||0}%</td><td class="td-r">${r.Al2O3||0}%</td>
+    <td class="td-r">${r.CaO||0}%</td><td class="td-r">${r.MgO||0}%</td>
+    <td class="td-r">${r.Moisture||0}%</td>
+  </tr>`).join('');
+}
+
+// ============================================================
+// MINES MAP — postMessage bridge
+// ============================================================
+function syncMinesSettings() {
+  setTimeout(() => {
+    const iframe = document.getElementById('mines-iframe');
+    if (iframe?.contentWindow) {
+      iframe.contentWindow.postMessage({ cmd:'setLang',  value: LANG  }, '*');
+      iframe.contentWindow.postMessage({ cmd:'setTheme', value: THEME }, '*');
+    }
+  }, 600);
+}
+
+// ============================================================
+// LANG & THEME
+// ============================================================
+function toggleLang() {
+  LANG = LANG === 'en' ? 'ar' : 'en';
+  const isAr = LANG === 'ar';
+  document.documentElement.lang = LANG;
+  document.documentElement.dir  = isAr ? 'rtl' : 'ltr';
+  document.getElementById('langLbl').textContent = isAr ? 'EN' : 'AR';
+  // Flip sidebar
+  const sb = document.getElementById('sidebar');
+  sb.style.right = isAr ? '0' : '';
+  sb.style.left  = isAr ? 'auto' : '';
+  document.getElementById('mainArea').style.marginLeft  = isAr ? '0' : '';
+  document.getElementById('mainArea').style.marginRight = isAr ? '' : '';
+  // Sidebar nav items dir
+  document.querySelectorAll('.ni').forEach(ni => {
+    ni.style.borderLeft  = isAr ? 'none' : '';
+    ni.style.borderRight = isAr ? '3px solid transparent' : '';
+  });
+  document.querySelectorAll('.ni.active').forEach(ni => {
+    if (isAr) { ni.style.borderRight = '3px solid var(--accent)'; ni.style.borderLeft = 'none'; }
+    else { ni.style.borderLeft = ''; ni.style.borderRight = ''; }
+  });
+  syncMinesSettings();
+}
+
+function toggleTheme() {
+  THEME = THEME === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', THEME);
+  document.getElementById('themeLbl').textContent = THEME === 'dark' ? 'Light' : 'Dark';
+  document.getElementById('btnTheme').innerHTML   = (THEME === 'dark' ? '☀️ ' : '🌙 ') + `<span id="themeLbl">${THEME==='dark'?'Light':'Dark'}</span>`;
+  // Re-render charts with new colors
+  if (API_DATA) renderPage(CURRENT_PAGE);
+  syncMinesSettings();
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('load', () => {
+  // Set date in login
+  const now = new Date();
+  document.getElementById('tbDate').textContent = '📅 ' + now.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+  // Quick UI hide loader after brief pause (auth will handle the rest)
+  setTimeout(() => document.getElementById('ld').classList.add('done'), 800);
+});
+</script>
+</body>
+</html>
