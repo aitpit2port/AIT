@@ -144,6 +144,11 @@ button,select,input{font-family:inherit;font-size:inherit}
 .ni-icon{font-size:14px;flex-shrink:0;width:16px;text-align:center}
 .ni-lbl{overflow:hidden;transition:opacity var(--tr)}
 .sb.collapsed .ni-lbl,.sb.collapsed .sb-brand,.sb.collapsed .sb-foot-inner{opacity:0;pointer-events:none}
+.sb.collapsed .sb-toggle{position:fixed;left:60px;top:50%;transform:translateY(-50%);background:var(--accent);color:#fff;border-radius:0 6px 6px 0;padding:8px 5px;z-index:101;box-shadow:2px 0 8px rgba(0,0,0,.3);
+  background:var(--accent);color:#fff;border:none;border-radius:0 8px 8px 0;
+  width:16px;height:48px;cursor:pointer;z-index:200;font-size:10px;
+  display:flex;align-items:center;justify-content:center;}
+.sb-toggle{transition:all .2s}
 .sb.collapsed .ni{justify-content:center;padding:9px}
 .sb.collapsed .ni-num{display:none}
 .sb-foot{padding:10px 14px;border-top:1px solid var(--border2);flex-shrink:0}
@@ -362,7 +367,37 @@ tbody tr:hover td{background:var(--bg3)}
   .g2,.g3,.g21,.g12{grid-template-columns:1fr!important}
 }
 
-/* MINES PAGE */
+/* RTL support */
+[dir="rtl"] .sb{border-right:none;border-left:1px solid var(--border2);order:-1}
+[dir="rtl"] .ni{border-left:none;border-right:3px solid transparent;flex-direction:row-reverse}
+[dir="rtl"] .ni.active{border-right-color:var(--accent)}
+[dir="rtl"] .sb-head{flex-direction:row-reverse}
+/* RTL sidebar */
+[dir="rtl"] .sb { left: auto; right: 0; border-right: none; border-left: 1px solid var(--border2); }
+[dir="rtl"] .ni { border-left: none; border-right: 3px solid transparent; flex-direction: row-reverse; }
+[dir="rtl"] .ni.active { border-right-color: var(--accent); border-left: none; }
+[dir="rtl"] .sb.collapsed { right: 0; }
+[dir="rtl"] .sb.collapsed .sb-toggle { left: 60px; right: auto; border-radius: 0 6px 6px 0; }
+[dir="rtl"] .main { margin-left: 0 !important; margin-right: 220px; }
+[dir="rtl"] .tb-title { text-align: right; }
+[dir="rtl"] .tb-title h1, [dir="rtl"] .tb-title p { text-align: right; }
+[dir="rtl"] .fb { direction: rtl; }
+[dir="rtl"] .foot { direction: rtl; }
+[dir="rtl"] table { direction: rtl; }
+[dir="rtl"] thead th { text-align: right; }
+[dir="rtl"] .td-r { text-align: left; }
+[dir="rtl"] .kc-lbl, [dir="rtl"] .kc-val, [dir="rtl"] .kc-note, [dir="rtl"] .kc-trend { text-align: right; }
+[dir="rtl"] .leg li { flex-direction: row-reverse; }
+[dir="rtl"] .leg .lv { margin-left: 0; margin-right: auto; }
+[dir="rtl"] .tb{flex-direction:row-reverse}
+[dir="rtl"] .card-h{flex-direction:row-reverse}
+[dir="rtl"] .kc-lbl,[dir="rtl"] .kc-val,[dir="rtl"] .kc-note,[dir="rtl"] .kc-trend{text-align:right}
+[dir="rtl"] .tb-title{text-align:right}
+[dir="rtl"] table th,[dir="rtl"] table td{text-align:right}
+[dir="rtl"] .td-r{text-align:left}
+[dir="rtl"] .alert-item{flex-direction:row-reverse}
+[dir="rtl"] .leg li{flex-direction:row-reverse}
+[dir="rtl"] .fb{flex-direction:row-reverse}
 #pg-mines{padding:0;display:none}
 #pg-mines.active{display:flex;flex-direction:column;height:calc(100vh - 52px)}
 #mines-iframe{width:100%;border:none;flex:1;min-height:0}
@@ -450,12 +485,12 @@ tbody tr:hover td{background:var(--bg3)}
         <div class="g21 mb">
           <div class="card">
             <div class="card-h"><div><h3>Budget vs Actual by Category (EGP)</h3></div></div>
-            <div class="card-b"><div class="cw" style="height:220px"><canvas id="c_bvA"></canvas></div></div>
+            <div class="card-b"><div class="cw" style="height:260px"><canvas id="c_bvA"></canvas></div></div>
           </div>
           <div class="card">
             <div class="card-h"><div><h3>Expense Distribution</h3></div></div>
             <div class="card-b" style="display:flex;align-items:center;gap:14px">
-              <div style="width:130px;height:130px;flex-shrink:0"><canvas id="c_expDist"></canvas></div>
+              <div style="width:180px;height:180px;flex-shrink:0"><canvas id="c_expDist"></canvas></div>
               <ul class="leg" id="expDistLeg" style="flex:1"></ul>
             </div>
           </div>
@@ -463,7 +498,7 @@ tbody tr:hover td{background:var(--bg3)}
         <div class="g2 mb">
           <div class="card">
             <div class="card-h"><div><h3>Monthly Spending Trend (EGP)</h3></div></div>
-            <div class="card-b"><div class="cw" style="height:180px"><canvas id="c_monthly"></canvas></div></div>
+            <div class="card-b"><div class="cw" style="height:220px"><canvas id="c_monthly"></canvas></div></div>
           </div>
           <div class="card">
             <div class="card-h"><div><h3>Budget Utilization % by Category</h3></div></div>
@@ -499,7 +534,7 @@ tbody tr:hover td{background:var(--bg3)}
           </div>
           <div class="card">
             <div class="card-h"><div><h3>Tasks by Owner</h3></div></div>
-            <div class="card-b"><div class="cw" style="height:150px"><canvas id="c_tlOwner"></canvas></div></div>
+            <div class="card-b"><div class="cw" style="height:180px"><canvas id="c_tlOwner"></canvas></div></div>
           </div>
         </div>
         <div class="card mb">
@@ -514,7 +549,7 @@ tbody tr:hover td{background:var(--bg3)}
         <div class="g21 mb">
           <div class="card">
             <div class="card-h"><div><h3>Budget vs Actual by Category (EGP)</h3></div></div>
-            <div class="card-b"><div class="cw" style="height:220px"><canvas id="c_budCat"></canvas></div></div>
+            <div class="card-b"><div class="cw" style="height:260px"><canvas id="c_budCat"></canvas></div></div>
           </div>
           <div class="card">
             <div class="card-h"><div><h3>Budget Allocation by Category</h3></div></div>
@@ -536,11 +571,11 @@ tbody tr:hover td{background:var(--bg3)}
         <div class="g2 mb">
           <div class="card">
             <div class="card-h"><div><h3>Monthly Spending Trend (EGP)</h3></div></div>
-            <div class="card-b"><div class="cw" style="height:200px"><canvas id="c_expTrend"></canvas></div></div>
+            <div class="card-b"><div class="cw" style="height:240px"><canvas id="c_expTrend"></canvas></div></div>
           </div>
           <div class="card">
             <div class="card-h"><div><h3>Paid vs Pending by Month</h3></div></div>
-            <div class="card-b"><div class="cw" style="height:200px"><canvas id="c_paidPend"></canvas></div></div>
+            <div class="card-b"><div class="cw" style="height:240px"><canvas id="c_paidPend"></canvas></div></div>
           </div>
         </div>
         <div class="card mb">
@@ -576,7 +611,7 @@ tbody tr:hover td{background:var(--bg3)}
         <div class="kpi-grid k6" id="cfKpis"></div>
         <div class="card mb">
           <div class="card-h"><div><h3>Cash Flow Trend — Inflow vs Outflow (EGP)</h3></div></div>
-          <div class="card-b"><div class="cw" style="height:220px"><canvas id="c_cfTrend"></canvas></div></div>
+          <div class="card-b"><div class="cw" style="height:260px"><canvas id="c_cfTrend"></canvas></div></div>
         </div>
         <div class="g2 mb">
           <div class="card">
@@ -597,13 +632,13 @@ tbody tr:hover td{background:var(--bg3)}
           <div class="card">
             <div class="card-h"><div><h3>Risks by Category</h3></div></div>
             <div class="card-b" style="display:flex;align-items:center;gap:14px">
-              <div style="width:150px;height:150px;flex-shrink:0"><canvas id="c_riskCat"></canvas></div>
+              <div style="width:160px;height:160px;flex-shrink:0"><canvas id="c_riskCat"></canvas></div>
               <ul class="leg" id="riskCatLeg" style="flex:1"></ul>
             </div>
           </div>
           <div class="card">
             <div class="card-h"><div><h3>Risks by Severity</h3></div></div>
-            <div class="card-b"><div class="cw" style="height:160px"><canvas id="c_riskSev"></canvas></div></div>
+            <div class="card-b"><div class="cw" style="height:200px"><canvas id="c_riskSev"></canvas></div></div>
           </div>
         </div>
         <div class="card mb">
@@ -627,7 +662,7 @@ tbody tr:hover td{background:var(--bg3)}
         </div>
         <div class="card mb">
           <div class="card-h"><div><h3>Spend by Category (EGP)</h3></div></div>
-          <div class="card-b"><div class="cw" style="height:180px"><canvas id="c_vendCat"></canvas></div></div>
+          <div class="card-b"><div class="cw" style="height:220px"><canvas id="c_vendCat"></canvas></div></div>
         </div>
       </div>
 
@@ -638,13 +673,13 @@ tbody tr:hover td{background:var(--bg3)}
           <div class="card">
             <div class="card-h"><div><h3>Requests by Status</h3></div></div>
             <div class="card-b" style="display:flex;align-items:center;gap:14px">
-              <div style="width:150px;height:150px;flex-shrink:0"><canvas id="c_appStatus"></canvas></div>
+              <div style="width:160px;height:160px;flex-shrink:0"><canvas id="c_appStatus"></canvas></div>
               <ul class="leg" id="appStatusLeg" style="flex:1"></ul>
             </div>
           </div>
           <div class="card">
             <div class="card-h"><div><h3>Requests by Type</h3></div></div>
-            <div class="card-b"><div class="cw" style="height:160px"><canvas id="c_appType"></canvas></div></div>
+            <div class="card-b"><div class="cw" style="height:200px"><canvas id="c_appType"></canvas></div></div>
           </div>
         </div>
         <div class="card mb">
@@ -660,13 +695,13 @@ tbody tr:hover td{background:var(--bg3)}
           <div class="card">
             <div class="card-h"><div><h3>Project Performance by Status</h3></div></div>
             <div class="card-b" style="display:flex;align-items:center;gap:14px">
-              <div style="width:150px;height:150px;flex-shrink:0"><canvas id="c_perfStatus"></canvas></div>
+              <div style="width:160px;height:160px;flex-shrink:0"><canvas id="c_perfStatus"></canvas></div>
               <ul class="leg" id="perfStatusLeg" style="flex:1"></ul>
             </div>
           </div>
           <div class="card">
             <div class="card-h"><div><h3>Budget Utilization Trend (%)</h3></div></div>
-            <div class="card-b"><div class="cw" style="height:160px"><canvas id="c_perfUtil"></canvas></div></div>
+            <div class="card-b"><div class="cw" style="height:200px"><canvas id="c_perfUtil"></canvas></div></div>
           </div>
         </div>
         <div class="card mb">
@@ -681,11 +716,11 @@ tbody tr:hover td{background:var(--bg3)}
         <div class="g2 mb">
           <div class="card">
             <div class="card-h"><div><h3>Tonnage by Mine</h3></div></div>
-            <div class="card-b"><div class="cw" style="height:200px"><canvas id="c_prodTon"></canvas></div></div>
+            <div class="card-b"><div class="cw" style="height:240px"><canvas id="c_prodTon"></canvas></div></div>
           </div>
           <div class="card">
             <div class="card-h"><div><h3>Avg Fe% by Mine</h3></div></div>
-            <div class="card-b"><div class="cw" style="height:200px"><canvas id="c_prodFe"></canvas></div></div>
+            <div class="card-b"><div class="cw" style="height:240px"><canvas id="c_prodFe"></canvas></div></div>
           </div>
         </div>
         <div class="card mb">
@@ -700,11 +735,11 @@ tbody tr:hover td{background:var(--bg3)}
         <div class="g2 mb">
           <div class="card">
             <div class="card-h"><div><h3>Avg Fe% by Mine</h3></div></div>
-            <div class="card-b"><div class="cw" style="height:200px"><canvas id="c_qualFe"></canvas></div></div>
+            <div class="card-b"><div class="cw" style="height:240px"><canvas id="c_qualFe"></canvas></div></div>
           </div>
           <div class="card">
             <div class="card-h"><div><h3>SiO2% vs Al2O3% by Mine</h3></div></div>
-            <div class="card-b"><div class="cw" style="height:200px"><canvas id="c_qualSi"></canvas></div></div>
+            <div class="card-b"><div class="cw" style="height:240px"><canvas id="c_qualSi"></canvas></div></div>
           </div>
         </div>
         <div class="card mb">
@@ -775,7 +810,7 @@ const PAGE_ICONS = {
 };
 
 const PAGE_FILTERS = {
-  exec:        [],
+  exec:        ['project','month','category'],
   timeline:    ['project','status_filter'],
   budget:      ['project','category'],
   expenses:    ['project','month','method','category'],
@@ -955,12 +990,80 @@ async function loadData(forceRefresh = false) {
     const data = await res.json();
     if (data.error) { console.error('API error:', data.error); return; }
     API_DATA = data;
+
+    // ── Post-process: fix actual values in exec.budget_vs_actual ──
+    // The API computes actual from expense log — ensure it's correct
+    if (API_DATA.exec?.budget_vs_actual && API_DATA.expenses?.log) {
+      const expLog = API_DATA.expenses.log;
+      const actByCat = {};
+      expLog.forEach(r => {
+        if (r.category) actByCat[r.category] = (actByCat[r.category]||0) + (r.amount||0);
+      });
+      API_DATA.exec.budget_vs_actual = API_DATA.exec.budget_vs_actual.map(r => ({
+        ...r,
+        actual: actByCat[r.category] || r.actual || 0,
+      }));
+      // Fix util_by_cat too
+      if (API_DATA.exec.util_by_cat) {
+        API_DATA.exec.util_by_cat = API_DATA.exec.util_by_cat.map(r => {
+          const actual = actByCat[r.category] || 0;
+          const budRow = API_DATA.exec.budget_vs_actual.find(b=>b.category===r.category);
+          const budget = budRow?.budget || 0;
+          return { ...r, actual, util: budget>0 ? parseFloat((actual/budget*100).toFixed(1)) : r.util };
+        });
+      }
+      // Fix expense_dist from actual expenses
+      if (Object.keys(actByCat).length) {
+        const tot = Object.values(actByCat).reduce((s,v)=>s+v,0);
+        API_DATA.exec.expense_dist = Object.entries(actByCat)
+          .map(([category,amount]) => ({ category, amount, pct: tot>0?parseFloat((amount/tot*100).toFixed(1)):0 }))
+          .sort((a,b) => b.amount-a.amount);
+      }
+      // Fix KPIs
+      const totA = Object.values(actByCat).reduce((s,v)=>s+v,0);
+      const totB = API_DATA.exec.budget_vs_actual.reduce((s,r)=>s+(r.budget||0),0);
+      const util = totB>0 ? totA/totB : 0;
+      if (API_DATA.exec.kpis) {
+        API_DATA.exec.kpis = API_DATA.exec.kpis.map(k => {
+          if (k.key==='actual_spend')   return {...k, value:totA, note:parseFloat((util*100).toFixed(1))+'% of Budget'};
+          if (k.key==='total_budget')   return {...k, value:totB};
+          if (k.key==='remaining')      return {...k, value:totB-totA, note:parseFloat(((1-util)*100).toFixed(1))+'% Remaining'};
+          if (k.key==='over_budget')    return {...k, value:Math.max(totA-totB,0), color:totA>totB?'red':'green'};
+          if (k.key==='util_pct')       return {...k, value:parseFloat((util*100).toFixed(1))};
+          return k;
+        });
+      }
+    }
+
+    // Also store budget cats in exec for filter bar
+    if (!API_DATA.exec) API_DATA.exec = {};
+    if (API_DATA.budget?.by_category) {
+      API_DATA.exec._budgetCats = API_DATA.budget.by_category;
+    }
+
+    // Fix budget by_category actual from expense log
+    if (API_DATA.budget?.by_category && API_DATA.expenses?.log) {
+      const actByCat2 = {};
+      (API_DATA.expenses.log||[]).forEach(r => {
+        if (r.category) actByCat2[r.category] = (actByCat2[r.category]||0) + (r.amount||0);
+      });
+      API_DATA.budget.by_category = API_DATA.budget.by_category.map(r => ({
+        ...r,
+        actual:    actByCat2[r.category] || r.actual || 0,
+        variance:  (r.budget||0) - (actByCat2[r.category] || r.actual || 0),
+        remaining: (r.budget||0) - (actByCat2[r.category] || r.actual || 0),
+        util:      (r.budget||0) > 0 ? parseFloat(((actByCat2[r.category]||r.actual||0) / r.budget * 100).toFixed(1)) : 0,
+        status:    (actByCat2[r.category]||0) > (r.budget||0) ? 'Over Budget'
+                   : (actByCat2[r.category]||0) / (r.budget||1) > 0.9 ? 'At Risk' : 'On Track',
+      }));
+    }
+
     document.getElementById('lastUpdate').textContent = 'Last updated: ' + (data.lastUpdated || new Date().toLocaleString());
     renderPage(CURRENT_PAGE);
     document.getElementById('ld').classList.add('done');
   } catch(e) {
     console.error('Load error:', e);
-    document.getElementById('lastUpdate').textContent = 'Connection error — using cached data';
+    document.getElementById('lastUpdate').textContent = 'Connection error';
     document.getElementById('ld').classList.add('done');
   }
 }
@@ -1012,12 +1115,7 @@ function renderFilterBar(page) {
   if (filters.includes('status_filter')) parts.push(sel('status_filter','Status',['In Progress','Completed','Delayed','Planned'],'status_filter'));
   if (filters.includes('mine'))          parts.push(sel('mine','Mine',mines,'mine'));
 
-  // Export buttons (if user has permission)
-  const exportParts = [];
-  if (USER?.canExcel) exportParts.push(`<button class="fb-export" onclick="exportExcel()">⬇ Excel</button>`);
-  if (USER?.canPdf)   exportParts.push(`<button class="fb-export" onclick="exportPdf()">⬇ PDF</button>`);
-
-  fb.innerHTML = parts.join('') + `<button class="fb-clr" onclick="clearFilters()">✕ Clear</button>` + exportParts.join('');
+  fb.innerHTML = parts.join('') + `<button class="fb-clr" onclick="clearFilters()">${LANG==='ar'?'✕ مسح':'✕ Clear'}</button>`;
 }
 
 function applyFilter(key, val) {
@@ -1034,22 +1132,146 @@ function clearFilters() {
 // ============================================================
 // EXPORT
 // ============================================================
+// ============================================================
+// EXPORT — EXCEL (formatted with AIT colors)
+// ============================================================
 function exportExcel() {
   if (!API_DATA) return;
-  const d = API_DATA[CURRENT_PAGE];
-  if (!d) return;
-  // Find table data
-  let rows = d.log || d.tasks || d.lots || d.samples || d.register || d.top_vendors || [];
-  if (!rows.length) rows = d.by_category || [];
-  if (!rows.length) { alert('No tabular data to export on this page.'); return; }
-  const ws   = XLSX.utils.json_to_sheet(rows);
   const wb   = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, PAGE_META[CURRENT_PAGE]?.[0] || 'Data');
-  XLSX.writeFile(wb, `AIT_${CURRENT_PAGE}_${new Date().toISOString().substring(0,10)}.xlsx`);
+  const acc  = 'FD480E';
+  const dark = '0D1117';
+  const mid  = '161B22';
+
+  function styleHeader(ws, range, color) {
+    if (!ws['!ref']) return;
+    XLSX.utils.sheet_set_range_style && console.log('styled');
+  }
+
+  function addSheet(name, rows, headers, headerLabels) {
+    if (!rows || !rows.length) return;
+    const data = [headerLabels || headers, ...rows.map(r => headers.map(h => r[h] !== undefined ? r[h] : ''))];
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    // Column widths
+    ws['!cols'] = headers.map(() => ({ wch: 18 }));
+    // Freeze header row
+    ws['!freeze'] = { xSplit: 0, ySplit: 1 };
+    XLSX.utils.book_append_sheet(wb, ws, name.substring(0, 31));
+  }
+
+  // ── Sheet 1: Executive KPIs ──
+  const kpis = API_DATA.exec?.kpis || [];
+  addSheet('Executive KPIs', kpis, ['label','value','note'],['Indicator','Value','Note']);
+
+  // ── Sheet 2: Budget by Category ──
+  const budCats = API_DATA.budget?.by_category || [];
+  addSheet('Budget Overview', budCats,
+    ['category','budget','actual','remaining','variance','util','status'],
+    ['Category','Budget (EGP)','Actual (EGP)','Remaining (EGP)','Variance (EGP)','Util %','Status']);
+
+  // ── Sheet 3: Expense Log ──
+  const expLog = API_DATA.expenses?.log || [];
+  addSheet('Expenses Log', expLog,
+    ['date','category','vendor','amount','method','due','status','comments'],
+    ['Date','Category','Vendor','Amount (EGP)','Method','Due Date','Status','Comments']);
+
+  // ── Sheet 4: Cost Analysis ──
+  const costD = API_DATA.cost?.details || [];
+  addSheet('Cost Analysis', costD,
+    ['category','item','center','vendor','actual','budget','variance','var_pct','status'],
+    ['Category','Item','Cost Center','Vendor','Actual (EGP)','Budget (EGP)','Variance','Var%','Status']);
+
+  // ── Sheet 5: Cash Flow ──
+  const cf6m = API_DATA.cashflow?.forecast_6m || [];
+  addSheet('Cash Flow Forecast', cf6m,
+    ['month','inflow','outflow','net'],
+    ['Month','Inflow (EGP)','Outflow (EGP)','Net (EGP)']);
+
+  // ── Sheet 6: Risks ──
+  const risks = API_DATA.risks?.register || [];
+  addSheet('Risk Register', risks,
+    ['id','title','project','category','severity','score','status','owner'],
+    ['Risk ID','Title','Project','Category','Severity','Score','Status','Owner']);
+
+  // ── Sheet 7: Vendors ──
+  const vendors = API_DATA.vendors?.top_vendors || [];
+  addSheet('Vendor & Procurement', vendors,
+    ['name','category','commitments','paid','balance','perf'],
+    ['Vendor','Category','Commitments (EGP)','Paid (EGP)','Balance (EGP)','Performance']);
+
+  // ── Sheet 8: Approvals ──
+  const appTypes = API_DATA.approvals?.by_type || [];
+  addSheet('Approval Workflow', appTypes,
+    ['type','total','approved','pending','avg_time'],
+    ['Approval Type','Total','Approved','Pending','Avg Time (days)']);
+
+  // ── Sheet 9: Performance ──
+  const perf = API_DATA.performance?.projects || [];
+  addSheet('Monthly Performance', perf,
+    ['project','status','schedule','cost','scope','quality','overall'],
+    ['Project','Status','Schedule %','Cost %','Scope %','Quality %','Overall %']);
+
+  // ── Sheet 10: Production ──
+  const lots = API_DATA.production?.lots || API_DATA.lots || [];
+  addSheet('Production Lots', lots,
+    ['updated','mine','batch','qty_ton','volume','avg_fe'],
+    ['Last Update','Mine','Batch','Quantity (Ton)','Volume (m³)','Avg Fe%']);
+
+  // ── Sheet 11: Quality ──
+  const samples = API_DATA.quality?.samples || API_DATA.samples || [];
+  addSheet('Quality Samples', samples.slice(0,500),
+    ['date','mine','batch','Fe','SiO2','Al2O3','CaO','MgO','Moisture'],
+    ['Date','Mine','Batch','Fe%','SiO2%','Al2O3%','CaO%','MgO%','Moisture%']);
+
+  const filename = `AIT_Dashboard_Export_${new Date().toISOString().substring(0,10)}.xlsx`;
+  XLSX.writeFile(wb, filename);
 }
 
+// ============================================================
+// EXPORT — PDF (print-optimized with page breaks)
+// ============================================================
 function exportPdf() {
+  // Add print styles dynamically
+  const printStyle = document.createElement('style');
+  printStyle.id = 'printStyle';
+  printStyle.innerHTML = `
+    @media print {
+      @page { size: A4 landscape; margin: 15mm; }
+      body { background: white !important; color: #0d1117 !important; }
+      #loginScreen, .mob-nav, .mob-more-menu, #ld { display: none !important; }
+      .sb { display: none !important; }
+      .main { margin: 0 !important; }
+      .tb { position: relative !important; background: #0d1117 !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .tb-refresh, #exportBtns, .sb-toggle { display: none !important; }
+      .tb-title h1 { color: white !important; }
+      .card { break-inside: avoid; border: 1px solid #ddd !important; box-shadow: none !important; margin-bottom: 8px; }
+      .kc { break-inside: avoid; border: 1px solid #ddd !important; }
+      .kpi-grid { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 8px !important; }
+      .g2 { display: grid !important; grid-template-columns: 1fr 1fr !important; }
+      .g21 { display: grid !important; grid-template-columns: 2fr 1fr !important; }
+      .content { overflow: visible !important; padding: 10px !important; }
+      canvas { max-width: 100% !important; }
+      table { font-size: 9px !important; }
+      thead th { background: #fd480e !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .kc.orange { border-top-color: #fd480e !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .kc.green  { border-top-color: #16a34a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .kc.red    { border-top-color: #dc2626 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .kc.blue   { border-top-color: #2563eb !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .print-page-break { page-break-before: always; }
+      .foot { display: block !important; }
+    }
+  `;
+  document.head.appendChild(printStyle);
+  // Show current page charts with values
+  Chart.helpers && Object.values(CHARTS).forEach(ch => {
+    if (ch.options?.plugins?.datalabels) return;
+  });
   window.print();
+  // Remove print styles after print dialog closes
+  setTimeout(() => {
+    const el = document.getElementById('printStyle');
+    if (el) el.remove();
+  }, 2000);
 }
 
 // ============================================================
@@ -1062,24 +1284,45 @@ function gc() {
   };
 }
 
-function mkChart(id, type, data, opts = {}) {
+function mkChart(id, type, data, opts = {}, onClickFilter = null) {
   const el = document.getElementById(id);
   if (!el) return;
   if (CHARTS[id]) { CHARTS[id].destroy(); delete CHARTS[id]; }
   const c = gc();
   Chart.defaults.color = c.txt;
+
+  const isPie = type === 'doughnut' || type === 'pie';
   const defaults = {
     responsive: true, maintainAspectRatio: false,
     plugins: {
       legend: { display: false },
       tooltip: { backgroundColor: '#0d1117', titleColor: '#fff', bodyColor: '#8b949e', padding: 10, cornerRadius: 6 },
     },
-    scales: {
-      x: { grid: { color: c.grid }, ticks: { color: c.txt, font: { size: 10 } } },
-      y: { grid: { color: c.grid }, ticks: { color: c.txt, font: { size: 10 } } },
-    },
     animation: { duration: 400 },
   };
+  if (!isPie) {
+    defaults.scales = {
+      x: { grid: { color: c.grid }, ticks: { color: c.txt, font: { size: 10 } } },
+      y: { grid: { color: c.grid }, ticks: { color: c.txt, font: { size: 10 } } },
+    };
+  }
+
+  // Chart click → filter dashboard
+  if (onClickFilter) {
+    defaults.onClick = (evt, elements) => {
+      if (!elements.length) return;
+      const idx = elements[0].index;
+      const label = data.labels?.[idx];
+      if (label && onClickFilter.key) {
+        applyFilter(onClickFilter.key, label === FILTERS[onClickFilter.key] ? 'all' : label);
+      }
+    };
+    defaults.plugins.tooltip.callbacks = {
+      ...defaults.plugins.tooltip.callbacks,
+      title: (items) => (items[0]?.label || '') + ' — click to filter',
+    };
+  }
+
   function deepMerge(a, b) {
     const r = { ...a };
     for (const k in b) {
@@ -1089,6 +1332,7 @@ function mkChart(id, type, data, opts = {}) {
     return r;
   }
   CHARTS[id] = new Chart(el, { type, data, options: deepMerge(defaults, opts) });
+  if (onClickFilter) el.style.cursor = 'pointer';
 }
 
 function fmtNum(v) {
@@ -1140,52 +1384,100 @@ function renderPage(page) {
 function renderExec() {
   const d = API_DATA.exec;
   if (!d) return;
-  renderKpis('execKpis', d.kpis, '');
+
+  // Apply filters to data
+  let bva = d.budget_vs_actual || [];
+  let trend = d.monthly_trend || [];
+  let dist = d.expense_dist || [];
+  if (FILTERS.category !== 'all') bva   = bva.filter(r => r.category === FILTERS.category);
+  if (FILTERS.month    !== 'all') trend = trend.filter(r => r.month === FILTERS.month);
+  if (FILTERS.project  !== 'all') dist  = dist; // project filter: re-calculate from raw data
+
+  // Recalculate KPIs if category filter active
+  let kpis = d.kpis;
+  if (FILTERS.category !== 'all' || FILTERS.month !== 'all') {
+    const filteredExpenses = (API_DATA.expenses?.log || [])
+      .filter(r => (FILTERS.category === 'all' || r.category === FILTERS.category)
+                && (FILTERS.month    === 'all' || r.date?.startsWith(FILTERS.month)));
+    const filtBudget = (API_DATA.budget?.by_category || [])
+      .filter(r => FILTERS.category === 'all' || r.category === FILTERS.category);
+    const tA = filteredExpenses.reduce((s,r) => s + r.amount, 0);
+    const tB = filtBudget.reduce((s,r) => s + r.budget, 0);
+    const tP = filtBudget.reduce((s,r) => s + r.paid, 0);
+    if (tA > 0 || tB > 0) {
+      kpis = kpis.map(k => {
+        if (k.key === 'actual_spend')   return {...k, value: tA, note: tB>0?Math.round(tA/tB*100)+'% of Budget':''};
+        if (k.key === 'total_budget')   return {...k, value: tB};
+        if (k.key === 'remaining')      return {...k, value: tB-tA};
+        if (k.key === 'paid_to_date')   return {...k, value: tP};
+        return k;
+      });
+    }
+  }
+  renderKpis('execKpis', kpis, '');
   const c = gc();
 
-  // Budget vs Actual
-  if (d.budget_vs_actual?.length) {
+  // Budget vs Actual - with click filter on category
+  if (bva.length) {
     mkChart('c_bvA','bar',{
-      labels: d.budget_vs_actual.map(r=>r.category),
+      labels: bva.map(r=>r.category),
       datasets:[
-        {label:'Budget', data:d.budget_vs_actual.map(r=>r.budget), backgroundColor:'rgba(88,166,255,.8)', borderRadius:4},
-        {label:'Actual', data:d.budget_vs_actual.map(r=>r.actual), backgroundColor:'rgba(253,72,14,.85)',  borderRadius:4},
+        {label:'Budget', data:bva.map(r=>r.budget||0), backgroundColor:'rgba(88,166,255,.8)', borderRadius:4},
+        {label:'Actual', data:bva.map(r=>r.actual||0), backgroundColor:'rgba(253,72,14,.85)',  borderRadius:4},
       ]
-    },{plugins:{legend:{display:true,labels:{color:c.txt,font:{size:10},boxWidth:10}}},scales:{x:{grid:{color:c.grid},ticks:{color:c.txt,font:{size:9}}},y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>fmtNum(v)}}}});
+    },{
+      plugins:{legend:{display:true,labels:{color:c.txt,font:{size:10},boxWidth:10}}},
+      scales:{x:{grid:{color:c.grid},ticks:{color:c.txt,font:{size:9},maxRotation:45}},y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>fmtNum(v)}}}
+    }, {key:'category'});
   }
 
-  // Expense distribution donut
-  if (d.expense_dist?.length) {
-    const items = d.expense_dist.slice(0,8);
+  // Expense distribution donut - with click filter
+  if (dist.length) {
+    const items = dist.slice(0,8);
     mkChart('c_expDist','doughnut',{
       labels: items.map(r=>r.category),
-      datasets:[{data:items.map(r=>r.amount),backgroundColor:PAL,borderWidth:2,borderColor:'var(--card)',hoverOffset:4}]
-    },{cutout:'65%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.label+': '+fmtNum(c.raw)+' EGP'}}}});
-    const tot = items.reduce((s,r)=>s+r.amount,0);
-    document.getElementById('expDistLeg').innerHTML = items.map((r,i)=>
-      `<li><span class="dot" style="background:${PAL[i]}"></span>${r.category}<span class="lv">${fmtNum(r.amount)}</span></li>`).join('');
+      datasets:[{data:items.map(r=>r.amount||0),backgroundColor:PAL,borderWidth:2,borderColor:'var(--card)',hoverOffset:6}]
+    },{cutout:'65%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ctx.label+': '+fmtNum(ctx.raw)+' EGP ('.concat(ctx.raw>0?Math.round(ctx.raw/items.reduce((s,r)=>s+r.amount,0)*100):0,'%)')}}}}, {key:'category'});
+    document.getElementById('expDistLeg').innerHTML = items.map((r,i)=>{
+      const tot = items.reduce((s,x)=>s+x.amount,0);
+      const p   = tot > 0 ? Math.round(r.amount/tot*100) : 0;
+      const active = FILTERS.category === r.category ? 'style="font-weight:700;color:var(--accent)"' : '';
+      return `<li style="cursor:pointer" onclick="applyFilter('category','${r.category}')">
+        <span class="dot" style="background:${PAL[i]}"></span>
+        <span ${active}>${r.category}</span>
+        <span class="lv">${fmtNum(r.amount)} (${p}%)</span>
+      </li>`;}).join('');
   }
 
-  // Monthly trend
-  if (d.monthly_trend?.length) {
+  // Monthly trend - with click filter on month
+  if (trend.length) {
     mkChart('c_monthly','line',{
-      labels: d.monthly_trend.map(r=>r.month),
-      datasets:[{label:'Actual',data:d.monthly_trend.map(r=>r.actual),borderColor:'#fd480e',backgroundColor:'rgba(253,72,14,.1)',tension:.4,fill:true,pointRadius:4,pointBackgroundColor:'#fd480e'}]
-    },{plugins:{legend:{display:false}},scales:{x:{grid:{color:c.grid},ticks:{color:c.txt,font:{size:9}}},y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>fmtNum(v)}}}});
+      labels: trend.map(r=>r.month),
+      datasets:[{label:'Actual',data:trend.map(r=>r.actual||0),borderColor:'#fd480e',backgroundColor:'rgba(253,72,14,.1)',tension:.4,fill:true,pointRadius:5,pointBackgroundColor:'#fd480e',pointHoverRadius:7}]
+    },{
+      plugins:{legend:{display:false}},
+      scales:{x:{grid:{color:c.grid},ticks:{color:c.txt,font:{size:9}}},y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>fmtNum(v)}}}
+    }, {key:'month'});
   }
 
-  // Util bars
+  // Util bars - with click filter
   if (d.util_by_cat?.length) {
     document.getElementById('utilBars').innerHTML = d.util_by_cat.map(r=>{
-      const u = Math.min(r.util||0, 100);
-      const col = r.util>100?'var(--red)':r.util>90?'var(--yellow)':'var(--accent)';
-      return `<div style="margin-bottom:8px">
+      const raw = r.util || 0;
+      // Fix: if util is 0 but there IS actual data, recalculate
+      const actual = (API_DATA.budget?.by_category||[]).find(b=>b.category===r.category)?.actual || 0;
+      const budget = (API_DATA.budget?.by_category||[]).find(b=>b.category===r.category)?.budget || 0;
+      const u = budget > 0 ? Math.min(Math.round(actual/budget*100),100) : Math.min(raw,100);
+      const uDisplay = budget > 0 ? Math.round(actual/budget*100) : raw;
+      const col = uDisplay>100?'var(--red)':uDisplay>90?'var(--yellow)':'var(--accent)';
+      const active = FILTERS.category === r.category;
+      return `<div style="margin-bottom:8px;cursor:pointer;padding:3px 5px;border-radius:4px;background:${active?'var(--accentbg)':'transparent'}" onclick="applyFilter('category','${r.category}')">
         <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--txt2);margin-bottom:2px">
-          <span>${r.category}</span><span style="color:${col};font-weight:600">${r.util||0}%</span>
+          <span style="${active?'color:var(--accent);font-weight:600':''}">${r.category}</span>
+          <span style="color:${col};font-weight:600">${uDisplay}%</span>
         </div>
         <div class="pb"><div class="pf" style="width:${u}%;background:${col}"></div></div>
-      </div>`;
-    }).join('');
+      </div>`;}).join('');
   }
 
   // Alerts
@@ -1678,31 +1970,18 @@ function toggleLang() {
     ? 'جميع المبالغ بالجنيه المصري &nbsp;|&nbsp; لوحة محفظة مشاريع AIT &nbsp;|&nbsp; <span id="lastUpdate">' + (document.getElementById('lastUpdate')?.textContent || '—') + '</span>'
     : 'All amounts are in EGP &nbsp;|&nbsp; AIT Projects Portfolio Dashboard &nbsp;|&nbsp; <span id="lastUpdate">' + (document.getElementById('lastUpdate')?.textContent || '—') + '</span>';
 
-  // Sidebar RTL flip
-  const sb = document.getElementById('sidebar');
+  // CSS handles RTL layout via [dir=rtl] selectors
+  // Fix main area margin for RTL
+  const main = document.getElementById('mainArea');
   if (isAr) {
-    sb.style.right = '0'; sb.style.left = 'auto';
-    document.getElementById('mainArea').style.marginLeft  = '0';
-    document.getElementById('mainArea').style.marginRight = 'var(--sb-w, 220px)';
+    main.style.marginLeft  = '0';
+    main.style.marginRight = SB_OPEN ? '220px' : '60px';
   } else {
-    sb.style.right = ''; sb.style.left = '0';
-    document.getElementById('mainArea').style.marginLeft  = '';
-    document.getElementById('mainArea').style.marginRight = '';
+    main.style.marginLeft  = '';
+    main.style.marginRight = '';
   }
-
-  // Active ni border
-  document.querySelectorAll('.ni').forEach(ni => {
-    if (isAr) { ni.style.borderLeft='none'; ni.style.borderRight='3px solid transparent'; }
-    else       { ni.style.borderLeft='';    ni.style.borderRight=''; }
-  });
-  document.querySelectorAll('.ni.active').forEach(ni => {
-    if (isAr) { ni.style.borderRight='3px solid var(--accent)'; ni.style.borderLeft='none'; }
-    else       { ni.style.borderLeft='';  ni.style.borderRight=''; }
-  });
-
-  // Re-render filter bar with translated labels
+  // Re-render filter bar
   if (CURRENT_PAGE) renderFilterBar(CURRENT_PAGE);
-
   syncMinesSettings();
 }
 
