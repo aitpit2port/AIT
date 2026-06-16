@@ -1287,88 +1287,174 @@ function exportExcel() {
 // ============================================================
 async function exportPdf() {
   const btn = document.querySelector('.tb-export.pdf');
-  if (btn) { btn.textContent = '⏳ Generating...'; btn.disabled = true; }
+  if (btn) { btn.textContent = '⏳ ' + (LANG==='ar'?'جاري التوليد...':'Generating...'); btn.disabled = true; }
+
+  // Save current state
+  const savedPage    = CURRENT_PAGE;
+  const savedFilters = { ...FILTERS };
 
   try {
     const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    const pdf  = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
     const pageW = 297, pageH = 210;
+    const headerH = 14, footerH = 7, contentY = headerH + 1;
+    const contentH = pageH - headerH - footerH - 1;
+
+    // Reset all filters for PDF
+    Object.keys(FILTERS).forEach(k => FILTERS[k] = 'all');
 
     // Pages to export (all accessible pages except mines)
     const pagesToExport = (USER?.pages || []).filter(p => p !== 'mines');
 
+    // Sidebar collapse for more width
+    const sbWasOpen = SB_OPEN;
+    if (SB_OPEN) toggleSidebar();
+    await new Promise(r => setTimeout(r, 300));
+
     for (let i = 0; i < pagesToExport.length; i++) {
       const page = pagesToExport[i];
 
-      // Switch to this page temporarily
-      const prevPage = CURRENT_PAGE;
+      // Switch to page
       document.querySelectorAll('.pg').forEach(p => p.classList.remove('active'));
       const pgEl = document.getElementById('pg-' + page);
       if (!pgEl) continue;
       pgEl.classList.add('active');
-      renderPage(page);
 
-      // Wait for charts to render
-      await new Promise(r => setTimeout(r, 400));
+      // Update topbar title
+      const meta = PAGE_META[page] || [page, ''];
+      document.getElementById('pgTitle').textContent = meta[0];
 
-      // Add header bar
-      if (i > 0) pdf.addPage();
-      pdf.setFillColor(13, 17, 23);
-      pdf.rect(0, 0, pageW, 14, 'F');
-      pdf.setFillColor(253, 72, 14);
-      pdf.rect(0, 0, 3, 14, 'F');
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(12);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('AIT Projects Dashboard', 8, 9);
-      pdf.setFontSize(9);
-      pdf.setFont('helvetica', 'normal');
-      pdf.setTextColor(139, 148, 158);
-      pdf.text(PAGE_META[page]?.[0] || page, 8, 13.5);
-      pdf.setTextColor(253, 72, 14);
-      pdf.text(new Date().toLocaleDateString('en-GB'), pageW - 8, 9, { align: 'right' });
-
-      // Capture page content
+      // Make content visible and render
       const contentEl = document.getElementById('pageContent');
-      const canvas = await html2canvas(contentEl, {
-        scale: 1.5,
+      contentEl.style.overflow = 'visible';
+      contentEl.style.maxHeight = 'none';
+      contentEl.style.height = 'auto';
+
+      renderPage(page);
+      await new Promise(r => setTimeout(r, 700)); // wait for charts
+
+      if (i > 0) pdf.addPage();
+
+      // ── Header ────────────────────────────────────────
+      pdf.setFillColor(13, 17, 23);
+      pdf.rect(0, 0, pageW, headerH, 'F');
+      pdf.setFillColor(253, 72, 14);
+      pdf.rect(0, 0, 2.5, headerH, 'F');
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(11);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('AIT Projects Dashboard', 7, 8.5);
+      pdf.setFontSize(8);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(200, 200, 200);
+      pdf.text(meta[0], 7, 13);
+      pdf.setTextColor(253, 72, 14);
+      pdf.setFontSize(9);
+      pdf.text(new Date().toLocaleDateString('en-GB'), pageW - 6, 9, { align: 'right' });
+      pdf.setTextColor(139, 148, 158);
+      pdf.setFontSize(7.5);
+      pdf.text((i + 1) + ' / ' + pagesToExport.length, pageW - 6, 13, { align: 'right' });
+
+      // ── Capture page content ──────────────────────────
+      const canvas = await html2canvas(pgEl, {
+        scale: 1.8,
         useCORS: true,
         allowTaint: true,
-        backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#f0f2f5',
-        width: contentEl.scrollWidth,
-        height: Math.min(contentEl.scrollHeight, 2000),
-        windowWidth: contentEl.scrollWidth,
+        backgroundColor: '#ffffff',
+        scrollX: 0,
+        scrollY: 0,
+        width:  pgEl.scrollWidth,
+        height: pgEl.scrollHeight,
+        windowWidth: window.innerWidth,
+        logging: false,
+        imageTimeout: 0,
+        onclone: (doc) => {
+          // Remove scrollbars and overflow in clone
+          doc.querySelectorAll('.tbl-wrap, .content').forEach(el => {
+            el.style.overflow   = 'visible';
+            el.style.maxHeight  = 'none';
+            el.style.height     = 'auto';
+          });
+        }
       });
 
-      const imgData = canvas.toDataURL('image/jpeg', 0.92);
-      const imgW    = pageW;
-      const imgH    = (canvas.height * imgW) / canvas.width;
-      const maxH    = pageH - 16;
-      const finalH  = Math.min(imgH, maxH);
+      // ── Add image (may span multiple sub-pages) ───────
+      const imgData    = canvas.toDataURL('image/jpeg', 0.90);
+      const totalImgH  = (canvas.height / canvas.width) * pageW; // total mm height
+      const sliceH     = contentH; // how much per page (mm)
+      const ratio      = canvas.width / pageW; // px per mm
 
-      pdf.addImage(imgData, 'JPEG', 0, 15, imgW, finalH);
+      let yOffset = 0; // mm into image
+      let firstSlice = true;
 
-      // Footer
-      pdf.setFillColor(13, 17, 23);
-      pdf.rect(0, pageH - 6, pageW, 6, 'F');
-      pdf.setTextColor(139, 148, 158);
-      pdf.setFontSize(7);
-      pdf.text('AIT Projects Portfolio Dashboard  |  All amounts in EGP  |  ' + (API_DATA?.lastUpdated || ''), 4, pageH - 2);
-      pdf.text((i + 1) + ' / ' + pagesToExport.length, pageW - 4, pageH - 2, { align: 'right' });
+      while (yOffset < totalImgH) {
+        if (!firstSlice) {
+          pdf.addPage();
+          // Mini header for continuation pages
+          pdf.setFillColor(13, 17, 23);
+          pdf.rect(0, 0, pageW, 6, 'F');
+          pdf.setFillColor(253, 72, 14);
+          pdf.rect(0, 0, 2, 6, 'F');
+          pdf.setTextColor(200, 200, 200);
+          pdf.setFontSize(7);
+          pdf.text(meta[0] + ' (cont.)', 5, 4.5);
+        }
 
-      // Restore
-      pgEl.classList.remove('active');
+        const startY = firstSlice ? contentY : 7;
+        const avail  = firstSlice ? contentH : (pageH - 7 - footerH);
+        const slice  = Math.min(avail, totalImgH - yOffset);
+
+        // Clip: draw only the slice
+        const srcY  = yOffset * ratio;           // px
+        const srcH  = slice   * ratio;           // px
+
+        // Create temporary canvas for this slice
+        const tmpC  = document.createElement('canvas');
+        tmpC.width  = canvas.width;
+        tmpC.height = Math.ceil(srcH);
+        const tmpCtx = tmpC.getContext('2d');
+        tmpCtx.drawImage(canvas, 0, -srcY);
+        const sliceData = tmpC.toDataURL('image/jpeg', 0.90);
+
+        pdf.addImage(sliceData, 'JPEG', 0, startY, pageW, slice);
+
+        // Footer
+        pdf.setFillColor(13, 17, 23);
+        pdf.rect(0, pageH - footerH, pageW, footerH, 'F');
+        pdf.setTextColor(100, 100, 100);
+        pdf.setFontSize(7);
+        pdf.text('AIT Projects Portfolio Dashboard  |  All amounts in EGP  |  ' + (API_DATA?.lastUpdated || ''), 4, pageH - 2);
+
+        yOffset += avail;
+        firstSlice = false;
+      }
+
+      // Restore content overflow
+      contentEl.style.overflow  = '';
+      contentEl.style.maxHeight = '';
+      contentEl.style.height    = '';
     }
 
-    // Restore original page
-    const origEl = document.getElementById('pg-' + CURRENT_PAGE);
-    if (origEl) origEl.classList.add('active');
-    renderPage(CURRENT_PAGE);
+    // ── Restore original state ────────────────────────
+    if (sbWasOpen && !SB_OPEN) toggleSidebar();
 
-    pdf.save(`AIT_Dashboard_${new Date().toISOString().substring(0,10)}.pdf`);
+    // Restore page and filters
+    Object.assign(FILTERS, savedFilters);
+    document.querySelectorAll('.pg').forEach(p => p.classList.remove('active'));
+    const origEl = document.getElementById('pg-' + savedPage);
+    if (origEl) origEl.classList.add('active');
+    renderPage(savedPage);
+    renderFilterBar(savedPage);
+
+    pdf.save(`AIT_Dashboard_${new Date().toISOString().substring(0, 10)}.pdf`);
   } catch(e) {
     console.error('PDF error:', e);
-    alert('PDF error: ' + e.message + '\nTry closing the sidebar first.');
+    alert('PDF error: ' + e.message);
+    // Restore on error
+    Object.assign(FILTERS, savedFilters);
+    const origEl = document.getElementById('pg-' + savedPage);
+    if (origEl) { document.querySelectorAll('.pg').forEach(p => p.classList.remove('active')); origEl.classList.add('active'); }
+    renderPage(savedPage);
   } finally {
     if (btn) { btn.textContent = '⬇ PDF'; btn.disabled = false; }
   }
