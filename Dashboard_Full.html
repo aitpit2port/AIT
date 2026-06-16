@@ -103,8 +103,9 @@ button,select,input{font-family:inherit;font-size:inherit}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* FILTER BAR */
-.fb{padding:0 26px 14px;display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap;flex-shrink:0}
+.fb{padding:0 26px 14px;display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;flex-shrink:0}
 .fb.hidden{display:none}
+.fb-grid{display:flex;gap:8px;flex-wrap:wrap;flex:1}
 .fb-item{display:flex;flex-direction:column;gap:2px}
 .fb-item label{font-size:9px;color:var(--txt3);font-weight:600;text-transform:uppercase}
 .fb-item select{background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:7px 26px 7px 10px;font-size:11.5px;color:var(--txt);cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b7385' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;min-width:115px}
@@ -314,57 +315,61 @@ tbody tr:hover td{background:var(--bg)}
       <!-- ════════ PAGE 1: EXECUTIVE SUMMARY ════════ -->
       <div class="pg active" id="pg-exec">
         <div class="kpi-row k8" id="execKpis"></div>
-        <div class="g211">
+        <div class="g4" id="execRow2">
           <div class="card">
             <div class="card-h"><h3 id="lblExpDist">Expense Distribution by Category</h3></div>
-            <div class="card-b" style="display:flex;align-items:center;gap:16px">
-              <div style="position:relative;width:150px;height:150px;flex-shrink:0"><canvas id="c_expDist"></canvas>
+            <div class="card-b" style="text-align:center">
+              <div style="position:relative;width:120px;height:120px;margin:0 auto"><canvas id="c_expDist"></canvas>
                 <div id="expDistCenter" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center"></div>
               </div>
-              <ul class="leg" id="expDistLeg" style="flex:1"></ul>
+              <ul class="leg" id="expDistLeg" style="margin-top:10px;text-align:left;font-size:10px"></ul>
             </div>
           </div>
-          <div class="card">
+          <div class="card" style="grid-column:span 2">
             <div class="card-h"><h3 id="lblBvA">Budget vs Actual by Category</h3></div>
-            <div class="card-b"><div class="cw" style="height:230px"><canvas id="c_bvA"></canvas></div></div>
+            <div class="card-b"><div class="cw" style="height:200px"><canvas id="c_bvA"></canvas></div></div>
           </div>
-        </div>
-        <div class="g31">
           <div class="card">
             <div class="card-h"><h3 id="lblMonthly">Monthly Spending Trend</h3></div>
             <div class="card-b"><div class="cw" style="height:170px"><canvas id="c_monthly"></canvas></div></div>
           </div>
+        </div>
+        <div class="g2">
           <div class="card">
             <div class="card-h"><h3 id="lblPaidPend">Paid vs Pending by Month</h3></div>
             <div class="card-b"><div class="cw" style="height:170px"><canvas id="c_paidPend"></canvas></div></div>
           </div>
-        </div>
-        <div class="g3">
           <div class="card">
             <div class="card-h"><h3 id="lblUtil">Budget Utilization % by Category</h3></div>
-            <div class="card-b" id="utilBars" style="max-height:230px;overflow-y:auto"></div>
+            <div class="card-b" id="utilBars" style="max-height:200px;overflow-y:auto"></div>
           </div>
+        </div>
+        <div class="g2">
           <div class="card">
             <div class="card-h"><h3 id="lblCostCenters">Top 5 Cost Centers by Expenses</h3></div>
-            <div class="card-b" id="topCostCentersBars" style="max-height:230px;overflow-y:auto"></div>
+            <div class="card-b" id="topCostCentersBars" style="max-height:200px;overflow-y:auto"></div>
           </div>
           <div class="card">
             <div class="card-h"><h3 id="lblTopVend">Top 5 Vendors by Expenses</h3></div>
-            <div class="card-b" id="topVendBars" style="max-height:230px;overflow-y:auto"></div>
+            <div class="card-b" id="topVendBars" style="max-height:200px;overflow-y:auto"></div>
           </div>
         </div>
         <div class="g21">
           <div class="card">
             <div class="card-h"><h3 id="lblAlerts">Top Alerts &amp; Notifications</h3></div>
-            <div class="tbl-wrap"><table><thead><tr><th id="thType">Type</th><th id="thCat">Category</th><th id="thIssue">Issue</th><th id="thDue">Due Date</th><th class="td-r" id="thAmt">Amount</th><th id="thSev">Severity</th><th id="thStat">Status</th></tr></thead><tbody id="execAlertsTbl"></tbody></table></div>
+            <div class="tbl-wrap"><table><thead><tr><th id="thType">Type</th><th id="thCat">Category / Item</th><th id="thIssue">Issue</th><th id="thDue">Due Date</th><th class="td-r" id="thAmt">Amount (EGP)</th><th id="thSev">Severity</th><th id="thStat">Status</th><th id="thAction">Action</th></tr></thead><tbody id="execAlertsTbl"></tbody></table></div>
+            <div style="padding:10px 16px;text-align:right"><a href="#" id="lblViewAlerts" style="color:var(--accent);font-size:11px;font-weight:600;text-decoration:none">View All Alerts →</a></div>
           </div>
           <div class="card">
-            <div class="card-h"><h3 id="lblBudgetProgress">Budget Progress</h3></div>
+            <div class="card-h"><h3 id="lblProjStatus">Project Overall Status</h3></div>
             <div class="card-b" style="text-align:center;padding:10px 16px 16px">
-              <div style="position:relative;width:140px;height:140px;margin:0 auto 6px"><canvas id="c_budgetProgress"></canvas>
-                <div id="budgetProgressCenter" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center"></div>
+              <div class="status-circle good" id="overallStatusCircle">
+                <div style="font-size:30px">✅</div>
+                <div style="font-size:13px;font-weight:800;color:var(--green)" id="overallStatusTxt">On Track</div>
               </div>
-              <div id="projStatus" style="margin-top:10px"></div>
+              <div style="font-size:10.5px;color:var(--txt2);margin-bottom:10px" id="overallStatusDesc">The project is performing within acceptable parameters.</div>
+              <div id="projStatus"></div>
+              <div style="margin-top:8px;text-align:right"><a href="#" id="lblViewDetails" style="color:var(--accent);font-size:11px;font-weight:600;text-decoration:none">View Details →</a></div>
             </div>
           </div>
         </div>
@@ -375,7 +380,7 @@ tbody tr:hover td{background:var(--bg)}
         <div class="kpi-row k7" id="tlKpis"></div>
         <div class="card">
           <div class="card-h"><h3 id="lblGantt">Project Timeline (Gantt)</h3></div>
-          <div class="card-b"><div class="cw" style="height:260px"><canvas id="c_gantt"></canvas></div></div>
+          <div class="card-b"><div class="cw" style="height:480px"><canvas id="c_gantt"></canvas></div></div>
         </div>
         <div class="g21">
           <div class="card">
@@ -407,36 +412,40 @@ tbody tr:hover td{background:var(--bg)}
         <div class="kpi-row k7" id="budKpis"></div>
         <div class="g31">
           <div class="card" style="grid-column:span 2">
-            <div class="card-h"><h3 id="lblBudCat">Budget vs Actual by Category</h3></div>
-            <div class="card-b"><div class="cw" style="height:240px"><canvas id="c_budCat"></canvas></div></div>
+            <div class="card-h"><h3 id="lblBudCat">Budget vs Actual by Category (EGP)</h3></div>
+            <div class="card-b"><div class="cw" style="height:230px"><canvas id="c_budCat"></canvas></div></div>
           </div>
           <div class="card">
             <div class="card-h"><h3 id="lblBudAlloc">Budget Allocation by Category</h3></div>
-            <div class="card-b" style="display:flex;flex-direction:column;align-items:center;gap:10px">
-              <div style="position:relative;width:130px;height:130px"><canvas id="c_budAlloc"></canvas>
+            <div class="card-b" style="display:flex;flex-direction:column;align-items:center;gap:8px">
+              <div style="position:relative;width:120px;height:120px"><canvas id="c_budAlloc"></canvas>
                 <div id="budAllocCenter" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center"></div>
               </div>
-              <ul class="leg" id="budAllocLeg" style="width:100%"></ul>
+              <ul class="leg" id="budAllocLeg" style="width:100%;font-size:10px"></ul>
             </div>
           </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h3 id="lblConsTrend">Monthly Budget Consumption Trend</h3></div>
+          <div class="card-b"><div class="cw" style="height:190px"><canvas id="c_consTrend"></canvas></div></div>
         </div>
         <div class="g3">
           <div class="card">
             <div class="card-h"><h3 id="lblBudUtil">Budget Utilization % by Category</h3></div>
-            <div class="card-b" id="budUtilBars" style="max-height:230px;overflow-y:auto"></div>
+            <div class="card-b" id="budUtilBars" style="max-height:220px;overflow-y:auto"></div>
           </div>
           <div class="card">
-            <div class="card-h"><h3 id="lblWaterfall">Budget Waterfall</h3></div>
-            <div class="card-b"><div class="cw" style="height:230px"><canvas id="c_waterfall"></canvas></div></div>
+            <div class="card-h"><h3 id="lblWaterfall">Budget Waterfall (EGP)</h3></div>
+            <div class="card-b"><div class="cw" style="height:220px"><canvas id="c_waterfall"></canvas></div></div>
           </div>
           <div class="card">
             <div class="card-h"><h3 id="lblBudNotes">Budget Notes &amp; Status</h3></div>
-            <div class="card-b" id="budgetNotes" style="max-height:230px;overflow-y:auto"></div>
+            <div class="card-b" id="budgetNotes" style="max-height:220px;overflow-y:auto"></div>
           </div>
         </div>
         <div class="card">
           <div class="card-h"><h3 id="lblDetailedBud">Detailed Budget Summary</h3></div>
-          <div class="tbl-wrap"><table><thead><tr><th id="thCat2">Category</th><th class="td-r" id="thBudget">Budget</th><th class="td-r" id="thActual">Actual</th><th class="td-r" id="thRemain">Remaining</th><th class="td-r" id="thVar">Variance</th><th id="thStat3">Status</th></tr></thead><tbody id="budTbl"></tbody></table></div>
+          <div class="tbl-wrap"><table><thead><tr><th id="thCat2">Category</th><th class="td-r" id="thBudget">Budget (EGP)</th><th class="td-r" id="thActual">Actual (EGP)</th><th class="td-r" id="thRemain">Remaining</th><th class="td-r" id="thVar">Variance (EGP)</th><th id="thStat3">Status</th></tr></thead><tbody id="budTbl"></tbody></table></div>
         </div>
       </div>
 
@@ -494,16 +503,16 @@ const PAGE_META = {
 const PAGE_ICONS = { exec:'📊',timeline:'📅',budget:'💰',expenses:'🧾',cost:'📉',cashflow:'💵',risks:'⚠️',vendors:'🚚',approvals:'👥',performance:'📋',production:'⚙️',quality:'🔬',mines:'🗺️' };
 
 const PAGE_FILTERS = {
-  exec:        ['project','category','month'],
-  timeline:    ['owner','status_filter','phase'],
-  budget:      ['category','status_filter'],
-  expenses:    ['category','method','status_filter'],
-  cost:        ['category','vendor'],
-  cashflow:    ['scenario'],
-  risks:       ['category','severity'],
-  vendors:     ['category','status_filter'],
-  approvals:   ['type','status_filter'],
-  performance: ['status_filter'],
+  exec:        ['cost_center','category','method','status_filter','payee','source'],
+  timeline:    ['owner','status_filter','phase','priority','period'],
+  budget:      ['cost_center','category','budget_type','approval_status','owner2','method'],
+  expenses:    ['cost_center','category','method','status_filter','payee','source'],
+  cost:        ['cost_center','category','vendor','method','source','owner2'],
+  cashflow:    ['cost_center','funding_source','payment_type','cash_status','payee','scenario'],
+  risks:       ['category','project2','owner3','status_filter'],
+  vendors:     ['category','proc_type','contract_status','project2','vendor'],
+  approvals:   ['type','project2','requester','approver','status_filter'],
+  performance: ['month2','project2','manager','status_filter','cost_center'],
   production:  ['mine'],
   quality:     ['mine'],
   mines:       [],
@@ -514,7 +523,10 @@ const SEV_COLORS = { Critical:'#dc2626', High:'#ea580c', Medium:'#2563eb', Low:'
 const STATUS_COLORS = { 'On Track':'#16a34a','At Risk':'#ea580c','Off Track':'#dc2626','Completed':'#16a34a','In Progress':'#2563eb','Planned':'#9aa1b1','Delayed':'#dc2626' };
 
 let API_DATA=null, USER=null, LANG='en', THEME='light', SB_OPEN=true, CHARTS={}, CURRENT_PAGE='exec';
-let FILTERS={project:'all',category:'all',month:'all',owner:'all',status_filter:'all',phase:'all',method:'all',vendor:'all',scenario:'Base Case',severity:'all',type:'all',mine:'all'};
+let FILTERS={project:'all',category:'all',month:'all',owner:'all',status_filter:'all',phase:'all',method:'all',vendor:'all',scenario:'Base Case',severity:'all',type:'all',mine:'all',
+  cost_center:'all',payee:'all',source:'all',priority:'all',period:'all',budget_type:'all',approval_status:'all',owner2:'all',
+  proc_type:'all',contract_status:'all',funding_source:'all',payment_type:'all',cash_status:'all',
+  project2:'all',requester:'all',approver:'all',month2:'all',manager:'all',owner3:'all'};
 
 // ============================================================
 // AUTH
@@ -625,17 +637,40 @@ function renderFilterBar(page){
   const fb=document.getElementById('filterBar');
   const filters=PAGE_FILTERS[page]||[];
   if(!filters.length||!API_DATA){fb.innerHTML='';return;}
-  const isAr=LANG==='ar';
-  const opts={};
-  if(filters.includes('category')) opts.category=[...new Set((API_DATA.budget?.by_category||[]).map(r=>r.category))];
-  if(filters.includes('method'))   opts.method=[...new Set((API_DATA.expenses?.log||[]).map(r=>r.method))].filter(Boolean);
-  if(filters.includes('owner'))    opts.owner=[...new Set((API_DATA.timeline?.tasks||[]).map(r=>r.owner))].filter(Boolean);
-  if(filters.includes('phase'))    opts.phase=[...new Set((API_DATA.timeline?.tasks||[]).map(r=>r.phase))].filter(Boolean);
-  if(filters.includes('vendor'))   opts.vendor=[...new Set((API_DATA.cost?.details||[]).map(r=>r.vendor))].filter(Boolean).slice(0,15);
-  if(filters.includes('mine'))     opts.mine=[...new Set((API_DATA.lots||[]).map(r=>r.mine))].filter(Boolean);
-  if(filters.includes('type'))     opts.type=[...new Set((API_DATA.approvals?.by_type||[]).map(r=>r.type))];
+  const expenses=API_DATA.expenses?.log||[];
+  const budget=API_DATA.budget?.by_category||[];
 
-  const labels={category:'Category',method:'Payment Method',status_filter:'Status',owner:'Task Owner',phase:'Phase',vendor:'Vendor',severity:'Severity',mine:'Mine',type:'Approval Type',scenario:'Scenario'};
+  const opts={};
+  opts.cost_center   = [...new Set(budget.map(r=>r.category))].filter(Boolean);
+  opts.category      = [...new Set(budget.map(r=>r.category))].filter(Boolean);
+  opts.method        = [...new Set(expenses.map(r=>r.method))].filter(Boolean);
+  opts.payee         = [...new Set(expenses.map(r=>r.vendor))].filter(Boolean).slice(0,20);
+  opts.source        = [...new Set((API_DATA.exec?.expense_dist||[]).map(r=>r.category))].filter(Boolean);
+  opts.owner         = [...new Set((API_DATA.timeline?.tasks||[]).map(r=>r.owner))].filter(Boolean);
+  opts.phase         = [...new Set((API_DATA.timeline?.tasks||[]).map(r=>r.phase))].filter(Boolean);
+  opts.vendor        = [...new Set((API_DATA.cost?.details||[]).map(r=>r.vendor))].filter(Boolean).slice(0,15);
+  opts.mine          = [...new Set((API_DATA.lots||[]).map(r=>r.mine))].filter(Boolean);
+  opts.type          = [...new Set((API_DATA.approvals?.by_type||[]).map(r=>r.type))];
+  opts.proc_type     = ['Materials','Equipment','Services','Consulting','Others'];
+  opts.funding_source= ['Progress Billings','Owner Funding','Loan Drawdowns','Retention Releases','Other Income'];
+  opts.payment_type  = ['Construction Costs','Procurement','Subcontractors','Site Costs','Other Expenses'];
+  opts.requester     = [...new Set((API_DATA.vendors?.top_vendors||[]).map(r=>r.name))].slice(0,10);
+  opts.approver      = ['Ahmed S.','Sarah M.','Mohamed K.','Nour H.','Omar T.','Lina A.'];
+  opts.manager       = ['Ahmed S.','Sarah M.','Mohamed K.','Nour H.','Omar T.'];
+  opts.project2      = [...new Set(expenses.map(r=>r.project))].filter(Boolean);
+  opts.owner3        = ['Ahmed S.','Sarah M.','Mohamed K.','Nour H.','Omar T.','Lina A.'];
+  opts.month2        = (API_DATA.exec?.monthly_trend||[]).map(r=>r.month);
+
+  const labels={
+    cost_center:'Cost Center', category:'Cost Category', method:'Payment Method',
+    status_filter:'Status', payee:'Payee / Paid To', source:'Expense Source',
+    owner:'Task Owner', phase:'Phase', priority:'Priority', period:'Time Period',
+    budget_type:'Budget Type', approval_status:'Approval Status', owner2:'Project Owner',
+    vendor:'Vendor', mine:'Mine', type:'Approval Type', scenario:'Scenario',
+    project2:'Project / Site', proc_type:'Procurement Type', contract_status:'Contract Status',
+    funding_source:'Funding Source', payment_type:'Payment Type', cash_status:'Cash Status',
+    requester:'Requester', approver:'Approver', month2:'Month', manager:'Project Manager', owner3:'Risk Owner',
+  };
   const statusOpts={
     timeline:['Completed','In Progress','Delayed','Planned'],
     budget:['On Track','At Risk','Over Budget'],
@@ -643,19 +678,31 @@ function renderFilterBar(page){
     vendors:['Active','Expiring Soon','Expired'],
     approvals:['Approved','Pending','Rejected'],
     performance:['On Track','At Risk','Off Track'],
+    risks:['Open','Monitoring','Closed'],
   };
+  const fixedOpts={
+    priority:['High','Medium','Low'],
+    period:['Monthly','Weekly','Quarterly'],
+    budget_type:['CAPEX','OPEX'],
+    approval_status:['Approved','Pending','Rejected'],
+    owner2:['Ahmed S.','Sarah M.','Mohamed K.','Nour H.'],
+    contract_status:['Active','In Progress','Pending Approval','Expiring Soon','Expired'],
+    cash_status:['Healthy','At Risk','Critical'],
+    scenario:['Base Case','Optimistic','Pessimistic'],
+  };
+
   const sel=(key,label,options)=>{
-    const o=['<option value="all">All '+label+'</option>',...options.map(x=>`<option value="${x}"${FILTERS[key]===x?' selected':''}>${x}</option>`)].join('');
+    const o=['<option value="all">All</option>',...options.map(x=>`<option value="${x}"${FILTERS[key]===x?' selected':''}>${x}</option>`)].join('');
     return `<div class="fb-item"><label>${label}</label><select onchange="applyFilter('${key}',this.value)">${o}</select></div>`;
   };
   const parts=[];
   filters.forEach(f=>{
-    if(f==='status_filter') parts.push(sel('status_filter','Status',statusOpts[page]||[]));
-    else if(f==='severity') parts.push(sel('severity','Severity',['Critical','High','Medium','Low']));
-    else if(f==='scenario') parts.push(sel('scenario','Scenario',['Base Case','Optimistic','Pessimistic']));
-    else if(opts[f]) parts.push(sel(f,labels[f]||f,opts[f]));
+    if(f==='status_filter') parts.push(sel('status_filter',labels.status_filter,statusOpts[page]||[]));
+    else if(f==='severity') parts.push(sel('severity','Risk Category',['Critical','High','Medium','Low']));
+    else if(fixedOpts[f])   parts.push(sel(f,labels[f]||f,fixedOpts[f]));
+    else if(opts[f])        parts.push(sel(f,labels[f]||f,opts[f]));
   });
-  fb.innerHTML=parts.join('')+`<button class="fb-clr" onclick="clearFilters()">✕ Clear Filters</button>`;
+  fb.innerHTML = `<div class="fb-grid">${parts.join('')}</div><button class="fb-clr" onclick="clearFilters()">✕ Clear Filters</button>`;
 }
 function applyFilter(key,val){FILTERS[key]=val;renderPage(CURRENT_PAGE);}
 function clearFilters(){Object.keys(FILTERS).forEach(k=>FILTERS[k]=k==='scenario'?'Base Case':'all');renderFilterBar(CURRENT_PAGE);renderPage(CURRENT_PAGE);}
@@ -808,6 +855,7 @@ function renderExec(){
   const alerts=d.alerts||[];
   const SEV_B={Critical:'red',High:'orange',Medium:'blue',Low:'purple'};
   const STA_B={Open:'red',Pending:'orange',Overdue:'red',Review:'blue'};
+  const ACTIONS={Critical:'Review',High:'Prepare',Medium:'Approve',Low:'Upload'};
   document.getElementById('execAlertsTbl').innerHTML=alerts.map(a=>`<tr>
     <td><span class="badge ${SEV_B[a.severity]||'gray'}">${a.type}</span></td>
     <td class="td-s">${a.category||'—'}</td>
@@ -816,16 +864,25 @@ function renderExec(){
     <td class="td-r td-m">${fmtF(a.amount)}</td>
     <td><span class="badge ${SEV_B[a.severity]||'gray'}">${a.severity}</span></td>
     <td><span class="badge ${STA_B[a.status]||'gray'}">${a.status}</span></td>
+    <td><a href="#" style="color:var(--accent);font-size:10.5px;font-weight:600;text-decoration:none">${ACTIONS[a.severity]||'Review'}</a></td>
   </tr>`).join('');
 
-  // Budget progress donut
-  const bp=d.budget_progress_pct||0;
-  mkChart('c_budgetProgress','doughnut',{labels:['Utilized','Remaining'],datasets:[{data:[bp,100-bp],backgroundColor:['#fd480e','#e5e9f0'],borderWidth:0}]},{cutout:'78%',plugins:{legend:{display:false},tooltip:{enabled:false}}});
-  document.getElementById('budgetProgressCenter').innerHTML=`<div style="font-size:19px;font-weight:800;color:var(--accent)">${bp}%</div><div style="font-size:8.5px;color:var(--txt2)">Utilized</div>`;
-
-  // Project status
+  // Project overall status circle
   const ps=d.project_status||{};
-  const badgeCl=v=>v==='On Track'?'green':v==='At Risk'||v==='High'?'orange':v==='Good'?'green':'blue';
+  const riskHigh = Object.values(ps).includes('At Risk') || Object.values(ps).includes('High');
+  const circleEl=document.getElementById('overallStatusCircle');
+  const txtEl=document.getElementById('overallStatusTxt');
+  const descEl=document.getElementById('overallStatusDesc');
+  if(riskHigh){
+    circleEl.className='status-circle'; circleEl.style.background='var(--orangebg)';
+    circleEl.innerHTML='<div style="font-size:30px">⚠️</div><div style="font-size:13px;font-weight:800;color:var(--orange)">At Risk</div>';
+    descEl.textContent='Some areas require attention to stay within acceptable parameters.';
+  } else {
+    circleEl.className='status-circle good';
+    circleEl.innerHTML='<div style="font-size:30px">✅</div><div style="font-size:13px;font-weight:800;color:var(--green)">On Track</div>';
+    descEl.textContent='The project is performing within acceptable parameters.';
+  }
+  const badgeCl=v=>v==='On Track'||v==='Good'?'green':(v==='At Risk'||v==='High')?'orange':'blue';
   document.getElementById('projStatus').innerHTML=Object.entries(ps).map(([k,v])=>`<div class="status-row"><span style="color:var(--txt2);font-size:11px">${k.charAt(0).toUpperCase()+k.slice(1)}</span><span class="badge ${badgeCl(v)}">${v}</span></div>`).join('');
 }
 
@@ -837,19 +894,32 @@ function renderTimeline(){
   renderKpis('tlKpis',d.kpis||[],'k7');
   const c=gc();
 
-  // Gantt-style horizontal bar chart (start/duration)
+  // Gantt-style horizontal bar chart (start/duration) with hierarchy
   const gantt=d.gantt||[];
   if(gantt.length){
     const baseDate=new Date(Math.min(...gantt.map(g=>new Date(g.start))));
+    const todayOffset = Math.round((new Date()-baseDate)/86400000);
     mkChart('c_gantt','bar',{
-      labels:gantt.map(g=>g.wbs+' '+g.phase),
+      labels:gantt.map(g=>(g.level===0?'▸ ':'　 ')+g.wbs+'  '+g.phase),
       datasets:[{
         label:'Duration',
         data:gantt.map(g=>{const s=new Date(g.start),e=new Date(g.end);return [Math.round((s-baseDate)/86400000),Math.round((e-baseDate)/86400000)];}),
         backgroundColor:gantt.map(g=>STATUS_COLORS[g.status]||'#9aa1b1'),
-        borderRadius:5,
+        borderRadius:4,
+        barThickness: 14,
       }]
-    },{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>'D+'+v}},y:{grid:{display:false},ticks:{color:c.txt,font:{size:10}}}}});
+    },{
+      indexAxis:'y',
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:ctx=>{const g=gantt[ctx.dataIndex];return [g.phase, 'Status: '+g.status, g.start+' → '+g.end];}}},
+        annotation: undefined,
+      },
+      scales:{
+        x:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>'D+'+v}},
+        y:{grid:{display:false},ticks:{color:c.txt,font:(ctx)=>({size:9.5,weight:gantt[ctx.index]?.level===0?'700':'400'})}}
+      },
+    });
   }
 
   // Tasks by status donut
@@ -905,6 +975,22 @@ function renderBudget(){
   const totBud=cats.reduce((s,r)=>s+r.budget,0);
   document.getElementById('budAllocCenter').innerHTML=`<div style="font-size:13px;font-weight:800;color:var(--txt)">${fmtNum(totBud)}</div><div style="font-size:8px;color:var(--txt2)">Total Budget</div>`;
   document.getElementById('budAllocLeg').innerHTML=alloc.map((r,i)=>`<li><span class="dot" style="background:${PAL[i]}"></span>${r.category}<span class="lv">${r.pct}%</span></li>`).join('');
+
+  // Monthly Budget Consumption Trend (Actual vs Planned cumulative)
+  const monthlyTrend = API_DATA.exec?.monthly_trend || [];
+  if(monthlyTrend.length){
+    let cumActual=0, cumPlanned=0;
+    const avgMonthlyBudget = totBud / Math.max(monthlyTrend.length,1);
+    const consData = monthlyTrend.map(m => {
+      cumActual += m.actual; cumPlanned += avgMonthlyBudget;
+      return { month:m.month, actual:cumActual, planned:cumPlanned };
+    });
+    mkChart('c_consTrend','line',{labels:consData.map(r=>r.month),datasets:[
+      {label:'Actual Spend',data:consData.map(r=>r.actual),borderColor:'#16a34a',backgroundColor:'rgba(22,163,74,.08)',fill:true,pointBackgroundColor:'#16a34a'},
+      {label:'Planned Spend',data:consData.map(r=>r.planned),borderColor:'#2563eb',backgroundColor:'transparent',fill:false,pointBackgroundColor:'#2563eb',borderDash:[5,3]},
+    ]},{plugins:{legend:{display:true,position:'top',labels:{color:c.txt,font:{size:10},boxWidth:10}}}});
+  }
+
 
   document.getElementById('budUtilBars').innerHTML=cats.map(r=>{
     const u=Math.min(r.util||0,100); const col=r.util>100?'var(--red)':r.util>90?'var(--orange)':'var(--accent)';
