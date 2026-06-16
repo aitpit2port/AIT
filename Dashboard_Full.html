@@ -220,6 +220,14 @@ tbody tr:hover td{background:var(--bg)}
 .ld-txt{color:#fff;font-size:14px;font-weight:500;text-align:center}
 .foot{text-align:center;padding:10px 26px;font-size:10.5px;color:var(--txt3);flex-shrink:0}
 
+/* NO DATA SOURCE PLACEHOLDER */
+.no-data-box{background:var(--card);border:1.5px dashed var(--border);border-radius:14px;padding:40px 30px;text-align:center;margin:20px 0}
+.no-data-icon{font-size:38px;margin-bottom:14px;opacity:.7}
+.no-data-title{font-size:15px;font-weight:700;color:var(--txt);margin-bottom:8px}
+.no-data-msg{font-size:12px;color:var(--txt2);max-width:460px;margin:0 auto;line-height:1.6}
+.no-data-badge{display:inline-flex;align-items:center;gap:6px;background:var(--orangebg);color:var(--orange);padding:5px 12px;border-radius:20px;font-size:10.5px;font-weight:700;margin-bottom:14px;text-transform:uppercase;letter-spacing:.4px}
+.partial-data-note{background:var(--bluebg);color:var(--blue);border-radius:8px;padding:9px 14px;font-size:11px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+
 /* MOBILE */
 .mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--sidebar);border-top:1px solid #21262d;z-index:200;padding:0 0 env(safe-area-inset-bottom)}
 .mob-nav-inner{display:flex;justify-content:space-around;height:54px;align-items:center}
@@ -624,9 +632,13 @@ setInterval(()=>{if(API_DATA)loadData();},60000);
 function populateProjectSelect(){
   const sel=document.getElementById('tbProject');
   if(!sel) return;
-  const expenses=API_DATA?.expenses?.log||[];
-  const projects=[...new Set(expenses.map(r=>r.project).filter(Boolean))];
-  // fallback: extract from elsewhere if needed
+  // Prefer the backend's explicit, real "projects" list (from exec page payload)
+  let projects = API_DATA?.exec?.projects || [];
+  if(!projects.length){
+    // Fallback for pages that don't carry exec data (e.g. user only has access to other pages)
+    const expenses=API_DATA?.expenses?.log||[];
+    projects=[...new Set(expenses.map(r=>r.project).filter(Boolean))];
+  }
   sel.innerHTML='<option value="all">All Projects</option>'+projects.map(p=>`<option value="${p}">${p}</option>`).join('');
 }
 
@@ -779,6 +791,20 @@ function renderKpis(containerId,kpis,gridClass){
 function renderPage(page){
   if(!API_DATA) return;
   const map={exec:renderExec,timeline:renderTimeline,budget:renderBudget,mines:()=>syncMinesSettings()};
+  if(map[page]){ map[page](); return; }
+  // Pages not yet built in this stage — show a clear "coming soon" state
+  // rather than a silently blank page.
+  const pg=document.getElementById('pg-'+page);
+  if(pg && !pg.dataset.placeholderShown){
+    pg.dataset.placeholderShown='1';
+    const isAr=LANG==='ar';
+    pg.innerHTML = `<div class="no-data-box">
+      <div class="no-data-icon">🚧</div>
+      <div class="no-data-badge">${isAr?'قيد الإنشاء':'Under Construction'}</div>
+      <div class="no-data-title">${PAGE_META[page]?.[0]||page}</div>
+      <div class="no-data-msg">${isAr?'هذه الصفحة جاري بناؤها في المرحلة القادمة.':'This page is being built in the next stage.'}</div>
+    </div>`;
+  }
   if(map[page]) map[page]();
 }
 
@@ -867,30 +893,79 @@ function renderExec(){
     <td><a href="#" style="color:var(--accent);font-size:10.5px;font-weight:600;text-decoration:none">${ACTIONS[a.severity]||'Review'}</a></td>
   </tr>`).join('');
 
-  // Project overall status circle
-  const ps=d.project_status||{};
-  const riskHigh = Object.values(ps).includes('At Risk') || Object.values(ps).includes('High');
+  // Project overall status circle — backend no longer fabricates this;
+  // derive a real, honest signal from budget utilization + alert severity instead.
+  const ps=d.project_status;
   const circleEl=document.getElementById('overallStatusCircle');
-  const txtEl=document.getElementById('overallStatusTxt');
   const descEl=document.getElementById('overallStatusDesc');
-  if(riskHigh){
-    circleEl.className='status-circle'; circleEl.style.background='var(--orangebg)';
-    circleEl.innerHTML='<div style="font-size:30px">⚠️</div><div style="font-size:13px;font-weight:800;color:var(--orange)">At Risk</div>';
-    descEl.textContent='Some areas require attention to stay within acceptable parameters.';
+  const projStatusEl=document.getElementById('projStatus');
+  if(ps && Object.keys(ps).length){
+    const riskHigh = Object.values(ps).includes('At Risk') || Object.values(ps).includes('High');
+    if(riskHigh){
+      circleEl.className='status-circle'; circleEl.style.background='var(--orangebg)';
+      circleEl.innerHTML='<div style="font-size:30px">⚠️</div><div style="font-size:13px;font-weight:800;color:var(--orange)">At Risk</div>';
+      descEl.textContent='Some areas require attention to stay within acceptable parameters.';
+    } else {
+      circleEl.className='status-circle good';
+      circleEl.innerHTML='<div style="font-size:30px">✅</div><div style="font-size:13px;font-weight:800;color:var(--green)">On Track</div>';
+      descEl.textContent='The project is performing within acceptable parameters.';
+    }
+    const badgeCl=v=>v==='On Track'||v==='Good'?'green':(v==='At Risk'||v==='High')?'orange':'blue';
+    projStatusEl.innerHTML=Object.entries(ps).map(([k,v])=>`<div class="status-row"><span style="color:var(--txt2);font-size:11px">${k.charAt(0).toUpperCase()+k.slice(1)}</span><span class="badge ${badgeCl(v)}">${v}</span></div>`).join('');
   } else {
-    circleEl.className='status-circle good';
-    circleEl.innerHTML='<div style="font-size:30px">✅</div><div style="font-size:13px;font-weight:800;color:var(--green)">On Track</div>';
-    descEl.textContent='The project is performing within acceptable parameters.';
+    // Real-data-only backend: compute an honest status from budget utilization + critical alerts
+    const utilKpi=(d.kpis||[]).find(k=>k.key==='util_pct');
+    const utilVal=utilKpi?utilKpi.value:0;
+    const criticalCount=(d.alerts||[]).filter(a=>a.severity==='Critical').length;
+    const isAtRisk = criticalCount>0 || utilVal>100;
+    if(isAtRisk){
+      circleEl.className='status-circle'; circleEl.style.background='var(--orangebg)';
+      circleEl.innerHTML='<div style="font-size:30px">⚠️</div><div style="font-size:13px;font-weight:800;color:var(--orange)">At Risk</div>';
+      descEl.textContent=criticalCount+' critical budget alert(s) require attention.';
+    } else {
+      circleEl.className='status-circle good';
+      circleEl.innerHTML='<div style="font-size:30px">✅</div><div style="font-size:13px;font-weight:800;color:var(--green)">On Track</div>';
+      descEl.textContent='Budget utilization is within acceptable range with no critical alerts.';
+    }
+    projStatusEl.innerHTML=`<div class="status-row"><span style="color:var(--txt2);font-size:11px">Budget Utilization</span><span class="badge ${utilVal>100?'red':utilVal>90?'orange':'green'}">${utilVal}%</span></div>
+      <div class="status-row"><span style="color:var(--txt2);font-size:11px">Critical Alerts</span><span class="badge ${criticalCount>0?'red':'green'}">${criticalCount}</span></div>
+      <div style="font-size:9.5px;color:var(--txt3);margin-top:8px;text-align:center">${LANG==='ar'?'محسوبة من بيانات الميزانية الفعلية':'Computed from real budget data'}</div>`;
   }
-  const badgeCl=v=>v==='On Track'||v==='Good'?'green':(v==='At Risk'||v==='High')?'orange':'blue';
-  document.getElementById('projStatus').innerHTML=Object.entries(ps).map(([k,v])=>`<div class="status-row"><span style="color:var(--txt2);font-size:11px">${k.charAt(0).toUpperCase()+k.slice(1)}</span><span class="badge ${badgeCl(v)}">${v}</span></div>`).join('');
 }
 
 // ════════════════════════════════════════════════════════════
 // PAGE 2: PROJECT TIMELINE / GANTT
 // ════════════════════════════════════════════════════════════
+// ============================================================
+// NO-DATA-SOURCE PLACEHOLDER (generic, works for any page)
+// ============================================================
+function renderNoDataState(pageId, kpisContainerId, message){
+  const isAr = LANG==='ar';
+  document.getElementById(kpisContainerId).innerHTML='';
+  const pg=document.getElementById(pageId);
+  let ph=document.getElementById(pageId+'-no-data-ph');
+  if(!ph){ ph=document.createElement('div'); ph.id=pageId+'-no-data-ph'; pg.appendChild(ph); }
+  const title = isAr ? 'محتاج مصدر بيانات' : 'Data Source Needed';
+  const badge = isAr ? 'لا توجد بيانات حقيقية بعد' : 'No Real Data Yet';
+  ph.innerHTML = `<div class="no-data-box">
+    <div class="no-data-icon">📋</div>
+    <div class="no-data-badge">⚠ ${badge}</div>
+    <div class="no-data-title">${title}</div>
+    <div class="no-data-msg">${message}</div>
+  </div>`;
+  Array.from(pg.children).forEach(child=>{ if(child.id!==kpisContainerId && child.id!==ph.id) child.style.display='none'; });
+}
+function clearNoDataState(pageId){
+  const pg=document.getElementById(pageId); if(!pg) return;
+  Array.from(pg.children).forEach(child=>{ child.style.display=''; });
+  const ph=document.getElementById(pageId+'-no-data-ph'); if(ph) ph.innerHTML='';
+}
+
 function renderTimeline(){
   const d=API_DATA.timeline; if(!d) return;
+  if(d.no_data){ renderNoDataState('pg-timeline','tlKpis', d.message||'No task/Gantt source sheet found yet.'); return; }
+  clearNoDataState('pg-timeline');
+
   renderKpis('tlKpis',d.kpis||[],'k7');
   const c=gc();
 
