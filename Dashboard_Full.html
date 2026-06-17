@@ -484,8 +484,9 @@ tbody tr:hover td{background:var(--bg)}
           <div class="card-h">
             <h3>Sample Log (XRF Analysis)</h3>
           </div>
+          <div id="qualMatchNote" style="padding:0 16px 10px;font-size:10.5px;color:var(--orange)"></div>
           <div class="tbl-wrap" style="max-height:420px;overflow-y:auto"><table><thead><tr>
-            <th>Date</th><th>Mine</th><th>Zone</th><th>Batch</th>
+            <th>Date</th><th>Mine</th><th>Material</th><th>Zone</th><th>Batch</th>
             <th class="td-r">Fe%</th><th class="td-r">Al2O3%</th><th class="td-r">Ca%</th>
             <th class="td-r">Mn%</th><th class="td-r">Cu%</th><th class="td-r">LOI%</th>
           </tr></thead><tbody id="qualSamplesTbl"></tbody></table></div>
@@ -556,8 +557,8 @@ const PAGE_FILTERS = {
   vendors:     [],
   approvals:   [],
   performance: [],
-  production:  ['mine','date_from','date_to'],
-  quality:     ['mine','date_from','date_to'],
+  production:  ['mine','material','date_from','date_to'],
+  quality:     ['mine','material','date_from','date_to'],
   mines:       [],
 };
 
@@ -566,7 +567,7 @@ const SEV_COLORS = { Critical:'#dc2626', High:'#ea580c', Medium:'#2563eb', Low:'
 const STATUS_COLORS = { 'On Track':'#16a34a','At Risk':'#ea580c','Off Track':'#dc2626','Completed':'#16a34a','In Progress':'#2563eb','Planned':'#9aa1b1','Delayed':'#dc2626' };
 
 let API_DATA=null, USER=null, LANG='en', THEME='light', SB_OPEN=true, CHARTS={}, CURRENT_PAGE='exec';
-let FILTERS={project:'all',category:'all',month:'all',owner:'all',status_filter:'all',phase:'all',method:'all',vendor:'all',scenario:'Base Case',severity:'all',type:'all',mine:'all',
+let FILTERS={project:'all',category:'all',month:'all',owner:'all',status_filter:'all',phase:'all',method:'all',vendor:'all',scenario:'Base Case',severity:'all',type:'all',mine:'all',material:'all',
   cost_center:'all',payee:'all',source:'all',priority:'all',period:'all',budget_type:'all',approval_status:'all',owner2:'all',
   proc_type:'all',contract_status:'all',funding_source:'all',payment_type:'all',cash_status:'all',
   project2:'all',requester:'all',approver:'all',month2:'all',manager:'all',owner3:'all',
@@ -650,6 +651,7 @@ async function loadData(forceRefresh=false){
     API_DATA=data;
     document.getElementById('lastUpdate').textContent=data.lastUpdated||new Date().toLocaleString();
     populateProjectSelect();
+    renderFilterBar(CURRENT_PAGE);
     renderPage(CURRENT_PAGE);
     document.getElementById('ld').classList.add('done');
   }catch(e){
@@ -698,6 +700,7 @@ function renderFilterBar(page){
   opts.phase         = [...new Set((API_DATA.timeline?.tasks||[]).map(r=>r.phase))].filter(Boolean);
   opts.vendor        = [...new Set((API_DATA.cost?.details||[]).map(r=>r.vendor))].filter(Boolean).slice(0,15);
   opts.mine          = [...new Set([...(API_DATA.lots||[]).map(r=>r.mine), ...(API_DATA.quality?.samples||[]).map(r=>r.mine)])].filter(Boolean);
+  opts.material      = [...new Set([...(API_DATA.production?.material_types||[]), ...(API_DATA.quality?.material_types||[])])].filter(Boolean);
   opts.type          = [...new Set((API_DATA.approvals?.by_type||[]).map(r=>r.type))];
   opts.proc_type     = ['Materials','Equipment','Services','Consulting','Others'];
   opts.funding_source= ['Progress Billings','Owner Funding','Loan Drawdowns','Retention Releases','Other Income'];
@@ -714,7 +717,7 @@ function renderFilterBar(page){
     status_filter:'Status', payee:'Payee / Paid To', source:'Expense Source',
     owner:'Task Owner', phase:'Phase', priority:'Priority', period:'Time Period',
     budget_type:'Budget Type', approval_status:'Approval Status', owner2:'Project Owner',
-    vendor:'Vendor', mine:'Mine', type:'Approval Type', scenario:'Scenario',
+    vendor:'Vendor', mine:'Mine', material:'Material Type', type:'Approval Type', scenario:'Scenario',
     project2:'Project / Site', proc_type:'Procurement Type', contract_status:'Contract Status',
     funding_source:'Funding Source', payment_type:'Payment Type', cash_status:'Cash Status',
     requester:'Requester', approver:'Approver', month2:'Month', manager:'Project Manager', owner3:'Risk Owner',
@@ -1161,18 +1164,22 @@ function renderQuality(){
   if (FILTERS.mine !== 'all') {
     samples = samples.filter(r => r.mine === FILTERS.mine);
   }
+  // Apply Material Type filter (real, from Mines sheet — linked via mine name)
+  if (FILTERS.material !== 'all') {
+    samples = samples.filter(r => r.material === FILTERS.material);
+  }
   // Apply Date Range filter on sample date (YYYY-MM-DD comparison)
   if (FILTERS.date_from) samples = samples.filter(r => (r.date||'').substring(0,10) >= FILTERS.date_from);
   if (FILTERS.date_to)   samples = samples.filter(r => (r.date||'').substring(0,10) <= FILTERS.date_to);
 
-  const filterActive = FILTERS.mine !== 'all' || FILTERS.date_from || FILTERS.date_to;
+  const filterActive = FILTERS.mine !== 'all' || FILTERS.material !== 'all' || FILTERS.date_from || FILTERS.date_to;
 
   // Recompute by_mine locally from the filtered sample set so charts/KPIs
   // stay 100% consistent with whatever the table below is showing.
   if (filterActive) {
     const m = {};
     samples.forEach(r => {
-      if (!m[r.mine]) m[r.mine] = { mine:r.mine, avg_fe:0, avg_al2o3:0, count:0 };
+      if (!m[r.mine]) m[r.mine] = { mine:r.mine, material:r.material, avg_fe:0, avg_al2o3:0, count:0 };
       m[r.mine].avg_fe += r.Fe||0; m[r.mine].avg_al2o3 += r.Al2O3||0; m[r.mine].count++;
     });
     byMine = Object.values(m).map(r => ({ ...r, avg_fe: r.count>0?parseFloat((r.avg_fe/r.count).toFixed(2)):0, avg_al2o3: r.count>0?parseFloat((r.avg_al2o3/r.count).toFixed(2)):0 }));
@@ -1235,10 +1242,15 @@ function renderQuality(){
 
   // Sample log table (real, sorted most-recent first)
   const sortedSamples = [...samples].sort((a,b) => (a.date < b.date ? 1 : -1)).slice(0, 200);
+  const MATERIAL_COLORS={Hematite:'red',Limonite:'orange',Magnetite:'blue',hematite:'red',limonite:'orange',magnetite:'blue'};
   document.getElementById('qualSamplesTbl').innerHTML = sortedSamples.length
-    ? sortedSamples.map(r => `<tr>
+    ? sortedSamples.map(r => {
+        const isNoMatch = r.material_match==='no-match';
+        const tooltip = isNoMatch ? 'No matching mine found in the Map registry — material unknown' : 'Matched to registered mine in Map sheet';
+        return `<tr>
         <td class="td-s">${r.date||'—'}</td>
         <td><strong>${r.mine||'—'}</strong></td>
+        <td><span class="badge ${isNoMatch?'gray':(MATERIAL_COLORS[r.material]||'gray')}" title="${tooltip}">${r.material||'Unknown'}</span></td>
         <td class="td-s">${r.zone||'—'}</td>
         <td class="td-s">${r.batch||'—'}</td>
         <td class="td-r td-m" style="color:var(--accent)">${(r.Fe||0).toFixed(2)}</td>
@@ -1247,8 +1259,18 @@ function renderQuality(){
         <td class="td-r">${(r.Mn||0).toFixed(2)}</td>
         <td class="td-r">${(r.Cu||0).toFixed(2)}</td>
         <td class="td-r">${(r.LOI||0).toFixed(2)}</td>
-      </tr>`).join('')
-    : `<tr><td colspan="10" style="text-align:center;color:var(--txt2);padding:20px;font-size:11px">No samples found${FILTERS.mine!=='all'?' for '+FILTERS.mine:''}.</td></tr>`;
+      </tr>`;
+      }).join('')
+    : `<tr><td colspan="11" style="text-align:center;color:var(--txt2);padding:20px;font-size:11px">No samples found${FILTERS.mine!=='all'?' for '+FILTERS.mine:''}${FILTERS.material!=='all'?' ('+FILTERS.material+')':''}.</td></tr>`;
+
+  // Honest note about unmatched mine names, shown only when relevant
+  const noMatchCount = samples.filter(r=>r.material_match==='no-match').length;
+  const noteEl = document.getElementById('qualMatchNote');
+  if (noteEl) {
+    noteEl.innerHTML = noMatchCount>0
+      ? `ℹ️ ${noMatchCount} sample(s) show "Unknown" material — these mine names ("Al Kharga 1", "Balat 1", etc.) are not yet registered in the Map sheet.`
+      : '';
+  }
 }
 
 // ============================================================
