@@ -121,10 +121,12 @@ button,select,input{font-family:inherit;font-size:inherit}
 .fb-clr{display:flex;align-items:center;gap:5px;background:none;border:1.5px solid var(--border);border-radius:8px;padding:7px 13px;font-size:11.5px;color:var(--accent);cursor:pointer;align-self:flex-end;font-weight:600;transition:all var(--tr)}
 .fb-clr:hover{background:var(--accentbg);border-color:var(--accent)}
 .fb-active-count{display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;background:var(--accent);color:#fff;border-radius:8px;font-size:9px;font-weight:700;padding:0 4px}
-#qualElementSelect option{padding:4px 6px}
-.elem-chip{display:inline-flex;align-items:center;gap:5px;background:var(--accentbg);color:var(--accent);border:1px solid var(--accent);border-radius:14px;padding:3px 10px;font-size:10.5px;font-weight:600}
-.elem-chip .x{cursor:pointer;font-weight:800;opacity:.7}
-.elem-chip .x:hover{opacity:1}
+.elem-pill{display:inline-flex;align-items:center;gap:6px;background:var(--bg);color:var(--txt2);border:1.5px solid var(--border);border-radius:16px;padding:5px 12px 5px 9px;font-size:11px;font-weight:600;cursor:pointer;transition:all var(--tr);user-select:none}
+.elem-pill:hover{border-color:var(--accent);color:var(--txt)}
+.elem-pill.active{background:var(--accentbg);color:var(--accent);border-color:var(--accent)}
+.elem-pill input{display:none}
+.elem-pill .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center}
+.elem-pill.active .dot{background:currentColor}
 
 .content{flex:1;overflow-y:auto;padding:0 26px 28px}
 .pg{display:none}
@@ -472,7 +474,7 @@ tbody tr:hover td{background:var(--bg)}
         <div class="kpi-row k8" id="qualKpis"></div>
         <div class="g2">
           <div class="card">
-            <div class="card-h"><div><h3>Avg Fe% by Mine</h3><p style="font-size:10.5px;color:var(--txt2);margin-top:2px">Higher bars = richer ore. Click a bar to filter the whole page by that mine.</p></div></div>
+            <div class="card-h"><div><h3>Avg Fe% by Mine</h3><p style="font-size:10.5px;color:var(--txt2);margin-top:2px">Green = Pass, Red = Reject (threshold depends on each mine's material). Click a bar to filter.</p></div></div>
             <div class="card-b"><div class="cw" style="height:220px"><canvas id="c_qualFeByMine"></canvas></div></div>
           </div>
           <div class="card">
@@ -482,7 +484,7 @@ tbody tr:hover td{background:var(--bg)}
         </div>
         <div class="g2">
           <div class="card">
-            <div class="card-h"><div><h3>Ore Grade Distribution</h3><p style="font-size:10.5px;color:var(--txt2);margin-top:2px">Share of samples by quality band — High-grade (≥60% Fe) is the most valuable.</p></div></div>
+            <div class="card-h"><div><h3>Pass / Reject Distribution</h3><p style="font-size:10.5px;color:var(--txt2);margin-top:2px">Hematite/Limonite need ≥55% Fe to pass; Magnetite needs ≥37% Fe.</p></div></div>
             <div class="card-b" style="text-align:center">
               <div style="position:relative;width:140px;height:140px;margin:0 auto"><canvas id="c_qualGradeDonut"></canvas>
                 <div id="qualGradeCenter" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center"></div>
@@ -491,22 +493,21 @@ tbody tr:hover td{background:var(--bg)}
             </div>
           </div>
           <div class="card">
-            <div class="card-h"><div><h3>Fe% Distribution Across Samples</h3><p style="font-size:10.5px;color:var(--txt2);margin-top:2px">Full spread of individual readings — shows consistency vs. variability.</p></div></div>
+            <div class="card-h"><div><h3>Fe% Distribution Across Samples</h3><p style="font-size:10.5px;color:var(--txt2);margin-top:2px">Each bar split by Pass/Reject outcome — shows where most failures occur.</p></div></div>
             <div class="card-b"><div class="cw" style="height:200px"><canvas id="c_qualFeDist"></canvas></div></div>
           </div>
         </div>
         <div class="card">
-          <div class="card-h" style="flex-wrap:wrap;gap:10px">
-            <div><h3>Element Trend Over Time</h3><p style="font-size:10.5px;color:var(--txt2);margin-top:2px">Daily average — pick one or more elements to compare day by day</p></div>
-            <div style="display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap">
-              <div class="fb-item">
-                <label>Elements</label>
-                <select id="qualElementSelect" multiple size="1" style="background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;font-size:11.5px;color:var(--txt);min-width:160px;height:32px" onchange="onElementSelectChange()"></select>
-              </div>
-              <button class="fb-clr" style="padding:6px 12px" onclick="resetElementSelection()">↺ Reset</button>
+          <div class="card-h">
+            <div><h3>Element Trend Over Time</h3><p style="font-size:10.5px;color:var(--txt2);margin-top:2px">Daily average — tick one or more elements below to compare them day by day</p></div>
+          </div>
+          <div style="padding:0 16px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+            <div id="qualElementCheckboxes" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+            <div style="display:flex;gap:6px;flex-shrink:0">
+              <button class="fb-clr" style="padding:6px 12px" onclick="selectAllElements()">☑ All</button>
+              <button class="fb-clr" style="padding:6px 12px" onclick="resetElementSelection()">✕ Clear</button>
             </div>
           </div>
-          <div id="qualElementChips" style="padding:0 16px 8px;display:flex;gap:6px;flex-wrap:wrap"></div>
           <div class="card-b"><div class="cw" style="height:240px"><canvas id="c_qualElementTrend"></canvas></div></div>
         </div>
         <div class="card">
@@ -515,7 +516,7 @@ tbody tr:hover td{background:var(--bg)}
           </div>
           <div id="qualMatchNote" style="padding:0 16px 10px;font-size:10.5px;color:var(--orange)"></div>
           <div class="tbl-wrap" style="max-height:420px;overflow-y:auto"><table><thead><tr>
-            <th>Date</th><th>Mine</th><th>Material</th><th>Zone</th><th>Batch</th>
+            <th>Date</th><th>Mine</th><th>Material</th><th>Result</th><th>Zone</th><th>Batch</th>
             <th class="td-r">Fe%</th><th class="td-r">Al2O3%</th><th class="td-r">Ca%</th>
             <th class="td-r">Mn%</th><th class="td-r">Cu%</th><th class="td-r">LOI%</th>
           </tr></thead><tbody id="qualSamplesTbl"></tbody></table></div>
@@ -729,8 +730,20 @@ function renderFilterBar(page){
   opts.owner         = [...new Set((API_DATA.timeline?.tasks||[]).map(r=>r.owner))].filter(Boolean);
   opts.phase         = [...new Set((API_DATA.timeline?.tasks||[]).map(r=>r.phase))].filter(Boolean);
   opts.vendor        = [...new Set((API_DATA.cost?.details||[]).map(r=>r.vendor))].filter(Boolean).slice(0,15);
-  opts.mine          = [...new Set([...(API_DATA.lots||[]).map(r=>r.mine), ...(API_DATA.quality?.samples||[]).map(r=>r.mine)])].filter(Boolean);
-  opts.material      = [...new Set([...(API_DATA.production?.material_types||[]), ...(API_DATA.quality?.material_types||[])])].filter(Boolean);
+  opts.mine          = [...new Set([
+    ...(API_DATA.lots||[]).map(r=>r.mine),
+    ...(API_DATA.production?.lots||[]).map(r=>r.mine),
+    ...(API_DATA.quality?.samples||[]).map(r=>r.mine),
+  ])].filter(Boolean);
+  opts.material      = [...new Set([
+    ...(API_DATA.production?.material_types||[]),
+    ...(API_DATA.quality?.material_types||[]),
+    // Fallback: derive material list directly from sample/lot records
+    // in case material_types wasn't populated for any reason — this
+    // guarantees the dropdown is never empty if material data exists anywhere.
+    ...(API_DATA.quality?.samples||[]).map(r=>r.material),
+    ...(API_DATA.production?.lots||[]).map(r=>r.material),
+  ])].filter(v=>v && v!=='Unknown');
   opts.type          = [...new Set((API_DATA.approvals?.by_type||[]).map(r=>r.type))];
   opts.proc_type     = ['Materials','Equipment','Services','Consulting','Others'];
   opts.funding_source= ['Progress Billings','Owner Funding','Loan Drawdowns','Retention Releases','Other Income'];
@@ -1195,61 +1208,56 @@ function renderBudget(){
 // MULTI-ELEMENT TREND CHART HELPERS (Quality page)
 // ════════════════════════════════════════════════════════════
 const ELEMENT_CHART_COLORS=['#fd480e','#2563eb','#16a34a','#7c3aed','#ea580c','#0891b2','#dc2626','#65a30d','#0d9488','#9333ea','#d97706','#475569'];
+// Per-material Fe% Pass/Reject thresholds — must mirror the backend exactly.
+// hematite/limonite pass at >=55% Fe; magnetite passes at >=37% Fe.
+const FE_THRESHOLDS={hematite:55, limonite:55, magnetite:37};
+function gradeOfSample(materialRaw, fe){
+  const key=String(materialRaw||'').toLowerCase();
+  const threshold=FE_THRESHOLDS[key];
+  if(threshold===undefined) return 'ungraded';
+  return fe>=threshold?'pass':'reject';
+}
 
 function populateElementSelect(availableElements){
-  const sel=document.getElementById('qualElementSelect');
-  if(!sel) return;
-  // Only rebuild options if the list actually changed (avoids losing the
-  // user's open dropdown state on every re-render)
-  const currentOptions=Array.from(sel.options).map(o=>o.value).join(',');
-  if(currentOptions===availableElements.join(',')) {
-    // options unchanged — just sync selected state
-    Array.from(sel.options).forEach(o=>{ o.selected = SELECTED_ELEMENTS.includes(o.value); });
-    return;
-  }
-  sel.innerHTML = availableElements.map(el=>`<option value="${el}"${SELECTED_ELEMENTS.includes(el)?' selected':''}>${el}</option>`).join('');
-  sel.size = Math.min(Math.max(availableElements.length,1),6);
+  const wrap=document.getElementById('qualElementCheckboxes');
+  if(!wrap) return;
   // Default to Fe selected on first load if nothing chosen yet
   if(!SELECTED_ELEMENTS.length && availableElements.includes('Fe')){
     SELECTED_ELEMENTS=['Fe'];
-    Array.from(sel.options).forEach(o=>{ if(o.value==='Fe') o.selected=true; });
   }
+  wrap.innerHTML = availableElements.map((el,i)=>{
+    const active=SELECTED_ELEMENTS.includes(el);
+    const color=ELEMENT_CHART_COLORS[i%ELEMENT_CHART_COLORS.length];
+    return `<label class="elem-pill${active?' active':''}" style="${active?`border-color:${color};color:${color};background:${color}18`:''}" onclick="toggleElement('${el}');return false;">
+      <span class="dot" style="${active?`background:${color};border-color:${color}`:''}"></span>${el}
+    </label>`;
+  }).join('');
 }
 
-function onElementSelectChange(){
-  const sel=document.getElementById('qualElementSelect');
-  SELECTED_ELEMENTS=Array.from(sel.selectedOptions).map(o=>o.value);
-  renderPage(CURRENT_PAGE);
-}
+function onElementSelectChange(){ /* no longer used — kept as no-op for safety */ }
 
 function resetElementSelection(){
   SELECTED_ELEMENTS=[];
-  const sel=document.getElementById('qualElementSelect');
-  if(sel) Array.from(sel.options).forEach(o=>o.selected=false);
+  renderPage(CURRENT_PAGE);
+}
+
+function selectAllElements(){
+  const d=API_DATA.quality;
+  SELECTED_ELEMENTS=[...(d?.available_elements||[])];
   renderPage(CURRENT_PAGE);
 }
 
 function toggleElement(el){
   const idx=SELECTED_ELEMENTS.indexOf(el);
   if(idx===-1) SELECTED_ELEMENTS.push(el); else SELECTED_ELEMENTS.splice(idx,1);
-  const sel=document.getElementById('qualElementSelect');
-  if(sel) Array.from(sel.options).forEach(o=>{ o.selected = SELECTED_ELEMENTS.includes(o.value); });
   renderPage(CURRENT_PAGE);
 }
 
 function renderElementTrendChart(filteredSamples, availableElements, c){
-  // Chips showing current selection with quick-remove
-  const chipsEl=document.getElementById('qualElementChips');
-  if(chipsEl){
-    chipsEl.innerHTML = SELECTED_ELEMENTS.length
-      ? SELECTED_ELEMENTS.map(el=>`<span class="elem-chip">${el}<span class="x" onclick="toggleElement('${el}')">✕</span></span>`).join('')
-      : `<span style="font-size:10.5px;color:var(--txt2)">No elements selected — pick from the dropdown above</span>`;
-  }
-
   if(!SELECTED_ELEMENTS.length){
     const el=document.getElementById('c_qualElementTrend');
     if(el && CHARTS['c_qualElementTrend']){ CHARTS['c_qualElementTrend'].destroy(); delete CHARTS['c_qualElementTrend']; }
-    if(el && el.parentElement) el.parentElement.innerHTML='<div style="text-align:center;color:var(--txt2);font-size:11px;padding:40px 0">Select one or more elements above to see their daily trend</div>';
+    if(el && el.parentElement) el.parentElement.innerHTML='<div style="text-align:center;color:var(--txt2);font-size:11px;padding:40px 0">Tick one or more elements above to see their daily trend</div>';
     return;
   }
 
@@ -1336,10 +1344,13 @@ function renderQuality(){
     const feMin = feValues.length?Math.min(...feValues):0;
     const feMax = feValues.length?Math.max(...feValues):0;
     const feAvg = feValues.length?feValues.reduce((a,v)=>a+v,0)/feValues.length:0;
-    const highGrade = feValues.filter(v=>v>=60).length;
-    const midGrade = feValues.filter(v=>v>=50&&v<60).length;
-    const lowGrade = feValues.filter(v=>v<50).length;
-    const highGradePct = feValues.length?(highGrade/feValues.length*100):0;
+
+    const graded = samples.filter(r=>r.Fe>0).map(r=>({...r, grade: gradeOfSample(r.material, r.Fe)}));
+    const passCount = graded.filter(r=>r.grade==='pass').length;
+    const rejectCount = graded.filter(r=>r.grade==='reject').length;
+    const gradedTotal = passCount + rejectCount;
+    const passRatePct = gradedTotal?(passCount/gradedTotal*100):0;
+
     const sortedByDate=[...samples].filter(r=>r.date).sort((a,b)=>a.date.localeCompare(b.date));
     let feTrendNote='';
     if(sortedByDate.length>=4){
@@ -1362,9 +1373,9 @@ function renderQuality(){
       { label:'TOTAL SAMPLES', value:samples.length, fmt:'number', color:'blue', note:uniqueBatches+' batches' },
       { label:'AVG Fe%', value:parseFloat(feAvg.toFixed(2)), fmt:'number', color:'orange', note:feTrendNote },
       { label:'Fe% RANGE', value:feMin.toFixed(1)+' – '+feMax.toFixed(1), fmt:'text', color:'purple', note:'Min – Max recorded' },
-      { label:'HIGH-GRADE %', value:parseFloat(highGradePct.toFixed(1)), fmt:'percent', color: highGradePct>=30?'green':highGradePct>=15?'orange':'red', note:highGrade+' samples ≥60% Fe' },
-      { label:'MID-GRADE', value:midGrade, fmt:'number', color:'blue', note: feValues.length?(midGrade/feValues.length*100).toFixed(1)+'% of total':'' },
-      { label:'LOW-GRADE', value:lowGrade, fmt:'number', color: lowGrade>highGrade?'red':'orange', note: feValues.length?(lowGrade/feValues.length*100).toFixed(1)+'% of total':'' },
+      { label:'PASS RATE', value:parseFloat(passRatePct.toFixed(1)), fmt:'percent', color: passRatePct>=60?'green':passRatePct>=40?'orange':'red', note:passCount+' of '+gradedTotal+' graded samples' },
+      { label:'PASSED', value:passCount, fmt:'number', color:'green', note: gradedTotal?(passCount/gradedTotal*100).toFixed(1)+'% of graded':'' },
+      { label:'REJECTED', value:rejectCount, fmt:'number', color:'red', note: gradedTotal?(rejectCount/gradedTotal*100).toFixed(1)+'% of graded':'' },
       { label:'MINES SAMPLED', value:uniqueMines, fmt:'number', color:'blue', note:'' },
       { label:'LATEST SAMPLE', value:latestDate, fmt:'text', color: daysSinceLatest!==null&&daysSinceLatest>14?'red':'green', note: daysSinceLatest!==null?daysSinceLatest+' days ago':'' },
     ];
@@ -1394,17 +1405,27 @@ function renderQuality(){
   populateElementSelect(availableElements);
   renderElementTrendChart(samples, availableElements, c);
 
-  // Avg Fe% by mine — bar chart, colored by grade band, click bar to filter
+  // Avg Fe% by mine — bar chart, colored Pass/Reject by EACH mine's own
+  // material threshold (Hematite/Limonite ≥55%, Magnetite ≥37%), click to filter
   if (byMine.length) {
     const sorted = [...byMine].sort((a,b) => b.avg_fe - a.avg_fe);
-    const barColors = sorted.map(r => r.avg_fe>=60?'rgba(22,163,74,.85)':r.avg_fe>=50?'rgba(234,88,12,.85)':'rgba(220,38,38,.8)');
+    const barColors = sorted.map(r => {
+      const g = gradeOfSample(r.material, r.avg_fe);
+      return g==='pass' ? 'rgba(22,163,74,.85)' : g==='reject' ? 'rgba(220,38,38,.8)' : 'rgba(154,161,177,.7)';
+    });
     mkChart('c_qualFeByMine','bar',{
       labels: sorted.map(r => r.mine),
       datasets: [{ label:'Avg Fe%', data: sorted.map(r => r.avg_fe), backgroundColor:barColors, borderRadius:5 }]
     }, {
       plugins:{ legend:{display:false}, tooltip:{ callbacks:{
         label: ctx => ctx.raw + '% Fe  (' + (byMine.find(m=>m.mine===ctx.label)?.count||0) + ' samples)',
-        afterLabel: ctx => ctx.raw>=60?'✓ High grade':ctx.raw>=50?'~ Mid grade':'⚠ Low grade',
+        afterLabel: ctx => {
+          const mineRow = byMine.find(m=>m.mine===ctx.label);
+          const g = mineRow ? gradeOfSample(mineRow.material, ctx.raw) : 'ungraded';
+          const thresh = FE_THRESHOLDS[String(mineRow?.material||'').toLowerCase()];
+          if (g==='ungraded') return '? Material unknown — cannot grade';
+          return (g==='pass'?'✓ Pass':'✗ Reject')+' (threshold: '+thresh+'% for '+mineRow.material+')';
+        },
       } } },
       scales:{ x:{grid:{display:false},ticks:{color:c.txt,font:{size:9.5}}}, y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>v+'%'}} }
     }, {key:'mine'});
@@ -1412,81 +1433,131 @@ function renderQuality(){
     document.getElementById('c_qualFeByMine').parentElement.innerHTML = '<div style="text-align:center;color:var(--txt2);font-size:11px;padding:40px 0">No samples for this filter</div>';
   }
 
-  // Avg Al2O3% by mine — only show if real measurements exist (column may be unrecorded)
-  const hasAl2O3Data = byMine.some(r => r.avg_al2o3 > 0);
-  if (byMine.length && hasAl2O3Data) {
-    const sorted = [...byMine].sort((a,b) => b.avg_al2o3 - a.avg_al2o3);
-    mkChart('c_qualAlByMine','bar',{
-      labels: sorted.map(r => r.mine),
-      datasets: [{ label:'Avg Al2O3%', data: sorted.map(r => r.avg_al2o3), backgroundColor:'rgba(124,58,237,.8)', borderRadius:5 }]
-    }, {
-      plugins:{ legend:{display:false} },
-      scales:{ x:{grid:{display:false},ticks:{color:c.txt,font:{size:9.5}}}, y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>v+'%'}} }
-    }, {key:'mine'});
-  } else {
-    const el = document.getElementById('c_qualAlByMine');
-    if (el && el.parentElement) el.parentElement.innerHTML = '<div style="text-align:center;color:var(--txt2);font-size:11px;padding:40px 10px">Al2O3% was not recorded in the source samples for this selection.</div>';
+  // ── Avg [Second Element] by Mine — DYNAMIC, not hardcoded to Al2O3.
+  // Al2O3 is frequently unrecorded in the lab data (0 readings across
+  // all samples for this operation), so instead of always showing an
+  // empty Al2O3 chart, this card automatically picks whichever element
+  // (besides Fe) has the best real data coverage in the current filtered
+  // sample set, and labels itself accordingly. If literally nothing else
+  // was measured, it falls back to an honest empty state. ──────────────
+  {
+    const candidateElements = (availableElements||[]).filter(el=>el!=='Fe');
+    let bestElement=null, bestCoverage=0;
+    candidateElements.forEach(el=>{
+      const coverage = samples.filter(r=>(r[el]||0)>0).length;
+      if(coverage>bestCoverage){ bestCoverage=coverage; bestElement=el; }
+    });
+
+    const titleEl=document.querySelector('#pg-quality .g2:nth-of-type(1) .card:nth-child(2) h3');
+    const subtitleEl=document.querySelector('#pg-quality .g2:nth-of-type(1) .card:nth-child(2) p');
+
+    if (bestElement && bestCoverage>0) {
+      if(titleEl) titleEl.textContent = `Avg ${bestElement}% by Mine`;
+      if(subtitleEl) subtitleEl.textContent = `Most-recorded secondary element (${bestCoverage} of ${samples.length} samples). Al2O3 had no readings.`;
+
+      const byMineSecond = {};
+      samples.forEach(r=>{
+        if(!(r[bestElement]>0)) return;
+        if(!byMineSecond[r.mine]) byMineSecond[r.mine]={mine:r.mine,sum:0,count:0};
+        byMineSecond[r.mine].sum+=r[bestElement]; byMineSecond[r.mine].count++;
+      });
+      const sorted=Object.values(byMineSecond).map(r=>({mine:r.mine,avg:parseFloat((r.sum/r.count).toFixed(2)),count:r.count})).sort((a,b)=>b.avg-a.avg);
+
+      mkChart('c_qualAlByMine','bar',{
+        labels: sorted.map(r=>r.mine),
+        datasets:[{ label:`Avg ${bestElement}%`, data: sorted.map(r=>r.avg), backgroundColor:'rgba(124,58,237,.8)', borderRadius:5 }]
+      },{
+        plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx=>ctx.raw+'% '+bestElement+'  ('+(sorted.find(m=>m.mine===ctx.label)?.count||0)+' samples)' } } },
+        scales:{ x:{grid:{display:false},ticks:{color:c.txt,font:{size:9.5}}}, y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>v+'%'}} }
+      },{key:'mine'});
+    } else {
+      if(titleEl) titleEl.textContent = 'Avg Al2O3% by Mine';
+      if(subtitleEl) subtitleEl.textContent = 'Lower is better — Al2O3 is an impurity that reduces ore value.';
+      const el = document.getElementById('c_qualAlByMine');
+      if (el && el.parentElement) el.parentElement.innerHTML = '<div style="text-align:center;color:var(--txt2);font-size:11px;padding:40px 10px">No secondary element data recorded for this selection.</div>';
+    }
   }
 
-  // ── Ore Grade Distribution donut — High/Mid/Low grade bands ────
-  // Industry-standard bands for iron ore: High-grade ≥60% Fe is most
-  // valuable, Mid-grade 50-60%, Low-grade <50% (lower commercial value).
+  // ── Pass / Reject Distribution donut — per-material Fe% thresholds ──
+  // Hematite & Limonite must reach ≥55% Fe to pass; Magnetite passes at
+  // ≥37% Fe (different ore types have different commercial cutoffs).
+  // Samples whose mine has no resolved material ("Unknown") cannot be
+  // graded and are shown separately rather than guessed.
   {
-    const feVals = samples.map(r=>r.Fe).filter(v=>v>0);
-    const high = feVals.filter(v=>v>=60).length;
-    const mid  = feVals.filter(v=>v>=50&&v<60).length;
-    const low  = feVals.filter(v=>v<50).length;
+    const feSamples = samples.filter(r=>r.Fe>0).map(r=>({...r, grade: gradeOfSample(r.material, r.Fe)}));
+    const pass = feSamples.filter(r=>r.grade==='pass').length;
+    const reject = feSamples.filter(r=>r.grade==='reject').length;
+    const ungraded = feSamples.filter(r=>r.grade==='ungraded').length;
     const gradeData = [
-      { label:'High Grade (≥60%)', value:high, color:'#16a34a' },
-      { label:'Mid Grade (50–60%)', value:mid,  color:'#ea580c' },
-      { label:'Low Grade (<50%)',  value:low,  color:'#dc2626' },
+      { label:'Pass', value:pass, color:'#16a34a' },
+      { label:'Reject', value:reject, color:'#dc2626' },
+      { label:'Ungraded (Unknown material)', value:ungraded, color:'#9aa1b1' },
     ].filter(g=>g.value>0);
     if (gradeData.length) {
       mkChart('c_qualGradeDonut','doughnut',{
         labels: gradeData.map(g=>g.label),
         datasets:[{ data: gradeData.map(g=>g.value), backgroundColor: gradeData.map(g=>g.color), borderWidth:2, borderColor:'var(--card)', hoverOffset:6 }]
-      },{ cutout:'68%', plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => ctx.label+': '+ctx.raw+' samples ('+(feVals.length?Math.round(ctx.raw/feVals.length*100):0)+'%)' } } } });
-      document.getElementById('qualGradeCenter').innerHTML = `<div style="font-size:16px;font-weight:800;color:var(--txt)">${feVals.length}</div><div style="font-size:8px;color:var(--txt2)">Samples</div>`;
-      document.getElementById('qualGradeLeg').innerHTML = gradeData.map(g=>`<li><span class="dot" style="background:${g.color}"></span>${g.label}<span class="lv">${g.value} <span class="lv2">(${feVals.length?Math.round(g.value/feVals.length*100):0}%)</span></span></li>`).join('');
+      },{ cutout:'68%', plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => ctx.label+': '+ctx.raw+' samples ('+(feSamples.length?Math.round(ctx.raw/feSamples.length*100):0)+'%)' } } } });
+      const gradedTotal = pass + reject;
+      const passRate = gradedTotal ? Math.round(pass/gradedTotal*100) : 0;
+      document.getElementById('qualGradeCenter').innerHTML = `<div style="font-size:16px;font-weight:800;color:${passRate>=60?'var(--green)':passRate>=40?'var(--orange)':'var(--red)'}">${passRate}%</div><div style="font-size:8px;color:var(--txt2)">Pass Rate</div>`;
+      document.getElementById('qualGradeLeg').innerHTML = gradeData.map(g=>`<li><span class="dot" style="background:${g.color}"></span>${g.label}<span class="lv">${g.value} <span class="lv2">(${feSamples.length?Math.round(g.value/feSamples.length*100):0}%)</span></span></li>`).join('')
+        + `<li style="margin-top:6px;font-size:9px;color:var(--txt3);list-style:none">Thresholds: Hematite/Limonite ≥55% Fe · Magnetite ≥37% Fe</li>`;
     } else {
       const el=document.getElementById('c_qualGradeDonut');
       if(el && el.parentElement) el.parentElement.parentElement.innerHTML='<div style="text-align:center;color:var(--txt2);font-size:11px;padding:30px 0">No Fe% readings for this filter</div>';
     }
   }
 
-  // Fe% distribution histogram across individual samples (real, not averaged)
-  // Bars are colored by the same grade bands as the donut above, so the
-  // two charts read together as one consistent story.
+  // Fe% distribution histogram across individual samples (real, not averaged).
+  // Stacked Pass/Reject per bin — since the pass/reject line itself depends
+  // on each sample's own material (Hematite/Limonite=55%, Magnetite=37%),
+  // a single color-per-bin would be misleading; instead each bin shows
+  // how many of its samples actually passed vs rejected.
   if (samples.length) {
     const bins = [0,10,20,30,40,50,60,70,80,90,100];
-    const counts = new Array(bins.length-1).fill(0);
+    const passCounts = new Array(bins.length-1).fill(0);
+    const rejectCounts = new Array(bins.length-1).fill(0);
+    const ungradedCounts = new Array(bins.length-1).fill(0);
     samples.forEach(s2 => {
-      for (let i=0;i<bins.length-1;i++){
-        if (s2.Fe >= bins[i] && s2.Fe < bins[i+1]) { counts[i]++; break; }
-        if (i === bins.length-2 && s2.Fe >= bins[i+1]) counts[i]++;
-      }
+      if (!(s2.Fe>0)) return;
+      let binIdx = bins.length-2;
+      for (let i=0;i<bins.length-1;i++){ if (s2.Fe >= bins[i] && s2.Fe < bins[i+1]) { binIdx=i; break; } }
+      const g = gradeOfSample(s2.material, s2.Fe);
+      if (g==='pass') passCounts[binIdx]++;
+      else if (g==='reject') rejectCounts[binIdx]++;
+      else ungradedCounts[binIdx]++;
     });
-    const barColors = bins.slice(0,-1).map(b => b>=60?'rgba(22,163,74,.85)':b>=50?'rgba(234,88,12,.85)':'rgba(220,38,38,.75)');
     mkChart('c_qualFeDist','bar',{
       labels: bins.slice(0,-1).map((b,i)=>b+'–'+bins[i+1]+'%'),
-      datasets:[{ label:'Samples', data: counts, backgroundColor:barColors, borderRadius:5 }]
+      datasets:[
+        { label:'Pass',     data: passCounts,     backgroundColor:'rgba(22,163,74,.85)', borderRadius:4 },
+        { label:'Reject',   data: rejectCounts,   backgroundColor:'rgba(220,38,38,.8)',  borderRadius:4 },
+        { label:'Ungraded', data: ungradedCounts, backgroundColor:'rgba(154,161,177,.6)',borderRadius:4 },
+      ]
     }, {
-      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => ctx.raw+' sample(s) in this Fe% range' } } },
-      scales:{ x:{grid:{display:false},ticks:{color:c.txt,font:{size:9.5}}}, y:{grid:{color:c.grid},ticks:{color:c.txt}} }
+      plugins:{ legend:{display:true, position:'top', labels:{color:c.txt, font:{size:10}, boxWidth:10}}, tooltip:{ callbacks:{ label: ctx => ctx.raw+' sample(s) — '+ctx.dataset.label } } },
+      scales:{ x:{stacked:true, grid:{display:false},ticks:{color:c.txt,font:{size:9.5}}}, y:{stacked:true, grid:{color:c.grid},ticks:{color:c.txt}} }
     });
   }
 
   // Sample log table (real, sorted most-recent first)
   const sortedSamples = [...samples].sort((a,b) => (a.date < b.date ? 1 : -1)).slice(0, 200);
   const MATERIAL_COLORS={Hematite:'red',Limonite:'orange',Magnetite:'blue',hematite:'red',limonite:'orange',magnetite:'blue'};
+  const RESULT_BADGE={pass:{cls:'green',txt:'✓ Pass'},reject:{cls:'red',txt:'✗ Reject'},ungraded:{cls:'gray',txt:'— Ungraded'}};
   document.getElementById('qualSamplesTbl').innerHTML = sortedSamples.length
     ? sortedSamples.map(r => {
         const isNoMatch = r.material_match==='no-match';
         const tooltip = isNoMatch ? 'No matching mine found in the Map registry — material unknown' : 'Matched to registered mine in Map sheet';
+        const grade = gradeOfSample(r.material, r.Fe);
+        const rb = RESULT_BADGE[grade];
+        const threshold = FE_THRESHOLDS[String(r.material||'').toLowerCase()];
+        const resultTitle = grade==='ungraded' ? 'Material unknown — no threshold to apply' : 'Threshold for '+r.material+': ≥'+threshold+'% Fe';
         return `<tr>
         <td class="td-s">${r.date||'—'}</td>
         <td><strong>${r.mine||'—'}</strong></td>
         <td><span class="badge ${isNoMatch?'gray':(MATERIAL_COLORS[r.material]||'gray')}" title="${tooltip}">${r.material||'Unknown'}</span></td>
+        <td><span class="badge ${rb.cls}" title="${resultTitle}">${rb.txt}</span></td>
         <td class="td-s">${r.zone||'—'}</td>
         <td class="td-s">${r.batch||'—'}</td>
         <td class="td-r td-m" style="color:var(--accent)">${(r.Fe||0).toFixed(2)}</td>
@@ -1497,7 +1568,7 @@ function renderQuality(){
         <td class="td-r">${(r.LOI||0).toFixed(2)}</td>
       </tr>`;
       }).join('')
-    : `<tr><td colspan="11" style="text-align:center;color:var(--txt2);padding:20px;font-size:11px">No samples found${FILTERS.mine!=='all'?' for '+FILTERS.mine:''}${FILTERS.material!=='all'?' ('+FILTERS.material+')':''}.</td></tr>`;
+    : `<tr><td colspan="12" style="text-align:center;color:var(--txt2);padding:20px;font-size:11px">No samples found${FILTERS.mine!=='all'?' for '+FILTERS.mine:''}${FILTERS.material!=='all'?' ('+FILTERS.material+')':''}.</td></tr>`;
 
   // Honest note about unmatched mine names, shown only when relevant
   const noMatchCount = samples.filter(r=>r.material_match==='no-match').length;
