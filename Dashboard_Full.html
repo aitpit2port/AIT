@@ -102,15 +102,25 @@ button,select,input{font-family:inherit;font-size:inherit}
 .tb-refresh.spinning .ri{animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* FILTER BAR */
-.fb{padding:0 26px 14px;display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;flex-shrink:0}
+/* FILTER BAR — wrapped in a clearly visible card so filters stand out */
+.fb{padding:10px 26px;margin:0 26px 16px;display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;flex-shrink:0;
+    background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);position:relative}
 .fb.hidden{display:none}
-.fb-grid{display:flex;gap:8px;flex-wrap:wrap;flex:1}
-.fb-item{display:flex;flex-direction:column;gap:2px}
-.fb-item label{font-size:9px;color:var(--txt3);font-weight:600;text-transform:uppercase}
-.fb-item select{background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:7px 26px 7px 10px;font-size:11.5px;color:var(--txt);cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b7385' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;min-width:115px}
-.fb-clr{display:flex;align-items:center;gap:5px;background:none;border:1.5px solid var(--border);border-radius:8px;padding:7px 13px;font-size:11.5px;color:var(--accent);cursor:pointer;align-self:flex-end;font-weight:500}
-.fb-clr:hover{background:var(--accentbg)}
+.fb-label{position:absolute;top:-9px;left:16px;background:var(--accent);color:#fff;font-size:9.5px;font-weight:700;
+    padding:2px 9px;border-radius:6px;letter-spacing:.4px;text-transform:uppercase;display:flex;align-items:center;gap:4px}
+.fb-grid{display:flex;gap:10px;flex-wrap:wrap;flex:1;padding-top:6px}
+.fb-item{display:flex;flex-direction:column;gap:3px}
+.fb-item label{font-size:9px;color:var(--txt3);font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.fb-item select{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:7px 26px 7px 10px;font-size:11.5px;color:var(--txt);cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b7385' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;min-width:120px;transition:border-color var(--tr)}
+.fb-item select:hover, .fb-item select:focus{border-color:var(--accent)}
+.fb-item select:not([value="all"]){border-color:var(--accent);background:var(--accentbg)}
+.fb-date{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:6.5px 10px;font-size:11.5px;color:var(--txt);outline:none;min-width:130px;font-family:inherit;transition:border-color var(--tr)}
+.fb-date:hover, .fb-date:focus{border-color:var(--accent)}
+.fb-date-group{display:flex;align-items:flex-end;gap:6px;background:var(--bg);padding:6px 10px 6px 6px;border-radius:10px;border:1.5px dashed var(--border)}
+.fb-date-sep{color:var(--txt3);font-size:11px;padding-bottom:8px}
+.fb-clr{display:flex;align-items:center;gap:5px;background:none;border:1.5px solid var(--border);border-radius:8px;padding:7px 13px;font-size:11.5px;color:var(--accent);cursor:pointer;align-self:flex-end;font-weight:600;transition:all var(--tr)}
+.fb-clr:hover{background:var(--accentbg);border-color:var(--accent)}
+.fb-active-count{display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;background:var(--accent);color:#fff;border-radius:8px;font-size:9px;font-weight:700;padding:0 4px}
 
 .content{flex:1;overflow-y:auto;padding:0 26px 28px}
 .pg{display:none}
@@ -474,7 +484,6 @@ tbody tr:hover td{background:var(--bg)}
           <div class="card-h">
             <h3>Sample Log (XRF Analysis)</h3>
           </div>
-          <div class="fb" style="padding:0 16px 12px" id="qualityFilterRow"></div>
           <div class="tbl-wrap" style="max-height:420px;overflow-y:auto"><table><thead><tr>
             <th>Date</th><th>Mine</th><th>Zone</th><th>Batch</th>
             <th class="td-r">Fe%</th><th class="td-r">Al2O3%</th><th class="td-r">Ca%</th>
@@ -547,8 +556,8 @@ const PAGE_FILTERS = {
   vendors:     [],
   approvals:   [],
   performance: [],
-  production:  ['mine'],
-  quality:     ['mine'],
+  production:  ['mine','date_from','date_to'],
+  quality:     ['mine','date_from','date_to'],
   mines:       [],
 };
 
@@ -560,7 +569,8 @@ let API_DATA=null, USER=null, LANG='en', THEME='light', SB_OPEN=true, CHARTS={},
 let FILTERS={project:'all',category:'all',month:'all',owner:'all',status_filter:'all',phase:'all',method:'all',vendor:'all',scenario:'Base Case',severity:'all',type:'all',mine:'all',
   cost_center:'all',payee:'all',source:'all',priority:'all',period:'all',budget_type:'all',approval_status:'all',owner2:'all',
   proc_type:'all',contract_status:'all',funding_source:'all',payment_type:'all',cash_status:'all',
-  project2:'all',requester:'all',approver:'all',month2:'all',manager:'all',owner3:'all'};
+  project2:'all',requester:'all',approver:'all',month2:'all',manager:'all',owner3:'all',
+  date_from:'',date_to:''};
 
 // ============================================================
 // AUTH
@@ -734,16 +744,36 @@ function renderFilterBar(page){
     return `<div class="fb-item"><label>${label}</label><select onchange="applyFilter('${key}',this.value)">${o}</select></div>`;
   };
   const parts=[];
+  let hasDateRange=false;
   filters.forEach(f=>{
     if(f==='status_filter') parts.push(sel('status_filter',labels.status_filter,statusOpts[page]||[]));
     else if(f==='severity') parts.push(sel('severity','Risk Category',['Critical','High','Medium','Low']));
+    else if(f==='date_from'||f==='date_to') hasDateRange=true; // handled together below
     else if(fixedOpts[f])   parts.push(sel(f,labels[f]||f,fixedOpts[f]));
     else if(opts[f])        parts.push(sel(f,labels[f]||f,opts[f]));
   });
-  fb.innerHTML = `<div class="fb-grid">${parts.join('')}</div><button class="fb-clr" onclick="clearFilters()">✕ Clear Filters</button>`;
+  // Render From/To as one combined date-range widget, not two separate items
+  if(hasDateRange){
+    parts.push(`<div class="fb-date-group">
+      <div class="fb-item"><label>From Date</label><input type="date" value="${FILTERS.date_from||''}" onchange="applyFilter('date_from',this.value)" class="fb-date" max="${FILTERS.date_to||''}"></div>
+      <span class="fb-date-sep">→</span>
+      <div class="fb-item"><label>To Date</label><input type="date" value="${FILTERS.date_to||''}" onchange="applyFilter('date_to',this.value)" class="fb-date" min="${FILTERS.date_from||''}"></div>
+    </div>`);
+  }
+
+  // Count active (non-default) filters for a clear visual indicator
+  const activeCount = filters.filter(f=>{
+    if(f==='date_from'||f==='date_to') return false; // counted once below
+    return FILTERS[f] && FILTERS[f]!=='all' && FILTERS[f]!=='Base Case';
+  }).length + ((FILTERS.date_from||FILTERS.date_to) ? 1 : 0);
+
+  const isAr=LANG==='ar';
+  fb.innerHTML = `<div class="fb-label">🔍 ${isAr?'الفلاتر':'Filters'}${activeCount>0?`<span class="fb-active-count">${activeCount}</span>`:''}</div>
+    <div class="fb-grid">${parts.join('')}</div>
+    <button class="fb-clr" onclick="clearFilters()">✕ ${isAr?'مسح الفلاتر':'Clear Filters'}</button>`;
 }
-function applyFilter(key,val){FILTERS[key]=val;renderPage(CURRENT_PAGE);}
-function clearFilters(){Object.keys(FILTERS).forEach(k=>FILTERS[k]=k==='scenario'?'Base Case':'all');renderFilterBar(CURRENT_PAGE);renderPage(CURRENT_PAGE);}
+function applyFilter(key,val){FILTERS[key]=val;renderFilterBar(CURRENT_PAGE);renderPage(CURRENT_PAGE);}
+function clearFilters(){Object.keys(FILTERS).forEach(k=>{ if(k==='scenario') FILTERS[k]='Base Case'; else if(k==='date_from'||k==='date_to') FILTERS[k]=''; else FILTERS[k]='all'; });renderFilterBar(CURRENT_PAGE);renderPage(CURRENT_PAGE);}
 
 // ============================================================
 // CHART HELPERS
@@ -1122,7 +1152,6 @@ function renderBudget(){
 // ════════════════════════════════════════════════════════════
 function renderQuality(){
   const d=API_DATA.quality; if(!d) return;
-  renderKpis('qualKpis',d.kpis||[],'k4');
   const c=gc();
 
   let byMine = d.by_mine || [];
@@ -1130,9 +1159,33 @@ function renderQuality(){
 
   // Apply Mine filter (shared FILTERS.mine, same as Production page)
   if (FILTERS.mine !== 'all') {
-    byMine = byMine.filter(r => r.mine === FILTERS.mine);
     samples = samples.filter(r => r.mine === FILTERS.mine);
   }
+  // Apply Date Range filter on sample date (YYYY-MM-DD comparison)
+  if (FILTERS.date_from) samples = samples.filter(r => (r.date||'').substring(0,10) >= FILTERS.date_from);
+  if (FILTERS.date_to)   samples = samples.filter(r => (r.date||'').substring(0,10) <= FILTERS.date_to);
+
+  const filterActive = FILTERS.mine !== 'all' || FILTERS.date_from || FILTERS.date_to;
+
+  // Recompute by_mine locally from the filtered sample set so charts/KPIs
+  // stay 100% consistent with whatever the table below is showing.
+  if (filterActive) {
+    const m = {};
+    samples.forEach(r => {
+      if (!m[r.mine]) m[r.mine] = { mine:r.mine, avg_fe:0, avg_al2o3:0, count:0 };
+      m[r.mine].avg_fe += r.Fe||0; m[r.mine].avg_al2o3 += r.Al2O3||0; m[r.mine].count++;
+    });
+    byMine = Object.values(m).map(r => ({ ...r, avg_fe: r.count>0?parseFloat((r.avg_fe/r.count).toFixed(2)):0, avg_al2o3: r.count>0?parseFloat((r.avg_al2o3/r.count).toFixed(2)):0 }));
+  }
+
+  // KPIs reflect the filtered set when a filter is active, otherwise the backend's totals
+  const kpis = filterActive ? [
+    { label:'TOTAL SAMPLES', value:samples.length, fmt:'number' },
+    { label:'AVG Fe%', value: samples.length>0?parseFloat((samples.reduce((a,r)=>a+(r.Fe||0),0)/samples.length).toFixed(2)):0, fmt:'number' },
+    { label:'AVG Al2O3%', value: samples.length>0?parseFloat((samples.reduce((a,r)=>a+(r.Al2O3||0),0)/samples.length).toFixed(2)):0, fmt:'number' },
+    { label:'MINES SAMPLED', value: new Set(samples.map(r=>r.mine)).size, fmt:'number' },
+  ] : (d.kpis||[]);
+  renderKpis('qualKpis',kpis,'k4');
 
   // Avg Fe% by mine — bar chart, click bar to filter
   if (byMine.length) {
