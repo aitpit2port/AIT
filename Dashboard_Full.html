@@ -121,6 +121,10 @@ button,select,input{font-family:inherit;font-size:inherit}
 .fb-clr{display:flex;align-items:center;gap:5px;background:none;border:1.5px solid var(--border);border-radius:8px;padding:7px 13px;font-size:11.5px;color:var(--accent);cursor:pointer;align-self:flex-end;font-weight:600;transition:all var(--tr)}
 .fb-clr:hover{background:var(--accentbg);border-color:var(--accent)}
 .fb-active-count{display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;background:var(--accent);color:#fff;border-radius:8px;font-size:9px;font-weight:700;padding:0 4px}
+#qualElementSelect option{padding:4px 6px}
+.elem-chip{display:inline-flex;align-items:center;gap:5px;background:var(--accentbg);color:var(--accent);border:1px solid var(--accent);border-radius:14px;padding:3px 10px;font-size:10.5px;font-weight:600}
+.elem-chip .x{cursor:pointer;font-weight:800;opacity:.7}
+.elem-chip .x:hover{opacity:1}
 
 .content{flex:1;overflow-y:auto;padding:0 26px 28px}
 .pg{display:none}
@@ -481,6 +485,20 @@ tbody tr:hover td{background:var(--bg)}
           <div class="card-b"><div class="cw" style="height:200px"><canvas id="c_qualFeDist"></canvas></div></div>
         </div>
         <div class="card">
+          <div class="card-h" style="flex-wrap:wrap;gap:10px">
+            <div><h3>Element Trend Over Time</h3><p style="font-size:10.5px;color:var(--txt2);margin-top:2px">Daily average — pick one or more elements to compare day by day</p></div>
+            <div style="display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap">
+              <div class="fb-item">
+                <label>Elements</label>
+                <select id="qualElementSelect" multiple size="1" style="background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;font-size:11.5px;color:var(--txt);min-width:160px;height:32px" onchange="onElementSelectChange()"></select>
+              </div>
+              <button class="fb-clr" style="padding:6px 12px" onclick="resetElementSelection()">↺ Reset</button>
+            </div>
+          </div>
+          <div id="qualElementChips" style="padding:0 16px 8px;display:flex;gap:6px;flex-wrap:wrap"></div>
+          <div class="card-b"><div class="cw" style="height:240px"><canvas id="c_qualElementTrend"></canvas></div></div>
+        </div>
+        <div class="card">
           <div class="card-h">
             <h3>Sample Log (XRF Analysis)</h3>
           </div>
@@ -572,6 +590,7 @@ let FILTERS={project:'all',category:'all',month:'all',owner:'all',status_filter:
   proc_type:'all',contract_status:'all',funding_source:'all',payment_type:'all',cash_status:'all',
   project2:'all',requester:'all',approver:'all',month2:'all',manager:'all',owner3:'all',
   date_from:'',date_to:''};
+let SELECTED_ELEMENTS=[]; // chosen elements for the Quality page trend chart, persists across re-renders
 
 // ============================================================
 // AUTH
@@ -1153,6 +1172,109 @@ function renderBudget(){
 // ════════════════════════════════════════════════════════════
 // PAGE 12: QUALITY / SAMPLES (100% real — 178 XRF samples)
 // ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
+// MULTI-ELEMENT TREND CHART HELPERS (Quality page)
+// ════════════════════════════════════════════════════════════
+const ELEMENT_CHART_COLORS=['#fd480e','#2563eb','#16a34a','#7c3aed','#ea580c','#0891b2','#dc2626','#65a30d','#0d9488','#9333ea','#d97706','#475569'];
+
+function populateElementSelect(availableElements){
+  const sel=document.getElementById('qualElementSelect');
+  if(!sel) return;
+  // Only rebuild options if the list actually changed (avoids losing the
+  // user's open dropdown state on every re-render)
+  const currentOptions=Array.from(sel.options).map(o=>o.value).join(',');
+  if(currentOptions===availableElements.join(',')) {
+    // options unchanged — just sync selected state
+    Array.from(sel.options).forEach(o=>{ o.selected = SELECTED_ELEMENTS.includes(o.value); });
+    return;
+  }
+  sel.innerHTML = availableElements.map(el=>`<option value="${el}"${SELECTED_ELEMENTS.includes(el)?' selected':''}>${el}</option>`).join('');
+  sel.size = Math.min(Math.max(availableElements.length,1),6);
+  // Default to Fe selected on first load if nothing chosen yet
+  if(!SELECTED_ELEMENTS.length && availableElements.includes('Fe')){
+    SELECTED_ELEMENTS=['Fe'];
+    Array.from(sel.options).forEach(o=>{ if(o.value==='Fe') o.selected=true; });
+  }
+}
+
+function onElementSelectChange(){
+  const sel=document.getElementById('qualElementSelect');
+  SELECTED_ELEMENTS=Array.from(sel.selectedOptions).map(o=>o.value);
+  renderPage(CURRENT_PAGE);
+}
+
+function resetElementSelection(){
+  SELECTED_ELEMENTS=[];
+  const sel=document.getElementById('qualElementSelect');
+  if(sel) Array.from(sel.options).forEach(o=>o.selected=false);
+  renderPage(CURRENT_PAGE);
+}
+
+function toggleElement(el){
+  const idx=SELECTED_ELEMENTS.indexOf(el);
+  if(idx===-1) SELECTED_ELEMENTS.push(el); else SELECTED_ELEMENTS.splice(idx,1);
+  const sel=document.getElementById('qualElementSelect');
+  if(sel) Array.from(sel.options).forEach(o=>{ o.selected = SELECTED_ELEMENTS.includes(o.value); });
+  renderPage(CURRENT_PAGE);
+}
+
+function renderElementTrendChart(filteredSamples, availableElements, c){
+  // Chips showing current selection with quick-remove
+  const chipsEl=document.getElementById('qualElementChips');
+  if(chipsEl){
+    chipsEl.innerHTML = SELECTED_ELEMENTS.length
+      ? SELECTED_ELEMENTS.map(el=>`<span class="elem-chip">${el}<span class="x" onclick="toggleElement('${el}')">✕</span></span>`).join('')
+      : `<span style="font-size:10.5px;color:var(--txt2)">No elements selected — pick from the dropdown above</span>`;
+  }
+
+  if(!SELECTED_ELEMENTS.length){
+    const el=document.getElementById('c_qualElementTrend');
+    if(el && CHARTS['c_qualElementTrend']){ CHARTS['c_qualElementTrend'].destroy(); delete CHARTS['c_qualElementTrend']; }
+    if(el && el.parentElement) el.parentElement.innerHTML='<div style="text-align:center;color:var(--txt2);font-size:11px;padding:40px 0">Select one or more elements above to see their daily trend</div>';
+    return;
+  }
+
+  // Build daily averages FROM THE FILTERED SAMPLE SET (so Mine/Material/
+  // Date Range filters all narrow this chart too, not just the backend's
+  // unfiltered full-history series).
+  const byDate={};
+  filteredSamples.forEach(r=>{
+    const d=(r.date||'').substring(0,10);
+    if(!d) return;
+    if(!byDate[d]) byDate[d]={date:d,count:0};
+    byDate[d].count++;
+    SELECTED_ELEMENTS.forEach(el=>{ byDate[d][el]=(byDate[d][el]||0)+(r[el]||0); });
+  });
+  const rows=Object.values(byDate).map(row=>{
+    const out={date:row.date};
+    SELECTED_ELEMENTS.forEach(el=>{ out[el]=row.count>0?parseFloat((row[el]/row.count).toFixed(3)):0; });
+    return out;
+  }).sort((a,b)=>a.date.localeCompare(b.date));
+
+  if(!rows.length){
+    if(CHARTS['c_qualElementTrend']){ CHARTS['c_qualElementTrend'].destroy(); delete CHARTS['c_qualElementTrend']; }
+    const el=document.getElementById('c_qualElementTrend');
+    if(el && el.parentElement) el.parentElement.innerHTML='<div style="text-align:center;color:var(--txt2);font-size:11px;padding:40px 0">No dated samples for this filter</div>';
+    return;
+  }
+
+  mkChart('c_qualElementTrend','line',{
+    labels: rows.map(r=>r.date),
+    datasets: SELECTED_ELEMENTS.map((el,i)=>({
+      label: el,
+      data: rows.map(r=>r[el]),
+      borderColor: ELEMENT_CHART_COLORS[i%ELEMENT_CHART_COLORS.length],
+      backgroundColor: ELEMENT_CHART_COLORS[i%ELEMENT_CHART_COLORS.length]+'18',
+      fill:false,
+      pointBackgroundColor: ELEMENT_CHART_COLORS[i%ELEMENT_CHART_COLORS.length],
+      tension:.3,
+    }))
+  },{
+    plugins:{ legend:{ display:true, position:'top', labels:{ color:c.txt, font:{size:10}, boxWidth:10 } } },
+    scales:{ x:{ grid:{color:c.grid}, ticks:{color:c.txt, font:{size:9}, maxRotation:45} }, y:{ grid:{color:c.grid}, ticks:{color:c.txt, callback:v=>v+'%'} } }
+  });
+}
+
 function renderQuality(){
   const d=API_DATA.quality; if(!d) return;
   const c=gc();
@@ -1193,6 +1315,13 @@ function renderQuality(){
     { label:'MINES SAMPLED', value: new Set(samples.map(r=>r.mine)).size, fmt:'number' },
   ] : (d.kpis||[]);
   renderKpis('qualKpis',kpis,'k4');
+
+  // ── Multi-element trend chart — populate dropdown once, then render
+  // from the currently-filtered sample set so Mine/Material/Date Range
+  // filters all narrow the trend too. ──────────────────────────────
+  const availableElements = d.available_elements || [];
+  populateElementSelect(availableElements);
+  renderElementTrendChart(samples, availableElements, c);
 
   // Avg Fe% by mine — bar chart, click bar to filter
   if (byMine.length) {
