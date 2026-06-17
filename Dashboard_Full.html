@@ -393,7 +393,7 @@ tbody tr:hover td{background:var(--bg)}
         <div class="g21">
           <div class="card">
             <div class="card-h"><h3 id="lblTaskTbl">Task Details</h3></div>
-            <div class="tbl-wrap"><table><thead><tr><th>WBS</th><th id="thTask">Task / Phase</th><th id="thOwner">Owner</th><th id="thPhase">Phase</th><th id="thStart">Start</th><th id="thDue2">Due</th><th id="thComp">Complete</th><th id="thStat2">Status</th><th id="thDelay">Delay</th><th id="thComments">Comments</th></tr></thead><tbody id="tlTaskTbl"></tbody></table></div>
+            <div class="tbl-wrap"><table><thead><tr><th>WBS</th><th id="thTask">Task / Phase</th><th id="thOwner">Owner</th><th id="thStart">Start</th><th id="thDue2">Due</th><th id="thComp">Complete</th><th id="thStat2">Status</th><th id="thDelay">Delay</th></tr></thead><tbody id="tlTaskTbl"></tbody></table></div>
           </div>
           <div>
             <div class="card">
@@ -437,23 +437,49 @@ tbody tr:hover td{background:var(--bg)}
           <div class="card-h"><h3 id="lblConsTrend">Monthly Budget Consumption Trend</h3></div>
           <div class="card-b"><div class="cw" style="height:190px"><canvas id="c_consTrend"></canvas></div></div>
         </div>
-        <div class="g3">
+        <div class="g2">
           <div class="card">
             <div class="card-h"><h3 id="lblBudUtil">Budget Utilization % by Category</h3></div>
-            <div class="card-b" id="budUtilBars" style="max-height:220px;overflow-y:auto"></div>
-          </div>
-          <div class="card">
-            <div class="card-h"><h3 id="lblWaterfall">Budget Waterfall (EGP)</h3></div>
-            <div class="card-b"><div class="cw" style="height:220px"><canvas id="c_waterfall"></canvas></div></div>
+            <div class="card-b" id="budUtilBars" style="max-height:260px;overflow-y:auto"></div>
           </div>
           <div class="card">
             <div class="card-h"><h3 id="lblBudNotes">Budget Notes &amp; Status</h3></div>
-            <div class="card-b" id="budgetNotes" style="max-height:220px;overflow-y:auto"></div>
+            <div class="card-b" id="budgetNotes" style="max-height:260px;overflow-y:auto"></div>
           </div>
         </div>
         <div class="card">
           <div class="card-h"><h3 id="lblDetailedBud">Detailed Budget Summary</h3></div>
           <div class="tbl-wrap"><table><thead><tr><th id="thCat2">Category</th><th class="td-r" id="thBudget">Budget (EGP)</th><th class="td-r" id="thActual">Actual (EGP)</th><th class="td-r" id="thRemain">Remaining</th><th class="td-r" id="thVar">Variance (EGP)</th><th id="thStat3">Status</th></tr></thead><tbody id="budTbl"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ════════ PAGE 12: QUALITY / SAMPLES ════════ -->
+      <div class="pg" id="pg-quality">
+        <div class="kpi-row k4" id="qualKpis"></div>
+        <div class="g2">
+          <div class="card">
+            <div class="card-h"><h3>Avg Fe% by Mine</h3></div>
+            <div class="card-b"><div class="cw" style="height:220px"><canvas id="c_qualFeByMine"></canvas></div></div>
+          </div>
+          <div class="card">
+            <div class="card-h"><h3>Avg Al2O3% by Mine</h3></div>
+            <div class="card-b"><div class="cw" style="height:220px"><canvas id="c_qualAlByMine"></canvas></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h3>Fe% Distribution Across Samples</h3></div>
+          <div class="card-b"><div class="cw" style="height:200px"><canvas id="c_qualFeDist"></canvas></div></div>
+        </div>
+        <div class="card">
+          <div class="card-h">
+            <h3>Sample Log (XRF Analysis)</h3>
+          </div>
+          <div class="fb" style="padding:0 16px 12px" id="qualityFilterRow"></div>
+          <div class="tbl-wrap" style="max-height:420px;overflow-y:auto"><table><thead><tr>
+            <th>Date</th><th>Mine</th><th>Zone</th><th>Batch</th>
+            <th class="td-r">Fe%</th><th class="td-r">Al2O3%</th><th class="td-r">Ca%</th>
+            <th class="td-r">Mn%</th><th class="td-r">Cu%</th><th class="td-r">LOI%</th>
+          </tr></thead><tbody id="qualSamplesTbl"></tbody></table></div>
         </div>
       </div>
 
@@ -511,16 +537,16 @@ const PAGE_META = {
 const PAGE_ICONS = { exec:'📊',timeline:'📅',budget:'💰',expenses:'🧾',cost:'📉',cashflow:'💵',risks:'⚠️',vendors:'🚚',approvals:'👥',performance:'📋',production:'⚙️',quality:'🔬',mines:'🗺️' };
 
 const PAGE_FILTERS = {
-  exec:        ['cost_center','category','method','status_filter','payee','source'],
-  timeline:    ['owner','status_filter','phase','priority','period'],
-  budget:      ['cost_center','category','budget_type','approval_status','owner2','method'],
-  expenses:    ['cost_center','category','method','status_filter','payee','source'],
-  cost:        ['cost_center','category','vendor','method','source','owner2'],
-  cashflow:    ['cost_center','funding_source','payment_type','cash_status','payee','scenario'],
-  risks:       ['category','project2','owner3','status_filter'],
-  vendors:     ['category','proc_type','contract_status','project2','vendor'],
-  approvals:   ['type','project2','requester','approver','status_filter'],
-  performance: ['month2','project2','manager','status_filter','cost_center'],
+  exec:        ['category','month'],
+  timeline:    ['owner','status_filter'],
+  budget:      ['category','status_filter'],
+  expenses:    ['category','method','status_filter'],
+  cost:        ['category','vendor'],
+  cashflow:    [],
+  risks:       ['severity'],
+  vendors:     [],
+  approvals:   [],
+  performance: [],
   production:  ['mine'],
   quality:     ['mine'],
   mines:       [],
@@ -661,7 +687,7 @@ function renderFilterBar(page){
   opts.owner         = [...new Set((API_DATA.timeline?.tasks||[]).map(r=>r.owner))].filter(Boolean);
   opts.phase         = [...new Set((API_DATA.timeline?.tasks||[]).map(r=>r.phase))].filter(Boolean);
   opts.vendor        = [...new Set((API_DATA.cost?.details||[]).map(r=>r.vendor))].filter(Boolean).slice(0,15);
-  opts.mine          = [...new Set((API_DATA.lots||[]).map(r=>r.mine))].filter(Boolean);
+  opts.mine          = [...new Set([...(API_DATA.lots||[]).map(r=>r.mine), ...(API_DATA.quality?.samples||[]).map(r=>r.mine)])].filter(Boolean);
   opts.type          = [...new Set((API_DATA.approvals?.by_type||[]).map(r=>r.type))];
   opts.proc_type     = ['Materials','Equipment','Services','Consulting','Others'];
   opts.funding_source= ['Progress Billings','Owner Funding','Loan Drawdowns','Retention Releases','Other Income'];
@@ -790,7 +816,7 @@ function renderKpis(containerId,kpis,gridClass){
 // ============================================================
 function renderPage(page){
   if(!API_DATA) return;
-  const map={exec:renderExec,timeline:renderTimeline,budget:renderBudget,mines:()=>syncMinesSettings()};
+  const map={exec:renderExec,timeline:renderTimeline,budget:renderBudget,quality:renderQuality,mines:()=>syncMinesSettings()};
   if(map[page]){ map[page](); return; }
   // Pages not yet built in this stage — show a clear "coming soon" state
   // rather than a silently blank page.
@@ -1007,26 +1033,32 @@ function renderTimeline(){
   const bo=d.by_owner||[];
   mkChart('c_tlOwner','bar',{labels:bo.map(r=>r.owner),datasets:[{data:bo.map(r=>r.count),backgroundColor:'rgba(37,99,235,.85)',borderRadius:5}]},{indexAxis:'y',scales:{x:{grid:{color:c.grid},ticks:{color:c.txt}},y:{grid:{display:false},ticks:{color:c.txt,font:{size:9.5}}}}},{key:'owner'});
 
-  // Task details table
+  // Task details table — real fields from backend: wbs, title, owner, level, start, due, duration, complete, status, delay
   let tasks=d.tasks||[];
   if(FILTERS.owner!=='all') tasks=tasks.filter(t=>t.owner===FILTERS.owner);
-  if(FILTERS.phase!=='all') tasks=tasks.filter(t=>t.phase===FILTERS.phase);
   if(FILTERS.status_filter!=='all') tasks=tasks.filter(t=>t.status===FILTERS.status_filter);
   document.getElementById('tlTaskTbl').innerHTML=tasks.map(t=>`<tr>
-    <td><strong>${t.wbs}</strong></td><td>${t.title}</td><td>${t.owner}</td><td class="td-s">${t.phase}</td>
-    <td class="td-s">${t.start}</td><td class="td-s">${t.due}</td>
+    <td><strong>${t.level===0?t.wbs:'　'+t.wbs}</strong></td>
+    <td style="${t.level===0?'font-weight:600':'padding-left:22px;color:var(--txt2)'}">${t.title}</td>
+    <td>${t.owner}</td>
+    <td class="td-s">${t.start||'—'}</td><td class="td-s">${t.due||'—'}</td>
     <td><div style="display:flex;align-items:center;gap:6px"><div class="pb" style="width:55px;margin:0"><div class="pf" style="width:${Math.min(t.complete,100)}%;background:var(--accent)"></div></div><span style="font-size:10px">${t.complete}%</span></div></td>
     <td><span class="badge ${t.status==='Completed'?'green':t.status==='Delayed'?'red':t.status==='In Progress'?'blue':'gray'}">${t.status}</span></td>
     <td style="color:${t.delay>0?'var(--red)':'var(--green)'}">${t.delay>0?'+'+t.delay+'d':'0'}</td>
-    <td class="td-s">${t.comments||'—'}</td>
   </tr>`).join('');
 
-  // Milestones table
-  const STA_B={'On Track':'green','At Risk':'orange',Upcoming:'blue'};
-  document.getElementById('milestonesTbl').innerHTML=(d.milestones||[]).map(m=>`<tr>
-    <td><strong>${m.name}</strong></td><td class="td-s">${m.due}</td><td>${m.project}</td>
-    <td><span class="badge ${STA_B[m.status]||'gray'}">${m.status}</span></td>
-  </tr>`).join('');
+  // Milestones table — backend intentionally leaves this empty (no real
+  // milestone flag exists in the Gantt Chart source); show an honest note instead.
+  const milestones=d.milestones||[];
+  if(!milestones.length){
+    document.getElementById('milestonesTbl').innerHTML=`<tr><td colspan="4" style="text-align:center;color:var(--txt2);padding:20px;font-size:11px">No dedicated milestone flag in the source sheet — all tasks are shown in the table above.</td></tr>`;
+  } else {
+    const STA_B={'On Track':'green','At Risk':'orange',Upcoming:'blue'};
+    document.getElementById('milestonesTbl').innerHTML=milestones.map(m=>`<tr>
+      <td><strong>${m.name}</strong></td><td class="td-s">${m.due}</td><td>${m.project}</td>
+      <td><span class="badge ${STA_B[m.status]||'gray'}">${m.status}</span></td>
+    </tr>`).join('');
+  }
 }
 
 // ════════════════════════════════════════════════════════════
@@ -1072,23 +1104,7 @@ function renderBudget(){
     return `<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;font-size:10.5px;margin-bottom:3px"><span>${r.category}</span><span style="color:${col};font-weight:700">${r.util}%</span></div><div class="pb"><div class="pf" style="width:${u}%;background:${col}"></div></div></div>`;
   }).join('');
 
-  // Waterfall
-  const wf=d.waterfall||[];
-  if(wf.length){
-    let running=0;
-    const bars=wf.map(w=>{
-      if(w.type==='start'||w.type==='total'){running=w.value;return {base:0,val:w.value,color:'#2563eb'};}
-      if(w.type==='increase'){const base=running;running+=w.value;return {base,val:w.value,color:'#16a34a'};}
-      if(w.type==='decrease'){const base=running+w.value;running+=w.value;return {base,val:-w.value,color:'#dc2626'};}
-      return {base:0,val:w.value,color:'#7c3aed'};
-    });
-    mkChart('c_waterfall','bar',{labels:wf.map(w=>w.label),datasets:[
-      {label:'Base',data:bars.map(b=>b.base),backgroundColor:'transparent'},
-      {label:'Value',data:bars.map(b=>Math.abs(b.val)),backgroundColor:bars.map(b=>b.color),borderRadius:4},
-    ]},{plugins:{legend:{display:false}},scales:{x:{stacked:true,grid:{display:false},ticks:{color:c.txt,font:{size:9}}},y:{stacked:true,grid:{color:c.grid},ticks:{color:c.txt,callback:v=>fmtNum(v)}}}});
-  }
-
-  // Budget notes
+  // Budget notes — real, computed from actual budget/expense data
   const ICONS={critical:'🔴',warning:'⚠️',success:'✅',info:'ℹ️',chart:'📊'};
   document.getElementById('budgetNotes').innerHTML=(d.notes||[]).map(n=>`<div style="display:flex;gap:9px;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-size:14px;flex-shrink:0">${ICONS[n.icon]||'•'}</span><span style="font-size:11px;color:var(--txt2);line-height:1.4">${n.text}</span></div>`).join('');
 
@@ -1099,6 +1115,87 @@ function renderBudget(){
     return `<tr><td><strong>${r.category}</strong></td><td class="td-r">${fmtF(r.budget)}</td><td class="td-r">${fmtF(r.actual)}</td><td class="td-r">${fmtF(r.remaining)}</td>
     <td class="td-r" style="color:${v<0?'var(--red)':'var(--green)'}">${v>=0?'+':''}${fmtF(v)}</td><td><span class="badge ${STA_B[r.status]||'gray'}">${r.status}</span></td></tr>`;
   }).join('')+`<tr style="font-weight:700;background:var(--bg)"><td>TOTAL</td><td class="td-r">${fmtF(cats.reduce((s,r)=>s+r.budget,0))}</td><td class="td-r">${fmtF(cats.reduce((s,r)=>s+r.actual,0))}</td><td class="td-r">${fmtF(cats.reduce((s,r)=>s+r.remaining,0))}</td><td class="td-r">${fmtF(cats.reduce((s,r)=>s+r.variance,0))}</td><td></td></tr>`;
+}
+
+// ════════════════════════════════════════════════════════════
+// PAGE 12: QUALITY / SAMPLES (100% real — 178 XRF samples)
+// ════════════════════════════════════════════════════════════
+function renderQuality(){
+  const d=API_DATA.quality; if(!d) return;
+  renderKpis('qualKpis',d.kpis||[],'k4');
+  const c=gc();
+
+  let byMine = d.by_mine || [];
+  let samples = d.samples || [];
+
+  // Apply Mine filter (shared FILTERS.mine, same as Production page)
+  if (FILTERS.mine !== 'all') {
+    byMine = byMine.filter(r => r.mine === FILTERS.mine);
+    samples = samples.filter(r => r.mine === FILTERS.mine);
+  }
+
+  // Avg Fe% by mine — bar chart, click bar to filter
+  if (byMine.length) {
+    const sorted = [...byMine].sort((a,b) => b.avg_fe - a.avg_fe);
+    mkChart('c_qualFeByMine','bar',{
+      labels: sorted.map(r => r.mine),
+      datasets: [{ label:'Avg Fe%', data: sorted.map(r => r.avg_fe), backgroundColor:'rgba(253,72,14,.85)', borderRadius:5 }]
+    }, {
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => ctx.raw + '% Fe  (' + (byMine.find(m=>m.mine===ctx.label)?.count||0) + ' samples)' } } },
+      scales:{ x:{grid:{display:false},ticks:{color:c.txt,font:{size:9.5}}}, y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>v+'%'}} }
+    }, {key:'mine'});
+  } else {
+    document.getElementById('c_qualFeByMine').parentElement.innerHTML = '<div style="text-align:center;color:var(--txt2);font-size:11px;padding:40px 0">No samples for this filter</div>';
+  }
+
+  // Avg Al2O3% by mine — only show if real measurements exist (column may be unrecorded)
+  const hasAl2O3Data = byMine.some(r => r.avg_al2o3 > 0);
+  if (byMine.length && hasAl2O3Data) {
+    const sorted = [...byMine].sort((a,b) => b.avg_al2o3 - a.avg_al2o3);
+    mkChart('c_qualAlByMine','bar',{
+      labels: sorted.map(r => r.mine),
+      datasets: [{ label:'Avg Al2O3%', data: sorted.map(r => r.avg_al2o3), backgroundColor:'rgba(124,58,237,.8)', borderRadius:5 }]
+    }, {
+      plugins:{ legend:{display:false} },
+      scales:{ x:{grid:{display:false},ticks:{color:c.txt,font:{size:9.5}}}, y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>v+'%'}} }
+    }, {key:'mine'});
+  } else {
+    const el = document.getElementById('c_qualAlByMine');
+    if (el && el.parentElement) el.parentElement.innerHTML = '<div style="text-align:center;color:var(--txt2);font-size:11px;padding:40px 10px">Al2O3% was not recorded in the source samples for this selection.</div>';
+  }
+
+  // Fe% distribution histogram across individual samples (real, not averaged)
+  if (samples.length) {
+    const bins = [0,10,20,30,40,50,60,70,80,90,100];
+    const counts = new Array(bins.length-1).fill(0);
+    samples.forEach(s2 => {
+      for (let i=0;i<bins.length-1;i++){
+        if (s2.Fe >= bins[i] && s2.Fe < bins[i+1]) { counts[i]++; break; }
+        if (i === bins.length-2 && s2.Fe >= bins[i+1]) counts[i]++;
+      }
+    });
+    mkChart('c_qualFeDist','bar',{
+      labels: bins.slice(0,-1).map((b,i)=>b+'–'+bins[i+1]+'%'),
+      datasets:[{ label:'Samples', data: counts, backgroundColor:'rgba(37,99,235,.8)', borderRadius:5 }]
+    }, { plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false},ticks:{color:c.txt,font:{size:9.5}}}, y:{grid:{color:c.grid},ticks:{color:c.txt}} } });
+  }
+
+  // Sample log table (real, sorted most-recent first)
+  const sortedSamples = [...samples].sort((a,b) => (a.date < b.date ? 1 : -1)).slice(0, 200);
+  document.getElementById('qualSamplesTbl').innerHTML = sortedSamples.length
+    ? sortedSamples.map(r => `<tr>
+        <td class="td-s">${r.date||'—'}</td>
+        <td><strong>${r.mine||'—'}</strong></td>
+        <td class="td-s">${r.zone||'—'}</td>
+        <td class="td-s">${r.batch||'—'}</td>
+        <td class="td-r td-m" style="color:var(--accent)">${(r.Fe||0).toFixed(2)}</td>
+        <td class="td-r">${(r.Al2O3||0).toFixed(2)}</td>
+        <td class="td-r">${(r.Ca||0).toFixed(2)}</td>
+        <td class="td-r">${(r.Mn||0).toFixed(2)}</td>
+        <td class="td-r">${(r.Cu||0).toFixed(2)}</td>
+        <td class="td-r">${(r.LOI||0).toFixed(2)}</td>
+      </tr>`).join('')
+    : `<tr><td colspan="10" style="text-align:center;color:var(--txt2);padding:20px;font-size:11px">No samples found${FILTERS.mine!=='all'?' for '+FILTERS.mine:''}.</td></tr>`;
 }
 
 // ============================================================
