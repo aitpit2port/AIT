@@ -472,34 +472,35 @@ tbody tr:hover td{background:var(--bg)}
       <!-- ════════ PAGE 12: QUALITY / SAMPLES ════════ -->
       <div class="pg" id="pg-quality">
         <div class="kpi-row k8" id="qualKpis"></div>
-        <div class="g2">
-          <div class="card">
-            <div class="card-h"><div><h3>Avg Fe% by Mine</h3><p style="font-size:10.5px;color:var(--txt2);margin-top:2px">Green = Pass, Red = Reject (threshold depends on each mine's material). Click a bar to filter.</p></div></div>
-            <div class="card-b"><div class="cw" style="height:220px"><canvas id="c_qualFeByMine"></canvas></div></div>
-          </div>
-          <div class="card">
-            <div class="card-h"><div><h3>Avg Al2O3% by Mine</h3><p style="font-size:10.5px;color:var(--txt2);margin-top:2px">Lower is better — Al2O3 is an impurity that reduces ore value.</p></div></div>
-            <div class="card-b"><div class="cw" style="height:220px"><canvas id="c_qualAlByMine"></canvas></div></div>
-          </div>
-        </div>
-        <div class="g2">
-          <div class="card">
-            <div class="card-h"><div><h3>Pass / Reject Distribution</h3><p style="font-size:10.5px;color:var(--txt2);margin-top:2px">Hematite/Limonite need ≥55% Fe to pass; Magnetite needs ≥37% Fe.</p></div></div>
-            <div class="card-b" style="text-align:center">
-              <div style="position:relative;width:140px;height:140px;margin:0 auto"><canvas id="c_qualGradeDonut"></canvas>
-                <div id="qualGradeCenter" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center"></div>
-              </div>
-              <ul class="leg" id="qualGradeLeg" style="margin-top:12px;text-align:left;font-size:10.5px"></ul>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-h"><div><h3>Fe% Distribution Across Samples</h3><p style="font-size:10.5px;color:var(--txt2);margin-top:2px">Each bar split by Pass/Reject outcome — shows where most failures occur.</p></div></div>
-            <div class="card-b"><div class="cw" style="height:200px"><canvas id="c_qualFeDist"></canvas></div></div>
-          </div>
-        </div>
+
+        <!-- 1) Pass/Reject PER MINE (mine-level average vs its material threshold) -->
         <div class="card">
           <div class="card-h">
-            <div><h3>Element Trend Over Time</h3><p style="font-size:10.5px;color:var(--txt2);margin-top:2px">Daily average — tick one or more elements below to compare them day by day</p></div>
+            <div><h3>Pass / Reject by Mine</h3><p style="font-size:10.5px;color:var(--txt2);margin-top:2px">Each mine's AVERAGE Fe% vs its material's threshold — Hematite/Limonite need ≥55%, Magnetite needs ≥37%. Green = Pass, Red = Reject.</p></div>
+          </div>
+          <div class="g2" style="padding:14px 16px 16px;margin:0">
+            <div class="cw" style="height:260px"><canvas id="c_qualMineBar"></canvas></div>
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center">
+              <div style="position:relative;width:160px;height:160px"><canvas id="c_qualMineDonut"></canvas>
+                <div id="qualMineDonutCenter" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center"></div>
+              </div>
+              <ul class="leg" id="qualMineLeg" style="margin-top:12px;width:100%;font-size:10.5px"></ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2) Daily Avg Fe% line chart -->
+        <div class="card">
+          <div class="card-h">
+            <div><h3>Daily Avg Fe% Trend</h3><p style="font-size:10.5px;color:var(--txt2);margin-top:2px">Average Fe% across all samples taken on each day — track quality consistency over time.</p></div>
+          </div>
+          <div class="card-b"><div class="cw" style="height:220px"><canvas id="c_qualDailyFe"></canvas></div></div>
+        </div>
+
+        <!-- 3) Element trend by BATCH + by DAY, side by side -->
+        <div class="card">
+          <div class="card-h">
+            <div><h3>Element Levels — By Batch &amp; By Day</h3><p style="font-size:10.5px;color:var(--txt2);margin-top:2px">Tick one or more elements below. Left = each batch's reading. Right = daily average across batches.</p></div>
           </div>
           <div style="padding:0 16px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
             <div id="qualElementCheckboxes" style="display:flex;gap:8px;flex-wrap:wrap"></div>
@@ -508,18 +509,25 @@ tbody tr:hover td{background:var(--bg)}
               <button class="fb-clr" style="padding:6px 12px" onclick="resetElementSelection()">✕ Clear</button>
             </div>
           </div>
-          <div class="card-b"><div class="cw" style="height:240px"><canvas id="c_qualElementTrend"></canvas></div></div>
+          <div class="g2" style="padding:0 16px 16px;margin:0">
+            <div>
+              <div class="sec-ttl" style="margin-bottom:6px">By Batch</div>
+              <div class="cw" style="height:230px"><canvas id="c_qualElementByBatch"></canvas></div>
+            </div>
+            <div>
+              <div class="sec-ttl" style="margin-bottom:6px">By Day</div>
+              <div class="cw" style="height:230px"><canvas id="c_qualElementByDay"></canvas></div>
+            </div>
+          </div>
         </div>
+
+        <!-- 4) Full data table — every mine, every batch, every element that has real values -->
         <div class="card">
           <div class="card-h">
-            <h3>Sample Log (XRF Analysis)</h3>
+            <h3>Full Sample Data — All Mines &amp; Batches</h3>
           </div>
           <div id="qualMatchNote" style="padding:0 16px 10px;font-size:10.5px;color:var(--orange)"></div>
-          <div class="tbl-wrap" style="max-height:420px;overflow-y:auto"><table><thead><tr>
-            <th>Date</th><th>Mine</th><th>Material</th><th>Result</th><th>Zone</th><th>Batch</th>
-            <th class="td-r">Fe%</th><th class="td-r">Al2O3%</th><th class="td-r">Ca%</th>
-            <th class="td-r">Mn%</th><th class="td-r">Cu%</th><th class="td-r">LOI%</th>
-          </tr></thead><tbody id="qualSamplesTbl"></tbody></table></div>
+          <div class="tbl-wrap" style="max-height:480px;overflow-y:auto"><table><thead><tr id="qualFullTblHead"></tr></thead><tbody id="qualFullTbl"></tbody></table></div>
         </div>
       </div>
 
@@ -1221,7 +1229,6 @@ function gradeOfSample(materialRaw, fe){
 function populateElementSelect(availableElements){
   const wrap=document.getElementById('qualElementCheckboxes');
   if(!wrap) return;
-  // Default to Fe selected on first load if nothing chosen yet
   if(!SELECTED_ELEMENTS.length && availableElements.includes('Fe')){
     SELECTED_ELEMENTS=['Fe'];
   }
@@ -1253,138 +1260,89 @@ function toggleElement(el){
   renderPage(CURRENT_PAGE);
 }
 
-function renderElementTrendChart(filteredSamples, availableElements, c){
-  if(!SELECTED_ELEMENTS.length){
-    const el=document.getElementById('c_qualElementTrend');
-    if(el && CHARTS['c_qualElementTrend']){ CHARTS['c_qualElementTrend'].destroy(); delete CHARTS['c_qualElementTrend']; }
-    if(el && el.parentElement) el.parentElement.innerHTML='<div style="text-align:center;color:var(--txt2);font-size:11px;padding:40px 0">Tick one or more elements above to see their daily trend</div>';
-    return;
-  }
-
-  // Build daily averages FROM THE FILTERED SAMPLE SET (so Mine/Material/
-  // Date Range filters all narrow this chart too, not just the backend's
-  // unfiltered full-history series).
-  const byDate={};
-  filteredSamples.forEach(r=>{
-    const d=(r.date||'').substring(0,10);
-    if(!d) return;
-    if(!byDate[d]) byDate[d]={date:d,count:0};
-    byDate[d].count++;
-    SELECTED_ELEMENTS.forEach(el=>{ byDate[d][el]=(byDate[d][el]||0)+(r[el]||0); });
-  });
-  const rows=Object.values(byDate).map(row=>{
-    const out={date:row.date};
-    SELECTED_ELEMENTS.forEach(el=>{ out[el]=row.count>0?parseFloat((row[el]/row.count).toFixed(3)):0; });
-    return out;
-  }).sort((a,b)=>a.date.localeCompare(b.date));
-
-  if(!rows.length){
-    if(CHARTS['c_qualElementTrend']){ CHARTS['c_qualElementTrend'].destroy(); delete CHARTS['c_qualElementTrend']; }
-    const el=document.getElementById('c_qualElementTrend');
-    if(el && el.parentElement) el.parentElement.innerHTML='<div style="text-align:center;color:var(--txt2);font-size:11px;padding:40px 0">No dated samples for this filter</div>';
-    return;
-  }
-
-  mkChart('c_qualElementTrend','line',{
-    labels: rows.map(r=>r.date),
-    datasets: SELECTED_ELEMENTS.map((el,i)=>({
-      label: el,
-      data: rows.map(r=>r[el]),
-      borderColor: ELEMENT_CHART_COLORS[i%ELEMENT_CHART_COLORS.length],
-      backgroundColor: ELEMENT_CHART_COLORS[i%ELEMENT_CHART_COLORS.length]+'18',
-      fill:false,
-      pointBackgroundColor: ELEMENT_CHART_COLORS[i%ELEMENT_CHART_COLORS.length],
-      tension:.3,
-    }))
-  },{
-    plugins:{ legend:{ display:true, position:'top', labels:{ color:c.txt, font:{size:10}, boxWidth:10 } } },
-    scales:{ x:{ grid:{color:c.grid}, ticks:{color:c.txt, font:{size:9}, maxRotation:45} }, y:{ grid:{color:c.grid}, ticks:{color:c.txt, callback:v=>v+'%'} } }
-  });
-}
-
+// ════════════════════════════════════════════════════════════
+// PAGE 12: QUALITY / SAMPLES — full rebuild per spec:
+//  1) Pass/Reject per MINE (mine average vs its material threshold)
+//  2) Daily Avg Fe% line chart
+//  3) Element levels by BATCH + by DAY (multi-select), side by side
+//  4) Full data table — every mine/batch/element with real values
+// ════════════════════════════════════════════════════════════
 function renderQuality(){
   const d=API_DATA.quality; if(!d) return;
   const c=gc();
 
-  let byMine = d.by_mine || [];
   let samples = d.samples || [];
 
-  // Apply Mine filter (shared FILTERS.mine, same as Production page)
-  if (FILTERS.mine !== 'all') {
-    samples = samples.filter(r => r.mine === FILTERS.mine);
-  }
-  // Apply Material Type filter (real, from Mines sheet — linked via mine name)
-  if (FILTERS.material !== 'all') {
-    samples = samples.filter(r => r.material === FILTERS.material);
-  }
-  // Apply Date Range filter on sample date (YYYY-MM-DD comparison)
-  if (FILTERS.date_from) samples = samples.filter(r => (r.date||'').substring(0,10) >= FILTERS.date_from);
-  if (FILTERS.date_to)   samples = samples.filter(r => (r.date||'').substring(0,10) <= FILTERS.date_to);
+  // ── Apply shared filters (Mine / Material / Date Range) ──────────
+  if (FILTERS.mine !== 'all')     samples = samples.filter(r => r.mine === FILTERS.mine);
+  if (FILTERS.material !== 'all') samples = samples.filter(r => r.material === FILTERS.material);
+  if (FILTERS.date_from)          samples = samples.filter(r => (r.date||'').substring(0,10) >= FILTERS.date_from);
+  if (FILTERS.date_to)            samples = samples.filter(r => (r.date||'').substring(0,10) <= FILTERS.date_to);
 
   const filterActive = FILTERS.mine !== 'all' || FILTERS.material !== 'all' || FILTERS.date_from || FILTERS.date_to;
+  const availableElements = d.available_elements || [];
 
-  // Recompute by_mine locally from the filtered sample set so charts/KPIs
-  // stay 100% consistent with whatever the table below is showing.
-  if (filterActive) {
-    const m = {};
-    samples.forEach(r => {
-      if (!m[r.mine]) m[r.mine] = { mine:r.mine, material:r.material, avg_fe:0, avg_al2o3:0, count:0 };
-      m[r.mine].avg_fe += r.Fe||0; m[r.mine].avg_al2o3 += r.Al2O3||0; m[r.mine].count++;
+  // ════════════════════════════════════════════════════════════
+  // KPI CARDS (unchanged structure/positions — recomputed from the
+  // filtered sample set so they always agree with what's shown below)
+  // ════════════════════════════════════════════════════════════
+  const feValues = samples.map(r=>r.Fe).filter(v=>v>0);
+  const feMin = feValues.length?Math.min(...feValues):0;
+  const feMax = feValues.length?Math.max(...feValues):0;
+  const feAvg = feValues.length?feValues.reduce((a,v)=>a+v,0)/feValues.length:0;
+
+  // Pass/Reject is computed at the MINE level (average Fe% per mine vs
+  // that mine's material threshold) — NOT per individual sample. This
+  // matches the requested logic: "lo el motawaset a'al/akbar men el nesba".
+  const mineAverages = (() => {
+    const m={};
+    samples.forEach(r=>{
+      if(!(r.Fe>0)) return;
+      if(!m[r.mine]) m[r.mine]={mine:r.mine, material:r.material, sum:0, count:0};
+      m[r.mine].sum+=r.Fe; m[r.mine].count++;
     });
-    byMine = Object.values(m).map(r => ({ ...r, avg_fe: r.count>0?parseFloat((r.avg_fe/r.count).toFixed(2)):0, avg_al2o3: r.count>0?parseFloat((r.avg_al2o3/r.count).toFixed(2)):0 }));
-  }
+    return Object.values(m).map(r=>({
+      mine:r.mine, material:r.material, count:r.count,
+      avg_fe: parseFloat((r.sum/r.count).toFixed(2)),
+      grade: gradeOfSample(r.material, r.sum/r.count),
+    }));
+  })();
+  const minesPass = mineAverages.filter(r=>r.grade==='pass').length;
+  const minesReject = mineAverages.filter(r=>r.grade==='reject').length;
+  const minesUngraded = mineAverages.filter(r=>r.grade==='ungraded').length;
+  const minesGradedTotal = minesPass + minesReject;
+  const minePassRatePct = minesGradedTotal ? (minesPass/minesGradedTotal*100) : 0;
 
-  // KPIs reflect the filtered set when a filter is active, otherwise the backend's totals.
-  // Same professional, decision-grade computation as the backend (Fe range,
-  // grade distribution, trend, data freshness) so filtering never degrades
-  // the KPI quality shown to the user.
-  let kpis;
-  if (filterActive) {
-    const feValues = samples.map(r=>r.Fe).filter(v=>v>0);
-    const feMin = feValues.length?Math.min(...feValues):0;
-    const feMax = feValues.length?Math.max(...feValues):0;
-    const feAvg = feValues.length?feValues.reduce((a,v)=>a+v,0)/feValues.length:0;
-
-    const graded = samples.filter(r=>r.Fe>0).map(r=>({...r, grade: gradeOfSample(r.material, r.Fe)}));
-    const passCount = graded.filter(r=>r.grade==='pass').length;
-    const rejectCount = graded.filter(r=>r.grade==='reject').length;
-    const gradedTotal = passCount + rejectCount;
-    const passRatePct = gradedTotal?(passCount/gradedTotal*100):0;
-
-    const sortedByDate=[...samples].filter(r=>r.date).sort((a,b)=>a.date.localeCompare(b.date));
-    let feTrendNote='';
-    if(sortedByDate.length>=4){
-      const half=Math.floor(sortedByDate.length/2);
-      const firstHalf=sortedByDate.slice(0,half).map(r=>r.Fe).filter(v=>v>0);
-      const secondHalf=sortedByDate.slice(half).map(r=>r.Fe).filter(v=>v>0);
-      if(firstHalf.length&&secondHalf.length){
-        const avg1=firstHalf.reduce((a,v)=>a+v,0)/firstHalf.length;
-        const avg2=secondHalf.reduce((a,v)=>a+v,0)/secondHalf.length;
-        const diff=avg2-avg1;
-        feTrendNote=(diff>=0?'+':'')+diff.toFixed(1)+' vs earlier samples';
-      }
+  const sortedByDate=[...samples].filter(r=>r.date).sort((a,b)=>a.date.localeCompare(b.date));
+  let feTrendNote='';
+  if(sortedByDate.length>=4){
+    const half=Math.floor(sortedByDate.length/2);
+    const firstHalf=sortedByDate.slice(0,half).map(r=>r.Fe).filter(v=>v>0);
+    const secondHalf=sortedByDate.slice(half).map(r=>r.Fe).filter(v=>v>0);
+    if(firstHalf.length&&secondHalf.length){
+      const avg1=firstHalf.reduce((a,v)=>a+v,0)/firstHalf.length;
+      const avg2=secondHalf.reduce((a,v)=>a+v,0)/secondHalf.length;
+      const diff=avg2-avg1;
+      feTrendNote=(diff>=0?'+':'')+diff.toFixed(1)+' vs earlier samples';
     }
-    const latestDate=sortedByDate.length?sortedByDate[sortedByDate.length-1].date:'—';
-    const daysSinceLatest=latestDate!=='—'?Math.floor((new Date()-new Date(latestDate))/86400000):null;
-    const uniqueBatches=new Set(samples.map(r=>r.batch)).size;
-    const uniqueMines=new Set(samples.map(r=>r.mine)).size;
-
-    kpis = [
-      { label:'TOTAL SAMPLES', value:samples.length, fmt:'number', color:'blue', note:uniqueBatches+' batches' },
-      { label:'AVG Fe%', value:parseFloat(feAvg.toFixed(2)), fmt:'number', color:'orange', note:feTrendNote },
-      { label:'Fe% RANGE', value:feMin.toFixed(1)+' – '+feMax.toFixed(1), fmt:'text', color:'purple', note:'Min – Max recorded' },
-      { label:'PASS RATE', value:parseFloat(passRatePct.toFixed(1)), fmt:'percent', color: passRatePct>=60?'green':passRatePct>=40?'orange':'red', note:passCount+' of '+gradedTotal+' graded samples' },
-      { label:'PASSED', value:passCount, fmt:'number', color:'green', note: gradedTotal?(passCount/gradedTotal*100).toFixed(1)+'% of graded':'' },
-      { label:'REJECTED', value:rejectCount, fmt:'number', color:'red', note: gradedTotal?(rejectCount/gradedTotal*100).toFixed(1)+'% of graded':'' },
-      { label:'MINES SAMPLED', value:uniqueMines, fmt:'number', color:'blue', note:'' },
-      { label:'LATEST SAMPLE', value:latestDate, fmt:'text', color: daysSinceLatest!==null&&daysSinceLatest>14?'red':'green', note: daysSinceLatest!==null?daysSinceLatest+' days ago':'' },
-    ];
-  } else {
-    kpis = (d.kpis||[]).map(k=>({...k})); // shallow copy so we can safely attach sparkData below
   }
+  const latestDate=sortedByDate.length?sortedByDate[sortedByDate.length-1].date:'—';
+  const daysSinceLatest=latestDate!=='—'?Math.floor((new Date()-new Date(latestDate))/86400000):null;
+  const uniqueBatches=new Set(samples.map(r=>r.batch)).size;
+  const uniqueMines=new Set(samples.map(r=>r.mine)).size;
 
-  // Attach a REAL daily Fe% sparkline (computed from the same filtered
-  // sample set) to the AVG Fe% card — no fabricated data.
+  const kpis = [
+    { label:'TOTAL SAMPLES', value:samples.length, fmt:'number', color:'blue', note:uniqueBatches+' batches' },
+    { label:'AVG Fe%', value:parseFloat(feAvg.toFixed(2)), fmt:'number', color:'orange', note:feTrendNote },
+    { label:'Fe% RANGE', value:feMin.toFixed(1)+' – '+feMax.toFixed(1), fmt:'text', color:'purple', note:'Min – Max recorded' },
+    { label:'MINE PASS RATE', value:parseFloat(minePassRatePct.toFixed(1)), fmt:'percent', color: minePassRatePct>=60?'green':minePassRatePct>=40?'orange':'red', note:minesPass+' of '+minesGradedTotal+' graded mines' },
+    { label:'MINES PASSED', value:minesPass, fmt:'number', color:'green', note: minesGradedTotal?(minesPass/minesGradedTotal*100).toFixed(1)+'% of graded':'' },
+    { label:'MINES REJECTED', value:minesReject, fmt:'number', color:'red', note: minesGradedTotal?(minesReject/minesGradedTotal*100).toFixed(1)+'% of graded':'' },
+    { label:'MINES SAMPLED', value:uniqueMines, fmt:'number', color:'blue', note: minesUngraded?minesUngraded+' ungraded':'' },
+    { label:'LATEST SAMPLE', value:latestDate, fmt:'text', color: daysSinceLatest!==null&&daysSinceLatest>14?'red':'green', note: daysSinceLatest!==null?daysSinceLatest+' days ago':'' },
+  ];
+
+  // Real daily Fe% sparkline attached to the AVG Fe% card
   {
     const byDate={};
     samples.forEach(r=>{
@@ -1398,184 +1356,177 @@ function renderQuality(){
   }
   renderKpis('qualKpis',kpis,'k8');
 
-  // ── Multi-element trend chart — populate dropdown once, then render
-  // from the currently-filtered sample set so Mine/Material/Date Range
-  // filters all narrow the trend too. ──────────────────────────────
-  const availableElements = d.available_elements || [];
-  populateElementSelect(availableElements);
-  renderElementTrendChart(samples, availableElements, c);
-
-  // Avg Fe% by mine — bar chart, colored Pass/Reject by EACH mine's own
-  // material threshold (Hematite/Limonite ≥55%, Magnetite ≥37%), click to filter
-  if (byMine.length) {
-    const sorted = [...byMine].sort((a,b) => b.avg_fe - a.avg_fe);
-    const barColors = sorted.map(r => {
-      const g = gradeOfSample(r.material, r.avg_fe);
-      return g==='pass' ? 'rgba(22,163,74,.85)' : g==='reject' ? 'rgba(220,38,38,.8)' : 'rgba(154,161,177,.7)';
-    });
-    mkChart('c_qualFeByMine','bar',{
-      labels: sorted.map(r => r.mine),
-      datasets: [{ label:'Avg Fe%', data: sorted.map(r => r.avg_fe), backgroundColor:barColors, borderRadius:5 }]
-    }, {
+  // ════════════════════════════════════════════════════════════
+  // 1) PASS / REJECT BY MINE — bar chart (mine avg vs its threshold)
+  //    + donut summarizing how many mines passed/rejected/ungraded
+  // ════════════════════════════════════════════════════════════
+  if (mineAverages.length) {
+    const sorted=[...mineAverages].sort((a,b)=>b.avg_fe-a.avg_fe);
+    const barColors=sorted.map(r=> r.grade==='pass'?'rgba(22,163,74,.85)':r.grade==='reject'?'rgba(220,38,38,.8)':'rgba(154,161,177,.7)');
+    mkChart('c_qualMineBar','bar',{
+      labels: sorted.map(r=>r.mine),
+      datasets:[{ label:'Avg Fe%', data: sorted.map(r=>r.avg_fe), backgroundColor:barColors, borderRadius:5 }]
+    },{
       plugins:{ legend:{display:false}, tooltip:{ callbacks:{
-        label: ctx => ctx.raw + '% Fe  (' + (byMine.find(m=>m.mine===ctx.label)?.count||0) + ' samples)',
+        label: ctx => ctx.raw+'% Fe avg  ('+(sorted.find(m=>m.mine===ctx.label)?.count||0)+' samples)',
         afterLabel: ctx => {
-          const mineRow = byMine.find(m=>m.mine===ctx.label);
-          const g = mineRow ? gradeOfSample(mineRow.material, ctx.raw) : 'ungraded';
-          const thresh = FE_THRESHOLDS[String(mineRow?.material||'').toLowerCase()];
-          if (g==='ungraded') return '? Material unknown — cannot grade';
-          return (g==='pass'?'✓ Pass':'✗ Reject')+' (threshold: '+thresh+'% for '+mineRow.material+')';
+          const row=sorted.find(m=>m.mine===ctx.label);
+          if(!row || row.grade==='ungraded') return '? Material unknown — cannot grade';
+          const thresh=FE_THRESHOLDS[String(row.material||'').toLowerCase()];
+          return (row.grade==='pass'?'✓ PASS':'✗ REJECT')+' — needs ≥'+thresh+'% ('+row.material+')';
         },
       } } },
       scales:{ x:{grid:{display:false},ticks:{color:c.txt,font:{size:9.5}}}, y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>v+'%'}} }
-    }, {key:'mine'});
+    },{key:'mine'});
   } else {
-    document.getElementById('c_qualFeByMine').parentElement.innerHTML = '<div style="text-align:center;color:var(--txt2);font-size:11px;padding:40px 0">No samples for this filter</div>';
+    const el=document.getElementById('c_qualMineBar');
+    if(el && el.parentElement) el.parentElement.innerHTML='<div style="text-align:center;color:var(--txt2);font-size:11px;padding:60px 0">No samples for this filter</div>';
   }
 
-  // ── Avg [Second Element] by Mine — DYNAMIC, not hardcoded to Al2O3.
-  // Al2O3 is frequently unrecorded in the lab data (0 readings across
-  // all samples for this operation), so instead of always showing an
-  // empty Al2O3 chart, this card automatically picks whichever element
-  // (besides Fe) has the best real data coverage in the current filtered
-  // sample set, and labels itself accordingly. If literally nothing else
-  // was measured, it falls back to an honest empty state. ──────────────
   {
-    const candidateElements = (availableElements||[]).filter(el=>el!=='Fe');
-    let bestElement=null, bestCoverage=0;
-    candidateElements.forEach(el=>{
-      const coverage = samples.filter(r=>(r[el]||0)>0).length;
-      if(coverage>bestCoverage){ bestCoverage=coverage; bestElement=el; }
-    });
-
-    const titleEl=document.querySelector('#pg-quality .g2:nth-of-type(1) .card:nth-child(2) h3');
-    const subtitleEl=document.querySelector('#pg-quality .g2:nth-of-type(1) .card:nth-child(2) p');
-
-    if (bestElement && bestCoverage>0) {
-      if(titleEl) titleEl.textContent = `Avg ${bestElement}% by Mine`;
-      if(subtitleEl) subtitleEl.textContent = `Most-recorded secondary element (${bestCoverage} of ${samples.length} samples). Al2O3 had no readings.`;
-
-      const byMineSecond = {};
-      samples.forEach(r=>{
-        if(!(r[bestElement]>0)) return;
-        if(!byMineSecond[r.mine]) byMineSecond[r.mine]={mine:r.mine,sum:0,count:0};
-        byMineSecond[r.mine].sum+=r[bestElement]; byMineSecond[r.mine].count++;
-      });
-      const sorted=Object.values(byMineSecond).map(r=>({mine:r.mine,avg:parseFloat((r.sum/r.count).toFixed(2)),count:r.count})).sort((a,b)=>b.avg-a.avg);
-
-      mkChart('c_qualAlByMine','bar',{
-        labels: sorted.map(r=>r.mine),
-        datasets:[{ label:`Avg ${bestElement}%`, data: sorted.map(r=>r.avg), backgroundColor:'rgba(124,58,237,.8)', borderRadius:5 }]
-      },{
-        plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx=>ctx.raw+'% '+bestElement+'  ('+(sorted.find(m=>m.mine===ctx.label)?.count||0)+' samples)' } } },
-        scales:{ x:{grid:{display:false},ticks:{color:c.txt,font:{size:9.5}}}, y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>v+'%'}} }
-      },{key:'mine'});
-    } else {
-      if(titleEl) titleEl.textContent = 'Avg Al2O3% by Mine';
-      if(subtitleEl) subtitleEl.textContent = 'Lower is better — Al2O3 is an impurity that reduces ore value.';
-      const el = document.getElementById('c_qualAlByMine');
-      if (el && el.parentElement) el.parentElement.innerHTML = '<div style="text-align:center;color:var(--txt2);font-size:11px;padding:40px 10px">No secondary element data recorded for this selection.</div>';
-    }
-  }
-
-  // ── Pass / Reject Distribution donut — per-material Fe% thresholds ──
-  // Hematite & Limonite must reach ≥55% Fe to pass; Magnetite passes at
-  // ≥37% Fe (different ore types have different commercial cutoffs).
-  // Samples whose mine has no resolved material ("Unknown") cannot be
-  // graded and are shown separately rather than guessed.
-  {
-    const feSamples = samples.filter(r=>r.Fe>0).map(r=>({...r, grade: gradeOfSample(r.material, r.Fe)}));
-    const pass = feSamples.filter(r=>r.grade==='pass').length;
-    const reject = feSamples.filter(r=>r.grade==='reject').length;
-    const ungraded = feSamples.filter(r=>r.grade==='ungraded').length;
-    const gradeData = [
-      { label:'Pass', value:pass, color:'#16a34a' },
-      { label:'Reject', value:reject, color:'#dc2626' },
-      { label:'Ungraded (Unknown material)', value:ungraded, color:'#9aa1b1' },
+    const donutData=[
+      {label:'Pass', value:minesPass, color:'#16a34a'},
+      {label:'Reject', value:minesReject, color:'#dc2626'},
+      {label:'Ungraded (Unknown material)', value:minesUngraded, color:'#9aa1b1'},
     ].filter(g=>g.value>0);
-    if (gradeData.length) {
-      mkChart('c_qualGradeDonut','doughnut',{
-        labels: gradeData.map(g=>g.label),
-        datasets:[{ data: gradeData.map(g=>g.value), backgroundColor: gradeData.map(g=>g.color), borderWidth:2, borderColor:'var(--card)', hoverOffset:6 }]
-      },{ cutout:'68%', plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => ctx.label+': '+ctx.raw+' samples ('+(feSamples.length?Math.round(ctx.raw/feSamples.length*100):0)+'%)' } } } });
-      const gradedTotal = pass + reject;
-      const passRate = gradedTotal ? Math.round(pass/gradedTotal*100) : 0;
-      document.getElementById('qualGradeCenter').innerHTML = `<div style="font-size:16px;font-weight:800;color:${passRate>=60?'var(--green)':passRate>=40?'var(--orange)':'var(--red)'}">${passRate}%</div><div style="font-size:8px;color:var(--txt2)">Pass Rate</div>`;
-      document.getElementById('qualGradeLeg').innerHTML = gradeData.map(g=>`<li><span class="dot" style="background:${g.color}"></span>${g.label}<span class="lv">${g.value} <span class="lv2">(${feSamples.length?Math.round(g.value/feSamples.length*100):0}%)</span></span></li>`).join('')
-        + `<li style="margin-top:6px;font-size:9px;color:var(--txt3);list-style:none">Thresholds: Hematite/Limonite ≥55% Fe · Magnetite ≥37% Fe</li>`;
+    if(donutData.length){
+      mkChart('c_qualMineDonut','doughnut',{
+        labels:donutData.map(g=>g.label),
+        datasets:[{data:donutData.map(g=>g.value), backgroundColor:donutData.map(g=>g.color), borderWidth:2, borderColor:'var(--card)', hoverOffset:6}]
+      },{cutout:'68%', plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>ctx.label+': '+ctx.raw+' mine(s)'}}}});
+      document.getElementById('qualMineDonutCenter').innerHTML=`<div style="font-size:16px;font-weight:800;color:${minePassRatePct>=60?'var(--green)':minePassRatePct>=40?'var(--orange)':'var(--red)'}">${Math.round(minePassRatePct)}%</div><div style="font-size:8px;color:var(--txt2)">Pass Rate</div>`;
+      document.getElementById('qualMineLeg').innerHTML=donutData.map(g=>`<li><span class="dot" style="background:${g.color}"></span>${g.label}<span class="lv">${g.value} <span class="lv2">(${mineAverages.length?Math.round(g.value/mineAverages.length*100):0}%)</span></span></li>`).join('')
+        + `<li style="margin-top:6px;font-size:9px;color:var(--txt3);list-style:none">Thresholds: Hematite/Limonite ≥55% · Magnetite ≥37%</li>`;
     } else {
-      const el=document.getElementById('c_qualGradeDonut');
-      if(el && el.parentElement) el.parentElement.parentElement.innerHTML='<div style="text-align:center;color:var(--txt2);font-size:11px;padding:30px 0">No Fe% readings for this filter</div>';
+      const el=document.getElementById('c_qualMineDonut');
+      if(el && el.parentElement) el.parentElement.parentElement.innerHTML='<div style="text-align:center;color:var(--txt2);font-size:11px;padding:30px 0">No graded mines for this filter</div>';
     }
   }
 
-  // Fe% distribution histogram across individual samples (real, not averaged).
-  // Stacked Pass/Reject per bin — since the pass/reject line itself depends
-  // on each sample's own material (Hematite/Limonite=55%, Magnetite=37%),
-  // a single color-per-bin would be misleading; instead each bin shows
-  // how many of its samples actually passed vs rejected.
-  if (samples.length) {
-    const bins = [0,10,20,30,40,50,60,70,80,90,100];
-    const passCounts = new Array(bins.length-1).fill(0);
-    const rejectCounts = new Array(bins.length-1).fill(0);
-    const ungradedCounts = new Array(bins.length-1).fill(0);
-    samples.forEach(s2 => {
-      if (!(s2.Fe>0)) return;
-      let binIdx = bins.length-2;
-      for (let i=0;i<bins.length-1;i++){ if (s2.Fe >= bins[i] && s2.Fe < bins[i+1]) { binIdx=i; break; } }
-      const g = gradeOfSample(s2.material, s2.Fe);
-      if (g==='pass') passCounts[binIdx]++;
-      else if (g==='reject') rejectCounts[binIdx]++;
-      else ungradedCounts[binIdx]++;
+  // ════════════════════════════════════════════════════════════
+  // 2) DAILY AVG Fe% TREND — one line, one point per day
+  // ════════════════════════════════════════════════════════════
+  {
+    const byDate={};
+    samples.forEach(r=>{
+      const dt=(r.date||'').substring(0,10); if(!dt||!(r.Fe>0)) return;
+      if(!byDate[dt]) byDate[dt]={sum:0,count:0};
+      byDate[dt].sum+=r.Fe; byDate[dt].count++;
     });
-    mkChart('c_qualFeDist','bar',{
-      labels: bins.slice(0,-1).map((b,i)=>b+'–'+bins[i+1]+'%'),
-      datasets:[
-        { label:'Pass',     data: passCounts,     backgroundColor:'rgba(22,163,74,.85)', borderRadius:4 },
-        { label:'Reject',   data: rejectCounts,   backgroundColor:'rgba(220,38,38,.8)',  borderRadius:4 },
-        { label:'Ungraded', data: ungradedCounts, backgroundColor:'rgba(154,161,177,.6)',borderRadius:4 },
-      ]
-    }, {
-      plugins:{ legend:{display:true, position:'top', labels:{color:c.txt, font:{size:10}, boxWidth:10}}, tooltip:{ callbacks:{ label: ctx => ctx.raw+' sample(s) — '+ctx.dataset.label } } },
-      scales:{ x:{stacked:true, grid:{display:false},ticks:{color:c.txt,font:{size:9.5}}}, y:{stacked:true, grid:{color:c.grid},ticks:{color:c.txt}} }
-    });
+    const dates=Object.keys(byDate).sort();
+    if(dates.length){
+      mkChart('c_qualDailyFe','line',{
+        labels:dates,
+        datasets:[{
+          label:'Avg Fe%', data: dates.map(dt=>parseFloat((byDate[dt].sum/byDate[dt].count).toFixed(2))),
+          borderColor:'#fd480e', backgroundColor:'rgba(253,72,14,.08)', fill:true,
+          pointBackgroundColor:'#fd480e', tension:.3,
+        }]
+      },{
+        plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>ctx.raw+'% Fe avg  ('+(byDate[ctx.label]?.count||0)+' samples)'}}},
+        scales:{x:{grid:{color:c.grid},ticks:{color:c.txt,font:{size:9},maxRotation:45}}, y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>v+'%'}}}
+      });
+    } else {
+      const el=document.getElementById('c_qualDailyFe');
+      if(el && el.parentElement) el.parentElement.innerHTML='<div style="text-align:center;color:var(--txt2);font-size:11px;padding:40px 0">No dated samples for this filter</div>';
+    }
   }
 
-  // Sample log table (real, sorted most-recent first)
-  const sortedSamples = [...samples].sort((a,b) => (a.date < b.date ? 1 : -1)).slice(0, 200);
-  const MATERIAL_COLORS={Hematite:'red',Limonite:'orange',Magnetite:'blue',hematite:'red',limonite:'orange',magnetite:'blue'};
-  const RESULT_BADGE={pass:{cls:'green',txt:'✓ Pass'},reject:{cls:'red',txt:'✗ Reject'},ungraded:{cls:'gray',txt:'— Ungraded'}};
-  document.getElementById('qualSamplesTbl').innerHTML = sortedSamples.length
-    ? sortedSamples.map(r => {
-        const isNoMatch = r.material_match==='no-match';
-        const tooltip = isNoMatch ? 'No matching mine found in the Map registry — material unknown' : 'Matched to registered mine in Map sheet';
-        const grade = gradeOfSample(r.material, r.Fe);
-        const rb = RESULT_BADGE[grade];
-        const threshold = FE_THRESHOLDS[String(r.material||'').toLowerCase()];
-        const resultTitle = grade==='ungraded' ? 'Material unknown — no threshold to apply' : 'Threshold for '+r.material+': ≥'+threshold+'% Fe';
-        return `<tr>
-        <td class="td-s">${r.date||'—'}</td>
-        <td><strong>${r.mine||'—'}</strong></td>
-        <td><span class="badge ${isNoMatch?'gray':(MATERIAL_COLORS[r.material]||'gray')}" title="${tooltip}">${r.material||'Unknown'}</span></td>
-        <td><span class="badge ${rb.cls}" title="${resultTitle}">${rb.txt}</span></td>
-        <td class="td-s">${r.zone||'—'}</td>
-        <td class="td-s">${r.batch||'—'}</td>
-        <td class="td-r td-m" style="color:var(--accent)">${(r.Fe||0).toFixed(2)}</td>
-        <td class="td-r">${(r.Al2O3||0).toFixed(2)}</td>
-        <td class="td-r">${(r.Ca||0).toFixed(2)}</td>
-        <td class="td-r">${(r.Mn||0).toFixed(2)}</td>
-        <td class="td-r">${(r.Cu||0).toFixed(2)}</td>
-        <td class="td-r">${(r.LOI||0).toFixed(2)}</td>
-      </tr>`;
-      }).join('')
-    : `<tr><td colspan="12" style="text-align:center;color:var(--txt2);padding:20px;font-size:11px">No samples found${FILTERS.mine!=='all'?' for '+FILTERS.mine:''}${FILTERS.material!=='all'?' ('+FILTERS.material+')':''}.</td></tr>`;
+  // ════════════════════════════════════════════════════════════
+  // 3) ELEMENT LEVELS — BY BATCH (left) and BY DAY (right)
+  // ════════════════════════════════════════════════════════════
+  populateElementSelect(availableElements);
+
+  if(!SELECTED_ELEMENTS.length){
+    ['c_qualElementByBatch','c_qualElementByDay'].forEach(id=>{
+      if(CHARTS[id]){CHARTS[id].destroy(); delete CHARTS[id];}
+      const el=document.getElementById(id);
+      if(el && el.parentElement) el.parentElement.innerHTML='<div style="text-align:center;color:var(--txt2);font-size:11px;padding:40px 0">Tick an element above</div>';
+    });
+  } else {
+    // By batch — one x-axis tick per batch (sorted by date), one line per element
+    const batchRows = [...samples].filter(r=>r.batch).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+    const batchLabels = batchRows.map(r=>r.batch);
+    if(batchLabels.length){
+      mkChart('c_qualElementByBatch','line',{
+        labels: batchLabels,
+        datasets: SELECTED_ELEMENTS.map((el,i)=>({
+          label:el, data: batchRows.map(r=>r[el]||0),
+          borderColor:ELEMENT_CHART_COLORS[i%ELEMENT_CHART_COLORS.length],
+          backgroundColor:ELEMENT_CHART_COLORS[i%ELEMENT_CHART_COLORS.length]+'18',
+          fill:false, pointRadius:2, tension:.2,
+        }))
+      },{
+        plugins:{legend:{display:true,position:'top',labels:{color:c.txt,font:{size:9.5},boxWidth:9}}},
+        scales:{x:{grid:{display:false},ticks:{color:c.txt,font:{size:8},maxRotation:60}}, y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>v+'%'}}}
+      });
+    } else {
+      const el=document.getElementById('c_qualElementByBatch');
+      if(el && el.parentElement) el.parentElement.innerHTML='<div style="text-align:center;color:var(--txt2);font-size:11px;padding:40px 0">No batches for this filter</div>';
+    }
+
+    // By day — daily average per selected element
+    const byDateEl={};
+    samples.forEach(r=>{
+      const dt=(r.date||'').substring(0,10); if(!dt) return;
+      if(!byDateEl[dt]) byDateEl[dt]={count:0};
+      SELECTED_ELEMENTS.forEach(el=>{ byDateEl[dt][el]=(byDateEl[dt][el]||0)+(r[el]||0); });
+      byDateEl[dt].count++;
+    });
+    const dayLabels=Object.keys(byDateEl).sort();
+    if(dayLabels.length){
+      mkChart('c_qualElementByDay','line',{
+        labels: dayLabels,
+        datasets: SELECTED_ELEMENTS.map((el,i)=>({
+          label:el, data: dayLabels.map(dt=>parseFloat((byDateEl[dt][el]/byDateEl[dt].count||0).toFixed(3))),
+          borderColor:ELEMENT_CHART_COLORS[i%ELEMENT_CHART_COLORS.length],
+          backgroundColor:ELEMENT_CHART_COLORS[i%ELEMENT_CHART_COLORS.length]+'18',
+          fill:false, pointRadius:2, tension:.3,
+        }))
+      },{
+        plugins:{legend:{display:true,position:'top',labels:{color:c.txt,font:{size:9.5},boxWidth:9}}},
+        scales:{x:{grid:{color:c.grid},ticks:{color:c.txt,font:{size:8},maxRotation:60}}, y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>v+'%'}}}
+      });
+    } else {
+      const el=document.getElementById('c_qualElementByDay');
+      if(el && el.parentElement) el.parentElement.innerHTML='<div style="text-align:center;color:var(--txt2);font-size:11px;padding:40px 0">No dated samples for this filter</div>';
+    }
+  }
+
+  // ════════════════════════════════════════════════════════════
+  // 4) FULL DATA TABLE — every mine, every batch, ONLY columns
+  //    (elements) that have at least one real (non-zero) value in
+  //    the currently filtered sample set.
+  // ════════════════════════════════════════════════════════════
+  const tableElements = availableElements.filter(el => samples.some(r=>(r[el]||0)>0));
+  const theadEl = document.getElementById('qualFullTblHead');
+  if (theadEl) {
+    theadEl.innerHTML = `<th>Date</th><th>Mine</th><th>Material</th><th>Batch</th>`
+      + tableElements.map(el=>`<th class="td-r">${el}%</th>`).join('');
+  }
+  const sortedSamples=[...samples].sort((a,b)=>(a.date<b.date?1:-1));
+  const tbodyEl = document.getElementById('qualFullTbl');
+  if (tbodyEl) {
+    tbodyEl.innerHTML = sortedSamples.length
+      ? sortedSamples.map(r=>{
+          const isNoMatch = r.material_match==='no-match';
+          return `<tr>
+            <td class="td-s">${r.date||'—'}</td>
+            <td><strong>${r.mine||'—'}</strong></td>
+            <td><span class="badge ${isNoMatch?'gray':'blue'}">${r.material||'Unknown'}</span></td>
+            <td class="td-s">${r.batch||'—'}</td>
+            ${tableElements.map(el=>`<td class="td-r${el==='Fe'?' td-m':''}" ${el==='Fe'?'style="color:var(--accent)"':''}>${(r[el]||0).toFixed(2)}</td>`).join('')}
+          </tr>`;
+        }).join('')
+      : `<tr><td colspan="${4+tableElements.length}" style="text-align:center;color:var(--txt2);padding:20px;font-size:11px">No samples found for this filter.</td></tr>`;
+  }
 
   // Honest note about unmatched mine names, shown only when relevant
   const noMatchCount = samples.filter(r=>r.material_match==='no-match').length;
   const noteEl = document.getElementById('qualMatchNote');
   if (noteEl) {
     noteEl.innerHTML = noMatchCount>0
-      ? `ℹ️ ${noMatchCount} sample(s) show "Unknown" material — these mine names ("Al Kharga 1", "Balat 1", etc.) are not yet registered in the Map sheet.`
+      ? `ℹ️ ${noMatchCount} sample(s) show "Unknown" material — these mine names are not yet registered in the Map sheet.`
       : '';
   }
 }
