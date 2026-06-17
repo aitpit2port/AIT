@@ -469,20 +469,31 @@ tbody tr:hover td{background:var(--bg)}
 
       <!-- ════════ PAGE 12: QUALITY / SAMPLES ════════ -->
       <div class="pg" id="pg-quality">
-        <div class="kpi-row k4" id="qualKpis"></div>
+        <div class="kpi-row k8" id="qualKpis"></div>
         <div class="g2">
           <div class="card">
-            <div class="card-h"><h3>Avg Fe% by Mine</h3></div>
+            <div class="card-h"><div><h3>Avg Fe% by Mine</h3><p style="font-size:10.5px;color:var(--txt2);margin-top:2px">Higher bars = richer ore. Click a bar to filter the whole page by that mine.</p></div></div>
             <div class="card-b"><div class="cw" style="height:220px"><canvas id="c_qualFeByMine"></canvas></div></div>
           </div>
           <div class="card">
-            <div class="card-h"><h3>Avg Al2O3% by Mine</h3></div>
+            <div class="card-h"><div><h3>Avg Al2O3% by Mine</h3><p style="font-size:10.5px;color:var(--txt2);margin-top:2px">Lower is better — Al2O3 is an impurity that reduces ore value.</p></div></div>
             <div class="card-b"><div class="cw" style="height:220px"><canvas id="c_qualAlByMine"></canvas></div></div>
           </div>
         </div>
-        <div class="card">
-          <div class="card-h"><h3>Fe% Distribution Across Samples</h3></div>
-          <div class="card-b"><div class="cw" style="height:200px"><canvas id="c_qualFeDist"></canvas></div></div>
+        <div class="g2">
+          <div class="card">
+            <div class="card-h"><div><h3>Ore Grade Distribution</h3><p style="font-size:10.5px;color:var(--txt2);margin-top:2px">Share of samples by quality band — High-grade (≥60% Fe) is the most valuable.</p></div></div>
+            <div class="card-b" style="text-align:center">
+              <div style="position:relative;width:140px;height:140px;margin:0 auto"><canvas id="c_qualGradeDonut"></canvas>
+                <div id="qualGradeCenter" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center"></div>
+              </div>
+              <ul class="leg" id="qualGradeLeg" style="margin-top:12px;text-align:left;font-size:10.5px"></ul>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-h"><div><h3>Fe% Distribution Across Samples</h3><p style="font-size:10.5px;color:var(--txt2);margin-top:2px">Full spread of individual readings — shows consistency vs. variability.</p></div></div>
+            <div class="card-b"><div class="cw" style="height:200px"><canvas id="c_qualFeDist"></canvas></div></div>
+          </div>
         </div>
         <div class="card">
           <div class="card-h" style="flex-wrap:wrap;gap:10px">
@@ -847,17 +858,25 @@ function renderKpis(containerId,kpis,gridClass){
     const trendCls=k.note&&k.note.includes('+')?'up':k.note&&k.note.includes('-')?'dn':'';
     return `<div class="kc">
       <div class="kc-top"><div class="kc-icon ${color}">${KPI_ICONS[color]||'📊'}</div><div class="kc-lbl">${k.label}</div></div>
-      <div class="kc-val ${color}">${val}</div>
+      <div class="kc-val ${color}" ${typeof k.value==='string'&&k.value.length>8?'style="font-size:15px"':''}>${val}</div>
       ${k.note?`<div class="kc-note ${trendCls}">${k.note}</div>`:'<div class="kc-note">&nbsp;</div>'}
       <div class="kc-spark"><canvas id="${containerId}_spark${i}"></canvas></div>
     </div>`;
   }).join('');
-  // Render sparklines after DOM insert
+  // Render sparklines after DOM insert. If a KPI provides real sparkData,
+  // use it; otherwise fall back to the original placeholder pattern so
+  // pages without a real history series (e.g. Executive Summary) keep
+  // their existing visual rhythm unchanged.
   setTimeout(()=>{
     kpis.forEach((k,i)=>{
-      const seed=Math.abs((k.label||'').split('').reduce((a,c)=>a+c.charCodeAt(0),0));
-      const vals=Array.from({length:8},(_,j)=>50+((seed*(j+1))%40)+Math.sin(j+seed)*15);
       const color=k.color==='green'?'#16a34a':k.color==='red'?'#dc2626':k.color==='orange'?'#ea580c':k.color==='purple'?'#7c3aed':'#2563eb';
+      let vals;
+      if(Array.isArray(k.sparkData)&&k.sparkData.length>1){
+        vals=k.sparkData;
+      } else {
+        const seed=Math.abs((k.label||'').split('').reduce((a,c)=>a+c.charCodeAt(0),0));
+        vals=Array.from({length:8},(_,j)=>50+((seed*(j+1))%40)+Math.sin(j+seed)*15);
+      }
       mkSpark(containerId+'_spark'+i,vals,color);
     });
   },50);
@@ -1307,14 +1326,66 @@ function renderQuality(){
     byMine = Object.values(m).map(r => ({ ...r, avg_fe: r.count>0?parseFloat((r.avg_fe/r.count).toFixed(2)):0, avg_al2o3: r.count>0?parseFloat((r.avg_al2o3/r.count).toFixed(2)):0 }));
   }
 
-  // KPIs reflect the filtered set when a filter is active, otherwise the backend's totals
-  const kpis = filterActive ? [
-    { label:'TOTAL SAMPLES', value:samples.length, fmt:'number' },
-    { label:'AVG Fe%', value: samples.length>0?parseFloat((samples.reduce((a,r)=>a+(r.Fe||0),0)/samples.length).toFixed(2)):0, fmt:'number' },
-    { label:'AVG Al2O3%', value: samples.length>0?parseFloat((samples.reduce((a,r)=>a+(r.Al2O3||0),0)/samples.length).toFixed(2)):0, fmt:'number' },
-    { label:'MINES SAMPLED', value: new Set(samples.map(r=>r.mine)).size, fmt:'number' },
-  ] : (d.kpis||[]);
-  renderKpis('qualKpis',kpis,'k4');
+  // KPIs reflect the filtered set when a filter is active, otherwise the backend's totals.
+  // Same professional, decision-grade computation as the backend (Fe range,
+  // grade distribution, trend, data freshness) so filtering never degrades
+  // the KPI quality shown to the user.
+  let kpis;
+  if (filterActive) {
+    const feValues = samples.map(r=>r.Fe).filter(v=>v>0);
+    const feMin = feValues.length?Math.min(...feValues):0;
+    const feMax = feValues.length?Math.max(...feValues):0;
+    const feAvg = feValues.length?feValues.reduce((a,v)=>a+v,0)/feValues.length:0;
+    const highGrade = feValues.filter(v=>v>=60).length;
+    const midGrade = feValues.filter(v=>v>=50&&v<60).length;
+    const lowGrade = feValues.filter(v=>v<50).length;
+    const highGradePct = feValues.length?(highGrade/feValues.length*100):0;
+    const sortedByDate=[...samples].filter(r=>r.date).sort((a,b)=>a.date.localeCompare(b.date));
+    let feTrendNote='';
+    if(sortedByDate.length>=4){
+      const half=Math.floor(sortedByDate.length/2);
+      const firstHalf=sortedByDate.slice(0,half).map(r=>r.Fe).filter(v=>v>0);
+      const secondHalf=sortedByDate.slice(half).map(r=>r.Fe).filter(v=>v>0);
+      if(firstHalf.length&&secondHalf.length){
+        const avg1=firstHalf.reduce((a,v)=>a+v,0)/firstHalf.length;
+        const avg2=secondHalf.reduce((a,v)=>a+v,0)/secondHalf.length;
+        const diff=avg2-avg1;
+        feTrendNote=(diff>=0?'+':'')+diff.toFixed(1)+' vs earlier samples';
+      }
+    }
+    const latestDate=sortedByDate.length?sortedByDate[sortedByDate.length-1].date:'—';
+    const daysSinceLatest=latestDate!=='—'?Math.floor((new Date()-new Date(latestDate))/86400000):null;
+    const uniqueBatches=new Set(samples.map(r=>r.batch)).size;
+    const uniqueMines=new Set(samples.map(r=>r.mine)).size;
+
+    kpis = [
+      { label:'TOTAL SAMPLES', value:samples.length, fmt:'number', color:'blue', note:uniqueBatches+' batches' },
+      { label:'AVG Fe%', value:parseFloat(feAvg.toFixed(2)), fmt:'number', color:'orange', note:feTrendNote },
+      { label:'Fe% RANGE', value:feMin.toFixed(1)+' – '+feMax.toFixed(1), fmt:'text', color:'purple', note:'Min – Max recorded' },
+      { label:'HIGH-GRADE %', value:parseFloat(highGradePct.toFixed(1)), fmt:'percent', color: highGradePct>=30?'green':highGradePct>=15?'orange':'red', note:highGrade+' samples ≥60% Fe' },
+      { label:'MID-GRADE', value:midGrade, fmt:'number', color:'blue', note: feValues.length?(midGrade/feValues.length*100).toFixed(1)+'% of total':'' },
+      { label:'LOW-GRADE', value:lowGrade, fmt:'number', color: lowGrade>highGrade?'red':'orange', note: feValues.length?(lowGrade/feValues.length*100).toFixed(1)+'% of total':'' },
+      { label:'MINES SAMPLED', value:uniqueMines, fmt:'number', color:'blue', note:'' },
+      { label:'LATEST SAMPLE', value:latestDate, fmt:'text', color: daysSinceLatest!==null&&daysSinceLatest>14?'red':'green', note: daysSinceLatest!==null?daysSinceLatest+' days ago':'' },
+    ];
+  } else {
+    kpis = (d.kpis||[]).map(k=>({...k})); // shallow copy so we can safely attach sparkData below
+  }
+
+  // Attach a REAL daily Fe% sparkline (computed from the same filtered
+  // sample set) to the AVG Fe% card — no fabricated data.
+  {
+    const byDate={};
+    samples.forEach(r=>{
+      const dt=(r.date||'').substring(0,10); if(!dt||!(r.Fe>0)) return;
+      if(!byDate[dt]) byDate[dt]={sum:0,count:0};
+      byDate[dt].sum+=r.Fe; byDate[dt].count++;
+    });
+    const dailyFe=Object.keys(byDate).sort().map(dt=>byDate[dt].sum/byDate[dt].count);
+    const feKpi=kpis.find(k=>k.label==='AVG Fe%');
+    if(feKpi && dailyFe.length>1) feKpi.sparkData=dailyFe;
+  }
+  renderKpis('qualKpis',kpis,'k8');
 
   // ── Multi-element trend chart — populate dropdown once, then render
   // from the currently-filtered sample set so Mine/Material/Date Range
@@ -1323,14 +1394,18 @@ function renderQuality(){
   populateElementSelect(availableElements);
   renderElementTrendChart(samples, availableElements, c);
 
-  // Avg Fe% by mine — bar chart, click bar to filter
+  // Avg Fe% by mine — bar chart, colored by grade band, click bar to filter
   if (byMine.length) {
     const sorted = [...byMine].sort((a,b) => b.avg_fe - a.avg_fe);
+    const barColors = sorted.map(r => r.avg_fe>=60?'rgba(22,163,74,.85)':r.avg_fe>=50?'rgba(234,88,12,.85)':'rgba(220,38,38,.8)');
     mkChart('c_qualFeByMine','bar',{
       labels: sorted.map(r => r.mine),
-      datasets: [{ label:'Avg Fe%', data: sorted.map(r => r.avg_fe), backgroundColor:'rgba(253,72,14,.85)', borderRadius:5 }]
+      datasets: [{ label:'Avg Fe%', data: sorted.map(r => r.avg_fe), backgroundColor:barColors, borderRadius:5 }]
     }, {
-      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => ctx.raw + '% Fe  (' + (byMine.find(m=>m.mine===ctx.label)?.count||0) + ' samples)' } } },
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{
+        label: ctx => ctx.raw + '% Fe  (' + (byMine.find(m=>m.mine===ctx.label)?.count||0) + ' samples)',
+        afterLabel: ctx => ctx.raw>=60?'✓ High grade':ctx.raw>=50?'~ Mid grade':'⚠ Low grade',
+      } } },
       scales:{ x:{grid:{display:false},ticks:{color:c.txt,font:{size:9.5}}}, y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>v+'%'}} }
     }, {key:'mine'});
   } else {
@@ -1353,7 +1428,35 @@ function renderQuality(){
     if (el && el.parentElement) el.parentElement.innerHTML = '<div style="text-align:center;color:var(--txt2);font-size:11px;padding:40px 10px">Al2O3% was not recorded in the source samples for this selection.</div>';
   }
 
+  // ── Ore Grade Distribution donut — High/Mid/Low grade bands ────
+  // Industry-standard bands for iron ore: High-grade ≥60% Fe is most
+  // valuable, Mid-grade 50-60%, Low-grade <50% (lower commercial value).
+  {
+    const feVals = samples.map(r=>r.Fe).filter(v=>v>0);
+    const high = feVals.filter(v=>v>=60).length;
+    const mid  = feVals.filter(v=>v>=50&&v<60).length;
+    const low  = feVals.filter(v=>v<50).length;
+    const gradeData = [
+      { label:'High Grade (≥60%)', value:high, color:'#16a34a' },
+      { label:'Mid Grade (50–60%)', value:mid,  color:'#ea580c' },
+      { label:'Low Grade (<50%)',  value:low,  color:'#dc2626' },
+    ].filter(g=>g.value>0);
+    if (gradeData.length) {
+      mkChart('c_qualGradeDonut','doughnut',{
+        labels: gradeData.map(g=>g.label),
+        datasets:[{ data: gradeData.map(g=>g.value), backgroundColor: gradeData.map(g=>g.color), borderWidth:2, borderColor:'var(--card)', hoverOffset:6 }]
+      },{ cutout:'68%', plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => ctx.label+': '+ctx.raw+' samples ('+(feVals.length?Math.round(ctx.raw/feVals.length*100):0)+'%)' } } } });
+      document.getElementById('qualGradeCenter').innerHTML = `<div style="font-size:16px;font-weight:800;color:var(--txt)">${feVals.length}</div><div style="font-size:8px;color:var(--txt2)">Samples</div>`;
+      document.getElementById('qualGradeLeg').innerHTML = gradeData.map(g=>`<li><span class="dot" style="background:${g.color}"></span>${g.label}<span class="lv">${g.value} <span class="lv2">(${feVals.length?Math.round(g.value/feVals.length*100):0}%)</span></span></li>`).join('');
+    } else {
+      const el=document.getElementById('c_qualGradeDonut');
+      if(el && el.parentElement) el.parentElement.parentElement.innerHTML='<div style="text-align:center;color:var(--txt2);font-size:11px;padding:30px 0">No Fe% readings for this filter</div>';
+    }
+  }
+
   // Fe% distribution histogram across individual samples (real, not averaged)
+  // Bars are colored by the same grade bands as the donut above, so the
+  // two charts read together as one consistent story.
   if (samples.length) {
     const bins = [0,10,20,30,40,50,60,70,80,90,100];
     const counts = new Array(bins.length-1).fill(0);
@@ -1363,10 +1466,14 @@ function renderQuality(){
         if (i === bins.length-2 && s2.Fe >= bins[i+1]) counts[i]++;
       }
     });
+    const barColors = bins.slice(0,-1).map(b => b>=60?'rgba(22,163,74,.85)':b>=50?'rgba(234,88,12,.85)':'rgba(220,38,38,.75)');
     mkChart('c_qualFeDist','bar',{
       labels: bins.slice(0,-1).map((b,i)=>b+'–'+bins[i+1]+'%'),
-      datasets:[{ label:'Samples', data: counts, backgroundColor:'rgba(37,99,235,.8)', borderRadius:5 }]
-    }, { plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false},ticks:{color:c.txt,font:{size:9.5}}}, y:{grid:{color:c.grid},ticks:{color:c.txt}} } });
+      datasets:[{ label:'Samples', data: counts, backgroundColor:barColors, borderRadius:5 }]
+    }, {
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => ctx.raw+' sample(s) in this Fe% range' } } },
+      scales:{ x:{grid:{display:false},ticks:{color:c.txt,font:{size:9.5}}}, y:{grid:{color:c.grid},ticks:{color:c.txt}} }
+    });
   }
 
   // Sample log table (real, sorted most-recent first)
