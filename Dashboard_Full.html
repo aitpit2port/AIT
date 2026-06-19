@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- Professional enhanced version generated from the original AIT dashboard. -->
 <html lang="en" data-theme="light" dir="ltr">
 <head>
 <meta charset="UTF-8">
@@ -286,190 +285,38 @@ tbody tr:hover td{background:var(--bg)}
 
 
 /* ============================================================
-   PROFESSIONAL EXECUTIVE UI UPGRADE - Added by ChatGPT
-   Purpose: premium enterprise dashboard skin without changing data logic.
+   AIT EXECUTIVE POLISH PATCH - professional dashboard layout
    ============================================================ */
 :root{
-  --accent:#f15a24;
-  --accent2:#c74417;
-  --accentbg:rgba(241,90,36,.10);
-  --blue:#1f5eff;
-  --bluebg:#eef4ff;
-  --green:#0f9f6e;
-  --greenbg:#eafaf3;
-  --red:#d62f2f;
-  --redbg:#fff0f0;
-  --orange:#f08a24;
-  --orangebg:#fff5e8;
-  --purple:#7057d8;
-  --purplebg:#f2efff;
-  --bg:#eef2f7;
-  --card:rgba(255,255,255,.96);
-  --border:#dce3ec;
-  --txt:#172033;
-  --txt2:#667085;
-  --txt3:#98a2b3;
-  --sidebar:#08111f;
-  --sb2:#0d1b2d;
-  --sb3:#18273a;
-  --shadow:0 10px 28px rgba(15,23,42,.055),0 1px 2px rgba(15,23,42,.04);
-  --shadow2:0 18px 50px rgba(15,23,42,.12);
-  --radius:16px;
+  --accent:#f35a24;--accent2:#d74615;--accentbg:rgba(243,90,36,.10);
+  --bg:#eef3f8;--card:#ffffff;--border:#dbe4ee;--txt:#142033;--txt2:#627083;--txt3:#98a3b3;
+  --sidebar:#08111f;--sb2:#111b2b;--sb3:#1a2740;
+  --shadow:0 8px 28px rgba(15,23,42,.075);--shadow2:0 18px 48px rgba(15,23,42,.13);
 }
 [data-theme="dark"]{
-  --bg:#090f19;
-  --card:rgba(15,23,42,.95);
-  --border:#263244;
-  --txt:#f5f7fb;
-  --txt2:#a8b3c4;
-  --txt3:#707d91;
-  --sidebar:#050914;
-  --sb2:#0a1322;
-  --sb3:#172236;
-  --bluebg:rgba(31,94,255,.16);
-  --greenbg:rgba(15,159,110,.16);
-  --redbg:rgba(214,47,47,.16);
-  --orangebg:rgba(240,138,36,.16);
-  --purplebg:rgba(112,87,216,.16);
-  --accentbg:rgba(241,90,36,.16);
+  --bg:#0b1220;--card:#111827;--border:#263244;--txt:#f3f6fb;--txt2:#aab4c3;--txt3:#6f7d91;
+  --sidebar:#050914;--sb2:#0d1524;--sb3:#172238;
 }
-html,body{
-  font-size:13.5px;
-  background:
-    radial-gradient(circle at top left, rgba(241,90,36,.08), transparent 28rem),
-    radial-gradient(circle at top right, rgba(31,94,255,.06), transparent 30rem),
-    var(--bg);
-}
-body{letter-spacing:-.005em}
-.app{background:transparent}
-.sb{
-  width:260px;
-  background:linear-gradient(180deg,var(--sidebar),#0b1423 48%,#070d17);
-  border-right:1px solid rgba(255,255,255,.08);
-  box-shadow:8px 0 28px rgba(2,8,23,.12);
-}
-.sb.collapsed{width:72px}
-.sb-head{padding:22px 18px;border-bottom:1px solid rgba(255,255,255,.08)}
-.sb-logo,.login-logo,.ld-logo{
-  background:linear-gradient(135deg,var(--accent),#ff9b63);
-  box-shadow:0 10px 28px rgba(241,90,36,.28);
-}
-.sb-brand strong{font-size:14.5px;letter-spacing:.01em}
-.sb-brand span{font-size:10.5px;color:#91a2b8;text-transform:uppercase;letter-spacing:.14em}
-.sb-toggle{color:#9aa8bb;border:1px solid rgba(255,255,255,.08);border-radius:8px;background:rgba(255,255,255,.04)}
-.ni{
-  margin:3px 12px;
-  padding:11px 14px;
-  border-radius:12px;
-  color:#9aa8bb;
-  border:1px solid transparent;
-}
-.ni:hover{background:rgba(255,255,255,.055);border-color:rgba(255,255,255,.08)}
-.ni.active{
-  background:linear-gradient(135deg,rgba(241,90,36,.98),rgba(199,68,23,.96));
-  box-shadow:0 12px 24px rgba(241,90,36,.24);
-}
-.ni-icon,.mob-ni-icon{
-  width:22px;height:22px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;
-  font-size:9px;font-weight:800;letter-spacing:.04em;background:rgba(255,255,255,.08);color:currentColor;
-}
-.ni-num{display:none}
-.sb-foot{border-top:1px solid rgba(255,255,255,.08);padding:14px 16px}
-.sb-fbtn{border-radius:10px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08)}
-.main{background:transparent}
-.tb{
-  padding:22px 30px 16px;
-  background:linear-gradient(180deg,rgba(255,255,255,.62),rgba(255,255,255,0));
-  backdrop-filter:blur(10px);
-  position:sticky;top:0;z-index:50;
-  border-bottom:1px solid rgba(220,227,236,.72);
-}
-[data-theme="dark"] .tb{background:linear-gradient(180deg,rgba(9,15,25,.88),rgba(9,15,25,.55));border-bottom-color:rgba(38,50,68,.8)}
-.tb-title h1{font-size:25px;letter-spacing:-.04em;font-weight:850}
-.tb-title p{font-size:12.5px;color:var(--txt2);margin-top:5px}
-.tb-title:before{
-  content:'Executive Control Center';display:inline-flex;margin-bottom:8px;padding:4px 10px;border-radius:999px;
-  color:var(--accent);background:var(--accentbg);font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
-}
-.tb-sel select,.fb-item select,.fb-date{
-  border-radius:10px;background-color:var(--card);box-shadow:0 1px 0 rgba(15,23,42,.03);border-color:var(--border);
-}
-.tb-export,.tb-refresh,.fb-clr{
-  border-radius:10px;font-weight:700;box-shadow:0 6px 16px rgba(15,23,42,.04);
-}
-.tb-refresh{background:linear-gradient(135deg,var(--accent),#ff7b42);box-shadow:0 12px 24px rgba(241,90,36,.22)}
-.fb{
-  margin:12px 30px 18px;padding:15px 16px 13px;border-radius:var(--radius);
-  box-shadow:var(--shadow);background:var(--card);backdrop-filter:blur(12px);
-}
-.fb-label{top:-10px;border-radius:999px;background:linear-gradient(135deg,var(--sidebar),var(--sb3));letter-spacing:.12em}
-.content{padding:0 30px 34px}
-.card,.kc{
-  border-radius:var(--radius);
-  background:var(--card);
-  border:1px solid rgba(220,227,236,.88);
-  box-shadow:var(--shadow);
-  backdrop-filter:blur(10px);
-}
-[data-theme="dark"] .card,[data-theme="dark"] .kc{border-color:rgba(38,50,68,.92)}
-.card{overflow:hidden}
-.card:hover,.kc:hover{box-shadow:var(--shadow2);transform:translateY(-2px)}
-.card-h{
-  padding:16px 18px 11px;
-  border-bottom:1px solid rgba(220,227,236,.55);
-  background:linear-gradient(180deg,rgba(248,250,252,.65),rgba(248,250,252,0));
-}
-[data-theme="dark"] .card-h{border-bottom-color:rgba(38,50,68,.75);background:linear-gradient(180deg,rgba(30,41,59,.4),rgba(30,41,59,0))}
-.card-h h3{font-size:14px;letter-spacing:-.02em}
-.card-b{padding:12px 18px 18px}
-.kpi-row{gap:14px;margin-bottom:18px}
-.kc{
-  min-height:120px;padding:15px 16px 10px;
-  border-top:3px solid var(--accent);
-}
-.kc:nth-child(2n){border-top-color:var(--blue)}
-.kc:nth-child(3n){border-top-color:var(--green)}
-.kc:nth-child(4n){border-top-color:var(--orange)}
-.kc-top{margin-bottom:12px;align-items:center}
-.kc-icon{width:32px;height:32px;border-radius:10px;font-size:10px;font-weight:850;letter-spacing:.05em}
-.kc-lbl{font-size:10.5px;letter-spacing:.11em;color:var(--txt2)}
-.kc-val{font-size:25px;letter-spacing:-.045em;line-height:1.05}
-.kc-note{font-size:11px;margin-top:5px}
-.kc-spark{height:28px;opacity:.78}
-thead th{
-  position:sticky;top:0;z-index:2;background:var(--bg);font-size:10px;color:var(--txt2);
-  border-bottom:1px solid var(--border);padding:10px 12px;
-}
-tbody td{padding:10px 12px}
-tbody tr:hover td{background:rgba(31,94,255,.045)}
-.badge{border-radius:999px;padding:4px 10px;font-weight:750}
-.pb{height:7px;background:rgba(102,112,133,.18)}
-.pf{box-shadow:inset 0 -1px 0 rgba(0,0,0,.08)}
-.leg li{padding:5px 0;border-bottom:1px dashed rgba(102,112,133,.14)}
-.leg li:last-child{border-bottom:0}
-.status-circle{
-  border:1px solid rgba(15,159,110,.18);box-shadow:inset 0 0 0 8px rgba(255,255,255,.35),0 16px 32px rgba(15,159,110,.08)
-}
-.login-box{
-  border-radius:22px;border:1px solid rgba(255,255,255,.18);box-shadow:0 28px 90px rgba(0,0,0,.45);
-}
-.login-title{letter-spacing:-.03em;font-size:22px}
-.login-field input{border-radius:12px;padding:12px 14px}
-.login-btn{border-radius:12px;padding:12px;background:linear-gradient(135deg,var(--accent),#ff7b42)}
-.mob-nav{box-shadow:0 -14px 35px rgba(2,8,23,.16)}
-.mob-nav-inner{height:62px}
-.mob-ni.active{color:#ff7b42}
-.mob-more-item{border:1px solid rgba(255,255,255,.08);border-radius:12px}
-.foot{padding:12px 30px 14px;color:var(--txt3)}
-@media(max-width:1300px){.kpi-row.k8,.kpi-row.k7{grid-template-columns:repeat(4,1fr)}}
-@media(max-width:900px){
-  .tb{position:relative;padding:16px 14px}.tb-title h1{font-size:22px}.content{padding:0 14px 76px}.fb{margin:8px 14px 16px}
-  .card,.kc{border-radius:14px}.kpi-row{gap:10px}
-}
-@media print{
-  .sb,.mob-nav,.mob-more-menu,.tb-right,.fb,.login-box,#loginScreen{display:none!important}
-  .tb{position:relative;border:0;background:#fff}.content{padding:0}.card,.kc{box-shadow:none;break-inside:avoid}
-}
+html,body{font-size:14px;overflow:hidden;background:radial-gradient(circle at top left,rgba(243,90,36,.08),transparent 32%),var(--bg)}
+.app{width:100%;height:100vh;display:flex;overflow:hidden;direction:ltr}
+.sb{width:260px;border-right:0;box-shadow:10px 0 30px rgba(4,10,20,.16);background:linear-gradient(180deg,#08111f 0%,#07101e 54%,#040914 100%)}
+.sb.collapsed{width:72px}.sb-head{padding:20px 18px}.sb-logo{width:42px;height:42px;border-radius:14px;box-shadow:0 10px 22px rgba(243,90,36,.32)}
+.sb-brand strong{font-size:15px}.sb-brand span{font-size:10.5px;text-transform:uppercase;letter-spacing:1.2px;color:#90a0b7}
+.ni{margin:4px 12px;padding:12px 14px;border-radius:14px;color:#9fb0c7;border:1px solid transparent;gap:12px}
+.ni:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.08);color:#fff}.ni.active{background:linear-gradient(135deg,var(--accent),#cf3d13);box-shadow:0 12px 26px rgba(243,90,36,.28)}
+.ni-num{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.08);font-size:9px}.ni-icon{font-size:10px;width:24px;height:24px;border-radius:8px;background:rgba(255,255,255,.08);display:inline-flex;align-items:center;justify-content:center;font-weight:800;letter-spacing:.3px}.ni.active .ni-icon{background:rgba(255,255,255,.2)}
+.main{flex:1;min-width:0;overflow:hidden;margin:0!important;direction:ltr}.tb{padding:20px 32px 16px;background:linear-gradient(180deg,rgba(255,255,255,.74),rgba(255,255,255,.35));backdrop-filter:blur(12px);border-bottom:1px solid rgba(219,228,238,.72);align-items:center}.tb-title h1{font-size:25px;letter-spacing:-.04em}.tb-title p{font-size:12px;max-width:680px}.tb-right{gap:10px}.tb-refresh,.tb-export,.tb-sel select{border-radius:12px}.tb-refresh{padding:10px 18px;box-shadow:0 10px 22px rgba(243,90,36,.22)}.tb-export{padding:9px 14px;background:rgba(255,255,255,.72)}
+.fb{margin:14px 32px 18px;padding:16px;background:rgba(255,255,255,.86);backdrop-filter:blur(10px);border-radius:18px;box-shadow:var(--shadow)}.fb-label{top:-10px;left:18px;border-radius:999px;padding:4px 12px;box-shadow:0 8px 18px rgba(243,90,36,.22)}
+.content{padding:0 32px 40px;max-width:none!important}.pg{animation:fadeIn .22s ease}.pg.active{display:block}@keyframes fadeIn{from{opacity:.5;transform:translateY(4px)}to{opacity:1;transform:none}}
+.kpi-row{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(185px,1fr))!important;gap:16px;margin-bottom:18px}.kc{border-radius:18px;padding:16px 16px 10px;border:1px solid rgba(219,228,238,.9);box-shadow:var(--shadow);min-height:116px}.kc:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:linear-gradient(90deg,var(--accent),rgba(37,99,235,.75));opacity:.9}.kc-icon{width:34px;height:34px;border-radius:12px}.kc-val{font-size:24px;letter-spacing:-.04em}.kc-lbl{font-size:10px}.kc-note{font-size:11px}.kc-spark{height:20px}
+.card{border-radius:18px;border:1px solid rgba(219,228,238,.92);box-shadow:var(--shadow);margin-bottom:16px;background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(255,255,255,.94))}.card:hover{box-shadow:var(--shadow2)}.card-h{padding:16px 18px 11px;border-bottom:1px solid rgba(219,228,238,.75)}.card-h h3{font-size:14px;letter-spacing:-.02em}.card-b{padding:14px 18px 18px}.cw{min-height:120px}.g2,.g3,.g4,.g21,.g31,.g211{gap:16px;margin-bottom:16px}.g4{grid-template-columns:minmax(260px,.9fr) minmax(520px,2fr) minmax(260px,.9fr)}.g21{grid-template-columns:minmax(0,2fr) minmax(330px,1fr)}
+#execRow2 .card:nth-child(2){grid-column:auto!important}#execRow2{grid-template-columns:minmax(260px,.9fr) minmax(520px,1.8fr) minmax(260px,.9fr)!important}#execRow2 .card{min-height:286px}
+table{font-size:12px}thead th{padding:11px 13px;background:#f3f7fb;color:#6b778a}tbody td{padding:11px 13px}.tbl-wrap{border-radius:0 0 18px 18px}.badge{border-radius:999px;padding:4px 10px}.pb{height:8px;border-radius:999px}.pf{border-radius:999px}
+.foot{border-top:1px solid rgba(219,228,238,.8);background:rgba(255,255,255,.54);backdrop-filter:blur(8px)}
+/* RTL fix: remove double margin that caused the dashboard to shrink and leave a large blank area */
+[dir="rtl"] body{font-family:'Inter','Tahoma','Arial',sans-serif}[dir="rtl"] .app{direction:ltr;flex-direction:row}[dir="rtl"] .sb{order:2;border-left:0;border-right:0;box-shadow:-10px 0 30px rgba(4,10,20,.16)}[dir="rtl"] .main{order:1;margin:0!important;direction:rtl}[dir="rtl"] .tb-title,[dir="rtl"] .card-h,[dir="rtl"] .fb-item label{text-align:right}[dir="rtl"] .tb{direction:rtl}[dir="rtl"] .tb-spacer{flex:1}[dir="rtl"] .tb-right{direction:rtl}[dir="rtl"] .ni{flex-direction:row-reverse;border-radius:14px;margin:4px 12px}[dir="rtl"] .ni-lbl{text-align:right}[dir="rtl"] .sb.collapsed .sb-toggle{left:auto;right:72px;border-radius:6px 0 0 6px}[dir="rtl"] .fb-label{left:auto;right:18px}[dir="rtl"] select{background-position:left 8px center!important;padding-left:26px!important;padding-right:10px!important}[dir="rtl"] .leg .lv{margin-right:auto;margin-left:0}[dir="rtl"] thead th{text-align:right}[dir="rtl"] .td-r{text-align:left}.mines-active .main{margin:0!important}
+@media(max-width:1300px){.g4,#execRow2{grid-template-columns:1fr 1fr!important}.g4 .card:nth-child(2),#execRow2 .card:nth-child(2){grid-column:span 2!important}.kpi-row{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))!important}}
+@media(max-width:900px){.tb{padding:14px}.content{padding:0 14px 70px}.fb{margin:10px 14px 16px}.g4,#execRow2,.g2,.g3,.g21,.g31,.g211{grid-template-columns:1fr!important}.g4 .card:nth-child(2),#execRow2 .card:nth-child(2){grid-column:auto!important}}
 
 </style>
 </head>
@@ -502,8 +349,8 @@ tbody tr:hover td{background:rgba(31,94,255,.045)}
     <nav class="sb-nav" id="sbNav"></nav>
     <div class="sb-foot">
       <div class="sb-foot-inner">
-        <button class="sb-fbtn" onclick="toggleLang()"><span id="langLbl">AR</span></button>
-        <button class="sb-fbtn" onclick="toggleTheme()"><span id="themeLbl">Dark</span></button>
+        <button class="sb-fbtn" onclick="toggleLang()">🌐 <span id="langLbl">AR</span></button>
+        <button class="sb-fbtn" onclick="toggleTheme()">🌙 <span id="themeLbl">Dark</span></button>
       </div>
       <div class="sb-user" id="sbUser">● Live Data</div>
     </div>
@@ -515,9 +362,9 @@ tbody tr:hover td{background:rgba(31,94,255,.045)}
       <div class="tb-spacer"></div>
       <div class="tb-right" id="tbRight">
         <div class="tb-sel"><label id="projLbl">Project / Site</label><select id="tbProject" onchange="applyFilter('project',this.value)"><option value="all">All Projects</option></select></div>
-        <button class="tb-export excel" onclick="exportExcel()">Excel</button>
-        <button class="tb-export pdf" onclick="exportPdf()">PDF</button>
-        <button class="tb-refresh" onclick="refreshData()"><span class="ri" id="refreshIcon">↻</span><span id="refreshLbl"> Refresh</span></button>
+        <button class="tb-export excel" onclick="exportExcel()">⬇ Excel</button>
+        <button class="tb-export pdf" onclick="exportPdf()">⬇ PDF</button>
+        <button class="tb-refresh" onclick="refreshData()"><span class="ri" id="refreshIcon">🔄</span><span id="refreshLbl"> Refresh</span></button>
       </div>
     </div>
 
@@ -577,7 +424,7 @@ tbody tr:hover td{background:rgba(31,94,255,.045)}
             <div class="card-h"><h3 id="lblProjStatus">Project Overall Status</h3></div>
             <div class="card-b" style="text-align:center;padding:10px 16px 16px">
               <div class="status-circle good" id="overallStatusCircle">
-                <div style="font-size:30px">✓</div>
+                <div style="font-size:30px">✅</div>
                 <div style="font-size:13px;font-weight:800;color:var(--green)" id="overallStatusTxt">On Track</div>
               </div>
               <div style="font-size:10.5px;color:var(--txt2);margin-bottom:10px" id="overallStatusDesc">The project is performing within acceptable parameters.</div>
@@ -816,8 +663,8 @@ tbody tr:hover td{background:rgba(31,94,255,.045)}
           <div style="padding:0 16px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
             <div id="qualElementCheckboxes" style="display:flex;gap:8px;flex-wrap:wrap"></div>
             <div style="display:flex;gap:6px;flex-shrink:0">
-              <button class="fb-clr" style="padding:6px 12px" onclick="selectAllElements()">All</button>
-              <button class="fb-clr" style="padding:6px 12px" onclick="resetElementSelection()">Clear</button>
+              <button class="fb-clr" style="padding:6px 12px" onclick="selectAllElements()">☑ All</button>
+              <button class="fb-clr" style="padding:6px 12px" onclick="resetElementSelection()">✕ Clear</button>
             </div>
           </div>
           <div class="g2" style="padding:0 16px 16px;margin:0">
@@ -853,23 +700,23 @@ tbody tr:hover td{background:rgba(31,94,255,.045)}
 
 <nav class="mob-nav" id="mobNav">
   <div class="mob-nav-inner">
-    <button class="mob-ni active" onclick="goPageMob('exec',this)"><span class="mob-ni-icon">OV</span><span>Summary</span></button>
-    <button class="mob-ni" onclick="goPageMob('budget',this)"><span class="mob-ni-icon">BD</span><span>Budget</span></button>
-    <button class="mob-ni" onclick="goPageMob('expenses',this)"><span class="mob-ni-icon">EX</span><span>Expenses</span></button>
-    <button class="mob-ni" onclick="goPageMob('risks',this)"><span class="mob-ni-icon">RK</span><span>Risks</span></button>
+    <button class="mob-ni active" onclick="goPageMob('exec',this)"><span class="mob-ni-icon">📊</span><span>Summary</span></button>
+    <button class="mob-ni" onclick="goPageMob('budget',this)"><span class="mob-ni-icon">💰</span><span>Budget</span></button>
+    <button class="mob-ni" onclick="goPageMob('expenses',this)"><span class="mob-ni-icon">🧾</span><span>Expenses</span></button>
+    <button class="mob-ni" onclick="goPageMob('risks',this)"><span class="mob-ni-icon">⚠️</span><span>Risks</span></button>
     <button class="mob-ni" onclick="toggleMobMore()"><span class="mob-ni-icon">⋯</span><span>More</span></button>
   </div>
 </nav>
 <div class="mob-more-menu" id="mobMoreMenu">
-  <div class="mob-more-item" onclick="goPageMob('timeline',null);toggleMobMore()">TL Timeline</div>
-  <div class="mob-more-item" onclick="goPageMob('cost',null);toggleMobMore()">CA Cost</div>
-  <div class="mob-more-item" onclick="goPageMob('cashflow',null);toggleMobMore()">CF Cash Flow</div>
-  <div class="mob-more-item" onclick="goPageMob('vendors',null);toggleMobMore()">VD Vendors</div>
+  <div class="mob-more-item" onclick="goPageMob('timeline',null);toggleMobMore()">📅 Timeline</div>
+  <div class="mob-more-item" onclick="goPageMob('cost',null);toggleMobMore()">📉 Cost</div>
+  <div class="mob-more-item" onclick="goPageMob('cashflow',null);toggleMobMore()">💵 Cash Flow</div>
+  <div class="mob-more-item" onclick="goPageMob('vendors',null);toggleMobMore()">🚚 Vendors</div>
 
-  <div class="mob-more-item" onclick="goPageMob('performance',null);toggleMobMore()">PR Performance</div>
-  <div class="mob-more-item" onclick="goPageMob('production',null);toggleMobMore()">PD Production</div>
-  <div class="mob-more-item" onclick="goPageMob('quality',null);toggleMobMore()">QL Quality</div>
-  <div class="mob-more-item" onclick="goPageMob('mines',null);toggleMobMore()">MP Mines Map</div>
+  <div class="mob-more-item" onclick="goPageMob('performance',null);toggleMobMore()">📋 Performance</div>
+  <div class="mob-more-item" onclick="goPageMob('production',null);toggleMobMore()">⚙️ Production</div>
+  <div class="mob-more-item" onclick="goPageMob('quality',null);toggleMobMore()">🔬 Quality</div>
+  <div class="mob-more-item" onclick="goPageMob('mines',null);toggleMobMore()">🗺️ Mines Map</div>
 </div>
 
 <script>
@@ -896,7 +743,7 @@ const PAGE_META = {
   quality:     ['Quality / Samples',            'XRF chemical analysis — Fe%, SiO2%, Al2O3% and more'],
   mines:       ['Mines Map',                    'Interactive map of all mining sites, zones, and samples'],
 };
-const PAGE_ICONS = { exec:'OV',timeline:'TL',budget:'BD',expenses:'EX',cost:'CA',cashflow:'CF',risks:'RK',vendors:'VD',performance:'PR',production:'PD',quality:'QL',mines:'MP' };
+const PAGE_ICONS = { exec:'📊',timeline:'📅',budget:'💰',expenses:'🧾',cost:'📉',cashflow:'💵',risks:'⚠️',vendors:'🚚',performance:'📋',production:'⚙️',quality:'🔬',mines:'🗺️' };
 
 const PAGE_FILTERS = {
   exec:        ['category','month'],
@@ -957,8 +804,7 @@ function buildSidebar(){
   USER.pages.forEach((p,i)=>{
     const ni=document.createElement('div'); ni.className='ni'+(i===0?' active':'');
     ni.onclick=()=>goPage(p,ni);
-    ni.setAttribute('data-page',p);
-    ni.innerHTML=`<div class="ni-num">${i+1}</div><span class="ni-icon">${PAGE_ICONS[p]||'PG'}</span><span class="ni-lbl">${PAGE_META[p]?.[0]||p}</span>`;
+    ni.innerHTML=`<div class="ni-num">${i+1}</div><span class="ni-icon">${PAGE_ICONS[p]||'📄'}</span><span class="ni-lbl">${PAGE_META[p]?.[0]||p}</span>`;
     nav.appendChild(ni);
   });
   document.getElementById('sbUser').textContent='● '+(USER.name||USER.email);
@@ -1196,7 +1042,7 @@ function mkSpark(id,values,color){
 // ============================================================
 // KPI RENDER (with sparkline + icon)
 // ============================================================
-const KPI_ICONS={blue:'OV',green:'BD',red:'RK',orange:'⏰',purple:'💳'};
+const KPI_ICONS={blue:'📊',green:'💰',red:'⚠️',orange:'⏰',purple:'💳'};
 function renderKpis(containerId,kpis,gridClass){
   const el=document.getElementById(containerId); if(!el) return;
   el.className='kpi-row '+(gridClass||(kpis.length<=4?'k4':kpis.length<=5?'k5':kpis.length<=6?'k6':kpis.length<=7?'k7':'k8'));
@@ -1205,7 +1051,7 @@ function renderKpis(containerId,kpis,gridClass){
     const val=typeof k.value==='number'?(k.fmt==='percent'?k.value+'%':k.fmt==='currency'?fmtNum(k.value):k.value.toLocaleString()):(k.value||'—');
     const trendCls=k.note&&k.note.includes('+')?'up':k.note&&k.note.includes('-')?'dn':'';
     return `<div class="kc">
-      <div class="kc-top"><div class="kc-icon ${color}">${KPI_ICONS[color]||'OV'}</div><div class="kc-lbl">${k.label}</div></div>
+      <div class="kc-top"><div class="kc-icon ${color}">${KPI_ICONS[color]||'📊'}</div><div class="kc-lbl">${k.label}</div></div>
       <div class="kc-val ${color}" ${typeof k.value==='string'&&k.value.length>8?'style="font-size:15px"':''}>${val}</div>
       ${k.note?`<div class="kc-note ${trendCls}">${k.note}</div>`:'<div class="kc-note">&nbsp;</div>'}
       <div class="kc-spark"><canvas id="${containerId}_spark${i}"></canvas></div>
@@ -1248,7 +1094,7 @@ function renderPage(page){
     pg.dataset.placeholderShown='1';
     const isAr=LANG==='ar';
     pg.innerHTML = `<div class="no-data-box">
-      <div class="no-data-icon">—</div>
+      <div class="no-data-icon">🚧</div>
       <div class="no-data-badge">${isAr?'قيد الإنشاء':'Under Construction'}</div>
       <div class="no-data-title">${PAGE_META[page]?.[0]||page}</div>
       <div class="no-data-msg">${isAr?'هذه الصفحة جاري بناؤها في المرحلة القادمة.':'This page is being built in the next stage.'}</div>
@@ -1684,22 +1530,138 @@ async function exportPdf(){ alert('PDF export will be available in the final bui
 window.addEventListener('load',()=>{ setTimeout(()=>document.getElementById('ld').classList.add('done'),800); });
 
 
-// ============================================================
-// PROFESSIONAL UI POLISH - Added by ChatGPT
-// ============================================================
+/* ============================================================
+   AIT UX / LANGUAGE PATCH
+   Fixes: Arabic translation, RTL width bug, professional nav labels,
+   and removes Approval Workflow from any stale permission payload.
+   ============================================================ */
 (function(){
-  const iconMap={exec:'OV',timeline:'TL',budget:'BD',expenses:'EX',cost:'CA',cashflow:'CF',risks:'RK',vendors:'VD',performance:'PR',production:'PD',quality:'QL',mines:'MP'};
-  const kpiMap={blue:'BD',green:'OK',red:'RK',orange:'AT',purple:'PR'};
-  try{ Object.assign(PAGE_ICONS, iconMap); Object.assign(KPI_ICONS, kpiMap); }catch(e){}
+  const approvalKeys = new Set(['approval','approvals','approval_workflow','approval-workflow','workflow']);
+  const pageMetaEn = {
+    exec:['Executive Summary','Financial performance overview, key risks, budget utilization and payment position.'],
+    timeline:['Project Timeline / Gantt','Schedule progress, delayed tasks, owners and milestones.'],
+    budget:['Budget Overview','Budget allocation, actual spending, remaining balance and variance by category.'],
+    expenses:['Expenses & Payment Plan','Expense log, payment status, methods, overdue amounts and pending payments.'],
+    cost:['Cost Analysis','Cost drivers by category, vendor, cost center and spend item.'],
+    cashflow:['Cash Flow Forecast','Upcoming payments, cash-out forecast and transfer tracking.'],
+    risks:['Risk & Alerts','Open risks, overdue payments, over-budget items and required actions.'],
+    vendors:['Vendor & Procurement','Vendor spending, procurement status, equipment and contract monitoring.'],
+    performance:['Monthly Performance Report','Monthly financial and operational performance summary.'],
+    production:['Production / Lots','Production lots, tonnage, mine batches and Fe percentage.'],
+    quality:['Quality / Samples','Sample results, Fe thresholds, pass/reject and element trends.'],
+    mines:['Mines Map','Interactive mining sites map and registered mine details.']
+  };
+  const pageMetaAr = {
+    exec:['الملخص التنفيذي','نظرة شاملة على الأداء المالي، المخاطر، استهلاك الميزانية وحالة المدفوعات.'],
+    timeline:['الجدول الزمني / جانت','متابعة تقدم البرنامج الزمني، المهام المتأخرة، المسؤولين والمراحل الرئيسية.'],
+    budget:['نظرة عامة على الميزانية','توزيع الميزانية، المصروف الفعلي، الرصيد المتبقي والانحراف حسب البند.'],
+    expenses:['المصروفات وخطة المدفوعات','سجل المصروفات، حالة الدفع، طرق السداد، المتأخرات والمدفوعات المعلقة.'],
+    cost:['تحليل التكلفة','تحليل محركات التكلفة حسب البند والمورد ومركز التكلفة.'],
+    cashflow:['توقع التدفقات النقدية','المدفوعات القادمة، توقعات الصرف والتحويلات المالية.'],
+    risks:['المخاطر والتنبيهات','المخاطر المفتوحة، المدفوعات المتأخرة، بنود تجاوز الميزانية والإجراءات المطلوبة.'],
+    vendors:['الموردون والمشتريات','مصروفات الموردين، حالة المشتريات، المعدات ومتابعة العقود.'],
+    performance:['تقرير الأداء الشهري','ملخص شهري للأداء المالي والتشغيلي للمشروعات.'],
+    production:['الإنتاج / اللوطات','لوطات الإنتاج، الكميات، دفعات المناجم ونسبة الحديد.'],
+    quality:['الجودة / العينات','نتائج العينات، حدود Fe، القبول والرفض واتجاهات العناصر.'],
+    mines:['خريطة المناجم','خريطة تفاعلية لمواقع المناجم وبيانات المناجم المسجلة.']
+  };
+  const iconText = {exec:'OV',timeline:'TL',budget:'BD',expenses:'EX',cost:'CA',cashflow:'CF',risks:'RK',vendors:'VD',performance:'MP',production:'PD',quality:'QL',mines:'MM'};
+  const arMap = new Map(Object.entries({
+    'AIT Projects':'مشروعات AIT','Dashboard':'لوحة التحكم','Executive Summary':'الملخص التنفيذي','Project Timeline / Gantt':'الجدول الزمني / جانت','Budget Overview':'نظرة عامة على الميزانية','Expenses & Payment Plan':'المصروفات وخطة المدفوعات','Cost Analysis':'تحليل التكلفة','Cash Flow Forecast':'توقع التدفقات النقدية','Risk & Alerts':'المخاطر والتنبيهات','Vendor & Procurement':'الموردون والمشتريات','Monthly Performance Report':'تقرير الأداء الشهري','Production / Lots':'الإنتاج / اللوطات','Quality / Samples':'الجودة / العينات','Mines Map':'خريطة المناجم',
+    'Project / Site':'المشروع / الموقع','All Projects':'كل المشروعات','Refresh':'تحديث','Export Excel':'تصدير Excel','Export PDF':'تصدير PDF','Excel':'Excel','PDF':'PDF','Filters':'الفلاتر','Clear Filters':'مسح الفلاتر','All':'الكل','From Date':'من تاريخ','To Date':'إلى تاريخ','Data as of':'آخر تحديث','All amounts are in EGP':'كل القيم بالجنيه المصري','Live Data':'بيانات مباشرة','Admin User':'مستخدم مدير','Theme':'المظهر','Dark':'داكن','Light':'فاتح',
+    'TOTAL BUDGET':'إجمالي الميزانية','ACTUAL SPEND':'المصروف الفعلي','REMAINING BUDGET':'المتبقي من الميزانية','OVER BUDGET':'تجاوز الميزانية','PAID TO DATE':'المدفوع حتى الآن','PENDING PAYMENTS':'مدفوعات معلقة','BUDGET UTILIZATION':'استهلاك الميزانية','OVERDUE / ALERTS':'المتأخرات / التنبيهات','TOTAL TASKS':'إجمالي المهام','COMPLETED':'مكتمل','IN PROGRESS':'قيد التنفيذ','DELAYED':'متأخر','PLANNED':'مخطط','OVERALL COMPLETION':'نسبة الإنجاز العامة','TOTAL TRANSACTIONS':'إجمالي العمليات','TOTAL BUDGET LINES':'بنود الميزانية','OVER BUDGET ITEMS':'بنود متجاوزة للميزانية','REGISTERED MINES':'المناجم المسجلة','TOTAL QTY (TON/MONTH)':'إجمالي الكمية طن/شهر',
+    'Expense Distribution by Category':'توزيع المصروفات حسب البند','Budget vs Actual by Category':'الميزانية مقابل الفعلي حسب البند','Monthly Spending Trend':'اتجاه الصرف الشهري','Paid vs Pending by Month':'المدفوع مقابل المعلق شهريًا','Budget Utilization % by Category':'نسبة استهلاك الميزانية حسب البند','Top 5 Cost Centers by Expenses':'أعلى 5 مراكز تكلفة','Top 5 Vendors by Expenses':'أعلى 5 موردين حسب المصروفات','Top Alerts & Notifications':'أهم التنبيهات والإشعارات','Project Overall Status':'الحالة العامة للمشروع','View All Alerts':'عرض كل التنبيهات','View Details':'عرض التفاصيل',
+    'Type':'النوع','Category / Item':'البند / التصنيف','Issue':'المشكلة','Due Date':'تاريخ الاستحقاق','Amount (EGP)':'القيمة (جنيه)','Severity':'الخطورة','Status':'الحالة','Action':'الإجراء','Category':'البند','Budget (EGP)':'الميزانية (جنيه)','Actual (EGP)':'الفعلي (جنيه)','Remaining':'المتبقي','Variance (EGP)':'الانحراف (جنيه)','Task / Phase':'المهمة / المرحلة','Owner':'المسؤول','Start':'البداية','Due':'النهاية','Complete':'الإنجاز','Delay':'التأخير','Vendor':'المورد','Project':'المشروع','Method':'طريقة الدفع','Notes':'ملاحظات','Date':'التاريخ','Priority':'الأولوية','Payee':'المستفيد','Month':'الشهر','Mine':'المنجم','Material':'الخامة','Batch':'الدفعة',
+    'On Track':'ضمن المسار','Over Budget':'تجاوز الميزانية','At Risk':'تحت المراقبة','Off Track':'خارج المسار','Open':'مفتوح','Overdue':'متأخر','Paid':'مدفوع','Pending':'معلق','Scheduled':'مجدول','Critical':'حرج','High':'مرتفع','Medium':'متوسط','Low':'منخفض','Completed':'مكتمل','In Progress':'قيد التنفيذ','Delayed':'متأخر','Planned':'مخطط','Unbudgeted':'غير مدرج بالميزانية','Items':'بنود','Records':'سجلات','of Total Budget':'من إجمالي الميزانية','of Required':'من المطلوب','Remaining':'متبقي',
+    'April':'أبريل','May':'مايو','June':'يونيو','July':'يوليو','August':'أغسطس','September':'سبتمبر','October':'أكتوبر','November':'نوفمبر','December':'ديسمبر','January':'يناير','February':'فبراير','March':'مارس',
+    'Cost Center':'مركز التكلفة','Cost Category':'بند التكلفة','Payment Method':'طريقة الدفع','Payee / Paid To':'المستفيد / المدفوع له','Expense Source':'مصدر المصروف','Task Owner':'مسؤول المهمة','Phase':'المرحلة','Risk Category':'تصنيف الخطر','Material Type':'نوع الخامة','Project Manager':'مدير المشروع'
+  }));
+  const enMap = new Map(Array.from(arMap.entries()).map(([en,ar])=>[ar,en]));
+  const norm = s => String(s||'').replace(/\s+/g,' ').trim();
+  function stripApprovals(){
+    try{
+      if(window.EMBEDDED_DATA?.permissions?.pages){EMBEDDED_DATA.permissions.pages = EMBEDDED_DATA.permissions.pages.filter(p=>!approvalKeys.has(String(p).toLowerCase()));}
+      if(window.USER?.pages){USER.pages = USER.pages.filter(p=>!approvalKeys.has(String(p).toLowerCase()));}
+      document.querySelectorAll('.ni,.mob-more-item').forEach(el=>{ if(/approval/i.test(el.textContent)) el.remove(); });
+    }catch(e){}
+  }
+  function installMeta(){
+    try{
+      Object.keys(pageMetaEn).forEach(k=>{ PAGE_META[k] = (LANG==='ar'?pageMetaAr:pageMetaEn)[k]; PAGE_ICONS[k]=iconText[k]||k.slice(0,2).toUpperCase(); });
+    }catch(e){}
+  }
+  function translateExact(root){
+    const map = LANG==='ar' ? arMap : enMap;
+    const walker = document.createTreeWalker(root||document.body, NodeFilter.SHOW_TEXT);
+    const nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(n=>{
+      const raw=n.nodeValue; const t=norm(raw); if(!t) return;
+      let replaced = map.get(t);
+      if(!replaced && LANG==='ar'){
+        // keep arrows and counters around links/buttons
+        const clean=t.replace(/[→←]/g,'').trim();
+        if(map.has(clean)) replaced=t.includes('→')?map.get(clean)+' ←':map.get(clean);
+      }
+      if(replaced && raw.trim()!==replaced) n.nodeValue = raw.replace(t,replaced);
+    });
+    document.querySelectorAll('input[placeholder]').forEach(i=>{const v=norm(i.placeholder); if(map.has(v)) i.placeholder=map.get(v);});
+    document.querySelectorAll('option').forEach(o=>{const v=norm(o.textContent); if(map.has(v)) o.textContent=map.get(v);});
+  }
+  function applyLang(){
+    stripApprovals(); installMeta();
+    const isAr = LANG==='ar';
+    document.documentElement.lang = isAr?'ar':'en';
+    document.documentElement.dir = isAr?'rtl':'ltr';
+    document.body.dir = isAr?'rtl':'ltr';
+    const meta=(isAr?pageMetaAr:pageMetaEn)[CURRENT_PAGE] || (isAr?pageMetaAr.exec:pageMetaEn.exec);
+    const title=document.getElementById('pgTitle'), sub=document.getElementById('pgSub');
+    if(title) title.textContent=meta[0]; if(sub) sub.textContent=meta[1];
+    const langLbl=document.getElementById('langLbl'); if(langLbl) langLbl.textContent=isAr?'EN':'AR';
+    const themeLbl=document.getElementById('themeLbl'); if(themeLbl) themeLbl.textContent= isAr ? (THEME==='dark'?'فاتح':'داكن') : (THEME==='dark'?'Light':'Dark');
+    translateExact(document.body);
+    if(isAr){
+      document.querySelectorAll('table').forEach(t=>t.style.direction='rtl');
+      document.querySelectorAll('.td-r').forEach(e=>e.style.textAlign='left');
+    }else{
+      document.querySelectorAll('table').forEach(t=>t.style.direction='ltr');
+      document.querySelectorAll('.td-r').forEach(e=>e.style.textAlign='right');
+    }
+  }
+  function repaintNav(){
+    try{
+      document.querySelectorAll('.ni').forEach(ni=>{
+        const txt=norm(ni.textContent);
+        for(const [key,meta] of Object.entries(LANG==='ar'?pageMetaAr:pageMetaEn)){
+          if(txt.includes(meta[0]) || txt.includes(pageMetaEn[key][0]) || txt.includes(pageMetaAr[key][0])){
+            const lbl=ni.querySelector('.ni-lbl'); const ic=ni.querySelector('.ni-icon');
+            if(lbl) lbl.textContent=meta[0]; if(ic) ic.textContent=iconText[key]||'';
+          }
+        }
+      });
+    }catch(e){}
+  }
+  function afterRender(){ setTimeout(()=>{applyLang(); repaintNav(); try{Object.values(CHARTS||{}).forEach(ch=>ch.resize());}catch(e){}},0); }
+  const hook = name => {
+    const old = window[name]; if(typeof old !== 'function') return;
+    window[name] = function(){ const r = old.apply(this, arguments); afterRender(); return r; };
+  };
   window.addEventListener('DOMContentLoaded',()=>{
-    document.querySelectorAll('.tb-export.excel').forEach(b=>b.textContent='Export Excel');
-    document.querySelectorAll('.tb-export.pdf').forEach(b=>b.textContent='Export PDF');
-    const r=document.getElementById('refreshLbl'); if(r) r.textContent=' Refresh Data';
-    const lang=document.getElementById('langLbl'); if(lang) lang.textContent='AR / EN';
-    const theme=document.getElementById('themeLbl'); if(theme) theme.textContent='Theme';
-    document.querySelectorAll('.mob-more-item').forEach(item=>{ item.textContent=item.textContent.replace(/^[A-Z]{2}\s*/,''); });
+    installMeta(); stripApprovals();
+    ['buildSidebar','renderFilterBar','renderPage','goPage','goPageMob','populateProjectSelect'].forEach(hook);
+    const oldToggleLang = window.toggleLang;
+    window.toggleLang = function(){
+      LANG = LANG==='en'?'ar':'en';
+      installMeta();
+      try{ if(CURRENT_PAGE) renderFilterBar(CURRENT_PAGE); if(API_DATA) renderPage(CURRENT_PAGE); }catch(e){}
+      try{ syncMinesSettings(); }catch(e){}
+      afterRender();
+    };
+    const oldToggleTheme = window.toggleTheme;
+    if(typeof oldToggleTheme==='function') window.toggleTheme = function(){ const r=oldToggleTheme.apply(this,arguments); afterRender(); return r; };
+    afterRender();
   });
 })();
+
 </script>
 </body>
 </html>
