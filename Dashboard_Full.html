@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- Professional enhanced version generated from the original AIT dashboard. -->
 <html lang="en" data-theme="light" dir="ltr">
 <head>
 <meta charset="UTF-8">
@@ -282,6 +283,194 @@ tbody tr:hover td{background:var(--bg)}
 [dir="rtl"] .leg li{flex-direction:row-reverse}
 [dir="rtl"] .leg .lv{margin-left:0;margin-right:auto}
 [dir="rtl"] .alert-amt{margin-left:0}
+
+
+/* ============================================================
+   PROFESSIONAL EXECUTIVE UI UPGRADE - Added by ChatGPT
+   Purpose: premium enterprise dashboard skin without changing data logic.
+   ============================================================ */
+:root{
+  --accent:#f15a24;
+  --accent2:#c74417;
+  --accentbg:rgba(241,90,36,.10);
+  --blue:#1f5eff;
+  --bluebg:#eef4ff;
+  --green:#0f9f6e;
+  --greenbg:#eafaf3;
+  --red:#d62f2f;
+  --redbg:#fff0f0;
+  --orange:#f08a24;
+  --orangebg:#fff5e8;
+  --purple:#7057d8;
+  --purplebg:#f2efff;
+  --bg:#eef2f7;
+  --card:rgba(255,255,255,.96);
+  --border:#dce3ec;
+  --txt:#172033;
+  --txt2:#667085;
+  --txt3:#98a2b3;
+  --sidebar:#08111f;
+  --sb2:#0d1b2d;
+  --sb3:#18273a;
+  --shadow:0 10px 28px rgba(15,23,42,.055),0 1px 2px rgba(15,23,42,.04);
+  --shadow2:0 18px 50px rgba(15,23,42,.12);
+  --radius:16px;
+}
+[data-theme="dark"]{
+  --bg:#090f19;
+  --card:rgba(15,23,42,.95);
+  --border:#263244;
+  --txt:#f5f7fb;
+  --txt2:#a8b3c4;
+  --txt3:#707d91;
+  --sidebar:#050914;
+  --sb2:#0a1322;
+  --sb3:#172236;
+  --bluebg:rgba(31,94,255,.16);
+  --greenbg:rgba(15,159,110,.16);
+  --redbg:rgba(214,47,47,.16);
+  --orangebg:rgba(240,138,36,.16);
+  --purplebg:rgba(112,87,216,.16);
+  --accentbg:rgba(241,90,36,.16);
+}
+html,body{
+  font-size:13.5px;
+  background:
+    radial-gradient(circle at top left, rgba(241,90,36,.08), transparent 28rem),
+    radial-gradient(circle at top right, rgba(31,94,255,.06), transparent 30rem),
+    var(--bg);
+}
+body{letter-spacing:-.005em}
+.app{background:transparent}
+.sb{
+  width:260px;
+  background:linear-gradient(180deg,var(--sidebar),#0b1423 48%,#070d17);
+  border-right:1px solid rgba(255,255,255,.08);
+  box-shadow:8px 0 28px rgba(2,8,23,.12);
+}
+.sb.collapsed{width:72px}
+.sb-head{padding:22px 18px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-logo,.login-logo,.ld-logo{
+  background:linear-gradient(135deg,var(--accent),#ff9b63);
+  box-shadow:0 10px 28px rgba(241,90,36,.28);
+}
+.sb-brand strong{font-size:14.5px;letter-spacing:.01em}
+.sb-brand span{font-size:10.5px;color:#91a2b8;text-transform:uppercase;letter-spacing:.14em}
+.sb-toggle{color:#9aa8bb;border:1px solid rgba(255,255,255,.08);border-radius:8px;background:rgba(255,255,255,.04)}
+.ni{
+  margin:3px 12px;
+  padding:11px 14px;
+  border-radius:12px;
+  color:#9aa8bb;
+  border:1px solid transparent;
+}
+.ni:hover{background:rgba(255,255,255,.055);border-color:rgba(255,255,255,.08)}
+.ni.active{
+  background:linear-gradient(135deg,rgba(241,90,36,.98),rgba(199,68,23,.96));
+  box-shadow:0 12px 24px rgba(241,90,36,.24);
+}
+.ni-icon,.mob-ni-icon{
+  width:22px;height:22px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:800;letter-spacing:.04em;background:rgba(255,255,255,.08);color:currentColor;
+}
+.ni-num{display:none}
+.sb-foot{border-top:1px solid rgba(255,255,255,.08);padding:14px 16px}
+.sb-fbtn{border-radius:10px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08)}
+.main{background:transparent}
+.tb{
+  padding:22px 30px 16px;
+  background:linear-gradient(180deg,rgba(255,255,255,.62),rgba(255,255,255,0));
+  backdrop-filter:blur(10px);
+  position:sticky;top:0;z-index:50;
+  border-bottom:1px solid rgba(220,227,236,.72);
+}
+[data-theme="dark"] .tb{background:linear-gradient(180deg,rgba(9,15,25,.88),rgba(9,15,25,.55));border-bottom-color:rgba(38,50,68,.8)}
+.tb-title h1{font-size:25px;letter-spacing:-.04em;font-weight:850}
+.tb-title p{font-size:12.5px;color:var(--txt2);margin-top:5px}
+.tb-title:before{
+  content:'Executive Control Center';display:inline-flex;margin-bottom:8px;padding:4px 10px;border-radius:999px;
+  color:var(--accent);background:var(--accentbg);font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+}
+.tb-sel select,.fb-item select,.fb-date{
+  border-radius:10px;background-color:var(--card);box-shadow:0 1px 0 rgba(15,23,42,.03);border-color:var(--border);
+}
+.tb-export,.tb-refresh,.fb-clr{
+  border-radius:10px;font-weight:700;box-shadow:0 6px 16px rgba(15,23,42,.04);
+}
+.tb-refresh{background:linear-gradient(135deg,var(--accent),#ff7b42);box-shadow:0 12px 24px rgba(241,90,36,.22)}
+.fb{
+  margin:12px 30px 18px;padding:15px 16px 13px;border-radius:var(--radius);
+  box-shadow:var(--shadow);background:var(--card);backdrop-filter:blur(12px);
+}
+.fb-label{top:-10px;border-radius:999px;background:linear-gradient(135deg,var(--sidebar),var(--sb3));letter-spacing:.12em}
+.content{padding:0 30px 34px}
+.card,.kc{
+  border-radius:var(--radius);
+  background:var(--card);
+  border:1px solid rgba(220,227,236,.88);
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(10px);
+}
+[data-theme="dark"] .card,[data-theme="dark"] .kc{border-color:rgba(38,50,68,.92)}
+.card{overflow:hidden}
+.card:hover,.kc:hover{box-shadow:var(--shadow2);transform:translateY(-2px)}
+.card-h{
+  padding:16px 18px 11px;
+  border-bottom:1px solid rgba(220,227,236,.55);
+  background:linear-gradient(180deg,rgba(248,250,252,.65),rgba(248,250,252,0));
+}
+[data-theme="dark"] .card-h{border-bottom-color:rgba(38,50,68,.75);background:linear-gradient(180deg,rgba(30,41,59,.4),rgba(30,41,59,0))}
+.card-h h3{font-size:14px;letter-spacing:-.02em}
+.card-b{padding:12px 18px 18px}
+.kpi-row{gap:14px;margin-bottom:18px}
+.kc{
+  min-height:120px;padding:15px 16px 10px;
+  border-top:3px solid var(--accent);
+}
+.kc:nth-child(2n){border-top-color:var(--blue)}
+.kc:nth-child(3n){border-top-color:var(--green)}
+.kc:nth-child(4n){border-top-color:var(--orange)}
+.kc-top{margin-bottom:12px;align-items:center}
+.kc-icon{width:32px;height:32px;border-radius:10px;font-size:10px;font-weight:850;letter-spacing:.05em}
+.kc-lbl{font-size:10.5px;letter-spacing:.11em;color:var(--txt2)}
+.kc-val{font-size:25px;letter-spacing:-.045em;line-height:1.05}
+.kc-note{font-size:11px;margin-top:5px}
+.kc-spark{height:28px;opacity:.78}
+thead th{
+  position:sticky;top:0;z-index:2;background:var(--bg);font-size:10px;color:var(--txt2);
+  border-bottom:1px solid var(--border);padding:10px 12px;
+}
+tbody td{padding:10px 12px}
+tbody tr:hover td{background:rgba(31,94,255,.045)}
+.badge{border-radius:999px;padding:4px 10px;font-weight:750}
+.pb{height:7px;background:rgba(102,112,133,.18)}
+.pf{box-shadow:inset 0 -1px 0 rgba(0,0,0,.08)}
+.leg li{padding:5px 0;border-bottom:1px dashed rgba(102,112,133,.14)}
+.leg li:last-child{border-bottom:0}
+.status-circle{
+  border:1px solid rgba(15,159,110,.18);box-shadow:inset 0 0 0 8px rgba(255,255,255,.35),0 16px 32px rgba(15,159,110,.08)
+}
+.login-box{
+  border-radius:22px;border:1px solid rgba(255,255,255,.18);box-shadow:0 28px 90px rgba(0,0,0,.45);
+}
+.login-title{letter-spacing:-.03em;font-size:22px}
+.login-field input{border-radius:12px;padding:12px 14px}
+.login-btn{border-radius:12px;padding:12px;background:linear-gradient(135deg,var(--accent),#ff7b42)}
+.mob-nav{box-shadow:0 -14px 35px rgba(2,8,23,.16)}
+.mob-nav-inner{height:62px}
+.mob-ni.active{color:#ff7b42}
+.mob-more-item{border:1px solid rgba(255,255,255,.08);border-radius:12px}
+.foot{padding:12px 30px 14px;color:var(--txt3)}
+@media(max-width:1300px){.kpi-row.k8,.kpi-row.k7{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:900px){
+  .tb{position:relative;padding:16px 14px}.tb-title h1{font-size:22px}.content{padding:0 14px 76px}.fb{margin:8px 14px 16px}
+  .card,.kc{border-radius:14px}.kpi-row{gap:10px}
+}
+@media print{
+  .sb,.mob-nav,.mob-more-menu,.tb-right,.fb,.login-box,#loginScreen{display:none!important}
+  .tb{position:relative;border:0;background:#fff}.content{padding:0}.card,.kc{box-shadow:none;break-inside:avoid}
+}
+
 </style>
 </head>
 <body>
@@ -313,8 +502,8 @@ tbody tr:hover td{background:var(--bg)}
     <nav class="sb-nav" id="sbNav"></nav>
     <div class="sb-foot">
       <div class="sb-foot-inner">
-        <button class="sb-fbtn" onclick="toggleLang()">🌐 <span id="langLbl">AR</span></button>
-        <button class="sb-fbtn" onclick="toggleTheme()">🌙 <span id="themeLbl">Dark</span></button>
+        <button class="sb-fbtn" onclick="toggleLang()"><span id="langLbl">AR</span></button>
+        <button class="sb-fbtn" onclick="toggleTheme()"><span id="themeLbl">Dark</span></button>
       </div>
       <div class="sb-user" id="sbUser">● Live Data</div>
     </div>
@@ -326,9 +515,9 @@ tbody tr:hover td{background:var(--bg)}
       <div class="tb-spacer"></div>
       <div class="tb-right" id="tbRight">
         <div class="tb-sel"><label id="projLbl">Project / Site</label><select id="tbProject" onchange="applyFilter('project',this.value)"><option value="all">All Projects</option></select></div>
-        <button class="tb-export excel" onclick="exportExcel()">⬇ Excel</button>
-        <button class="tb-export pdf" onclick="exportPdf()">⬇ PDF</button>
-        <button class="tb-refresh" onclick="refreshData()"><span class="ri" id="refreshIcon">🔄</span><span id="refreshLbl"> Refresh</span></button>
+        <button class="tb-export excel" onclick="exportExcel()">Excel</button>
+        <button class="tb-export pdf" onclick="exportPdf()">PDF</button>
+        <button class="tb-refresh" onclick="refreshData()"><span class="ri" id="refreshIcon">↻</span><span id="refreshLbl"> Refresh</span></button>
       </div>
     </div>
 
@@ -388,7 +577,7 @@ tbody tr:hover td{background:var(--bg)}
             <div class="card-h"><h3 id="lblProjStatus">Project Overall Status</h3></div>
             <div class="card-b" style="text-align:center;padding:10px 16px 16px">
               <div class="status-circle good" id="overallStatusCircle">
-                <div style="font-size:30px">✅</div>
+                <div style="font-size:30px">✓</div>
                 <div style="font-size:13px;font-weight:800;color:var(--green)" id="overallStatusTxt">On Track</div>
               </div>
               <div style="font-size:10.5px;color:var(--txt2);margin-bottom:10px" id="overallStatusDesc">The project is performing within acceptable parameters.</div>
@@ -627,8 +816,8 @@ tbody tr:hover td{background:var(--bg)}
           <div style="padding:0 16px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
             <div id="qualElementCheckboxes" style="display:flex;gap:8px;flex-wrap:wrap"></div>
             <div style="display:flex;gap:6px;flex-shrink:0">
-              <button class="fb-clr" style="padding:6px 12px" onclick="selectAllElements()">☑ All</button>
-              <button class="fb-clr" style="padding:6px 12px" onclick="resetElementSelection()">✕ Clear</button>
+              <button class="fb-clr" style="padding:6px 12px" onclick="selectAllElements()">All</button>
+              <button class="fb-clr" style="padding:6px 12px" onclick="resetElementSelection()">Clear</button>
             </div>
           </div>
           <div class="g2" style="padding:0 16px 16px;margin:0">
@@ -664,23 +853,23 @@ tbody tr:hover td{background:var(--bg)}
 
 <nav class="mob-nav" id="mobNav">
   <div class="mob-nav-inner">
-    <button class="mob-ni active" onclick="goPageMob('exec',this)"><span class="mob-ni-icon">📊</span><span>Summary</span></button>
-    <button class="mob-ni" onclick="goPageMob('budget',this)"><span class="mob-ni-icon">💰</span><span>Budget</span></button>
-    <button class="mob-ni" onclick="goPageMob('expenses',this)"><span class="mob-ni-icon">🧾</span><span>Expenses</span></button>
-    <button class="mob-ni" onclick="goPageMob('risks',this)"><span class="mob-ni-icon">⚠️</span><span>Risks</span></button>
+    <button class="mob-ni active" onclick="goPageMob('exec',this)"><span class="mob-ni-icon">OV</span><span>Summary</span></button>
+    <button class="mob-ni" onclick="goPageMob('budget',this)"><span class="mob-ni-icon">BD</span><span>Budget</span></button>
+    <button class="mob-ni" onclick="goPageMob('expenses',this)"><span class="mob-ni-icon">EX</span><span>Expenses</span></button>
+    <button class="mob-ni" onclick="goPageMob('risks',this)"><span class="mob-ni-icon">RK</span><span>Risks</span></button>
     <button class="mob-ni" onclick="toggleMobMore()"><span class="mob-ni-icon">⋯</span><span>More</span></button>
   </div>
 </nav>
 <div class="mob-more-menu" id="mobMoreMenu">
-  <div class="mob-more-item" onclick="goPageMob('timeline',null);toggleMobMore()">📅 Timeline</div>
-  <div class="mob-more-item" onclick="goPageMob('cost',null);toggleMobMore()">📉 Cost</div>
-  <div class="mob-more-item" onclick="goPageMob('cashflow',null);toggleMobMore()">💵 Cash Flow</div>
-  <div class="mob-more-item" onclick="goPageMob('vendors',null);toggleMobMore()">🚚 Vendors</div>
+  <div class="mob-more-item" onclick="goPageMob('timeline',null);toggleMobMore()">TL Timeline</div>
+  <div class="mob-more-item" onclick="goPageMob('cost',null);toggleMobMore()">CA Cost</div>
+  <div class="mob-more-item" onclick="goPageMob('cashflow',null);toggleMobMore()">CF Cash Flow</div>
+  <div class="mob-more-item" onclick="goPageMob('vendors',null);toggleMobMore()">VD Vendors</div>
 
-  <div class="mob-more-item" onclick="goPageMob('performance',null);toggleMobMore()">📋 Performance</div>
-  <div class="mob-more-item" onclick="goPageMob('production',null);toggleMobMore()">⚙️ Production</div>
-  <div class="mob-more-item" onclick="goPageMob('quality',null);toggleMobMore()">🔬 Quality</div>
-  <div class="mob-more-item" onclick="goPageMob('mines',null);toggleMobMore()">🗺️ Mines Map</div>
+  <div class="mob-more-item" onclick="goPageMob('performance',null);toggleMobMore()">PR Performance</div>
+  <div class="mob-more-item" onclick="goPageMob('production',null);toggleMobMore()">PD Production</div>
+  <div class="mob-more-item" onclick="goPageMob('quality',null);toggleMobMore()">QL Quality</div>
+  <div class="mob-more-item" onclick="goPageMob('mines',null);toggleMobMore()">MP Mines Map</div>
 </div>
 
 <script>
@@ -707,7 +896,7 @@ const PAGE_META = {
   quality:     ['Quality / Samples',            'XRF chemical analysis — Fe%, SiO2%, Al2O3% and more'],
   mines:       ['Mines Map',                    'Interactive map of all mining sites, zones, and samples'],
 };
-const PAGE_ICONS = { exec:'📊',timeline:'📅',budget:'💰',expenses:'🧾',cost:'📉',cashflow:'💵',risks:'⚠️',vendors:'🚚',performance:'📋',production:'⚙️',quality:'🔬',mines:'🗺️' };
+const PAGE_ICONS = { exec:'OV',timeline:'TL',budget:'BD',expenses:'EX',cost:'CA',cashflow:'CF',risks:'RK',vendors:'VD',performance:'PR',production:'PD',quality:'QL',mines:'MP' };
 
 const PAGE_FILTERS = {
   exec:        ['category','month'],
@@ -768,7 +957,8 @@ function buildSidebar(){
   USER.pages.forEach((p,i)=>{
     const ni=document.createElement('div'); ni.className='ni'+(i===0?' active':'');
     ni.onclick=()=>goPage(p,ni);
-    ni.innerHTML=`<div class="ni-num">${i+1}</div><span class="ni-icon">${PAGE_ICONS[p]||'📄'}</span><span class="ni-lbl">${PAGE_META[p]?.[0]||p}</span>`;
+    ni.setAttribute('data-page',p);
+    ni.innerHTML=`<div class="ni-num">${i+1}</div><span class="ni-icon">${PAGE_ICONS[p]||'PG'}</span><span class="ni-lbl">${PAGE_META[p]?.[0]||p}</span>`;
     nav.appendChild(ni);
   });
   document.getElementById('sbUser').textContent='● '+(USER.name||USER.email);
@@ -1006,7 +1196,7 @@ function mkSpark(id,values,color){
 // ============================================================
 // KPI RENDER (with sparkline + icon)
 // ============================================================
-const KPI_ICONS={blue:'📊',green:'💰',red:'⚠️',orange:'⏰',purple:'💳'};
+const KPI_ICONS={blue:'OV',green:'BD',red:'RK',orange:'⏰',purple:'💳'};
 function renderKpis(containerId,kpis,gridClass){
   const el=document.getElementById(containerId); if(!el) return;
   el.className='kpi-row '+(gridClass||(kpis.length<=4?'k4':kpis.length<=5?'k5':kpis.length<=6?'k6':kpis.length<=7?'k7':'k8'));
@@ -1015,7 +1205,7 @@ function renderKpis(containerId,kpis,gridClass){
     const val=typeof k.value==='number'?(k.fmt==='percent'?k.value+'%':k.fmt==='currency'?fmtNum(k.value):k.value.toLocaleString()):(k.value||'—');
     const trendCls=k.note&&k.note.includes('+')?'up':k.note&&k.note.includes('-')?'dn':'';
     return `<div class="kc">
-      <div class="kc-top"><div class="kc-icon ${color}">${KPI_ICONS[color]||'📊'}</div><div class="kc-lbl">${k.label}</div></div>
+      <div class="kc-top"><div class="kc-icon ${color}">${KPI_ICONS[color]||'OV'}</div><div class="kc-lbl">${k.label}</div></div>
       <div class="kc-val ${color}" ${typeof k.value==='string'&&k.value.length>8?'style="font-size:15px"':''}>${val}</div>
       ${k.note?`<div class="kc-note ${trendCls}">${k.note}</div>`:'<div class="kc-note">&nbsp;</div>'}
       <div class="kc-spark"><canvas id="${containerId}_spark${i}"></canvas></div>
@@ -1058,7 +1248,7 @@ function renderPage(page){
     pg.dataset.placeholderShown='1';
     const isAr=LANG==='ar';
     pg.innerHTML = `<div class="no-data-box">
-      <div class="no-data-icon">🚧</div>
+      <div class="no-data-icon">—</div>
       <div class="no-data-badge">${isAr?'قيد الإنشاء':'Under Construction'}</div>
       <div class="no-data-title">${PAGE_META[page]?.[0]||page}</div>
       <div class="no-data-msg">${isAr?'هذه الصفحة جاري بناؤها في المرحلة القادمة.':'This page is being built in the next stage.'}</div>
@@ -1492,6 +1682,24 @@ async function exportPdf(){ alert('PDF export will be available in the final bui
 // INIT
 // ============================================================
 window.addEventListener('load',()=>{ setTimeout(()=>document.getElementById('ld').classList.add('done'),800); });
+
+
+// ============================================================
+// PROFESSIONAL UI POLISH - Added by ChatGPT
+// ============================================================
+(function(){
+  const iconMap={exec:'OV',timeline:'TL',budget:'BD',expenses:'EX',cost:'CA',cashflow:'CF',risks:'RK',vendors:'VD',performance:'PR',production:'PD',quality:'QL',mines:'MP'};
+  const kpiMap={blue:'BD',green:'OK',red:'RK',orange:'AT',purple:'PR'};
+  try{ Object.assign(PAGE_ICONS, iconMap); Object.assign(KPI_ICONS, kpiMap); }catch(e){}
+  window.addEventListener('DOMContentLoaded',()=>{
+    document.querySelectorAll('.tb-export.excel').forEach(b=>b.textContent='Export Excel');
+    document.querySelectorAll('.tb-export.pdf').forEach(b=>b.textContent='Export PDF');
+    const r=document.getElementById('refreshLbl'); if(r) r.textContent=' Refresh Data';
+    const lang=document.getElementById('langLbl'); if(lang) lang.textContent='AR / EN';
+    const theme=document.getElementById('themeLbl'); if(theme) theme.textContent='Theme';
+    document.querySelectorAll('.mob-more-item').forEach(item=>{ item.textContent=item.textContent.replace(/^[A-Z]{2}\s*/,''); });
+  });
+})();
 </script>
 </body>
 </html>
