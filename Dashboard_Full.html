@@ -469,6 +469,132 @@ tbody tr:hover td{background:var(--bg)}
         </div>
       </div>
 
+      <!-- ════ PAGE 4: EXPENSES & PAYMENTS ════ -->
+      <div class="pg" id="pg-expenses">
+        <div class="kpi-row k4" id="expKpis"></div>
+        <div class="g2">
+          <div class="card"><div class="card-h"><h3>Monthly Spending Trend</h3></div><div class="card-b"><div class="cw" style="height:220px"><canvas id="c_expTrend"></canvas></div></div></div>
+          <div class="card"><div class="card-h"><h3>Paid vs Pending by Month</h3></div><div class="card-b"><div class="cw" style="height:220px"><canvas id="c_expPvP"></canvas></div></div></div>
+        </div>
+        <div class="g2">
+          <div class="card"><div class="card-h"><h3>Spend by Category</h3></div><div class="card-b"><div class="cw" style="height:220px"><canvas id="c_expCat"></canvas></div></div></div>
+          <div class="card"><div class="card-h"><h3>Payment Methods</h3></div><div class="card-b"><div class="cw" style="height:220px"><canvas id="c_expMethod"></canvas></div></div></div>
+        </div>
+        <div class="card"><div class="card-h"><h3>Paid vs Pending by Category</h3></div><div class="card-b"><div class="cw" style="height:200px"><canvas id="c_expPvPCat"></canvas></div></div></div>
+        <div class="card">
+          <div class="card-h"><h3>Alerts &amp; Overdue Payments</h3></div>
+          <div class="tbl-wrap" style="max-height:240px;overflow-y:auto"><table><thead><tr><th>Type</th><th>Category</th><th>Issue</th><th>Date</th><th class="td-r">Amount</th><th>Severity</th><th>Status</th></tr></thead><tbody id="expAlertsTbl"></tbody></table></div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h3>Expense Log</h3></div>
+          <div class="tbl-wrap" style="max-height:420px;overflow-y:auto"><table><thead><tr><th>Date</th><th>Category</th><th>Vendor</th><th>Project</th><th class="td-r">Amount</th><th>Method</th><th>Status</th><th>Notes</th></tr></thead><tbody id="expLog"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ════ PAGE 5: COST ANALYSIS ════ -->
+      <div class="pg" id="pg-cost">
+        <div class="kpi-row k5" id="costKpis"></div>
+        <div class="g2">
+          <div class="card"><div class="card-h"><h3>Actual vs Budget by Category</h3><p style="font-size:10.5px;color:var(--txt2);margin-top:2px">Orange bars over budget threshold signal cost overruns.</p></div><div class="card-b"><div class="cw" style="height:240px"><canvas id="c_costAvB"></canvas></div></div></div>
+          <div class="card"><div class="card-h"><h3>Top 10 Spend Items</h3></div><div class="card-b"><div class="cw" style="height:240px"><canvas id="c_costTop10"></canvas></div></div></div>
+        </div>
+        <div class="g2">
+          <div class="card"><div class="card-h"><h3>Monthly Spend Trend</h3></div><div class="card-b"><div class="cw" style="height:200px"><canvas id="c_costTrend"></canvas></div></div></div>
+          <div class="card"><div class="card-h"><h3>Spend by Cost Center</h3></div><div class="card-b"><div class="cw" style="height:200px"><canvas id="c_costCenter"></canvas></div></div></div>
+        </div>
+      </div>
+
+      <!-- ════ PAGE 6: CASH FLOW FORECAST ════ -->
+      <div class="pg" id="pg-cashflow">
+        <div class="kpi-row k4" id="cfKpis"></div>
+        <div class="card">
+          <div class="card-h"><h3>6-Month Cash Out Forecast</h3><p style="font-size:10.5px;color:var(--txt2);margin-top:2px">Planned cash outflow by period — based on the Cash Flow plan in the Expenses sheet.</p></div>
+          <div class="card-b"><div class="cw" style="height:240px"><canvas id="c_cfForecast"></canvas></div></div>
+        </div>
+        <div class="g2">
+          <div class="card"><div class="card-h"><h3>Cash Out by Category</h3></div><div class="card-b"><div class="cw" style="height:200px"><canvas id="c_cfByCat"></canvas></div></div></div>
+          <div class="card">
+            <div class="card-h"><h3>Upcoming Payments</h3></div>
+            <div class="tbl-wrap" style="max-height:220px;overflow-y:auto"><table><thead><tr><th>Due Date</th><th>Payee</th><th>Category</th><th class="td-r">Amount</th><th>Priority</th></tr></thead><tbody id="cfPayTbl"></tbody></table></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h3>Account Transfers Log</h3></div>
+          <div class="tbl-wrap" style="max-height:200px;overflow-y:auto"><table><thead><tr><th>Date</th><th>Month</th><th>Project</th><th>To</th><th class="td-r">Amount</th><th class="td-r">Remaining</th><th class="td-r">Spent</th></tr></thead><tbody id="cfXferTbl"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ════ PAGE 7: RISK & ALERTS ════ -->
+      <div class="pg" id="pg-risks">
+        <div class="kpi-row k2" id="riskKpis"></div>
+        <div id="riskRegisterNote" style="margin:0 0 16px;padding:12px 16px;background:var(--accentbg);border-left:3px solid var(--accent);border-radius:8px;font-size:11px;color:var(--txt2)"></div>
+        <div class="g2">
+          <div class="card"><div class="card-h"><h3>Alerts by Severity</h3></div><div class="card-b"><div class="cw" style="height:180px"><canvas id="c_riskSev"></canvas></div></div></div>
+          <div class="card"><div class="card-h"><h3>Alerts by Type</h3></div><div class="card-b"><div class="cw" style="height:180px"><canvas id="c_riskType"></canvas></div></div></div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h3>Active Alerts &amp; Notifications</h3></div>
+          <div class="tbl-wrap" style="max-height:420px;overflow-y:auto"><table><thead><tr><th>Type</th><th>Category</th><th>Issue</th><th>Due Date</th><th class="td-r">Amount</th><th>Severity</th><th>Status</th></tr></thead><tbody id="riskTbl"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ════ PAGE 8: VENDOR & PROCUREMENT ════ -->
+      <div class="pg" id="pg-vendors">
+        <div class="kpi-row k4" id="vendorKpis"></div>
+        <div class="g2">
+          <div class="card"><div class="card-h"><h3>Spend by Category</h3></div><div class="card-b"><div class="cw" style="height:220px"><canvas id="c_vendCat"></canvas></div></div></div>
+          <div class="card"><div class="card-h"><h3>Equipment Status</h3><p style="font-size:10.5px;color:var(--txt2);margin-top:2px">Real operational status from Equipment Data sheet (Active / Inactive / Off-Hire).</p></div><div class="card-b"><div class="cw" style="height:220px"><canvas id="c_vendEquipStatus"></canvas></div></div></div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h3>Top Vendors by Spend</h3></div>
+          <div class="tbl-wrap" style="max-height:260px;overflow-y:auto"><table><thead><tr><th>Vendor</th><th>Category</th><th class="td-r">Total Spend</th><th class="td-r">Transactions</th></tr></thead><tbody id="vendorTbl"></tbody></table></div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h3>Equipment Master</h3></div>
+          <div class="tbl-wrap" style="max-height:220px;overflow-y:auto"><table><thead><tr><th>ID</th><th>Type</th><th>Contractor</th><th class="td-r">Monthly Rate</th><th>Project</th><th>Status</th></tr></thead><tbody id="equipTbl"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ════ PAGE 9: APPROVAL WORKFLOW — no source yet ════ -->
+      <div class="pg" id="pg-approvals">
+        <div class="kpi-row k2" id="appKpis"></div>
+        <div id="appNoDataNote" style="margin:0 0 16px;padding:12px 16px;background:var(--accentbg);border-left:3px solid var(--accent);border-radius:8px;font-size:11px;color:var(--txt2)"></div>
+      </div>
+
+      <!-- ════ PAGE 10: MONTHLY PERFORMANCE ════ -->
+      <div class="pg" id="pg-performance">
+        <div class="kpi-row k4" id="perfKpis"></div>
+        <div class="g2">
+          <div class="card"><div class="card-h"><h3>Budget vs Actual by Project</h3></div><div class="card-b"><div class="cw" style="height:220px"><canvas id="c_perfBvA"></canvas></div></div></div>
+          <div class="card"><div class="card-h"><h3>Budget Utilization by Project</h3></div><div class="card-b"><div class="cw" style="height:220px"><canvas id="c_perfUtil"></canvas></div></div></div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="card-h"><h3>Financial Summary</h3></div>
+            <div class="card-b" id="perfFinSummary" style="max-height:220px;overflow-y:auto"></div>
+          </div>
+          <div class="card">
+            <div class="card-h"><h3>Project Performance</h3></div>
+            <div class="tbl-wrap"><table><thead><tr><th>Project</th><th class="td-r">Budget</th><th class="td-r">Actual</th><th class="td-r">Utilization</th><th>Status</th></tr></thead><tbody id="perfProjTbl"></tbody></table></div>
+          </div>
+        </div>
+        <div id="perfNote" style="padding:10px 0 4px;font-size:10.5px;color:var(--txt2)"></div>
+      </div>
+
+      <!-- ════ PAGE 11: PRODUCTION / LOTS ════ -->
+      <div class="pg" id="pg-production">
+        <div class="kpi-row k4" id="prodKpis"></div>
+        <div id="prodEmptyNote" style="display:none;padding:12px 16px;background:var(--accentbg);border-left:3px solid var(--accent);border-radius:8px;font-size:11px;color:var(--txt2);margin-bottom:16px"></div>
+        <div class="g2">
+          <div class="card"><div class="card-h"><h3>Tons by Mine</h3></div><div class="card-b"><div class="cw" style="height:220px"><canvas id="c_prodTons"></canvas></div></div></div>
+          <div class="card"><div class="card-h"><h3>Avg Fe% by Mine (Lots)</h3><p style="font-size:10.5px;color:var(--txt2);margin-top:2px">Average Fe% per batch lot — from the Lots sheet.</p></div><div class="card-b"><div class="cw" style="height:220px"><canvas id="c_prodFe"></canvas></div></div></div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h3>Lot Inventory</h3></div>
+          <div class="tbl-wrap" style="max-height:400px;overflow-y:auto"><table><thead><tr><th>Updated</th><th>Mine</th><th>Material</th><th>Batch</th><th class="td-r">Qty (Ton)</th><th class="td-r">Avg Fe%</th></tr></thead><tbody id="prodTbl"></tbody></table></div>
+        </div>
+      </div>
+
       <!-- ════════ PAGE 12: QUALITY / SAMPLES ════════ -->
       <div class="pg" id="pg-quality">
         <div class="kpi-row k8" id="qualKpis"></div>
@@ -908,7 +1034,11 @@ function renderKpis(containerId,kpis,gridClass){
 // ============================================================
 function renderPage(page){
   if(!API_DATA) return;
-  const map={exec:renderExec,timeline:renderTimeline,budget:renderBudget,quality:renderQuality,mines:()=>syncMinesSettings()};
+  const map={exec:renderExec,timeline:renderTimeline,budget:renderBudget,quality:renderQuality,
+    expenses:renderExpenses, cost:renderCost, cashflow:renderCashflow,
+    risks:renderRisks, vendors:renderVendors, approvals:renderApprovals,
+    performance:renderPerformance, production:renderProduction,
+    mines:()=>syncMinesSettings()};
   if(map[page]){ map[page](); return; }
   // Pages not yet built in this stage — show a clear "coming soon" state
   // rather than a silently blank page.
@@ -1215,7 +1345,183 @@ function renderBudget(){
 // ════════════════════════════════════════════════════════════
 // MULTI-ELEMENT TREND CHART HELPERS (Quality page)
 // ════════════════════════════════════════════════════════════
-const ELEMENT_CHART_COLORS=['#fd480e','#2563eb','#16a34a','#7c3aed','#ea580c','#0891b2','#dc2626','#65a30d','#0d9488','#9333ea','#d97706','#475569'];
+// ════════════════════════════════════════════════════════════
+// PAGE 4: EXPENSES & PAYMENTS
+// ════════════════════════════════════════════════════════════
+function renderExpenses(){
+  const d=API_DATA.expenses; if(!d) return;
+  renderKpis('expKpis',d.kpis||[],'k4');
+  const c=gc();
+  const trend=d.monthly_trend||[];
+  if(trend.length){
+    mkChart('c_expTrend','line',{labels:trend.map(r=>r.month),datasets:[{label:'Actual Spend',data:trend.map(r=>r.actual),borderColor:'#fd480e',backgroundColor:'rgba(253,72,14,.08)',fill:true,tension:.3,pointRadius:3}]},{plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:c.txt,font:{size:9.5}}},y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>fmtNum(v)}}}});
+    mkChart('c_expPvP','bar',{labels:trend.map(r=>r.month),datasets:[{label:'Paid',data:trend.map(r=>r.paid||0),backgroundColor:'rgba(22,163,74,.8)',borderRadius:4},{label:'Pending',data:trend.map(r=>r.pending||0),backgroundColor:'rgba(220,38,38,.7)',borderRadius:4}]},{plugins:{legend:{display:true,position:'top',labels:{color:c.txt,font:{size:10},boxWidth:10}}},scales:{x:{stacked:true,grid:{display:false},ticks:{color:c.txt,font:{size:9.5}}},y:{stacked:true,grid:{color:c.grid},ticks:{color:c.txt,callback:v=>fmtNum(v)}}}});
+  }
+  const byCat=d.by_category||[];
+  if(byCat.length) mkChart('c_expCat','doughnut',{labels:byCat.map(r=>r.category),datasets:[{data:byCat.map(r=>r.amount),backgroundColor:PAL,borderWidth:2,borderColor:'var(--card)'}]},{plugins:{legend:{display:true,position:'right',labels:{color:c.txt,font:{size:9.5},boxWidth:10}}}});
+  const byMethod=d.by_method||[];
+  if(byMethod.length) mkChart('c_expMethod','bar',{labels:byMethod.map(r=>r.method),datasets:[{label:'Amount',data:byMethod.map(r=>r.amount),backgroundColor:'rgba(37,99,235,.8)',borderRadius:5}]},{plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:c.txt,font:{size:9}}},y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>fmtNum(v)}}}});
+  // Paid vs Pending by Category bar chart
+  const pvpCat=d.paid_vs_pending_by_cat||[];
+  if(pvpCat.length) mkChart('c_expPvPCat','bar',{labels:pvpCat.map(r=>r.category),datasets:[{label:'Paid',data:pvpCat.map(r=>r.paid||0),backgroundColor:'rgba(22,163,74,.8)',borderRadius:3},{label:'Pending',data:pvpCat.map(r=>r.pending||0),backgroundColor:'rgba(234,88,12,.7)',borderRadius:3}]},{plugins:{legend:{display:true,position:'top',labels:{color:c.txt,font:{size:10},boxWidth:10}}},scales:{x:{stacked:true,grid:{display:false},ticks:{color:c.txt,font:{size:9}}},y:{stacked:true,grid:{color:c.grid},ticks:{color:c.txt,callback:v=>fmtNum(v)}}}});
+  // Alerts
+  const SEV_B={Critical:'red',High:'orange',Medium:'blue',Low:'green'};
+  const expAlertsEl=document.getElementById('expAlertsTbl');
+  if(expAlertsEl) expAlertsEl.innerHTML=(d.alerts||[]).map(r=>`<tr><td>${r.type||'—'}</td><td>${r.category||'—'}</td><td>${r.issue||'—'}</td><td class="td-s">${r.date||'—'}</td><td class="td-r td-m">${fmtNum(r.amount||0)}</td><td><span class="badge ${SEV_B[r.severity]||'gray'}">${r.severity||'—'}</span></td><td><span class="badge ${r.status==='Open'?'orange':'green'}">${r.status||'—'}</span></td></tr>`).join('');
+  const log=d.log||[];
+  document.getElementById('expLog').innerHTML=log.slice(0,150).map(r=>`<tr><td class="td-s">${r.date||'—'}</td><td><span class="badge blue">${r.category||'—'}</span></td><td>${r.vendor||'—'}</td><td class="td-s">${r.project||'—'}</td><td class="td-r td-m">${fmtNum(r.amount||0)}</td><td class="td-s">${r.method||'—'}</td><td><span class="badge ${r.status==='Paid'?'green':'orange'}">${r.status||'—'}</span></td><td class="td-s" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.comments||''}">${r.comments||'—'}</td></tr>`).join('');
+}
+
+// ════════════════════════════════════════════════════════════
+// PAGE 5: COST ANALYSIS
+// ════════════════════════════════════════════════════════════
+function renderCost(){
+  const d=API_DATA.cost; if(!d) return;
+  renderKpis('costKpis',d.kpis||[],'k5');
+  const c=gc();
+  const avb=d.actual_vs_budget||d.by_cost_center||[];
+  if(avb.length){
+    const src=d.actual_vs_budget||[];
+    if(src.length) mkChart('c_costAvB','bar',{labels:src.map(r=>r.category),datasets:[{label:'Budget',data:src.map(r=>r.budget),backgroundColor:'rgba(37,99,235,.7)',borderRadius:3},{label:'Actual',data:src.map(r=>r.actual),backgroundColor:src.map(r=>(r.actual||0)>(r.budget||0)?'rgba(220,38,38,.8)':'rgba(22,163,74,.8)'),borderRadius:3}]},{plugins:{legend:{display:true,position:'top',labels:{color:c.txt,font:{size:10},boxWidth:10}}},scales:{x:{grid:{display:false},ticks:{color:c.txt,font:{size:9}}},y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>fmtNum(v)}}}});
+  }
+  const top10=d.top10||[];
+  if(top10.length) mkChart('c_costTop10','bar',{labels:top10.map(r=>r.item),datasets:[{label:'Spend',data:top10.map(r=>r.spend),backgroundColor:'rgba(253,72,14,.8)',borderRadius:4}]},{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>fmtNum(v)}},y:{grid:{display:false},ticks:{color:c.txt,font:{size:9.5}}}}});
+  const trend=d.spend_trend||[];
+  if(trend.length) mkChart('c_costTrend','line',{labels:trend.map(r=>r.month),datasets:[{label:'Spend',data:trend.map(r=>r.spend),borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,.08)',fill:true,tension:.3,pointRadius:3}]},{plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:c.txt,font:{size:9.5}}},y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>fmtNum(v)}}}});
+  const cc=d.by_cost_center||[];
+  if(cc.length) mkChart('c_costCenter','bar',{labels:cc.map(r=>r.center),datasets:[{label:'Spend',data:cc.map(r=>r.spend),backgroundColor:'rgba(8,145,178,.8)',borderRadius:4}]},{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>fmtNum(v)}},y:{grid:{display:false},ticks:{color:c.txt,font:{size:9.5}}}}});
+}
+
+// ════════════════════════════════════════════════════════════
+// PAGE 6: CASH FLOW FORECAST
+// ════════════════════════════════════════════════════════════
+function renderCashflow(){
+  const d=API_DATA.cashflow; if(!d) return;
+  renderKpis('cfKpis',d.kpis||[],'k4');
+  const c=gc();
+  const cf=d.forecast_6m||[];
+  if(cf.length){
+    mkChart('c_cfForecast','bar',{
+      labels:cf.map(r=>r.month),
+      datasets:[
+        {label:'Operating Out',data:cf.map(r=>r.operating_out||0),backgroundColor:'rgba(37,99,235,.8)',borderRadius:4},
+        {label:'One-Time',data:cf.map(r=>r.one_time||0),backgroundColor:'rgba(234,88,12,.8)',borderRadius:4},
+        {label:'Maintenance',data:cf.map(r=>r.maintenance||0),backgroundColor:'rgba(124,58,237,.8)',borderRadius:4},
+      ]
+    },{plugins:{legend:{display:true,position:'top',labels:{color:c.txt,font:{size:10},boxWidth:10}}},scales:{x:{stacked:true,grid:{display:false},ticks:{color:c.txt,font:{size:9.5}}},y:{stacked:true,grid:{color:c.grid},ticks:{color:c.txt,callback:v=>fmtNum(v)}}}});
+  }
+  const byCat=d.cash_out_by_category||[];
+  if(byCat.length) mkChart('c_cfByCat','doughnut',{labels:byCat.map(r=>r.category),datasets:[{data:byCat.map(r=>r.amount),backgroundColor:PAL,borderWidth:2,borderColor:'var(--card)'}]},{plugins:{legend:{display:true,position:'right',labels:{color:c.txt,font:{size:9.5},boxWidth:10}}}});
+  const PRI_CLR={High:'red',Medium:'orange',Low:'blue',Overdue:'red'};
+  document.getElementById('cfPayTbl').innerHTML=(d.upcoming_payments||[]).slice(0,15).map(r=>`<tr><td class="td-s">${r.due||'—'}</td><td>${r.payee||'—'}</td><td class="td-s">${r.category||'—'}</td><td class="td-r td-m">${fmtNum(r.amount||0)}</td><td><span class="badge ${PRI_CLR[r.status]||'gray'}">${r.status||'—'}</span></td></tr>`).join('');
+  document.getElementById('cfXferTbl').innerHTML=(d.transfers_log||[]).map(r=>`<tr><td class="td-s">${r.date||'—'}</td><td class="td-s">${r.month||'—'}</td><td>${r.project||'—'}</td><td>${r.to||'—'}</td><td class="td-r td-m">${fmtNum(r.amount||0)}</td><td class="td-r">${fmtNum(r.remaining||0)}</td><td class="td-r">${fmtNum(r.spent||0)}</td></tr>`).join('');
+}
+
+// ════════════════════════════════════════════════════════════
+// PAGE 7: RISK & ALERTS
+// ════════════════════════════════════════════════════════════
+function renderRisks(){
+  const d=API_DATA.risks; if(!d) return;
+  renderKpis('riskKpis',d.kpis||[],'k2');
+  const c=gc();
+  const noteEl=document.getElementById('riskRegisterNote');
+  if(noteEl && d.no_risk_register) noteEl.innerHTML='ℹ️ '+d.message;
+  else if(noteEl) noteEl.style.display='none';
+  const bySev=d.by_severity||[];
+  if(bySev.length) mkChart('c_riskSev','doughnut',{labels:bySev.map(r=>r.severity),datasets:[{data:bySev.map(r=>r.count),backgroundColor:bySev.map(r=>SEV_COLORS[r.severity]||'#6b7385'),borderWidth:2,borderColor:'var(--card)'}]},{plugins:{legend:{display:true,position:'right',labels:{color:c.txt,font:{size:10},boxWidth:10}}}});
+  const alerts=d.alerts||[];
+  const byType={};
+  alerts.forEach(a=>{byType[a.type]=(byType[a.type]||0)+1;});
+  if(Object.keys(byType).length) mkChart('c_riskType','bar',{labels:Object.keys(byType),datasets:[{label:'Alerts',data:Object.values(byType),backgroundColor:'rgba(234,88,12,.8)',borderRadius:5}]},{plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:c.txt,font:{size:9.5}}},y:{grid:{color:c.grid},ticks:{color:c.txt}}}});
+  const SEV_B={Critical:'red',High:'orange',Medium:'blue',Low:'green'};
+  document.getElementById('riskTbl').innerHTML=alerts.map(r=>`<tr><td>${r.type||'—'}</td><td>${r.category||'—'}</td><td>${r.issue||'—'}</td><td class="td-s">${r.date||'—'}</td><td class="td-r td-m">${fmtNum(r.amount||0)}</td><td><span class="badge ${SEV_B[r.severity]||'gray'}">${r.severity||'—'}</span></td><td><span class="badge ${r.status==='Open'?'orange':'green'}">${r.status||'—'}</span></td></tr>`).join('');
+}
+
+// ════════════════════════════════════════════════════════════
+// PAGE 8: VENDOR & PROCUREMENT
+// ════════════════════════════════════════════════════════════
+function renderVendors(){
+  const d=API_DATA.vendors; if(!d) return;
+  renderKpis('vendorKpis',d.kpis||[],'k4');
+  const c=gc();
+  const byCat=d.spend_by_category||[];
+  if(byCat.length) mkChart('c_vendCat','bar',{labels:byCat.map(r=>r.category),datasets:[{label:'Spend',data:byCat.map(r=>r.amount),backgroundColor:PAL.map((p,i)=>p+'cc'),borderRadius:5}]},{plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:c.txt,font:{size:9}}},y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>fmtNum(v)}}}});
+  const equip=d.equipment_status_summary||[];
+  const statusColors={'Active':'rgba(22,163,74,.85)','Inactive':'rgba(220,38,38,.7)','Off-Hire':'rgba(234,88,12,.8)'};
+  if(equip.length) mkChart('c_vendEquipStatus','doughnut',{labels:equip.map(r=>r.status),datasets:[{data:equip.map(r=>r.count),backgroundColor:equip.map(r=>statusColors[r.status]||'rgba(154,161,177,.7)'),borderWidth:2,borderColor:'var(--card)',hoverOffset:6}]},{cutout:'60%',plugins:{legend:{display:true,position:'right',labels:{color:c.txt,font:{size:10},boxWidth:10}}}});
+  document.getElementById('vendorTbl').innerHTML=(d.top_vendors||[]).map(r=>`<tr><td><strong>${r.name||'—'}</strong></td><td class="td-s">${r.category||'—'}</td><td class="td-r td-m">${fmtNum(r.commitments||0)}</td><td class="td-r">${r.count||0}</td></tr>`).join('');
+  document.getElementById('equipTbl').innerHTML=(d.equipment_master||[]).map(r=>`<tr><td class="td-s"><strong>${r.id||'—'}</strong></td><td>${r.type||'—'}</td><td>${r.contractor||'—'}</td><td class="td-r">${fmtNum(r.monthly||0)}</td><td class="td-s">${r.project||'—'}</td><td><span class="badge ${r.status==='Active'?'green':r.status==='Off-Hire'?'orange':'red'}">${r.status||'—'}</span></td></tr>`).join('');
+}
+
+// ════════════════════════════════════════════════════════════
+// PAGE 9: APPROVAL WORKFLOW — no source sheet yet
+// ════════════════════════════════════════════════════════════
+function renderApprovals(){
+  const d=API_DATA.approvals; if(!d) return;
+  renderKpis('appKpis',d.kpis||[],'k2');
+  const noteEl=document.getElementById('appNoDataNote');
+  if(noteEl && d.no_data) noteEl.innerHTML='ℹ️ '+d.message;
+}
+
+// ════════════════════════════════════════════════════════════
+// PAGE 10: MONTHLY PERFORMANCE
+// ════════════════════════════════════════════════════════════
+function renderPerformance(){
+  const d=API_DATA.performance; if(!d) return;
+  renderKpis('perfKpis',d.kpis||[],'k4');
+  const c=gc();
+  const byProj=d.by_project||[];
+  if(byProj.length) mkChart('c_perfBvA','bar',{labels:byProj.map(r=>r.project),datasets:[{label:'Budget',data:byProj.map(r=>r.budget||0),backgroundColor:'rgba(37,99,235,.7)',borderRadius:3},{label:'Actual',data:byProj.map(r=>r.actual||0),backgroundColor:'rgba(253,72,14,.8)',borderRadius:3}]},{plugins:{legend:{display:true,position:'top',labels:{color:c.txt,font:{size:10},boxWidth:10}}},scales:{x:{grid:{display:false},ticks:{color:c.txt}},y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>fmtNum(v)}}}});
+  if(byProj.length) mkChart('c_perfUtil','doughnut',{labels:byProj.map(r=>r.project),datasets:[{data:byProj.map(r=>r.util_pct||0),backgroundColor:PAL,borderWidth:2,borderColor:'var(--card)',hoverOffset:5}]},{plugins:{legend:{display:true,position:'right',labels:{color:c.txt,font:{size:9.5},boxWidth:10}},tooltip:{callbacks:{label:ctx=>ctx.label+': '+ctx.raw+'% utilized'}}}});
+  const fs=d.financial_summary||{};
+  const perfSumEl=document.getElementById('perfFinSummary');
+  if(perfSumEl && fs.total_budget){
+    const varColor=(fs.variance||0)>0?'var(--red)':'var(--green)';
+    const sGrid='display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:4px';
+    const sLbl='font-size:9px;color:var(--txt3);text-transform:uppercase';
+    perfSumEl.innerHTML=`<div style="${sGrid}">
+      <div><div style="${sLbl}">Total Budget</div><div style="font-size:18px;font-weight:700;color:var(--accent)">${fmtNum(fs.total_budget)}</div></div>
+      <div><div style="${sLbl}">Actual Spend</div><div style="font-size:18px;font-weight:700;color:var(--orange)">${fmtNum(fs.actual_spend)}</div></div>
+      <div><div style="${sLbl}">Variance</div><div style="font-size:18px;font-weight:700;color:${varColor}">${(fs.variance_pct||0).toFixed(1)}%</div></div>
+      <div><div style="${sLbl}">Paid to Date</div><div style="font-size:18px;font-weight:700;color:var(--green)">${fmtNum(fs.paid_to_date||0)}</div></div>
+    </div>`;
+  }
+  const perfTblEl=document.getElementById('perfProjTbl');
+  if(perfTblEl) perfTblEl.innerHTML=byProj.map(r=>{
+    const barW=Math.min(r.util_pct||0,100);
+    const barCol=(r.util_pct||0)>90?'var(--red)':'var(--accent)';
+    const badgeCls=(r.util_pct||0)>100?'red':(r.util_pct||0)>85?'orange':'green';
+    const badgeTxt=(r.util_pct||0)>100?'Over Budget':(r.util_pct||0)>85?'At Risk':'On Track';
+    return `<tr>
+      <td><strong>${r.project||'—'}</strong></td>
+      <td class="td-r">${fmtNum(r.budget||0)}</td>
+      <td class="td-r">${fmtNum(r.actual||0)}</td>
+      <td class="td-r"><div style="display:flex;align-items:center;gap:6px"><div class="pb" style="width:60px;margin:0"><div class="pf" style="width:${barW}%;background:${barCol}"></div></div><span style="font-size:10px">${(r.util_pct||0).toFixed(1)}%</span></div></td>
+      <td><span class="badge ${badgeCls}">${badgeTxt}</span></td>
+    </tr>`;
+  }).join('');
+  if(noteEl) noteEl.textContent = d.message||'';
+}
+
+// ════════════════════════════════════════════════════════════
+// PAGE 11: PRODUCTION / LOTS
+// ════════════════════════════════════════════════════════════
+function renderProduction(){
+  const d=API_DATA.production; if(!d) return;
+  renderKpis('prodKpis',d.kpis||[],'k4');
+  const c=gc();
+  const emptyNote=document.getElementById('prodEmptyNote');
+  if(emptyNote){ emptyNote.style.display=d.empty?'block':'none'; if(d.empty) emptyNote.textContent=d.message||''; }
+  const byMine=d.by_mine||[];
+  if(byMine.length){
+    mkChart('c_prodTons','bar',{labels:byMine.map(r=>r.mine),datasets:[{label:'Qty (Ton)',data:byMine.map(r=>r.qty_ton),backgroundColor:'rgba(37,99,235,.8)',borderRadius:5}]},{plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:c.txt,font:{size:9.5}}},y:{grid:{color:c.grid},ticks:{color:c.txt}}}});
+    mkChart('c_prodFe','bar',{labels:byMine.map(r=>r.mine),datasets:[{label:'Avg Fe%',data:byMine.map(r=>r.avg_fe),backgroundColor:byMine.map(r=>gradeOfSample(r.material,r.avg_fe)==='pass'?'rgba(22,163,74,.85)':gradeOfSample(r.material,r.avg_fe)==='reject'?'rgba(220,38,38,.8)':'rgba(154,161,177,.7)'),borderRadius:5}]},{plugins:{legend:{display:false},tooltip:{callbacks:{afterLabel:ctx=>{const row=byMine.find(m=>m.mine===ctx.label);const g=gradeOfSample(row?.material,ctx.raw);return (g==='pass'?'✓ Pass':g==='reject'?'✗ Reject':'? Ungraded')+(row?.material?' ('+row.material+')':'');}}}},scales:{x:{grid:{display:false},ticks:{color:c.txt,font:{size:9.5}}},y:{grid:{color:c.grid},ticks:{color:c.txt,callback:v=>v+'%'}}}});
+  }
+  const MATERIAL_COLORS={Hematite:'red',Limonite:'orange',Magnetite:'blue'};
+  document.getElementById('prodTbl').innerHTML=(d.lots||[]).sort((a,b)=>(a.updated<b.updated?1:-1)).map(r=>`<tr><td class="td-s">${r.updated||'—'}</td><td><strong>${r.mine||'—'}</strong></td><td><span class="badge ${MATERIAL_COLORS[r.material]||'gray'}">${r.material||'Unknown'}</span></td><td class="td-s">${r.batch||'—'}</td><td class="td-r td-m">${(r.qty_ton||0).toLocaleString()}</td><td class="td-r" style="color:var(--accent)">${(r.avg_fe||0).toFixed(2)}</td></tr>`).join('');
+}
+
+['#fd480e','#2563eb','#16a34a','#7c3aed','#ea580c','#0891b2','#dc2626','#65a30d','#0d9488','#9333ea','#d97706','#475569'];
 // Per-material Fe% Pass/Reject thresholds — must mirror the backend exactly.
 // hematite/limonite pass at >=55% Fe; magnetite passes at >=37% Fe.
 const FE_THRESHOLDS={hematite:55, limonite:55, magnetite:37};
