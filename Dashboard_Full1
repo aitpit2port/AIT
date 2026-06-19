@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AIT Projects — Executive Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f172a;--bg2:#1e293b;--bg3:#334155;
+  --txt:#f1f5f9;--txt2:#94a3b8;--txt3:#64748b;
+  --border:#334155;
+  --accent:#3b82f6;--accent2:#1d4ed8;
+  --green:#16a34a;--red:#dc2626;--amber:#d97706;--purple:#7c3aed;
+  --card-pad:1.25rem;
+}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.5;min-height:100vh}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:.75rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-logo{display:flex;align-items:center;gap:.75rem}
+.logo-mark{width:32px;height:32px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff}
+.topbar-title{font-size:15px;font-weight:600}
+.topbar-sub{font-size:11px;color:var(--txt3);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:1rem;font-size:12px;color:var(--txt2)}
+.badge-alert{background:#dc262622;color:#fca5a5;font-size:11px;padding:3px 10px;border-radius:6px;font-weight:600}
+.nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;gap:0;overflow-x:auto}
+.nav-btn{padding:.75rem 1.25rem;font-size:12px;font-weight:500;color:var(--txt2);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s}
+.nav-btn:hover{color:var(--txt);background:var(--bg3)}
+.nav-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.main{padding:1.5rem 2rem;max-width:1600px;margin:0 auto}
+.pg{display:none}.pg.active{display:block}
+.pg-title{font-size:20px;font-weight:600;margin-bottom:.25rem}
+.pg-sub{font-size:12px;color:var(--txt3);margin-bottom:1.5rem}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+.g21{display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1.5rem}
+.g12{display:grid;grid-template-columns:1fr 2fr;gap:1rem;margin-bottom:1.5rem}
+@media(max-width:1100px){.g4{grid-template-columns:1fr 1fr}.g21,.g12{grid-template-columns:1fr}}
+@media(max-width:700px){.g4,.g3,.g2{grid-template-columns:1fr}}
+.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.1rem 1.25rem}
+.kpi-label{font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem}
+.kpi-val{font-size:26px;font-weight:700;line-height:1}
+.kpi-note{font-size:11px;color:var(--txt3);margin-top:.35rem}
+.kpi-val.ok{color:var(--green)}
+.kpi-val.warn{color:var(--amber)}
+.kpi-val.danger{color:var(--red)}
+.kpi-val.accent{color:var(--accent)}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:var(--card-pad);margin-bottom:1.5rem}
+.card-title{font-size:13px;font-weight:600;margin-bottom:1rem;color:var(--txt)}
+.card-sub{font-size:11px;color:var(--txt3);margin-top:.25rem;font-weight:400}
+.chart-wrap{position:relative;width:100%}
+table{width:100%;border-collapse:collapse}
+thead th{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--txt3);padding:8px 10px;text-align:left;border-bottom:1px solid var(--border)}
+tbody tr{border-bottom:1px solid #1e293b;transition:background .1s}
+tbody tr:hover{background:var(--bg3)}
+.tbl-wrap{overflow-y:auto;max-height:400px}
+.tbl-wrap2{overflow-y:auto;max-height:320px}
+.badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:5px}
+.pb{background:#334155;border-radius:3px;height:5px}
+.pf{border-radius:3px;height:5px}
+.section-sep{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
+.alert-banner{background:#dc262614;border:1px solid #dc262644;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;gap:1rem;align-items:flex-start}
+.alert-icon{font-size:20px;flex-shrink:0;margin-top:2px}
+.alert-body{flex:1}
+.alert-head{font-size:13px;font-weight:600;color:#fca5a5;margin-bottom:.4rem}
+.alert-items{font-size:11px;color:var(--txt2);line-height:1.8}
+.note-box{background:#1e3a5f;border:1px solid #2563eb44;border-radius:8px;padding:.75rem 1rem;font-size:11px;color:#93c5fd;margin-bottom:1rem}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">
+    <div class="logo-mark">AIT</div>
+    <div>
+      <div class="topbar-title">AIT Projects — Executive Dashboard</div>
+      <div class="topbar-sub">All Projects | Data as of 18 Jun 2026</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="badge-alert">⚠ 3 Critical Alerts</span>
+    <span style="color:var(--txt3)">Budget Utilized: <strong style="color:var(--amber)">16.8%</strong></span>
+    <span style="color:var(--txt3)">Schedule: <strong style="color:var(--amber)">54%</strong></span>
+  </div>
+</div>
+
+<nav class="nav">
+  <button class="nav-btn active" onclick="showPage('exec',this)">Executive Summary</button>
+  <button class="nav-btn" onclick="showPage('timeline',this)">Project Timeline</button>
+  <button class="nav-btn" onclick="showPage('budget',this)">Budget</button>
+  <button class="nav-btn" onclick="showPage('expenses',this)">Expenses</button>
+  <button class="nav-btn" onclick="showPage('cashflow',this)">Cash Flow</button>
+  <button class="nav-btn" onclick="showPage('alerts',this)">Alerts</button>
+  <button class="nav-btn" onclick="showPage('vendors',this)">Vendors</button>
+  <button class="nav-btn" onclick="showPage('quality',this)">Quality / Samples</button>
+  <button class="nav-btn" onclick="showPage('production',this)">Production</button>
+  <button class="nav-btn" onclick="showPage('mines',this)">Mines</button>
+</nav>
+
+<div class="main">
+
+<!-- ════════ EXECUTIVE SUMMARY ════════ -->
+<div class="pg active" id="pg-exec">
+  <div class="pg-title">Executive Summary</div>
+  <div class="pg-sub">Overview of project financial performance and key indicators</div>
+
+  <div class="alert-banner">
+    <div class="alert-icon">🚨</div>
+    <div class="alert-body">
+      <div class="alert-head">3 Critical Alerts Require Action</div>
+      <div class="alert-items">
+        • Fuel Expense exceeded budget by <strong>369.3%</strong> — 36,926 EGP over (7,950 budget)<br>
+        • Fixed costs exceeded budget by <strong>73.6%</strong> — 80,950 EGP over<br>
+        • 13 payments are <strong>overdue</strong> totaling 1.22M EGP — oldest is 39 days late
+      </div>
+    </div>
+  </div>
+
+  <div class="g4">
+    <div class="kpi"><div class="kpi-label">Total Budget</div><div class="kpi-val accent">5.04M</div><div class="kpi-note">EGP — All Projects</div></div>
+    <div class="kpi"><div class="kpi-label">Actual Spend</div><div class="kpi-val warn">848K</div><div class="kpi-note">16.8% of budget used</div></div>
+    <div class="kpi"><div class="kpi-label">Remaining Budget</div><div class="kpi-val ok">4.20M</div><div class="kpi-note">83.2% remaining</div></div>
+    <div class="kpi"><div class="kpi-label">Paid to Date</div><div class="kpi-val">140K</div><div class="kpi-note">10.4% of required</div></div>
+    <div class="kpi"><div class="kpi-label">Pending Payments</div><div class="kpi-val warn">1.21M</div><div class="kpi-note">89.6% of required</div></div>
+    <div class="kpi"><div class="kpi-label">Open Alerts</div><div class="kpi-val danger">26</div><div class="kpi-note">3 critical</div></div>
+    <div class="kpi"><div class="kpi-label">Schedule Completion</div><div class="kpi-val warn">54%</div><div class="kpi-note">From Gantt — 11 delayed</div></div>
+    <div class="kpi"><div class="kpi-label">Ore Sample Pass Rate</div><div class="kpi-val warn">50.6%</div><div class="kpi-note">80 of 158 samples pass</div></div>
+  </div>
+
+  <div class="g21">
+    <div class="card">
+      <div class="card-title">Budget vs Actual by Category<span class="card-sub"> — top 8</span></div>
+      <div class="chart-wrap" style="height:260px"><canvas id="c_exec_bva" role="img" aria-label="Budget vs actual spend by category"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Expense Distribution</div>
+      <div class="chart-wrap" style="height:260px"><canvas id="c_exec_dist" role="img" aria-label="Expense distribution by category"></canvas></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Top 5 Vendors by Spend</div>
+      <table><thead><tr><th>Vendor</th><th>Category</th><th style="text-align:right">Amount (EGP)</th><th style="text-align:right">Txn</th></tr></thead><tbody>
+        <tr><td style="padding:7px 10px;font-size:12px;font-weight:500">Others</td><td style="padding:7px 10px;font-size:11px;color:#64748b">Various</td><td style="padding:7px 10px;text-align:right;font-weight:600;font-size:12px">627,038</td><td style="padding:7px 10px;text-align:right;font-size:11px;color:#64748b">225</td></tr>
+        <tr><td style="padding:7px 10px;font-size:12px;font-weight:500">المؤسسه الهندسية</td><td style="padding:7px 10px;font-size:11px;color:#64748b">Maintenance</td><td style="padding:7px 10px;text-align:right;font-weight:600;font-size:12px">129,361</td><td style="padding:7px 10px;text-align:right;font-size:11px;color:#64748b">1</td></tr>
+        <tr><td style="padding:7px 10px;font-size:12px;font-weight:500">المتحدة للتوريدات</td><td style="padding:7px 10px;font-size:11px;color:#64748b">HSE</td><td style="padding:7px 10px;text-align:right;font-weight:600;font-size:12px">23,165</td><td style="padding:7px 10px;text-align:right;font-size:11px;color:#64748b">1</td></tr>
+        <tr><td style="padding:7px 10px;font-size:12px;font-weight:500">الروماني للمعادن</td><td style="padding:7px 10px;font-size:11px;color:#64748b">Equipment</td><td style="padding:7px 10px;text-align:right;font-weight:600;font-size:12px">22,020</td><td style="padding:7px 10px;text-align:right;font-size:11px;color:#64748b">1</td></tr>
+        <tr><td style="padding:7px 10px;font-size:12px;font-weight:500">النادي للمعادن</td><td style="padding:7px 10px;font-size:11px;color:#64748b">Equipment</td><td style="padding:7px 10px;text-align:right;font-weight:600;font-size:12px">16,000</td><td style="padding:7px 10px;text-align:right;font-size:11px;color:#64748b">1</td></tr>
+      </tbody></table>
+    </div>
+    <div class="card">
+      <div class="card-title">Project Status Overview</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+        <div style="background:#16a34a11;border:1px solid #16a34a44;border-radius:8px;padding:.875rem;text-align:center"><div style="font-size:28px;font-weight:700;color:#16a34a">21</div><div style="font-size:11px;color:#86efac;margin-top:2px">Completed</div></div>
+        <div style="background:#dc262611;border:1px solid #dc262644;border-radius:8px;padding:.875rem;text-align:center"><div style="font-size:28px;font-weight:700;color:#dc2626">11</div><div style="font-size:11px;color:#fca5a5;margin-top:2px">Delayed</div></div>
+        <div style="background:#3b82f611;border:1px solid #3b82f644;border-radius:8px;padding:.875rem;text-align:center"><div style="font-size:28px;font-weight:700;color:#3b82f6">1</div><div style="font-size:11px;color:#93c5fd;margin-top:2px">In Progress</div></div>
+        <div style="background:#64748b11;border:1px solid #64748b44;border-radius:8px;padding:.875rem;text-align:center"><div style="font-size:28px;font-weight:700;color:#94a3b8">6</div><div style="font-size:11px;color:#94a3b8;margin-top:2px">Planned</div></div>
+      </div>
+      <div style="background:#1e293b;border-radius:8px;padding:.875rem">
+        <div style="font-size:11px;color:#64748b;margin-bottom:.5rem">Overall Completion</div>
+        <div class="pb" style="height:10px;border-radius:5px"><div class="pf" style="background:var(--amber);width:54%;height:10px;border-radius:5px"></div></div>
+        <div style="font-size:20px;font-weight:700;color:var(--amber);margin-top:.5rem">54%</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ PROJECT TIMELINE ════════ -->
+<div class="pg" id="pg-timeline">
+  <div class="pg-title">Project Timeline</div>
+  <div class="pg-sub">All projects schedule overview — 39 tasks from Gantt Chart (Budget Model)</div>
+  <div class="g4">
+    <div class="kpi"><div class="kpi-label">Total Tasks</div><div class="kpi-val accent">39</div></div>
+    <div class="kpi"><div class="kpi-label">Completed</div><div class="kpi-val ok">21 <span style="font-size:14px;color:var(--txt3)">53.8%</span></div></div>
+    <div class="kpi"><div class="kpi-label">Delayed</div><div class="kpi-val danger">11 <span style="font-size:14px;color:var(--txt3)">28.2%</span></div></div>
+    <div class="kpi"><div class="kpi-label">Overall Completion</div><div class="kpi-val warn">54%</div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Tasks by Status</div>
+      <div class="chart-wrap" style="height:200px"><canvas id="c_tl_status" role="img" aria-label="Task status breakdown donut chart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Tasks by Owner</div>
+      <div class="chart-wrap" style="height:200px"><canvas id="c_tl_owner" role="img" aria-label="Task count by owner"></canvas></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Task Details — All 39 Tasks</div>
+    <div class="tbl-wrap">
+      <table><thead><tr><th>WBS</th><th>Task</th><th>Owner</th><th>Progress</th><th>Status</th><th>Delay</th></tr></thead>
+      <tbody><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">1.0</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:600">ASSET RESTORATION</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">Unassigned</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#dc2626;border-radius:4px;height:6px;width:99%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">99%</span></td>
+<td style="padding:6px 8px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Delayed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#dc2626;font-weight:600">+60d</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">1.1</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:600">Equipment Inspection</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Team</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#16a34a;border-radius:4px;height:6px;width:100%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">100%</span></td>
+<td style="padding:6px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Completed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#94a3b8;font-weight:600">—</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">　1.1.1</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:400">Site Survey</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Team</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#16a34a;border-radius:4px;height:6px;width:100%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">100%</span></td>
+<td style="padding:6px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Completed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#94a3b8;font-weight:600">—</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">　1.1.2</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:400">Contacted Multiple Maintenance Companies for Inspection</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Team</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#16a34a;border-radius:4px;height:6px;width:100%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">100%</span></td>
+<td style="padding:6px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Completed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#94a3b8;font-weight:600">—</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">　1.1.3</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:400">Initial Equipment Inspection Completed</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Team</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#16a34a;border-radius:4px;height:6px;width:100%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">100%</span></td>
+<td style="padding:6px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Completed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#94a3b8;font-weight:600">—</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">　1.1.1</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:400">Hiring Contractors</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Team</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#16a34a;border-radius:4px;height:6px;width:100%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">100%</span></td>
+<td style="padding:6px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Completed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#94a3b8;font-weight:600">—</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">　1.1.1.1</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:400">RFQ Sent to Contractors</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Team</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#16a34a;border-radius:4px;height:6px;width:100%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">100%</span></td>
+<td style="padding:6px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Completed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#94a3b8;font-weight:600">—</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">　1.1.1.2</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:400">Receive Financial Proposals</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Team</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#16a34a;border-radius:4px;height:6px;width:100%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">100%</span></td>
+<td style="padding:6px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Completed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#94a3b8;font-weight:600">—</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">　1.1.1.3</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:400">Technical & Financial Evaluation</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Team</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#16a34a;border-radius:4px;height:6px;width:100%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">100%</span></td>
+<td style="padding:6px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Completed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#94a3b8;font-weight:600">—</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">　1.1.1.4</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:400">Select Preferred Contractor</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Team</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#16a34a;border-radius:4px;height:6px;width:100%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">100%</span></td>
+<td style="padding:6px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Completed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#94a3b8;font-weight:600">—</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">　1.1.1.5</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:400">Contract Signing</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Team</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#16a34a;border-radius:4px;height:6px;width:100%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">100%</span></td>
+<td style="padding:6px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Completed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#94a3b8;font-weight:600">—</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">1.2</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:600">Budget Allocation</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Team</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#16a34a;border-radius:4px;height:6px;width:100%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">100%</span></td>
+<td style="padding:6px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Completed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#94a3b8;font-weight:600">—</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">　1.2.1</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:400">Review Submitted Cost Proposals</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Team</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#16a34a;border-radius:4px;height:6px;width:100%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">100%</span></td>
+<td style="padding:6px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Completed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#94a3b8;font-weight:600">—</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">　1.2.2</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:400">Compare Costs with Approved Budget</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Team</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#16a34a;border-radius:4px;height:6px;width:100%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">100%</span></td>
+<td style="padding:6px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Completed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#94a3b8;font-weight:600">—</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">　1.2.3</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:400">Final Budget Approval</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Team</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#16a34a;border-radius:4px;height:6px;width:100%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">100%</span></td>
+<td style="padding:6px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Completed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#94a3b8;font-weight:600">—</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">1.3</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:600">Equipment Transfer to work shop</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Team</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#16a34a;border-radius:4px;height:6px;width:100%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">100%</span></td>
+<td style="padding:6px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Completed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#94a3b8;font-weight:600">—</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">1.4</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:600">Equipment Restoration placing order</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Team</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#16a34a;border-radius:4px;height:6px;width:100%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">100%</span></td>
+<td style="padding:6px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Completed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#94a3b8;font-weight:600">—</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">1.5</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:600">AIT Maintenance Team Hiring</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Team</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#16a34a;border-radius:4px;height:6px;width:100%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">100%</span></td>
+<td style="padding:6px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Completed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#94a3b8;font-weight:600">—</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">1.6</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:600">Start Maintenance process</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AIT/Cont.</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#dc2626;border-radius:4px;height:6px;width:90%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">90%</span></td>
+<td style="padding:6px 8px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Delayed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#dc2626;font-weight:600">+60d</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">2.0</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:600">MAINTENANCE HUB</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">Unassigned</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#16a34a;border-radius:4px;height:6px;width:100%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">100%</span></td>
+<td style="padding:6px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Completed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#94a3b8;font-weight:600">—</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">2.1</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:600">Land Renting</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Team</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#16a34a;border-radius:4px;height:6px;width:100%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">100%</span></td>
+<td style="padding:6px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Completed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#94a3b8;font-weight:600">—</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">2.2</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:600">Hiring Security firm</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Team</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#16a34a;border-radius:4px;height:6px;width:100%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">100%</span></td>
+<td style="padding:6px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Completed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#94a3b8;font-weight:600">—</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">2.3</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:600">Preparing Land to be Maintenance Hub</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Team</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#16a34a;border-radius:4px;height:6px;width:100%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">100%</span></td>
+<td style="padding:6px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Completed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#94a3b8;font-weight:600">—</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">3.0</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:600">Mobile Equipment Overhualing</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">Unassigned</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#dc2626;border-radius:4px;height:6px;width:42%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">42%</span></td>
+<td style="padding:6px 8px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Delayed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#dc2626;font-weight:600">+21d</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">3.1</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:600">Procurement for Spare Parts</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Team</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#dc2626;border-radius:4px;height:6px;width:25%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">25%</span></td>
+<td style="padding:6px 8px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Delayed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#dc2626;font-weight:600">+36d</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">3.2</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:600">Spare part Installation and commissioning</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Team</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#dc2626;border-radius:4px;height:6px;width:25%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">25%</span></td>
+<td style="padding:6px 8px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Delayed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#dc2626;font-weight:600">+36d</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">　3.2.1</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:400">Equipment Transfer to Mine Marsa Alam</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Team</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#dc2626;border-radius:4px;height:6px;width:75%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">75%</span></td>
+<td style="padding:6px 8px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Delayed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#dc2626;font-weight:600">+21d</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">4.0</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:600">Marsa Alam Project</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">Unassigned</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#2563eb;border-radius:4px;height:6px;width:57%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">57%</span></td>
+<td style="padding:6px 8px"><span style="background:#2563eb22;color:#2563eb;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">In Progress</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#94a3b8;font-weight:600">—</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">4.1</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:600">Rood Preparation</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Team</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#dc2626;border-radius:4px;height:6px;width:90%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">90%</span></td>
+<td style="padding:6px 8px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Delayed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#dc2626;font-weight:600">+56d</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">4.2</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:600">Mountain Opening and Stoking Piles</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Team</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#dc2626;border-radius:4px;height:6px;width:30%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">30%</span></td>
+<td style="padding:6px 8px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Delayed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#dc2626;font-weight:600">+26d</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">4.3</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:600">Housing</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Team</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#dc2626;border-radius:4px;height:6px;width:50%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">50%</span></td>
+<td style="padding:6px 8px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Delayed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#dc2626;font-weight:600">+26d</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">4.4</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:600">Machine Instalation</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Team</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#94a3b8;border-radius:4px;height:6px;width:0%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">0%</span></td>
+<td style="padding:6px 8px"><span style="background:#94a3b822;color:#94a3b8;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Planned</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#94a3b8;font-weight:600">—</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">4.5</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:600">Testing and production</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Team</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#94a3b8;border-radius:4px;height:6px;width:0%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">0%</span></td>
+<td style="padding:6px 8px"><span style="background:#94a3b822;color:#94a3b8;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Planned</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#94a3b8;font-weight:600">—</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">5.0</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:600">BENEFICIATION PLANT</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">Unassigned</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#94a3b8;border-radius:4px;height:6px;width:0%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">0%</span></td>
+<td style="padding:6px 8px"><span style="background:#94a3b822;color:#94a3b8;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Planned</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#94a3b8;font-weight:600">—</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">5.1</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:600">Plant Input Design</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Mang</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#dc2626;border-radius:4px;height:6px;width:0%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">0%</span></td>
+<td style="padding:6px 8px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Delayed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#dc2626;font-weight:600">+109d</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">5.2</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:600">Engineering</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Mang</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#dc2626;border-radius:4px;height:6px;width:0%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">0%</span></td>
+<td style="padding:6px 8px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Delayed</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#dc2626;font-weight:600">+48d</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">5.3</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:600">Procurement</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Mang</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#94a3b8;border-radius:4px;height:6px;width:0%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">0%</span></td>
+<td style="padding:6px 8px"><span style="background:#94a3b822;color:#94a3b8;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Planned</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#94a3b8;font-weight:600">—</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">5.4</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:600">Contracting</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Mang</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#94a3b8;border-radius:4px;height:6px;width:0%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">0%</span></td>
+<td style="padding:6px 8px"><span style="background:#94a3b822;color:#94a3b8;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Planned</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#94a3b8;font-weight:600">—</td>
+</tr><tr>
+<td style="font-size:11px;color:#64748b;padding:6px 8px;white-space:nowrap">5.5</td>
+<td style="font-size:12px;padding:6px 8px;font-weight:600">Plant Operation</td>
+<td style="font-size:11px;padding:6px 8px;color:#475569">AiT Mang</td>
+<td style="padding:6px 8px"><div style="background:#e2e8f0;border-radius:4px;height:6px;width:80px"><div style="background:#94a3b8;border-radius:4px;height:6px;width:0%"></div></div><span style="font-size:10px;color:#64748b;margin-left:4px">0%</span></td>
+<td style="padding:6px 8px"><span style="background:#94a3b822;color:#94a3b8;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Planned</span></td>
+<td style="font-size:11px;padding:6px 8px;color:#94a3b8;font-weight:600">—</td>
+</tr></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ BUDGET ════════ -->
+<div class="pg" id="pg-budget">
+  <div class="pg-title">Budget Overview</div>
+  <div class="pg-sub">All Projects budget performance with drill-down</div>
+  <div class="g4">
+    <div class="kpi"><div class="kpi-label">Total Budget</div><div class="kpi-val accent">5.04M EGP</div></div>
+    <div class="kpi"><div class="kpi-label">Actual Spend</div><div class="kpi-val warn">848K EGP</div><div class="kpi-note">16.8% utilized</div></div>
+    <div class="kpi"><div class="kpi-label">Over-Budget Items</div><div class="kpi-val danger">3</div><div class="kpi-note">Categories exceeded budget</div></div>
+    <div class="kpi"><div class="kpi-label">Remaining</div><div class="kpi-val ok">4.20M EGP</div><div class="kpi-note">83.2% remaining</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Budget vs Actual by Category</div>
+    <div class="chart-wrap" style="height:300px"><canvas id="c_bud_bva" role="img" aria-label="Budget vs actual per category grouped bar chart"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Category Detail</div>
+    <table><thead><tr><th>Category</th><th style="text-align:right">Budget (EGP)</th><th style="text-align:right">Actual (EGP)</th><th>Utilization</th><th>Status</th></tr></thead>
+    <tbody><tr>
+<td style="font-size:12px;padding:7px 10px">Equipment Leasing</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right">1.8M</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right">3K</td>
+<td style="padding:7px 10px"><div style="background:#e2e8f0;border-radius:4px;height:5px;width:100px"><div style="background:#2563eb;border-radius:4px;height:5px;width:0.2%"></div></div><span style="font-size:10px;color:#64748b"> 0%</span></td>
+<td style="padding:7px 10px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">On Track</span></td>
+</tr><tr>
+<td style="font-size:12px;padding:7px 10px">Maintenance</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right">1.3M</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right">232K</td>
+<td style="padding:7px 10px"><div style="background:#e2e8f0;border-radius:4px;height:5px;width:100px"><div style="background:#2563eb;border-radius:4px;height:5px;width:17.8%"></div></div><span style="font-size:10px;color:#64748b"> 18%</span></td>
+<td style="padding:7px 10px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">On Track</span></td>
+</tr><tr>
+<td style="font-size:12px;padding:7px 10px">Tools & Equipment</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right">286K</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right">0</td>
+<td style="padding:7px 10px"><div style="background:#e2e8f0;border-radius:4px;height:5px;width:100px"><div style="background:#2563eb;border-radius:4px;height:5px;width:0.0%"></div></div><span style="font-size:10px;color:#64748b"> 0%</span></td>
+<td style="padding:7px 10px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">On Track</span></td>
+</tr><tr>
+<td style="font-size:12px;padding:7px 10px">CAPEX / Setup</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right">249K</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right">94K</td>
+<td style="padding:7px 10px"><div style="background:#e2e8f0;border-radius:4px;height:5px;width:100px"><div style="background:#2563eb;border-radius:4px;height:5px;width:37.9%"></div></div><span style="font-size:10px;color:#64748b"> 38%</span></td>
+<td style="padding:7px 10px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">On Track</span></td>
+</tr><tr>
+<td style="font-size:12px;padding:7px 10px">Site Services</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right">209K</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right">57K</td>
+<td style="padding:7px 10px"><div style="background:#e2e8f0;border-radius:4px;height:5px;width:100px"><div style="background:#2563eb;border-radius:4px;height:5px;width:27.3%"></div></div><span style="font-size:10px;color:#64748b"> 27%</span></td>
+<td style="padding:7px 10px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">On Track</span></td>
+</tr><tr>
+<td style="font-size:12px;padding:7px 10px">Management Support</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right">170K</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right">65K</td>
+<td style="padding:7px 10px"><div style="background:#e2e8f0;border-radius:4px;height:5px;width:100px"><div style="background:#2563eb;border-radius:4px;height:5px;width:38.3%"></div></div><span style="font-size:10px;color:#64748b"> 38%</span></td>
+<td style="padding:7px 10px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">On Track</span></td>
+</tr><tr>
+<td style="font-size:12px;padding:7px 10px">Equipment Purchasing</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right">150K</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right">0</td>
+<td style="padding:7px 10px"><div style="background:#e2e8f0;border-radius:4px;height:5px;width:100px"><div style="background:#2563eb;border-radius:4px;height:5px;width:0.0%"></div></div><span style="font-size:10px;color:#64748b"> 0%</span></td>
+<td style="padding:7px 10px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">On Track</span></td>
+</tr><tr>
+<td style="font-size:12px;padding:7px 10px">Water for Road Preparation</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right">140K</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right">0</td>
+<td style="padding:7px 10px"><div style="background:#e2e8f0;border-radius:4px;height:5px;width:100px"><div style="background:#2563eb;border-radius:4px;height:5px;width:0.0%"></div></div><span style="font-size:10px;color:#64748b"> 0%</span></td>
+<td style="padding:7px 10px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">On Track</span></td>
+</tr><tr>
+<td style="font-size:12px;padding:7px 10px">Manpower</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right">136K</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right">32K</td>
+<td style="padding:7px 10px"><div style="background:#e2e8f0;border-radius:4px;height:5px;width:100px"><div style="background:#2563eb;border-radius:4px;height:5px;width:23.8%"></div></div><span style="font-size:10px;color:#64748b"> 24%</span></td>
+<td style="padding:7px 10px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">On Track</span></td>
+</tr><tr>
+<td style="font-size:12px;padding:7px 10px">Security Services</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right">111K</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right">18K</td>
+<td style="padding:7px 10px"><div style="background:#e2e8f0;border-radius:4px;height:5px;width:100px"><div style="background:#2563eb;border-radius:4px;height:5px;width:16.2%"></div></div><span style="font-size:10px;color:#64748b"> 16%</span></td>
+<td style="padding:7px 10px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">On Track</span></td>
+</tr><tr>
+<td style="font-size:12px;padding:7px 10px">Fixed</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right">110K</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right">191K</td>
+<td style="padding:7px 10px"><div style="background:#e2e8f0;border-radius:4px;height:5px;width:100px"><div style="background:#dc2626;border-radius:4px;height:5px;width:100%"></div></div><span style="font-size:10px;color:#64748b"> 100%</span></td>
+<td style="padding:7px 10px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Over Budget</span></td>
+</tr><tr>
+<td style="font-size:12px;padding:7px 10px">Site Services Management</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right">107K</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right">20K</td>
+<td style="padding:7px 10px"><div style="background:#e2e8f0;border-radius:4px;height:5px;width:100px"><div style="background:#2563eb;border-radius:4px;height:5px;width:19.0%"></div></div><span style="font-size:10px;color:#64748b"> 19%</span></td>
+<td style="padding:7px 10px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">On Track</span></td>
+</tr></tbody></table>
+  </div>
+</div>
+
+<!-- ════════ EXPENSES ════════ -->
+<div class="pg" id="pg-expenses">
+  <div class="pg-title">Expenses & Payments</div>
+  <div class="pg-sub">241 transactions — detailed spend log</div>
+  <div class="g4">
+    <div class="kpi"><div class="kpi-label">Paid to Date</div><div class="kpi-val ok">140K</div><div class="kpi-note">10.4% of required</div></div>
+    <div class="kpi"><div class="kpi-label">Pending Payments</div><div class="kpi-val danger">1.21M</div><div class="kpi-note">89.6% still pending</div></div>
+    <div class="kpi"><div class="kpi-label">Total Transactions</div><div class="kpi-val accent">241</div></div>
+    <div class="kpi"><div class="kpi-label">Budget Lines</div><div class="kpi-val">65</div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Spend by Category</div>
+      <div class="chart-wrap" style="height:240px"><canvas id="c_exp_cat" role="img" aria-label="Expense distribution by category donut chart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Payment Methods</div>
+      <div class="chart-wrap" style="height:240px"><canvas id="c_exp_method" role="img" aria-label="Payment method breakdown"></canvas></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Expense Log — Latest 20 Transactions</div>
+    <div class="tbl-wrap">
+      <table><thead><tr><th>Date</th><th>Category</th><th>Vendor</th><th style="text-align:right">Amount</th><th>Method</th><th>Status</th></tr></thead>
+      <tbody><tr>
+<td style="font-size:11px;padding:5px 8px;color:#64748b">2026-06-12</td>
+<td style="font-size:11px;padding:5px 8px">Fuel Expense</td>
+<td style="font-size:11px;padding:5px 8px">Others</td>
+<td style="font-size:12px;padding:5px 8px;text-align:right;font-weight:600">260</td>
+<td style="font-size:11px;padding:5px 8px">Bank Transfer - Nadeem Ba</td>
+<td style="padding:5px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px">Paid</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:5px 8px;color:#64748b">2026-06-10</td>
+<td style="font-size:11px;padding:5px 8px">Fuel Expense</td>
+<td style="font-size:11px;padding:5px 8px">Others</td>
+<td style="font-size:12px;padding:5px 8px;text-align:right;font-weight:600">1K</td>
+<td style="font-size:11px;padding:5px 8px">Bank Transfer - Nadeem Ba</td>
+<td style="padding:5px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px">Paid</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:5px 8px;color:#64748b">2026-06-09</td>
+<td style="font-size:11px;padding:5px 8px">Transportation</td>
+<td style="font-size:11px;padding:5px 8px">Others</td>
+<td style="font-size:12px;padding:5px 8px;text-align:right;font-weight:600">250</td>
+<td style="font-size:11px;padding:5px 8px">Bank Transfer - Nadeem Ba</td>
+<td style="padding:5px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px">Paid</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:5px 8px;color:#64748b">2026-06-09</td>
+<td style="font-size:11px;padding:5px 8px">Fuel Expense</td>
+<td style="font-size:11px;padding:5px 8px">Others</td>
+<td style="font-size:12px;padding:5px 8px;text-align:right;font-weight:600">1K</td>
+<td style="font-size:11px;padding:5px 8px">Bank Transfer - Nadeem Ba</td>
+<td style="padding:5px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px">Paid</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:5px 8px;color:#64748b">2026-06-08</td>
+<td style="font-size:11px;padding:5px 8px">Management Support</td>
+<td style="font-size:11px;padding:5px 8px">Others</td>
+<td style="font-size:12px;padding:5px 8px;text-align:right;font-weight:600">2K</td>
+<td style="font-size:11px;padding:5px 8px">Bank Transfer - Nadeem Ba</td>
+<td style="padding:5px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px">Paid</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:5px 8px;color:#64748b">2026-06-06</td>
+<td style="font-size:11px;padding:5px 8px">Fuel Expense</td>
+<td style="font-size:11px;padding:5px 8px">Others</td>
+<td style="font-size:12px;padding:5px 8px;text-align:right;font-weight:600">800</td>
+<td style="font-size:11px;padding:5px 8px">Bank Transfer - Nadeem Ba</td>
+<td style="padding:5px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px">Paid</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:5px 8px;color:#64748b">2026-06-06</td>
+<td style="font-size:11px;padding:5px 8px">Transportation</td>
+<td style="font-size:11px;padding:5px 8px">Others</td>
+<td style="font-size:12px;padding:5px 8px;text-align:right;font-weight:600">200</td>
+<td style="font-size:11px;padding:5px 8px">Bank Transfer - Nadeem Ba</td>
+<td style="padding:5px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px">Paid</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:5px 8px;color:#64748b">2026-06-03</td>
+<td style="font-size:11px;padding:5px 8px">Fuel Expense</td>
+<td style="font-size:11px;padding:5px 8px">Others</td>
+<td style="font-size:12px;padding:5px 8px;text-align:right;font-weight:600">640</td>
+<td style="font-size:11px;padding:5px 8px">Bank Transfer - Nadeem Ba</td>
+<td style="padding:5px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px">Paid</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:5px 8px;color:#64748b">2026-06-03</td>
+<td style="font-size:11px;padding:5px 8px">Transportation</td>
+<td style="font-size:11px;padding:5px 8px">Others</td>
+<td style="font-size:12px;padding:5px 8px;text-align:right;font-weight:600">2K</td>
+<td style="font-size:11px;padding:5px 8px">Bank Transfer - Nadeem Ba</td>
+<td style="padding:5px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px">Paid</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:5px 8px;color:#64748b">2026-06-03</td>
+<td style="font-size:11px;padding:5px 8px">Transportation</td>
+<td style="font-size:11px;padding:5px 8px">Others</td>
+<td style="font-size:12px;padding:5px 8px;text-align:right;font-weight:600">250</td>
+<td style="font-size:11px;padding:5px 8px">Bank Transfer - Nadeem Ba</td>
+<td style="padding:5px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px">Paid</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:5px 8px;color:#64748b">2026-06-03</td>
+<td style="font-size:11px;padding:5px 8px">Fuel Expense</td>
+<td style="font-size:11px;padding:5px 8px">Others</td>
+<td style="font-size:12px;padding:5px 8px;text-align:right;font-weight:600">560</td>
+<td style="font-size:11px;padding:5px 8px">Bank Transfer - Nadeem Ba</td>
+<td style="padding:5px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px">Paid</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:5px 8px;color:#64748b">2026-06-02</td>
+<td style="font-size:11px;padding:5px 8px">Fuel Expense</td>
+<td style="font-size:11px;padding:5px 8px">Others</td>
+<td style="font-size:12px;padding:5px 8px;text-align:right;font-weight:600">940</td>
+<td style="font-size:11px;padding:5px 8px">Bank Transfer - Nadeem Ba</td>
+<td style="padding:5px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px">Paid</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:5px 8px;color:#64748b">2026-05-24</td>
+<td style="font-size:11px;padding:5px 8px">Fixed</td>
+<td style="font-size:11px;padding:5px 8px">Others</td>
+<td style="font-size:12px;padding:5px 8px;text-align:right;font-weight:600">55K</td>
+<td style="font-size:11px;padding:5px 8px">Bank Transfer - Nadeem Ba</td>
+<td style="padding:5px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px">Paid</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:5px 8px;color:#64748b">2026-05-22</td>
+<td style="font-size:11px;padding:5px 8px">Fuel Expense</td>
+<td style="font-size:11px;padding:5px 8px">Others</td>
+<td style="font-size:12px;padding:5px 8px;text-align:right;font-weight:600">950</td>
+<td style="font-size:11px;padding:5px 8px">Visa Swypex (فيزا - سوايب</td>
+<td style="padding:5px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px">Paid</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:5px 8px;color:#64748b">2026-05-22</td>
+<td style="font-size:11px;padding:5px 8px">Site Services Management</td>
+<td style="font-size:11px;padding:5px 8px">Others</td>
+<td style="font-size:12px;padding:5px 8px;text-align:right;font-weight:600">2K</td>
+<td style="font-size:11px;padding:5px 8px">Cash Swypex (كاش - سوايبك</td>
+<td style="padding:5px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px">Paid</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:5px 8px;color:#64748b">2026-05-22</td>
+<td style="font-size:11px;padding:5px 8px">Fuel Expense</td>
+<td style="font-size:11px;padding:5px 8px">Others</td>
+<td style="font-size:12px;padding:5px 8px;text-align:right;font-weight:600">1K</td>
+<td style="font-size:11px;padding:5px 8px">Visa Swypex (فيزا - سوايب</td>
+<td style="padding:5px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px">Paid</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:5px 8px;color:#64748b">2026-05-21</td>
+<td style="font-size:11px;padding:5px 8px">Site Services</td>
+<td style="font-size:11px;padding:5px 8px">Others</td>
+<td style="font-size:12px;padding:5px 8px;text-align:right;font-weight:600">300</td>
+<td style="font-size:11px;padding:5px 8px">Cash Swypex (كاش - سوايبك</td>
+<td style="padding:5px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px">Paid</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:5px 8px;color:#64748b">2026-05-21</td>
+<td style="font-size:11px;padding:5px 8px">Utilities</td>
+<td style="font-size:11px;padding:5px 8px">Others</td>
+<td style="font-size:12px;padding:5px 8px;text-align:right;font-weight:600">905</td>
+<td style="font-size:11px;padding:5px 8px">Cash Swypex (كاش - سوايبك</td>
+<td style="padding:5px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px">Paid</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:5px 8px;color:#64748b">2026-05-20</td>
+<td style="font-size:11px;padding:5px 8px">Fuel Expense</td>
+<td style="font-size:11px;padding:5px 8px">Others</td>
+<td style="font-size:12px;padding:5px 8px;text-align:right;font-weight:600">600</td>
+<td style="font-size:11px;padding:5px 8px">Cash Swypex (كاش - سوايبك</td>
+<td style="padding:5px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px">Paid</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:5px 8px;color:#64748b">2026-05-20</td>
+<td style="font-size:11px;padding:5px 8px">Transportation</td>
+<td style="font-size:11px;padding:5px 8px">Others</td>
+<td style="font-size:12px;padding:5px 8px;text-align:right;font-weight:600">1K</td>
+<td style="font-size:11px;padding:5px 8px">Cash Swypex (كاش - سوايبك</td>
+<td style="padding:5px 8px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px">Paid</span></td>
+</tr></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ CASH FLOW ════════ -->
+<div class="pg" id="pg-cashflow">
+  <div class="pg-title">Cash Flow Forecast</div>
+  <div class="pg-sub">6-month planned cash outflow + overdue payments</div>
+  <div class="g4">
+    <div class="kpi"><div class="kpi-label">Total Transfers In</div><div class="kpi-val ok">468K</div><div class="kpi-note">EGP transferred to project</div></div>
+    <div class="kpi"><div class="kpi-label">6M Planned Cash Out</div><div class="kpi-val warn">3.85M</div><div class="kpi-note">Cumulative forecast</div></div>
+    <div class="kpi"><div class="kpi-label">Overdue Payments</div><div class="kpi-val danger">1.22M</div><div class="kpi-note">13 payments overdue</div></div>
+    <div class="kpi"><div class="kpi-label">Days Overdue (max)</div><div class="kpi-val danger">39d</div><div class="kpi-note">Oldest overdue payment</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">6-Month Cash Out Forecast</div>
+    <div class="chart-wrap" style="height:260px"><canvas id="c_cf_forecast" role="img" aria-label="6 month cash out forecast bar chart"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Overdue & Upcoming Payments</div>
+    <table><thead><tr><th>Due Date</th><th>Payee</th><th>Category</th><th style="text-align:right">Amount (EGP)</th><th>Status</th></tr></thead>
+    <tbody><tr>
+<td style="font-size:11px;padding:6px 10px;color:#64748b">2026-05-11</td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Ahmed Gharbawy</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Utilities</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">7K</td>
+<td style="padding:6px 10px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Overdue</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:6px 10px;color:#64748b">2026-05-11</td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Ahmed Gharbawy</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Security Services</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">13K</td>
+<td style="padding:6px 10px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Overdue</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:6px 10px;color:#64748b">2026-05-11</td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Ahmed Gharbawy</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Site Services</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">5K</td>
+<td style="padding:6px 10px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Overdue</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:6px 10px;color:#64748b">2026-05-11</td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Contractor</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Maintenance</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">700K</td>
+<td style="padding:6px 10px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Overdue</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:6px 10px;color:#64748b">2026-05-11</td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Ahmed Gharbawy</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Manpower</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">12K</td>
+<td style="padding:6px 10px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Overdue</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:6px 10px;color:#64748b">2026-05-11</td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Gharib Farghaly</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Management Support</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">10K</td>
+<td style="padding:6px 10px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Overdue</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:6px 10px;color:#64748b">2026-05-11</td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Contractor</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Site Services Management</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">35K</td>
+<td style="padding:6px 10px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Overdue</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:6px 10px;color:#64748b">2026-05-11</td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Labor</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Security Services</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">55K</td>
+<td style="padding:6px 10px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Overdue</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:6px 10px;color:#64748b">2026-05-11</td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Labor</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Transport Services</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">17K</td>
+<td style="padding:6px 10px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Overdue</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:6px 10px;color:#64748b">2026-05-11</td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Labor</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Site Services</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">30K</td>
+<td style="padding:6px 10px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Overdue</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:6px 10px;color:#64748b">2026-05-11</td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Contractor</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Equipment Leasing</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">250K</td>
+<td style="padding:6px 10px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Overdue</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:6px 10px;color:#64748b">2026-05-11</td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Gharib Farghaly</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Management Support</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">30K</td>
+<td style="padding:6px 10px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Overdue</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:6px 10px;color:#64748b">2026-05-13</td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Lessor</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Fixed</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">55K</td>
+<td style="padding:6px 10px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Overdue</span></td>
+</tr></tbody></table>
+  </div>
+</div>
+
+<!-- ════════ ALERTS ════════ -->
+<div class="pg" id="pg-alerts">
+  <div class="pg-title">Alerts & Risk Notifications</div>
+  <div class="pg-sub">26 active alerts — automatically computed from expense and budget data</div>
+  <div class="note-box">ℹ No dedicated Risk Register sheet is connected. Alerts below are computed automatically from budget overruns and overdue payments.</div>
+  <div class="g3">
+    <div class="kpi"><div class="kpi-label">Open Alerts</div><div class="kpi-val danger">26</div></div>
+    <div class="kpi"><div class="kpi-label">Critical Alerts</div><div class="kpi-val danger">3</div></div>
+    <div class="kpi"><div class="kpi-label">Medium Alerts</div><div class="kpi-val warn">13</div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Alerts by Severity</div>
+      <div class="chart-wrap" style="height:220px"><canvas id="c_alert_sev" role="img" aria-label="Alert severity breakdown"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Critical — Immediate Action Required</div>
+      <div style="display:flex;flex-direction:column;gap:.75rem;padding:.25rem 0">
+        <div style="background:#dc262611;border:1px solid #dc262644;border-radius:8px;padding:.875rem">
+          <div style="font-size:12px;font-weight:600;color:#fca5a5">Fuel Expense — 369.3% over budget</div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:.35rem">Spent 43,926 EGP vs 7,000 EGP budget. Excess: 36,926 EGP</div>
+        </div>
+        <div style="background:#dc262611;border:1px solid #dc262644;border-radius:8px;padding:.875rem">
+          <div style="font-size:12px;font-weight:600;color:#fca5a5">Fixed Costs — 73.6% over budget</div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:.35rem">Excess: 80,950 EGP over budget line</div>
+        </div>
+        <div style="background:#dc262611;border:1px solid #dc262644;border-radius:8px;padding:.875rem">
+          <div style="font-size:12px;font-weight:600;color:#fca5a5">Contractors — 0.1% over budget</div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:.35rem">Excess: 25 EGP (minor — monitor)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">All 26 Alerts</div>
+    <div class="tbl-wrap">
+      <table><thead><tr><th>Severity</th><th>Type</th><th>Category</th><th>Issue</th><th style="text-align:right">Amount (EGP)</th><th>Status</th></tr></thead>
+      <tbody><tr>
+<td style="padding:6px 10px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Critical</span></td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Over Budget</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Fixed</td>
+<td style="font-size:11px;padding:6px 10px">Expenses exceeded budget by 73.6%</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">81K</td>
+<td style="padding:6px 10px"><span style="background:#fef9c322;color:#ca8a04;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Open</span></td>
+</tr><tr>
+<td style="padding:6px 10px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Critical</span></td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Over Budget</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Contractors</td>
+<td style="font-size:11px;padding:6px 10px">Expenses exceeded budget by 0.1%</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">25</td>
+<td style="padding:6px 10px"><span style="background:#fef9c322;color:#ca8a04;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Open</span></td>
+</tr><tr>
+<td style="padding:6px 10px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Critical</span></td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Over Budget</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Fuel Expense</td>
+<td style="font-size:11px;padding:6px 10px">Expenses exceeded budget by 369.3%</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">37K</td>
+<td style="padding:6px 10px"><span style="background:#fef9c322;color:#ca8a04;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Open</span></td>
+</tr><tr>
+<td style="padding:6px 10px"><span style="background:#2563eb22;color:#2563eb;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Medium</span></td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Delayed Payment</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Fixed</td>
+<td style="font-size:11px;padding:6px 10px">Payment is overdue</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">55K</td>
+<td style="padding:6px 10px"><span style="background:#fef9c322;color:#ca8a04;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Overdue</span></td>
+</tr><tr>
+<td style="padding:6px 10px"><span style="background:#2563eb22;color:#2563eb;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Medium</span></td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Delayed Payment</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Utilities</td>
+<td style="font-size:11px;padding:6px 10px">Payment is overdue</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">7K</td>
+<td style="padding:6px 10px"><span style="background:#fef9c322;color:#ca8a04;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Overdue</span></td>
+</tr><tr>
+<td style="padding:6px 10px"><span style="background:#2563eb22;color:#2563eb;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Medium</span></td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Delayed Payment</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Security Services</td>
+<td style="font-size:11px;padding:6px 10px">Payment is overdue</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">13K</td>
+<td style="padding:6px 10px"><span style="background:#fef9c322;color:#ca8a04;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Overdue</span></td>
+</tr><tr>
+<td style="padding:6px 10px"><span style="background:#2563eb22;color:#2563eb;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Medium</span></td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Delayed Payment</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Site Services</td>
+<td style="font-size:11px;padding:6px 10px">Payment is overdue</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">5K</td>
+<td style="padding:6px 10px"><span style="background:#fef9c322;color:#ca8a04;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Overdue</span></td>
+</tr><tr>
+<td style="padding:6px 10px"><span style="background:#2563eb22;color:#2563eb;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Medium</span></td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Delayed Payment</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Maintenance</td>
+<td style="font-size:11px;padding:6px 10px">Payment is overdue</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">700K</td>
+<td style="padding:6px 10px"><span style="background:#fef9c322;color:#ca8a04;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Overdue</span></td>
+</tr><tr>
+<td style="padding:6px 10px"><span style="background:#2563eb22;color:#2563eb;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Medium</span></td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Delayed Payment</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Manpower</td>
+<td style="font-size:11px;padding:6px 10px">Payment is overdue</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">12K</td>
+<td style="padding:6px 10px"><span style="background:#fef9c322;color:#ca8a04;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Overdue</span></td>
+</tr><tr>
+<td style="padding:6px 10px"><span style="background:#2563eb22;color:#2563eb;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Medium</span></td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Delayed Payment</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Management Support</td>
+<td style="font-size:11px;padding:6px 10px">Payment is overdue</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">10K</td>
+<td style="padding:6px 10px"><span style="background:#fef9c322;color:#ca8a04;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Overdue</span></td>
+</tr><tr>
+<td style="padding:6px 10px"><span style="background:#2563eb22;color:#2563eb;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Medium</span></td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Delayed Payment</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Site Services Management</td>
+<td style="font-size:11px;padding:6px 10px">Payment is overdue</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">35K</td>
+<td style="padding:6px 10px"><span style="background:#fef9c322;color:#ca8a04;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Overdue</span></td>
+</tr><tr>
+<td style="padding:6px 10px"><span style="background:#2563eb22;color:#2563eb;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Medium</span></td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Delayed Payment</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Security Services</td>
+<td style="font-size:11px;padding:6px 10px">Payment is overdue</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">55K</td>
+<td style="padding:6px 10px"><span style="background:#fef9c322;color:#ca8a04;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Overdue</span></td>
+</tr><tr>
+<td style="padding:6px 10px"><span style="background:#2563eb22;color:#2563eb;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Medium</span></td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Delayed Payment</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Transport Services</td>
+<td style="font-size:11px;padding:6px 10px">Payment is overdue</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">17K</td>
+<td style="padding:6px 10px"><span style="background:#fef9c322;color:#ca8a04;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Overdue</span></td>
+</tr><tr>
+<td style="padding:6px 10px"><span style="background:#2563eb22;color:#2563eb;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Medium</span></td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Delayed Payment</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Site Services</td>
+<td style="font-size:11px;padding:6px 10px">Payment is overdue</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">30K</td>
+<td style="padding:6px 10px"><span style="background:#fef9c322;color:#ca8a04;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Overdue</span></td>
+</tr><tr>
+<td style="padding:6px 10px"><span style="background:#2563eb22;color:#2563eb;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Medium</span></td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Delayed Payment</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Equipment Leasing</td>
+<td style="font-size:11px;padding:6px 10px">Payment is overdue</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">250K</td>
+<td style="padding:6px 10px"><span style="background:#fef9c322;color:#ca8a04;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Overdue</span></td>
+</tr><tr>
+<td style="padding:6px 10px"><span style="background:#2563eb22;color:#2563eb;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Medium</span></td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Delayed Payment</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Management Support</td>
+<td style="font-size:11px;padding:6px 10px">Payment is overdue</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">30K</td>
+<td style="padding:6px 10px"><span style="background:#fef9c322;color:#ca8a04;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Overdue</span></td>
+</tr><tr>
+<td style="padding:6px 10px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Low</span></td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Document Missing</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Fixed</td>
+<td style="font-size:11px;padding:6px 10px">Supporting document not attached</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">55K</td>
+<td style="padding:6px 10px"><span style="background:#fef9c322;color:#ca8a04;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Open</span></td>
+</tr><tr>
+<td style="padding:6px 10px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Low</span></td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Document Missing</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Fixed</td>
+<td style="font-size:11px;padding:6px 10px">Supporting document not attached</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">55K</td>
+<td style="padding:6px 10px"><span style="background:#fef9c322;color:#ca8a04;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Open</span></td>
+</tr><tr>
+<td style="padding:6px 10px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Low</span></td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Document Missing</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Fixed</td>
+<td style="font-size:11px;padding:6px 10px">Supporting document not attached</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">26K</td>
+<td style="padding:6px 10px"><span style="background:#fef9c322;color:#ca8a04;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Open</span></td>
+</tr><tr>
+<td style="padding:6px 10px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Low</span></td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Document Missing</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">HSE</td>
+<td style="font-size:11px;padding:6px 10px">Supporting document not attached</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">23K</td>
+<td style="padding:6px 10px"><span style="background:#fef9c322;color:#ca8a04;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Open</span></td>
+</tr><tr>
+<td style="padding:6px 10px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Low</span></td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Document Missing</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Contractors</td>
+<td style="font-size:11px;padding:6px 10px">Supporting document not attached</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">20K</td>
+<td style="padding:6px 10px"><span style="background:#fef9c322;color:#ca8a04;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Open</span></td>
+</tr><tr>
+<td style="padding:6px 10px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Low</span></td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Document Missing</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Fixed</td>
+<td style="font-size:11px;padding:6px 10px">Supporting document not attached</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">20K</td>
+<td style="padding:6px 10px"><span style="background:#fef9c322;color:#ca8a04;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Open</span></td>
+</tr><tr>
+<td style="padding:6px 10px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Low</span></td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Document Missing</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Fixed</td>
+<td style="font-size:11px;padding:6px 10px">Supporting document not attached</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">20K</td>
+<td style="padding:6px 10px"><span style="background:#fef9c322;color:#ca8a04;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Open</span></td>
+</tr><tr>
+<td style="padding:6px 10px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Low</span></td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Document Missing</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">CAPEX / Setup</td>
+<td style="font-size:11px;padding:6px 10px">Supporting document not attached</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">14K</td>
+<td style="padding:6px 10px"><span style="background:#fef9c322;color:#ca8a04;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Open</span></td>
+</tr><tr>
+<td style="padding:6px 10px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Low</span></td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Document Missing</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">Security Services</td>
+<td style="font-size:11px;padding:6px 10px">Supporting document not attached</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">12K</td>
+<td style="padding:6px 10px"><span style="background:#fef9c322;color:#ca8a04;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Open</span></td>
+</tr><tr>
+<td style="padding:6px 10px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Low</span></td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Document Missing</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">CAPEX / Setup</td>
+<td style="font-size:11px;padding:6px 10px">Supporting document not attached</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">10K</td>
+<td style="padding:6px 10px"><span style="background:#fef9c322;color:#ca8a04;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Open</span></td>
+</tr></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ VENDORS ════════ -->
+<div class="pg" id="pg-vendors">
+  <div class="pg-title">Vendors & Equipment</div>
+  <div class="pg-sub">11 vendors from expense data — 5 equipment units — 3 registered contractors</div>
+  <div class="g4">
+    <div class="kpi"><div class="kpi-label">Total Vendors</div><div class="kpi-val accent">11</div></div>
+    <div class="kpi"><div class="kpi-label">Total Spend</div><div class="kpi-val warn">847K EGP</div></div>
+    <div class="kpi"><div class="kpi-label">Active Equipment</div><div class="kpi-val ok">3</div><div class="kpi-note">of 5 units</div></div>
+    <div class="kpi"><div class="kpi-label">Contractors</div><div class="kpi-val">3</div><div class="kpi-note">Registered</div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Top Vendors by Spend</div>
+      <table><thead><tr><th>Vendor</th><th>Category</th><th style="text-align:right">Total (EGP)</th><th style="text-align:right">Txn</th></tr></thead>
+      <tbody><tr>
+<td style="font-size:12px;padding:7px 10px;font-weight:500">Others</td>
+<td style="font-size:11px;padding:7px 10px;color:#475569">Maintenance</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right;font-weight:600">627K</td>
+<td style="font-size:11px;padding:7px 10px;text-align:right;color:#475569">225</td>
+</tr><tr>
+<td style="font-size:12px;padding:7px 10px;font-weight:500">المؤسسه الهندسية</td>
+<td style="font-size:11px;padding:7px 10px;color:#475569">Maintenance</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right;font-weight:600">129K</td>
+<td style="font-size:11px;padding:7px 10px;text-align:right;color:#475569">1</td>
+</tr><tr>
+<td style="font-size:12px;padding:7px 10px;font-weight:500">المتحدة للتجارة والتوريدات الافرول والسفتي</td>
+<td style="font-size:11px;padding:7px 10px;color:#475569">HSE</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right;font-weight:600">23K</td>
+<td style="font-size:11px;padding:7px 10px;text-align:right;color:#475569">1</td>
+</tr><tr>
+<td style="font-size:12px;padding:7px 10px;font-weight:500">الروماني لتجارة المعادن</td>
+<td style="font-size:11px;padding:7px 10px;color:#475569">CAPEX / Setup</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right;font-weight:600">22K</td>
+<td style="font-size:11px;padding:7px 10px;text-align:right;color:#475569">1</td>
+</tr><tr>
+<td style="font-size:12px;padding:7px 10px;font-weight:500">النادي لتجارة المعادن</td>
+<td style="font-size:11px;padding:7px 10px;color:#475569">CAPEX / Setup</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right;font-weight:600">16K</td>
+<td style="font-size:11px;padding:7px 10px;text-align:right;color:#475569">1</td>
+</tr><tr>
+<td style="font-size:12px;padding:7px 10px;font-weight:500">ال سلم الله لتجارة المغناطيس</td>
+<td style="font-size:11px;padding:7px 10px;color:#475569">Maintenance</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right;font-weight:600">15K</td>
+<td style="font-size:11px;padding:7px 10px;text-align:right;color:#475569">1</td>
+</tr><tr>
+<td style="font-size:12px;padding:7px 10px;font-weight:500">الشوربجي</td>
+<td style="font-size:11px;padding:7px 10px;color:#475569">CAPEX / Setup</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right;font-weight:600">8K</td>
+<td style="font-size:11px;padding:7px 10px;text-align:right;color:#475569">7</td>
+</tr><tr>
+<td style="font-size:12px;padding:7px 10px;font-weight:500">اولاد الضبع</td>
+<td style="font-size:11px;padding:7px 10px;color:#475569">Maintenance</td>
+<td style="font-size:12px;padding:7px 10px;text-align:right;font-weight:600">4K</td>
+<td style="font-size:11px;padding:7px 10px;text-align:right;color:#475569">1</td>
+</tr></tbody></table>
+    </div>
+    <div class="card">
+      <div class="card-title">Equipment Status</div>
+      <div class="chart-wrap" style="height:180px"><canvas id="c_equip_status" role="img" aria-label="Equipment status donut chart"></canvas></div>
+      <table style="margin-top:.75rem"><thead><tr><th>ID</th><th>Type</th><th>Contractor</th><th style="text-align:right">Monthly (EGP)</th><th>Status</th></tr></thead>
+      <tbody><tr>
+<td style="font-size:11px;padding:6px 10px;font-weight:600;color:#475569">L01</td>
+<td style="font-size:12px;padding:6px 10px">Loader</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">محمد إسماعيل محمد إبراهيم</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right">396K</td>
+<td style="padding:6px 10px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Active</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:6px 10px;font-weight:600;color:#475569">T01</td>
+<td style="font-size:12px;padding:6px 10px">Truck</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">محمد إسماعيل محمد إبراهيم</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right">360K</td>
+<td style="padding:6px 10px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Active</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:6px 10px;font-weight:600;color:#475569">E01</td>
+<td style="font-size:12px;padding:6px 10px">excavator</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">محمد إسماعيل محمد إبراهيم</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right">432K</td>
+<td style="padding:6px 10px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Active</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:6px 10px;font-weight:600;color:#475569">G01</td>
+<td style="font-size:12px;padding:6px 10px">Grader</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">EGY-Tech Power</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right">600K</td>
+<td style="padding:6px 10px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Inactive</span></td>
+</tr><tr>
+<td style="font-size:11px;padding:6px 10px;font-weight:600;color:#475569">E02</td>
+<td style="font-size:12px;padding:6px 10px">excavator</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">المصري للتوريدات</td>
+<td style="font-size:12px;padding:6px 10px;text-align:right">360K</td>
+<td style="padding:6px 10px"><span style="background:#ea580c22;color:#ea580c;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Off-Hire</span></td>
+</tr></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ QUALITY ════════ -->
+<div class="pg" id="pg-quality">
+  <div class="pg-title">Quality / Samples</div>
+  <div class="pg-sub">158 XRF samples — 6 mines — 15 chemical elements</div>
+  <div class="g4">
+    <div class="kpi"><div class="kpi-label">Total Samples</div><div class="kpi-val accent">158</div><div class="kpi-note">151 batches</div></div>
+    <div class="kpi"><div class="kpi-label">Avg Fe%</div><div class="kpi-val warn">46.86%</div><div class="kpi-note">-1.2 vs earlier period</div></div>
+    <div class="kpi"><div class="kpi-label">Pass Rate (by sample)</div><div class="kpi-val warn">50.6%</div><div class="kpi-note">80 of 158 pass threshold</div></div>
+    <div class="kpi"><div class="kpi-label">Latest Sample</div><div class="kpi-val ok" style="font-size:16px">18 Jun 2026</div><div class="kpi-note">1 day ago</div></div>
+    <div class="kpi"><div class="kpi-label">Passed</div><div class="kpi-val ok">80</div></div>
+    <div class="kpi"><div class="kpi-label">Rejected</div><div class="kpi-val danger">78</div></div>
+    <div class="kpi"><div class="kpi-label">Mines Sampled</div><div class="kpi-val">6</div><div class="kpi-note">of 13 registered</div></div>
+    <div class="kpi"><div class="kpi-label">Fe% Range</div><div class="kpi-val" style="font-size:16px">4 – 70%</div><div class="kpi-note">Min – Max recorded</div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Avg Fe% by Mine — Pass / Reject (vs threshold)</div>
+      <div class="chart-wrap" style="height:240px"><canvas id="c_qual_mine" role="img" aria-label="Average Fe percent by mine with pass reject thresholds"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Pass / Reject by Material Type</div>
+      <div class="chart-wrap" style="height:240px"><canvas id="c_qual_mat" role="img" aria-label="Pass reject count by material type stacked bar"></canvas></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Fe% Daily Trend</div>
+    <div class="chart-wrap" style="height:200px"><canvas id="c_qual_fe_trend" role="img" aria-label="Daily average Fe percent trend over time"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Mine-Level Grade Assessment</div>
+    <table><thead><tr><th>Mine</th><th>Material</th><th style="text-align:right">Avg Fe%</th><th style="text-align:right">Threshold</th><th>Grade</th><th style="text-align:right">Samples</th></tr></thead>
+    <tbody><tr>
+<td style="font-size:12px;padding:7px 10px;font-weight:500">Al Quseir</td>
+<td style="padding:7px 10px"><span style="background:#2563eb22;color:#1d4ed8;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Magnetite</span></td>
+<td style="font-size:12px;padding:7px 10px;text-align:right;font-weight:600;color:#2563eb">34.6%</td>
+<td style="font-size:11px;padding:7px 10px;text-align:right;color:#475569">≥37%</td>
+<td style="padding:7px 10px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Reject</span></td>
+<td style="font-size:11px;padding:7px 10px;text-align:right;color:#475569">6</td>
+</tr><tr>
+<td style="font-size:12px;padding:7px 10px;font-weight:500">Marsa Alam</td>
+<td style="padding:7px 10px"><span style="background:#2563eb22;color:#1d4ed8;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Magnetite</span></td>
+<td style="font-size:12px;padding:7px 10px;text-align:right;font-weight:600;color:#2563eb">37.6%</td>
+<td style="font-size:11px;padding:7px 10px;text-align:right;color:#475569">≥37%</td>
+<td style="padding:7px 10px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Pass</span></td>
+<td style="font-size:11px;padding:7px 10px;text-align:right;color:#475569">22</td>
+</tr><tr>
+<td style="font-size:12px;padding:7px 10px;font-weight:500">Al Dakhla 1</td>
+<td style="padding:7px 10px"><span style="background:#2563eb22;color:#1d4ed8;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Limonite</span></td>
+<td style="font-size:12px;padding:7px 10px;text-align:right;font-weight:600;color:#2563eb">52.1%</td>
+<td style="font-size:11px;padding:7px 10px;text-align:right;color:#475569">≥55%</td>
+<td style="padding:7px 10px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Reject</span></td>
+<td style="font-size:11px;padding:7px 10px;text-align:right;color:#475569">24</td>
+</tr><tr>
+<td style="font-size:12px;padding:7px 10px;font-weight:500">Hurghada</td>
+<td style="padding:7px 10px"><span style="background:#2563eb22;color:#1d4ed8;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Hematite</span></td>
+<td style="font-size:12px;padding:7px 10px;text-align:right;font-weight:600;color:#2563eb">48.1%</td>
+<td style="font-size:11px;padding:7px 10px;text-align:right;color:#475569">≥55%</td>
+<td style="padding:7px 10px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Reject</span></td>
+<td style="font-size:11px;padding:7px 10px;text-align:right;color:#475569">103</td>
+</tr><tr>
+<td style="font-size:12px;padding:7px 10px;font-weight:500">Aswan</td>
+<td style="padding:7px 10px"><span style="background:#2563eb22;color:#1d4ed8;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Hematite</span></td>
+<td style="font-size:12px;padding:7px 10px;text-align:right;font-weight:600;color:#2563eb">54.0%</td>
+<td style="font-size:11px;padding:7px 10px;text-align:right;color:#475569">≥55%</td>
+<td style="padding:7px 10px"><span style="background:#dc262622;color:#dc2626;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Reject</span></td>
+<td style="font-size:11px;padding:7px 10px;text-align:right;color:#475569">2</td>
+</tr><tr>
+<td style="font-size:12px;padding:7px 10px;font-weight:500">Aswan 2</td>
+<td style="padding:7px 10px"><span style="background:#2563eb22;color:#1d4ed8;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Hematite</span></td>
+<td style="font-size:12px;padding:7px 10px;text-align:right;font-weight:600;color:#2563eb">57.3%</td>
+<td style="font-size:11px;padding:7px 10px;text-align:right;color:#475569">≥55%</td>
+<td style="padding:7px 10px"><span style="background:#16a34a22;color:#16a34a;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Pass</span></td>
+<td style="font-size:11px;padding:7px 10px;text-align:right;color:#475569">1</td>
+</tr></tbody></table>
+  </div>
+</div>
+
+<!-- ════════ PRODUCTION ════════ -->
+<div class="pg" id="pg-production">
+  <div class="pg-title">Production / Lots</div>
+  <div class="pg-sub">12 lots — 21,955 total tons — 4 active mines</div>
+  <div class="g4">
+    <div class="kpi"><div class="kpi-label">Total Lots</div><div class="kpi-val accent">12</div></div>
+    <div class="kpi"><div class="kpi-label">Total Tons</div><div class="kpi-val ok">21,955</div><div class="kpi-note">Across all mines</div></div>
+    <div class="kpi"><div class="kpi-label">Active Mines</div><div class="kpi-val">4</div><div class="kpi-note">With lot records</div></div>
+    <div class="kpi"><div class="kpi-label">Largest Mine</div><div class="kpi-val" style="font-size:16px">Marsa Alam</div><div class="kpi-note">16,000 tons</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Tons by Mine</div>
+    <div class="chart-wrap" style="height:220px"><canvas id="c_prod_tons" role="img" aria-label="Tons by mine bar chart"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Lot Inventory</div>
+    <div class="tbl-wrap">
+      <table><thead><tr><th>Updated</th><th>Mine</th><th>Zone</th><th>Material</th><th style="text-align:right">Qty (Ton)</th></tr></thead>
+      <tbody><tr>
+<td style="font-size:11px;padding:6px 10px;color:#64748b">2025-11-13</td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Hurghada</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">HUR-01-06</td>
+<td style="padding:6px 10px"><span style="background:#ea580c22;color:#ea580c;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Hematite</span></td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">5</td>
+</tr><tr>
+<td style="font-size:11px;padding:6px 10px;color:#64748b">2025-11-13</td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Hurghada</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">HUR-01-05</td>
+<td style="padding:6px 10px"><span style="background:#ea580c22;color:#ea580c;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Hematite</span></td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">10</td>
+</tr><tr>
+<td style="font-size:11px;padding:6px 10px;color:#64748b">2025-11-13</td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Hurghada</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">HUR-01-04</td>
+<td style="padding:6px 10px"><span style="background:#ea580c22;color:#ea580c;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Hematite</span></td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">10</td>
+</tr><tr>
+<td style="font-size:11px;padding:6px 10px;color:#64748b">2025-11-13</td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Hurghada</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">HUR-01-03</td>
+<td style="padding:6px 10px"><span style="background:#ea580c22;color:#ea580c;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Hematite</span></td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">30</td>
+</tr><tr>
+<td style="font-size:11px;padding:6px 10px;color:#64748b">2025-11-13</td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Hurghada</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">HUR-01-02</td>
+<td style="padding:6px 10px"><span style="background:#ea580c22;color:#ea580c;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Hematite</span></td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">100</td>
+</tr><tr>
+<td style="font-size:11px;padding:6px 10px;color:#64748b">2025-11-13</td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Hurghada</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">HUR-01-01</td>
+<td style="padding:6px 10px"><span style="background:#ea580c22;color:#ea580c;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Hematite</span></td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">1,000</td>
+</tr><tr>
+<td style="font-size:11px;padding:6px 10px;color:#64748b">2026-06-08</td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Aswan</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">ASW-01-01</td>
+<td style="padding:6px 10px"><span style="background:#ea580c22;color:#ea580c;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Hematite</span></td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">300</td>
+</tr><tr>
+<td style="font-size:11px;padding:6px 10px;color:#64748b">2026-06-08</td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Aswan</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">ASW-01-02</td>
+<td style="padding:6px 10px"><span style="background:#ea580c22;color:#ea580c;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Hematite</span></td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">2,000</td>
+</tr><tr>
+<td style="font-size:11px;padding:6px 10px;color:#64748b">2026-06-08</td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Aswan 2</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">ASW2-01-01</td>
+<td style="padding:6px 10px"><span style="background:#ea580c22;color:#ea580c;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Hematite</span></td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">2,500</td>
+</tr><tr>
+<td style="font-size:11px;padding:6px 10px;color:#64748b">2026-06-08</td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Marsa Alam</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">MAS-01-01-02-01</td>
+<td style="padding:6px 10px"><span style="background:#7c3aed22;color:#7c3aed;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Magnetite</span></td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">10,000</td>
+</tr><tr>
+<td style="font-size:11px;padding:6px 10px;color:#64748b">2026-06-08</td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Marsa Alam</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">MAS-01-01-01-01</td>
+<td style="padding:6px 10px"><span style="background:#7c3aed22;color:#7c3aed;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Magnetite</span></td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">1,000</td>
+</tr><tr>
+<td style="font-size:11px;padding:6px 10px;color:#64748b">2026-06-08</td>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Marsa Alam</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">MAS-01-01-01-02</td>
+<td style="padding:6px 10px"><span style="background:#7c3aed22;color:#7c3aed;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">Magnetite</span></td>
+<td style="font-size:12px;padding:6px 10px;text-align:right;font-weight:600">5,000</td>
+</tr></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ MINES ════════ -->
+<div class="pg" id="pg-mines">
+  <div class="pg-title">Mines Registry</div>
+  <div class="pg-sub">13 registered mines across Egypt — Governorates: Red Sea, Aswan, New Valley, South Sinai</div>
+  <div class="g3">
+    <div class="kpi"><div class="kpi-label">Registered Mines</div><div class="kpi-val accent">13</div></div>
+    <div class="kpi"><div class="kpi-label">Planned Production</div><div class="kpi-val ok">341K</div><div class="kpi-note">Tons/month capacity</div></div>
+    <div class="kpi"><div class="kpi-label">Governorates</div><div class="kpi-val">4</div></div>
+  </div>
+  <div class="g3">
+    <div style="background:#7c3aed22;border:1px solid #7c3aed55;border-radius:10px;padding:1rem;text-align:center"><div style="font-size:20px;font-weight:700;color:#a78bfa">Magnetite</div><div style="font-size:12px;color:#94a3b8;margin-top:.25rem">≥37% Fe threshold</div></div>
+    <div style="background:#ea580c22;border:1px solid #ea580c55;border-radius:10px;padding:1rem;text-align:center"><div style="font-size:20px;font-weight:700;color:#fb923c">Hematite</div><div style="font-size:12px;color:#94a3b8;margin-top:.25rem">≥55% Fe threshold</div></div>
+    <div style="background:#16a34a22;border:1px solid #16a34a55;border-radius:10px;padding:1rem;text-align:center"><div style="font-size:20px;font-weight:700;color:#4ade80">Limonite</div><div style="font-size:12px;color:#94a3b8;margin-top:.25rem">≥55% Fe threshold</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">All Registered Mines</div>
+    <table><thead><tr><th>Mine Name</th><th>Governorate</th><th style="text-align:right">Latitude</th><th style="text-align:right">Longitude</th></tr></thead>
+    <tbody><tr>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Al Dakhla 1</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">الوادي الجديد</td>
+<td style="font-size:11px;padding:6px 10px;text-align:right;color:#64748b">25.591</td>
+<td style="font-size:11px;padding:6px 10px;text-align:right;color:#64748b">28.786</td>
+</tr><tr>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Hurghada</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">البحر الأحمر</td>
+<td style="font-size:11px;padding:6px 10px;text-align:right;color:#64748b">26.997</td>
+<td style="font-size:11px;padding:6px 10px;text-align:right;color:#64748b">33.769</td>
+</tr><tr>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Marsa Alam</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">البحر الأحمر</td>
+<td style="font-size:11px;padding:6px 10px;text-align:right;color:#64748b">25.350</td>
+<td style="font-size:11px;padding:6px 10px;text-align:right;color:#64748b">34.131</td>
+</tr><tr>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Marsa Alam 2</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">البحر الأحمر</td>
+<td style="font-size:11px;padding:6px 10px;text-align:right;color:#64748b">25.267</td>
+<td style="font-size:11px;padding:6px 10px;text-align:right;color:#64748b">34.267</td>
+</tr><tr>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Marsa Alam 3</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">البحر الأحمر</td>
+<td style="font-size:11px;padding:6px 10px;text-align:right;color:#64748b">25.654</td>
+<td style="font-size:11px;padding:6px 10px;text-align:right;color:#64748b">34.370</td>
+</tr><tr>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Al Quseir</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">البحر الأحمر</td>
+<td style="font-size:11px;padding:6px 10px;text-align:right;color:#64748b">34.228</td>
+<td style="font-size:11px;padding:6px 10px;text-align:right;color:#64748b">26.075</td>
+</tr><tr>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Aswan</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">أسوان</td>
+<td style="font-size:11px;padding:6px 10px;text-align:right;color:#64748b">24.136</td>
+<td style="font-size:11px;padding:6px 10px;text-align:right;color:#64748b">32.955</td>
+</tr><tr>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Aswan 2</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">أسوان</td>
+<td style="font-size:11px;padding:6px 10px;text-align:right;color:#64748b">33.128</td>
+<td style="font-size:11px;padding:6px 10px;text-align:right;color:#64748b">24.174</td>
+</tr><tr>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Abu Zenima</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">جنوب سيناء</td>
+<td style="font-size:11px;padding:6px 10px;text-align:right;color:#64748b">33.407</td>
+<td style="font-size:11px;padding:6px 10px;text-align:right;color:#64748b">28.988</td>
+</tr><tr>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Hurghada 2</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">البحر الأحمر</td>
+<td style="font-size:11px;padding:6px 10px;text-align:right;color:#64748b">33.834</td>
+<td style="font-size:11px;padding:6px 10px;text-align:right;color:#64748b">26.891</td>
+</tr><tr>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">El Mografat</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">البحر الأحمر</td>
+<td style="font-size:11px;padding:6px 10px;text-align:right;color:#64748b">33.552</td>
+<td style="font-size:11px;padding:6px 10px;text-align:right;color:#64748b">27.449</td>
+</tr><tr>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Al Dakhla 2</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">الوادي الجديد</td>
+<td style="font-size:11px;padding:6px 10px;text-align:right;color:#64748b">28.902</td>
+<td style="font-size:11px;padding:6px 10px;text-align:right;color:#64748b">25.627</td>
+</tr><tr>
+<td style="font-size:12px;padding:6px 10px;font-weight:500">Kom Ombo 1</td>
+<td style="font-size:11px;padding:6px 10px;color:#475569">البحر الأحمر</td>
+<td style="font-size:11px;padding:6px 10px;text-align:right;color:#64748b">33.649</td>
+<td style="font-size:11px;padding:6px 10px;text-align:right;color:#64748b">25.664</td>
+</tr></tbody></table>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+function showPage(id, btn) {
+  document.querySelectorAll('.pg').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('pg-'+id).classList.add('active');
+  btn.classList.add('active');
+  renderCharts(id);
+}
+
+const CHARTS = {};
+function mkChart(id, type, data, opts) {
+  if (CHARTS[id]) { CHARTS[id].destroy(); }
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  CHARTS[id] = new Chart(canvas, { type, data, options: { responsive:true, maintainAspectRatio:false, ...opts } });
+}
+
+const CLR = { blue:'#3b82f6', green:'#16a34a', amber:'#d97706', red:'#dc2626', purple:'#7c3aed', teal:'#0891b2', orange:'#ea580c' };
+const PAL = ['#3b82f6','#16a34a','#d97706','#dc2626','#7c3aed','#0891b2','#ea580c','#f59e0b','#64748b','#2dd4bf'];
+
+let rendered = {};
+
+function renderCharts(page) {
+  if (rendered[page]) return;
+  rendered[page] = true;
+
+  if (page === 'exec') {
+    const bcat_labels = ["Equipment Leasing", "Maintenance", "Tools & Equipment", "CAPEX / Setup", "Site Services", "Management Support", "Equipment Purchasing", "Water for Road Preparation"];
+    const bcat_budget = [1762000, 1300000, 285745, 249487, 209000, 170030, 150000, 140000];
+    const bcat_actual = [2950, 231954, 0, 94487, 57025, 65060, 0, 0];
+    mkChart('c_exec_bva','bar',{
+      labels: bcat_labels,
+      datasets:[
+        {label:'Budget',data:bcat_budget,backgroundColor:'#3b82f655',borderColor:'#3b82f6',borderWidth:1,borderRadius:3},
+        {label:'Actual',data:bcat_actual,backgroundColor:bcat_actual.map((a,i)=>a>bcat_budget[i]?'#dc2626':'#16a34a'),borderRadius:3}
+      ]
+    },{plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}}},scales:{x:{grid:{display:false},ticks:{color:'#64748b',font:{size:9.5},maxRotation:35}},y:{grid:{color:'#334155'},ticks:{color:'#94a3b8',callback:v=>v>=1000?(v/1000)+'K':v}}}});
+    const exp_cats = ["Maintenance", "Fixed", "CAPEX / Setup", "Management Support", "Site Services", "Fuel Expense", "Manpower", "HSE"];
+    const exp_amts = [231954, 190950, 94487, 65060, 57025, 46926, 32435, 25545];
+    mkChart('c_exec_dist','doughnut',{labels:exp_cats,datasets:[{data:exp_amts,backgroundColor:PAL,borderWidth:2,borderColor:'#1e293b',hoverOffset:5}]},{cutout:'60%',plugins:{legend:{position:'right',labels:{color:'#94a3b8',font:{size:10},boxWidth:10,padding:8}}}});
+  }
+
+  if (page === 'timeline') {
+    const tl_status = {"Completed": 21, "In Progress": 1, "Delayed": 11, "Planned": 6};
+    mkChart('c_tl_status','doughnut',{
+      labels:Object.keys(tl_status),
+      datasets:[{data:Object.values(tl_status),backgroundColor:['#16a34a','#3b82f6','#dc2626','#94a3b8'],borderWidth:2,borderColor:'#1e293b',hoverOffset:5}]
+    },{cutout:'60%',plugins:{legend:{position:'right',labels:{color:'#94a3b8',font:{size:10},boxWidth:10,padding:6}}}});
+    const own_names = ["AiT Team", "Unassigned", "AiT Mang", "AIT/Cont."];
+    const own_counts = [28, 5, 5, 1];
+    mkChart('c_tl_owner','bar',{labels:own_names,datasets:[{data:own_counts,backgroundColor:'#3b82f6',borderRadius:4}]},{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'#334155'},ticks:{color:'#94a3b8'}},y:{grid:{display:false},ticks:{color:'#94a3b8',font:{size:11}}}}});
+  }
+
+  if (page === 'budget') {
+    const bcat_labels = ["Equipment Leasing", "Maintenance", "Tools & Equipment", "CAPEX / Setup", "Site Services", "Management Support", "Equipment Purchasing", "Water for Road Preparation"];
+    const bcat_budget = [1762000, 1300000, 285745, 249487, 209000, 170030, 150000, 140000];
+    const bcat_actual = [2950, 231954, 0, 94487, 57025, 65060, 0, 0];
+    mkChart('c_bud_bva','bar',{
+      labels:bcat_labels,
+      datasets:[
+        {label:'Budget',data:bcat_budget,backgroundColor:'#3b82f644',borderColor:'#3b82f6',borderWidth:1,borderRadius:3},
+        {label:'Actual',data:bcat_actual,backgroundColor:bcat_actual.map((a,i)=>a>bcat_budget[i]?'#dc2626bb':'#16a34abb'),borderRadius:3}
+      ]
+    },{plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}}},scales:{x:{grid:{display:false},ticks:{color:'#64748b',font:{size:9},maxRotation:35}},y:{grid:{color:'#334155'},ticks:{color:'#94a3b8',callback:v=>v>=1000000?(v/1000000).toFixed(1)+'M':v>=1000?(v/1000)+'K':v}}}});
+  }
+
+  if (page === 'expenses') {
+    const exp_cats = ["Maintenance", "Fixed", "CAPEX / Setup", "Management Support", "Site Services", "Fuel Expense", "Manpower", "HSE"];
+    const exp_amts = [231954, 190950, 94487, 65060, 57025, 46926, 32435, 25545];
+    mkChart('c_exp_cat','doughnut',{labels:exp_cats,datasets:[{data:exp_amts,backgroundColor:PAL,borderWidth:2,borderColor:'#1e293b',hoverOffset:5}]},{cutout:'60%',plugins:{legend:{position:'right',labels:{color:'#94a3b8',font:{size:10},boxWidth:10,padding:6}}}});
+    mkChart('c_exp_method','bar',{
+      labels:['Cash Swypex','Bank Transfer','Cash'],
+      datasets:[{data:[393631,368700,85329],backgroundColor:['#3b82f6','#16a34a','#d97706'],borderRadius:4}]
+    },{plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'#64748b'}},y:{grid:{color:'#334155'},ticks:{color:'#94a3b8',callback:v=>v>=1000?(v/1000)+'K':v}}}});
+  }
+
+  if (page === 'cashflow') {
+    const cf_months = ["6 To 30 April", "2026-05-26", "2026-06-26", "2026-07-26", "2026-08-26", "2026-09-26"];
+    const cf_cashout = [1279000, 854000, 554000, 454000, 354000, 354000];
+    const cf_cumul = [1279000, 2133000, 2687000, 3141000, 3495000, 3849000];
+    mkChart('c_cf_forecast','bar',{
+      labels:cf_months,
+      datasets:[
+        {type:'bar',label:'Monthly Cash Out',data:cf_cashout,backgroundColor:'#3b82f688',borderRadius:4,yAxisID:'y'},
+        {type:'line',label:'Cumulative',data:cf_cumul,borderColor:'#d97706',backgroundColor:'transparent',borderWidth:2,pointRadius:4,yAxisID:'y2'}
+      ]
+    },{plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}}},scales:{x:{grid:{display:false},ticks:{color:'#64748b',font:{size:10}}},y:{grid:{color:'#334155'},ticks:{color:'#94a3b8',callback:v=>v>=1000000?(v/1000000).toFixed(1)+'M':v>=1000?(v/1000)+'K':v},title:{display:true,text:'Monthly',color:'#64748b'}},y2:{position:'right',grid:{display:false},ticks:{color:'#94a3b8',callback:v=>v>=1000000?(v/1000000).toFixed(1)+'M':v>=1000?(v/1000)+'K':v},title:{display:true,text:'Cumulative',color:'#64748b'}}}});
+  }
+
+  if (page === 'alerts') {
+    const sev_labels = ["Critical", "Medium", "Low"];
+    const sev_counts = [3, 13, 10];
+    mkChart('c_alert_sev','doughnut',{labels:sev_labels,datasets:[{data:sev_counts,backgroundColor:['#dc2626','#3b82f6','#16a34a'],borderWidth:2,borderColor:'#1e293b',hoverOffset:5}]},{cutout:'60%',plugins:{legend:{position:'right',labels:{color:'#94a3b8',font:{size:11},boxWidth:10,padding:8}}}});
+  }
+
+  if (page === 'vendors') {
+    mkChart('c_equip_status','doughnut',{
+      labels:['Active','Inactive','Off-Hire'],
+      datasets:[{data:[3,1,1],backgroundColor:['#16a34a','#dc2626','#ea580c'],borderWidth:2,borderColor:'#1e293b',hoverOffset:5}]
+    },{cutout:'60%',plugins:{legend:{position:'right',labels:{color:'#94a3b8',font:{size:11},boxWidth:10,padding:8}}}});
+  }
+
+  if (page === 'quality') {
+    const qual_mines = ["Al Quseir", "Marsa Alam", "Al Dakhla 1", "Hurghada", "Aswan", "Aswan 2"];
+    const qual_fe = [34.59, 37.65, 52.11, 48.08, 53.95, 57.3];
+    const qual_thresh = [37, 37, 55, 55, 55, 55];
+    mkChart('c_qual_mine','bar',{
+      labels:qual_mines,
+      datasets:[
+        {label:'Avg Fe%',data:qual_fe,backgroundColor:qual_fe.map((v,i)=>v>=qual_thresh[i]?'#16a34a':'#dc2626'),borderRadius:4},
+        {label:'Threshold',data:qual_thresh,type:'line',borderColor:'#f59e0b',backgroundColor:'transparent',borderWidth:2,borderDash:[5,5],pointRadius:0}
+      ]
+    },{plugins:{legend:{labels:{color:'#94a3b8',font:{size:10},boxWidth:10}}},scales:{x:{grid:{display:false},ticks:{color:'#64748b',font:{size:10}}},y:{grid:{color:'#334155'},ticks:{color:'#94a3b8',callback:v=>v+'%'}}}});
+    const mat_names = ["Magnetite", "Limonite", "Hematite"];
+    const mat_pass = [14, 13, 53];
+    const mat_reject = [14, 11, 53];
+    mkChart('c_qual_mat','bar',{
+      labels:mat_names,
+      datasets:[
+        {label:'Pass',data:mat_pass,backgroundColor:'#16a34a',borderRadius:4},
+        {label:'Reject',data:mat_reject,backgroundColor:'#dc2626',borderRadius:4}
+      ]
+    },{plugins:{legend:{labels:{color:'#94a3b8',font:{size:11},boxWidth:10}}},scales:{x:{stacked:true,grid:{display:false},ticks:{color:'#64748b'}},y:{stacked:true,grid:{color:'#334155'},ticks:{color:'#94a3b8'}}}});
+    const fe_dates = ["2025-11-13", "2025-11-18", "2025-11-19", "2025-11-20", "2025-11-24", "2025-11-25", "2025-11-26", "2025-11-28", "2025-11-30", "2025-12-01", "2025-12-02", "2026-01-12", "2026-01-13", "2026-02-08", "2026-05-20", "2026-05-21", "2026-06-08", "2026-06-09", "2026-06-17", "2026-06-18"];
+    const fe_vals = [49.56, 44.12, 48.58, 52.03, 62.34, 55.0, 42.33, 40.0, 47.0, 55.52, 56.12, 57.89, 33.0, 45.62, 22.22, 38.39, 38.38, 34.63, 46.6, 35.63];
+    mkChart('c_qual_fe_trend','line',{
+      labels:fe_dates,
+      datasets:[{label:'Daily Avg Fe%',data:fe_vals,borderColor:'#3b82f6',backgroundColor:'#3b82f622',fill:true,tension:.4,pointRadius:4,pointBackgroundColor:'#3b82f6'}]
+    },{plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'#64748b',font:{size:9},maxRotation:45}},y:{grid:{color:'#334155'},ticks:{color:'#94a3b8',callback:v=>v+'%'}}}});
+  }
+
+  if (page === 'production') {
+    mkChart('c_prod_tons','bar',{
+      labels:['Marsa Alam','Aswan 2','Aswan','Hurghada'],
+      datasets:[{label:'Tons',data:[16000,2500,2300,1155],backgroundColor:['#7c3aed','#ea580c','#ea580c','#ea580c'],borderRadius:5}]
+    },{plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'#64748b'}},y:{grid:{color:'#334155'},ticks:{color:'#94a3b8',callback:v=>v.toLocaleString()}}}});
+  }
+}
+
+// Render exec charts on load
+window.addEventListener('load', () => renderCharts('exec'));
+</script>
+</body>
+</html>
