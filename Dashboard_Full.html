@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light" dir="ltr">
+<html lang="en" data-theme="dark" dir="ltr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>AIT Projects Dashboard</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23fd480e'/%3E%3Ctext x='32' y='39' text-anchor='middle' font-family='Arial' font-size='22' font-weight='800' fill='white'%3EAIT%3C/text%3E%3C/svg%3E">
 <meta property="og:title" content="AIT Projects Portfolio Dashboard">
 <meta property="og:description" content="Mining Operations Management — Budget, Expenses, Equipment, Production, Mines Map & Risk Tracking">
 <meta property="og:image" content="https://aitpit2port.github.io/AIT/ait_pit2port_banner.jpeg">
@@ -285,38 +286,49 @@ tbody tr:hover td{background:var(--bg)}
 
 
 /* ============================================================
-   AIT EXECUTIVE POLISH PATCH - professional dashboard layout
+   FINAL PROFESSIONAL PATCH - compact KPI row + stable RTL/LTR
    ============================================================ */
-:root{
-  --accent:#f35a24;--accent2:#d74615;--accentbg:rgba(243,90,36,.10);
-  --bg:#eef3f8;--card:#ffffff;--border:#dbe4ee;--txt:#142033;--txt2:#627083;--txt3:#98a3b3;
-  --sidebar:#08111f;--sb2:#111b2b;--sb3:#1a2740;
-  --shadow:0 8px 28px rgba(15,23,42,.075);--shadow2:0 18px 48px rgba(15,23,42,.13);
-}
+html,body{background:var(--bg)!important;}
 [data-theme="dark"]{
-  --bg:#0b1220;--card:#111827;--border:#263244;--txt:#f3f6fb;--txt2:#aab4c3;--txt3:#6f7d91;
-  --sidebar:#050914;--sb2:#0d1524;--sb3:#172238;
+  --bg:#090f19; --card:#111827; --border:#263246; --txt:#eef4ff; --txt2:#a9b6c9; --txt3:#778398;
+  --sidebar:#070b13; --sb2:#0e1522; --sb3:#172033;
+  --shadow:0 10px 28px rgba(0,0,0,.28); --shadow2:0 18px 48px rgba(0,0,0,.42);
+  --grid:rgba(255,255,255,.075); --ctxt:#b8c4d8;
 }
-html,body{font-size:14px;overflow:hidden;background:radial-gradient(circle at top left,rgba(243,90,36,.08),transparent 32%),var(--bg)}
-.app{width:100%;height:100vh;display:flex;overflow:hidden;direction:ltr}
-.sb{width:260px;border-right:0;box-shadow:10px 0 30px rgba(4,10,20,.16);background:linear-gradient(180deg,#08111f 0%,#07101e 54%,#040914 100%)}
-.sb.collapsed{width:72px}.sb-head{padding:20px 18px}.sb-logo{width:42px;height:42px;border-radius:14px;box-shadow:0 10px 22px rgba(243,90,36,.32)}
-.sb-brand strong{font-size:15px}.sb-brand span{font-size:10.5px;text-transform:uppercase;letter-spacing:1.2px;color:#90a0b7}
-.ni{margin:4px 12px;padding:12px 14px;border-radius:14px;color:#9fb0c7;border:1px solid transparent;gap:12px}
-.ni:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.08);color:#fff}.ni.active{background:linear-gradient(135deg,var(--accent),#cf3d13);box-shadow:0 12px 26px rgba(243,90,36,.28)}
-.ni-num{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.08);font-size:9px}.ni-icon{font-size:10px;width:24px;height:24px;border-radius:8px;background:rgba(255,255,255,.08);display:inline-flex;align-items:center;justify-content:center;font-weight:800;letter-spacing:.3px}.ni.active .ni-icon{background:rgba(255,255,255,.2)}
-.main{flex:1;min-width:0;overflow:hidden;margin:0!important;direction:ltr}.tb{padding:20px 32px 16px;background:linear-gradient(180deg,rgba(255,255,255,.74),rgba(255,255,255,.35));backdrop-filter:blur(12px);border-bottom:1px solid rgba(219,228,238,.72);align-items:center}.tb-title h1{font-size:25px;letter-spacing:-.04em}.tb-title p{font-size:12px;max-width:680px}.tb-right{gap:10px}.tb-refresh,.tb-export,.tb-sel select{border-radius:12px}.tb-refresh{padding:10px 18px;box-shadow:0 10px 22px rgba(243,90,36,.22)}.tb-export{padding:9px 14px;background:rgba(255,255,255,.72)}
-.fb{margin:14px 32px 18px;padding:16px;background:rgba(255,255,255,.86);backdrop-filter:blur(10px);border-radius:18px;box-shadow:var(--shadow)}.fb-label{top:-10px;left:18px;border-radius:999px;padding:4px 12px;box-shadow:0 8px 18px rgba(243,90,36,.22)}
-.content{padding:0 32px 40px;max-width:none!important}.pg{animation:fadeIn .22s ease}.pg.active{display:block}@keyframes fadeIn{from{opacity:.5;transform:translateY(4px)}to{opacity:1;transform:none}}
-.kpi-row{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(185px,1fr))!important;gap:16px;margin-bottom:18px}.kc{border-radius:18px;padding:16px 16px 10px;border:1px solid rgba(219,228,238,.9);box-shadow:var(--shadow);min-height:116px}.kc:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:linear-gradient(90deg,var(--accent),rgba(37,99,235,.75));opacity:.9}.kc-icon{width:34px;height:34px;border-radius:12px}.kc-val{font-size:24px;letter-spacing:-.04em}.kc-lbl{font-size:10px}.kc-note{font-size:11px}.kc-spark{height:20px}
-.card{border-radius:18px;border:1px solid rgba(219,228,238,.92);box-shadow:var(--shadow);margin-bottom:16px;background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(255,255,255,.94))}.card:hover{box-shadow:var(--shadow2)}.card-h{padding:16px 18px 11px;border-bottom:1px solid rgba(219,228,238,.75)}.card-h h3{font-size:14px;letter-spacing:-.02em}.card-b{padding:14px 18px 18px}.cw{min-height:120px}.g2,.g3,.g4,.g21,.g31,.g211{gap:16px;margin-bottom:16px}.g4{grid-template-columns:minmax(260px,.9fr) minmax(520px,2fr) minmax(260px,.9fr)}.g21{grid-template-columns:minmax(0,2fr) minmax(330px,1fr)}
-#execRow2 .card:nth-child(2){grid-column:auto!important}#execRow2{grid-template-columns:minmax(260px,.9fr) minmax(520px,1.8fr) minmax(260px,.9fr)!important}#execRow2 .card{min-height:286px}
-table{font-size:12px}thead th{padding:11px 13px;background:#f3f7fb;color:#6b778a}tbody td{padding:11px 13px}.tbl-wrap{border-radius:0 0 18px 18px}.badge{border-radius:999px;padding:4px 10px}.pb{height:8px;border-radius:999px}.pf{border-radius:999px}
-.foot{border-top:1px solid rgba(219,228,238,.8);background:rgba(255,255,255,.54);backdrop-filter:blur(8px)}
-/* RTL fix: remove double margin that caused the dashboard to shrink and leave a large blank area */
-[dir="rtl"] body{font-family:'Inter','Tahoma','Arial',sans-serif}[dir="rtl"] .app{direction:ltr;flex-direction:row}[dir="rtl"] .sb{order:2;border-left:0;border-right:0;box-shadow:-10px 0 30px rgba(4,10,20,.16)}[dir="rtl"] .main{order:1;margin:0!important;direction:rtl}[dir="rtl"] .tb-title,[dir="rtl"] .card-h,[dir="rtl"] .fb-item label{text-align:right}[dir="rtl"] .tb{direction:rtl}[dir="rtl"] .tb-spacer{flex:1}[dir="rtl"] .tb-right{direction:rtl}[dir="rtl"] .ni{flex-direction:row-reverse;border-radius:14px;margin:4px 12px}[dir="rtl"] .ni-lbl{text-align:right}[dir="rtl"] .sb.collapsed .sb-toggle{left:auto;right:72px;border-radius:6px 0 0 6px}[dir="rtl"] .fb-label{left:auto;right:18px}[dir="rtl"] select{background-position:left 8px center!important;padding-left:26px!important;padding-right:10px!important}[dir="rtl"] .leg .lv{margin-right:auto;margin-left:0}[dir="rtl"] thead th{text-align:right}[dir="rtl"] .td-r{text-align:left}.mines-active .main{margin:0!important}
-@media(max-width:1300px){.g4,#execRow2{grid-template-columns:1fr 1fr!important}.g4 .card:nth-child(2),#execRow2 .card:nth-child(2){grid-column:span 2!important}.kpi-row{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))!important}}
-@media(max-width:900px){.tb{padding:14px}.content{padding:0 14px 70px}.fb{margin:10px 14px 16px}.g4,#execRow2,.g2,.g3,.g21,.g31,.g211{grid-template-columns:1fr!important}.g4 .card:nth-child(2),#execRow2 .card:nth-child(2){grid-column:auto!important}}
+[data-theme="light"]{
+  --bg:#eef3f9; --card:#ffffff; --border:#dce4ef; --txt:#172033; --txt2:#5f6b7c; --txt3:#8b96a8;
+  --sidebar:#0d1117; --sb2:#161b22; --sb3:#21262d;
+  --shadow:0 8px 24px rgba(15,23,42,.08); --shadow2:0 18px 44px rgba(15,23,42,.16);
+  --grid:rgba(15,23,42,.06); --ctxt:#64748b;
+}
+.app{direction:ltr!important;}
+html[dir="rtl"] .app{direction:rtl!important;}
+html[dir="rtl"] .main{margin:0!important;}
+html[dir="ltr"] .main{margin:0!important;}
+html[dir="rtl"] .tb,html[dir="rtl"] .fb,html[dir="rtl"] .content{direction:rtl;text-align:right;}
+html[dir="ltr"] .tb,html[dir="ltr"] .fb,html[dir="ltr"] .content{direction:ltr;text-align:left;}
+html[dir="rtl"] .sb{border-right:none!important;border-left:1px solid #21262d!important;}
+html[dir="rtl"] .ni{border-radius:20px 0 0 20px;margin-right:0;margin-left:10px;}
+html[dir="rtl"] .sb-head,html[dir="rtl"] .sb-foot-inner,html[dir="rtl"] .kc-top{direction:rtl;}
+html[dir="rtl"] thead th,html[dir="rtl"] tbody td{text-align:right;}
+html[dir="rtl"] .td-r{text-align:left!important;}
+html[dir="rtl"] #pg-mines{direction:ltr;text-align:left;}
+.tb{padding:16px 24px 12px;background:linear-gradient(180deg,rgba(253,72,14,.055),transparent 78%),var(--bg);border-bottom:1px solid rgba(255,255,255,.03)}
+.tb-title h1{font-size:24px;letter-spacing:-.02em}.tb-title p{font-size:12px}.tb-right{gap:9px}.tb-refresh{box-shadow:0 10px 22px rgba(253,72,14,.25)}
+.fb{margin:0 24px 14px;padding:12px 14px;border-radius:14px;background:linear-gradient(135deg,rgba(255,255,255,.035),rgba(255,255,255,.01)),var(--card)}
+.content{padding:0 24px 26px;}
+.card{border-radius:16px;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012)),var(--card);box-shadow:var(--shadow);}
+.card-h{padding:13px 15px 9px;border-bottom:1px solid rgba(255,255,255,.035)}.card-h h3{font-size:13px;font-weight:800}.card-b{padding:8px 14px 14px}
+.kpi-row{display:grid!important;grid-template-columns:unset!important;grid-auto-flow:column!important;grid-auto-columns:minmax(118px,1fr)!important;gap:8px!important;margin-bottom:12px!important;overflow-x:auto!important;overflow-y:hidden!important;padding-bottom:3px;scrollbar-width:thin;}
+.kpi-row.k8,.kpi-row.k7,.kpi-row.k6,.kpi-row.k5,.kpi-row.k4,.kpi-row.k2{grid-template-columns:unset!important;}
+.kc{min-width:118px;border-radius:12px;padding:9px 10px 5px!important;box-shadow:0 8px 22px rgba(0,0,0,.16);border-color:rgba(255,255,255,.07)}
+.kc-top{gap:6px;margin-bottom:5px}.kc-icon{width:22px!important;height:22px!important;border-radius:7px!important;font-size:11px!important}.kc-lbl{font-size:8.2px!important;letter-spacing:.32px;line-height:1.15}.kc-val{font-size:16px!important;line-height:1.05;margin-bottom:1px}.kc-note{font-size:9px!important;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.kc-spark{height:18px!important;margin:0 -10px -2px!important;}
+.g2,.g3,.g4,.g21,.g31,.g211{gap:12px!important;margin-bottom:12px!important}.g4{grid-template-columns:1fr 2fr 1fr!important}.g21{grid-template-columns:2.1fr 1fr!important}.g31{grid-template-columns:2fr 1fr!important}
+.tbl-wrap{border-radius:0 0 14px 14px}thead th{font-size:9px;padding:8px 10px}tbody td{font-size:11px;padding:8px 10px}.badge{font-size:9.5px;padding:3px 8px}
+.sb{box-shadow:14px 0 40px rgba(0,0,0,.22)}html[dir="rtl"] .sb{box-shadow:-14px 0 40px rgba(0,0,0,.22)}.ni{font-weight:650}.ni.active{box-shadow:0 8px 20px rgba(253,72,14,.26)}
+#pg-mines.active{height:100vh!important;padding:0!important}#mines-iframe{width:100%!important;height:100%!important;min-height:0!important;border:none!important}.mines-active .content{padding:0!important}
+@media(max-width:1200px){.kpi-row{grid-auto-columns:minmax(125px,150px)!important}.g4,.g21,.g31{grid-template-columns:1fr!important}.card[style*="grid-column:span 2"]{grid-column:auto!important}}
+@media(max-width:900px){.content{padding:0 14px 68px}.tb{padding:14px}.fb{margin:0 14px 14px}.kpi-row{grid-template-columns:unset!important;grid-auto-columns:minmax(132px,72vw)!important}.kc{min-width:132px}.g2,.g3,.g4,.g21,.g31,.g211{grid-template-columns:1fr!important}}
 
 </style>
 </head>
@@ -350,7 +362,7 @@ table{font-size:12px}thead th{padding:11px 13px;background:#f3f7fb;color:#6b778a
     <div class="sb-foot">
       <div class="sb-foot-inner">
         <button class="sb-fbtn" onclick="toggleLang()">🌐 <span id="langLbl">AR</span></button>
-        <button class="sb-fbtn" onclick="toggleTheme()">🌙 <span id="themeLbl">Dark</span></button>
+        <button class="sb-fbtn" onclick="toggleTheme()">◐ <span id="themeLbl">Light</span></button>
       </div>
       <div class="sb-user" id="sbUser">● Live Data</div>
     </div>
@@ -765,7 +777,7 @@ const PAL = ['#2563eb','#16a34a','#fd480e','#7c3aed','#0891b2','#ea580c','#dc262
 const SEV_COLORS = { Critical:'#dc2626', High:'#ea580c', Medium:'#2563eb', Low:'#16a34a' };
 const STATUS_COLORS = { 'On Track':'#16a34a','At Risk':'#ea580c','Off Track':'#dc2626','Completed':'#16a34a','In Progress':'#2563eb','Planned':'#9aa1b1','Delayed':'#dc2626' };
 
-let API_DATA=null, USER=null, LANG='en', THEME='light', SB_OPEN=true, CHARTS={}, CURRENT_PAGE='exec';
+let API_DATA=null, USER=null, LANG='en', THEME='dark', SB_OPEN=true, CHARTS={}, CURRENT_PAGE='exec';
 let FILTERS={project:'all',category:'all',month:'all',owner:'all',status_filter:'all',phase:'all',method:'all',vendor:'all',scenario:'Base Case',severity:'all',type:'all',mine:'all',material:'all',
   cost_center:'all',payee:'all',source:'all',priority:'all',period:'all',budget_type:'all',owner2:'all',
   proc_type:'all',contract_status:'all',funding_source:'all',payment_type:'all',cash_status:'all',
@@ -801,9 +813,11 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&!document.getElement
 function buildSidebar(){
   const nav=document.getElementById('sbNav'); nav.innerHTML='';
   if(!USER||!USER.pages) return;
+  USER.pages = (USER.pages||[]).filter(p=>!['approval','approvals','approval_workflow','workflow'].includes(String(p).toLowerCase()));
   USER.pages.forEach((p,i)=>{
     const ni=document.createElement('div'); ni.className='ni'+(i===0?' active':'');
     ni.onclick=()=>goPage(p,ni);
+    ni.setAttribute('data-page',p);
     ni.innerHTML=`<div class="ni-num">${i+1}</div><span class="ni-icon">${PAGE_ICONS[p]||'📄'}</span><span class="ni-lbl">${PAGE_META[p]?.[0]||p}</span>`;
     nav.appendChild(ni);
   });
@@ -878,7 +892,7 @@ async function refreshData(){
   await loadData(true);
   btn.classList.remove('spinning'); btn.disabled=false;
 }
-setInterval(()=>{if(API_DATA)loadData();},60000);
+setInterval(()=>{if(API_DATA&&USER)loadData(true);},60000);
 
 function populateProjectSelect(){
   const sel=document.getElementById('tbProject');
@@ -1530,137 +1544,105 @@ async function exportPdf(){ alert('PDF export will be available in the final bui
 window.addEventListener('load',()=>{ setTimeout(()=>document.getElementById('ld').classList.add('done'),800); });
 
 
-/* ============================================================
-   AIT UX / LANGUAGE PATCH
-   Fixes: Arabic translation, RTL width bug, professional nav labels,
-   and removes Approval Workflow from any stale permission payload.
-   ============================================================ */
-(function(){
-  const approvalKeys = new Set(['approval','approvals','approval_workflow','approval-workflow','workflow']);
-  const pageMetaEn = {
-    exec:['Executive Summary','Financial performance overview, key risks, budget utilization and payment position.'],
-    timeline:['Project Timeline / Gantt','Schedule progress, delayed tasks, owners and milestones.'],
-    budget:['Budget Overview','Budget allocation, actual spending, remaining balance and variance by category.'],
-    expenses:['Expenses & Payment Plan','Expense log, payment status, methods, overdue amounts and pending payments.'],
-    cost:['Cost Analysis','Cost drivers by category, vendor, cost center and spend item.'],
-    cashflow:['Cash Flow Forecast','Upcoming payments, cash-out forecast and transfer tracking.'],
-    risks:['Risk & Alerts','Open risks, overdue payments, over-budget items and required actions.'],
-    vendors:['Vendor & Procurement','Vendor spending, procurement status, equipment and contract monitoring.'],
-    performance:['Monthly Performance Report','Monthly financial and operational performance summary.'],
-    production:['Production / Lots','Production lots, tonnage, mine batches and Fe percentage.'],
-    quality:['Quality / Samples','Sample results, Fe thresholds, pass/reject and element trends.'],
-    mines:['Mines Map','Interactive mining sites map and registered mine details.']
-  };
-  const pageMetaAr = {
-    exec:['الملخص التنفيذي','نظرة شاملة على الأداء المالي، المخاطر، استهلاك الميزانية وحالة المدفوعات.'],
-    timeline:['الجدول الزمني / جانت','متابعة تقدم البرنامج الزمني، المهام المتأخرة، المسؤولين والمراحل الرئيسية.'],
-    budget:['نظرة عامة على الميزانية','توزيع الميزانية، المصروف الفعلي، الرصيد المتبقي والانحراف حسب البند.'],
-    expenses:['المصروفات وخطة المدفوعات','سجل المصروفات، حالة الدفع، طرق السداد، المتأخرات والمدفوعات المعلقة.'],
-    cost:['تحليل التكلفة','تحليل محركات التكلفة حسب البند والمورد ومركز التكلفة.'],
-    cashflow:['توقع التدفقات النقدية','المدفوعات القادمة، توقعات الصرف والتحويلات المالية.'],
-    risks:['المخاطر والتنبيهات','المخاطر المفتوحة، المدفوعات المتأخرة، بنود تجاوز الميزانية والإجراءات المطلوبة.'],
-    vendors:['الموردون والمشتريات','مصروفات الموردين، حالة المشتريات، المعدات ومتابعة العقود.'],
-    performance:['تقرير الأداء الشهري','ملخص شهري للأداء المالي والتشغيلي للمشروعات.'],
-    production:['الإنتاج / اللوطات','لوطات الإنتاج، الكميات، دفعات المناجم ونسبة الحديد.'],
-    quality:['الجودة / العينات','نتائج العينات، حدود Fe، القبول والرفض واتجاهات العناصر.'],
-    mines:['خريطة المناجم','خريطة تفاعلية لمواقع المناجم وبيانات المناجم المسجلة.']
-  };
-  const iconText = {exec:'OV',timeline:'TL',budget:'BD',expenses:'EX',cost:'CA',cashflow:'CF',risks:'RK',vendors:'VD',performance:'MP',production:'PD',quality:'QL',mines:'MM'};
-  const arMap = new Map(Object.entries({
-    'AIT Projects':'مشروعات AIT','Dashboard':'لوحة التحكم','Executive Summary':'الملخص التنفيذي','Project Timeline / Gantt':'الجدول الزمني / جانت','Budget Overview':'نظرة عامة على الميزانية','Expenses & Payment Plan':'المصروفات وخطة المدفوعات','Cost Analysis':'تحليل التكلفة','Cash Flow Forecast':'توقع التدفقات النقدية','Risk & Alerts':'المخاطر والتنبيهات','Vendor & Procurement':'الموردون والمشتريات','Monthly Performance Report':'تقرير الأداء الشهري','Production / Lots':'الإنتاج / اللوطات','Quality / Samples':'الجودة / العينات','Mines Map':'خريطة المناجم',
-    'Project / Site':'المشروع / الموقع','All Projects':'كل المشروعات','Refresh':'تحديث','Export Excel':'تصدير Excel','Export PDF':'تصدير PDF','Excel':'Excel','PDF':'PDF','Filters':'الفلاتر','Clear Filters':'مسح الفلاتر','All':'الكل','From Date':'من تاريخ','To Date':'إلى تاريخ','Data as of':'آخر تحديث','All amounts are in EGP':'كل القيم بالجنيه المصري','Live Data':'بيانات مباشرة','Admin User':'مستخدم مدير','Theme':'المظهر','Dark':'داكن','Light':'فاتح',
-    'TOTAL BUDGET':'إجمالي الميزانية','ACTUAL SPEND':'المصروف الفعلي','REMAINING BUDGET':'المتبقي من الميزانية','OVER BUDGET':'تجاوز الميزانية','PAID TO DATE':'المدفوع حتى الآن','PENDING PAYMENTS':'مدفوعات معلقة','BUDGET UTILIZATION':'استهلاك الميزانية','OVERDUE / ALERTS':'المتأخرات / التنبيهات','TOTAL TASKS':'إجمالي المهام','COMPLETED':'مكتمل','IN PROGRESS':'قيد التنفيذ','DELAYED':'متأخر','PLANNED':'مخطط','OVERALL COMPLETION':'نسبة الإنجاز العامة','TOTAL TRANSACTIONS':'إجمالي العمليات','TOTAL BUDGET LINES':'بنود الميزانية','OVER BUDGET ITEMS':'بنود متجاوزة للميزانية','REGISTERED MINES':'المناجم المسجلة','TOTAL QTY (TON/MONTH)':'إجمالي الكمية طن/شهر',
-    'Expense Distribution by Category':'توزيع المصروفات حسب البند','Budget vs Actual by Category':'الميزانية مقابل الفعلي حسب البند','Monthly Spending Trend':'اتجاه الصرف الشهري','Paid vs Pending by Month':'المدفوع مقابل المعلق شهريًا','Budget Utilization % by Category':'نسبة استهلاك الميزانية حسب البند','Top 5 Cost Centers by Expenses':'أعلى 5 مراكز تكلفة','Top 5 Vendors by Expenses':'أعلى 5 موردين حسب المصروفات','Top Alerts & Notifications':'أهم التنبيهات والإشعارات','Project Overall Status':'الحالة العامة للمشروع','View All Alerts':'عرض كل التنبيهات','View Details':'عرض التفاصيل',
-    'Type':'النوع','Category / Item':'البند / التصنيف','Issue':'المشكلة','Due Date':'تاريخ الاستحقاق','Amount (EGP)':'القيمة (جنيه)','Severity':'الخطورة','Status':'الحالة','Action':'الإجراء','Category':'البند','Budget (EGP)':'الميزانية (جنيه)','Actual (EGP)':'الفعلي (جنيه)','Remaining':'المتبقي','Variance (EGP)':'الانحراف (جنيه)','Task / Phase':'المهمة / المرحلة','Owner':'المسؤول','Start':'البداية','Due':'النهاية','Complete':'الإنجاز','Delay':'التأخير','Vendor':'المورد','Project':'المشروع','Method':'طريقة الدفع','Notes':'ملاحظات','Date':'التاريخ','Priority':'الأولوية','Payee':'المستفيد','Month':'الشهر','Mine':'المنجم','Material':'الخامة','Batch':'الدفعة',
-    'On Track':'ضمن المسار','Over Budget':'تجاوز الميزانية','At Risk':'تحت المراقبة','Off Track':'خارج المسار','Open':'مفتوح','Overdue':'متأخر','Paid':'مدفوع','Pending':'معلق','Scheduled':'مجدول','Critical':'حرج','High':'مرتفع','Medium':'متوسط','Low':'منخفض','Completed':'مكتمل','In Progress':'قيد التنفيذ','Delayed':'متأخر','Planned':'مخطط','Unbudgeted':'غير مدرج بالميزانية','Items':'بنود','Records':'سجلات','of Total Budget':'من إجمالي الميزانية','of Required':'من المطلوب','Remaining':'متبقي',
-    'April':'أبريل','May':'مايو','June':'يونيو','July':'يوليو','August':'أغسطس','September':'سبتمبر','October':'أكتوبر','November':'نوفمبر','December':'ديسمبر','January':'يناير','February':'فبراير','March':'مارس',
-    'Cost Center':'مركز التكلفة','Cost Category':'بند التكلفة','Payment Method':'طريقة الدفع','Payee / Paid To':'المستفيد / المدفوع له','Expense Source':'مصدر المصروف','Task Owner':'مسؤول المهمة','Phase':'المرحلة','Risk Category':'تصنيف الخطر','Material Type':'نوع الخامة','Project Manager':'مدير المشروع'
-  }));
-  const enMap = new Map(Array.from(arMap.entries()).map(([en,ar])=>[ar,en]));
-  const norm = s => String(s||'').replace(/\s+/g,' ').trim();
-  function stripApprovals(){
-    try{
-      if(window.EMBEDDED_DATA?.permissions?.pages){EMBEDDED_DATA.permissions.pages = EMBEDDED_DATA.permissions.pages.filter(p=>!approvalKeys.has(String(p).toLowerCase()));}
-      if(window.USER?.pages){USER.pages = USER.pages.filter(p=>!approvalKeys.has(String(p).toLowerCase()));}
-      document.querySelectorAll('.ni,.mob-more-item').forEach(el=>{ if(/approval/i.test(el.textContent)) el.remove(); });
-    }catch(e){}
-  }
-  function installMeta(){
-    try{
-      Object.keys(pageMetaEn).forEach(k=>{ PAGE_META[k] = (LANG==='ar'?pageMetaAr:pageMetaEn)[k]; PAGE_ICONS[k]=iconText[k]||k.slice(0,2).toUpperCase(); });
-    }catch(e){}
-  }
-  function translateExact(root){
-    const map = LANG==='ar' ? arMap : enMap;
-    const walker = document.createTreeWalker(root||document.body, NodeFilter.SHOW_TEXT);
-    const nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
-    nodes.forEach(n=>{
-      const raw=n.nodeValue; const t=norm(raw); if(!t) return;
-      let replaced = map.get(t);
-      if(!replaced && LANG==='ar'){
-        // keep arrows and counters around links/buttons
-        const clean=t.replace(/[→←]/g,'').trim();
-        if(map.has(clean)) replaced=t.includes('→')?map.get(clean)+' ←':map.get(clean);
-      }
-      if(replaced && raw.trim()!==replaced) n.nodeValue = raw.replace(t,replaced);
-    });
-    document.querySelectorAll('input[placeholder]').forEach(i=>{const v=norm(i.placeholder); if(map.has(v)) i.placeholder=map.get(v);});
-    document.querySelectorAll('option').forEach(o=>{const v=norm(o.textContent); if(map.has(v)) o.textContent=map.get(v);});
-  }
-  function applyLang(){
-    stripApprovals(); installMeta();
-    const isAr = LANG==='ar';
-    document.documentElement.lang = isAr?'ar':'en';
-    document.documentElement.dir = isAr?'rtl':'ltr';
-    document.body.dir = isAr?'rtl':'ltr';
-    const meta=(isAr?pageMetaAr:pageMetaEn)[CURRENT_PAGE] || (isAr?pageMetaAr.exec:pageMetaEn.exec);
-    const title=document.getElementById('pgTitle'), sub=document.getElementById('pgSub');
-    if(title) title.textContent=meta[0]; if(sub) sub.textContent=meta[1];
-    const langLbl=document.getElementById('langLbl'); if(langLbl) langLbl.textContent=isAr?'EN':'AR';
-    const themeLbl=document.getElementById('themeLbl'); if(themeLbl) themeLbl.textContent= isAr ? (THEME==='dark'?'فاتح':'داكن') : (THEME==='dark'?'Light':'Dark');
-    translateExact(document.body);
-    if(isAr){
-      document.querySelectorAll('table').forEach(t=>t.style.direction='rtl');
-      document.querySelectorAll('.td-r').forEach(e=>e.style.textAlign='left');
-    }else{
-      document.querySelectorAll('table').forEach(t=>t.style.direction='ltr');
-      document.querySelectorAll('.td-r').forEach(e=>e.style.textAlign='right');
-    }
-  }
-  function repaintNav(){
-    try{
-      document.querySelectorAll('.ni').forEach(ni=>{
-        const txt=norm(ni.textContent);
-        for(const [key,meta] of Object.entries(LANG==='ar'?pageMetaAr:pageMetaEn)){
-          if(txt.includes(meta[0]) || txt.includes(pageMetaEn[key][0]) || txt.includes(pageMetaAr[key][0])){
-            const lbl=ni.querySelector('.ni-lbl'); const ic=ni.querySelector('.ni-icon');
-            if(lbl) lbl.textContent=meta[0]; if(ic) ic.textContent=iconText[key]||'';
-          }
-        }
-      });
-    }catch(e){}
-  }
-  function afterRender(){ setTimeout(()=>{applyLang(); repaintNav(); try{Object.values(CHARTS||{}).forEach(ch=>ch.resize());}catch(e){}},0); }
-  const hook = name => {
-    const old = window[name]; if(typeof old !== 'function') return;
-    window[name] = function(){ const r = old.apply(this, arguments); afterRender(); return r; };
-  };
-  window.addEventListener('DOMContentLoaded',()=>{
-    installMeta(); stripApprovals();
-    ['buildSidebar','renderFilterBar','renderPage','goPage','goPageMob','populateProjectSelect'].forEach(hook);
-    const oldToggleLang = window.toggleLang;
-    window.toggleLang = function(){
-      LANG = LANG==='en'?'ar':'en';
-      installMeta();
-      try{ if(CURRENT_PAGE) renderFilterBar(CURRENT_PAGE); if(API_DATA) renderPage(CURRENT_PAGE); }catch(e){}
-      try{ syncMinesSettings(); }catch(e){}
-      afterRender();
-    };
-    const oldToggleTheme = window.toggleTheme;
-    if(typeof oldToggleTheme==='function') window.toggleTheme = function(){ const r=oldToggleTheme.apply(this,arguments); afterRender(); return r; };
-    afterRender();
+// ============================================================
+// FINAL PROFESSIONAL PATCH - localization, theme, refresh safety
+// ============================================================
+const TR = {"Executive Summary": "الملخص التنفيذي", "Overview of project financial performance and key indicators": "نظرة عامة على الأداء المالي ومؤشرات المشروع الرئيسية", "Project Timeline / Gantt": "الجدول الزمني / جانت", "All Projects Schedule Overview with Drill-down": "نظرة شاملة على جداول كل المشاريع مع التفاصيل", "Budget Overview": "نظرة عامة على الميزانية", "All Projects Budget Performance with Drill-down": "أداء ميزانيات كل المشاريع مع التفاصيل", "Expenses & Payment Plan": "المصروفات وخطة السداد", "All Projects Expense Tracking and Payment Scheduling": "متابعة مصروفات كل المشاريع وجدولة المدفوعات", "Cost Analysis": "تحليل التكلفة", "All Projects cost analysis by category, cost center, vendor, and spend drivers": "تحليل تكلفة كل المشاريع حسب البند ومركز التكلفة والمورد ومحركات الصرف", "Cash Flow Forecast": "توقع التدفقات النقدية", "All Projects cash flow planning, liquidity outlook and payment forecasting": "تخطيط التدفقات النقدية والسيولة والمدفوعات المتوقعة", "Risk & Alerts": "المخاطر والتنبيهات", "Monitor project risks, issues, and alerts to ensure proactive management": "متابعة المخاطر والمشكلات والتنبيهات لضمان إدارة استباقية", "Vendor & Procurement": "الموردون والمشتريات", "Manage vendors, contracts, and procurement performance across all projects": "إدارة الموردين والعقود وأداء المشتريات عبر كل المشاريع", "Monthly Performance Report": "تقرير الأداء الشهري", "Comprehensive performance overview of projects for the selected month": "نظرة شاملة على أداء المشاريع للشهر المحدد", "Production / Lots": "الإنتاج / اللوطات", "Daily production batches, tonnage, and Fe% by mine": "دفعات الإنتاج اليومية والكميات ونسبة الحديد حسب المنجم", "Quality / Samples": "الجودة / العينات", "XRF chemical analysis — Fe%, SiO2%, Al2O3% and more": "تحليل XRF الكيميائي — الحديد والعناصر الأخرى", "Mines Map": "خريطة المناجم", "Interactive map of all mining sites, zones, and samples": "خريطة تفاعلية لكل مواقع التعدين والمناطق والعينات", "AIT Projects": "مشاريع AIT", "Dashboard": "لوحة التحكم", "Summary": "الملخص", "Budget": "الميزانية", "Expenses": "المصروفات", "Risks": "المخاطر", "More": "المزيد", "Timeline": "الجدول الزمني", "Cost": "التكلفة", "Cash Flow": "التدفق النقدي", "Vendors": "الموردون", "Performance": "الأداء", "Production": "الإنتاج", "Quality": "الجودة", "Project / Site": "المشروع / الموقع", "All Projects": "كل المشاريع", "Refresh": "تحديث", "Refresh Data": "تحديث البيانات", "Excel": "إكسل", "PDF": "PDF", "Filters": "الفلاتر", "Clear Filters": "مسح الفلاتر", "Filter": "فلتر", "Category": "البند", "Month": "الشهر", "Status": "الحالة", "Severity": "الخطورة", "Owner": "المسؤول", "Vendor": "المورد", "Method": "طريقة الدفع", "Mine": "المنجم", "Material": "الخامة", "From Date": "من تاريخ", "To Date": "إلى تاريخ", "All": "الكل", "Base Case": "السيناريو الأساسي", "TOTAL BUDGET": "إجمالي الميزانية", "ACTUAL SPEND": "الصرف الفعلي", "REMAINING BUDGET": "المتبقي من الميزانية", "OVER BUDGET": "تجاوز الميزانية", "PAID TO DATE": "المدفوع حتى الآن", "PENDING PAYMENTS": "مدفوعات معلقة", "BUDGET UTILIZATION": "استخدام الميزانية", "OVERDUE / ALERTS": "المتأخرات / التنبيهات", "TOTAL TASKS": "إجمالي المهام", "COMPLETED": "مكتمل", "IN PROGRESS": "جاري التنفيذ", "DELAYED": "متأخر", "PLANNED": "مخطط", "OVERALL COMPLETION": "نسبة الإنجاز الكلية", "BUDGET VARIANCE": "انحراف الميزانية", "OVER BUDGET ITEMS": "بنود متجاوزة", "TOTAL TRANSACTIONS": "إجمالي العمليات", "TOTAL BUDGET LINES": "بنود الميزانية", "TOTAL SAMPLES": "إجمالي العينات", "AVG Fe%": "متوسط Fe%", "Fe% RANGE": "مدى Fe%", "MINE PASS RATE": "نسبة نجاح المناجم", "MINES PASSED": "مناجم ناجحة", "MINES REJECTED": "مناجم مرفوضة", "MINES SAMPLED": "مناجم تم أخذ عينات منها", "LATEST SAMPLE": "آخر عينة", "REGISTERED MINES": "مناجم مسجلة", "TOTAL QTY (TON/MONTH)": "إجمالي الكمية (طن/شهر)", "Expense Distribution by Category": "توزيع المصروفات حسب البند", "Budget vs Actual by Category": "الميزانية مقابل الفعلي حسب البند", "Monthly Spending Trend": "اتجاه الصرف الشهري", "Paid vs Pending by Month": "المدفوع مقابل المعلق شهريًا", "Budget Utilization % by Category": "نسبة استخدام الميزانية حسب البند", "Top 5 Cost Centers by Expenses": "أعلى 5 مراكز تكلفة حسب المصروفات", "Top 5 Vendors by Expenses": "أعلى 5 موردين حسب المصروفات", "Top Alerts & Notifications": "أهم التنبيهات والإشعارات", "Project Overall Status": "الحالة العامة للمشروع", "Project Timeline (Gantt)": "الجدول الزمني للمشروع (جانت)", "Task Details": "تفاصيل المهام", "Tasks by Status": "المهام حسب الحالة", "Tasks by Owner": "المهام حسب المسؤول", "Milestones This Month": "المراحل المهمة هذا الشهر", "Budget vs Actual by Category (EGP)": "الميزانية مقابل الفعلي حسب البند (جنيه)", "Budget Allocation by Category": "توزيع الميزانية حسب البند", "Monthly Budget Consumption Trend": "اتجاه استهلاك الميزانية الشهري", "Budget Notes & Status": "ملاحظات وحالة الميزانية", "Detailed Budget Summary": "ملخص الميزانية التفصيلي", "Spend by Category": "الصرف حسب البند", "Payment Methods": "طرق الدفع", "Paid vs Pending by Category": "المدفوع مقابل المعلق حسب البند", "Alerts & Overdue Payments": "التنبيهات والمدفوعات المتأخرة", "Expense Log": "سجل المصروفات", "Actual vs Budget by Category": "الفعلي مقابل الميزانية حسب البند", "Top 10 Spend Items": "أعلى 10 بنود صرف", "Monthly Spend Trend": "اتجاه الصرف الشهري", "Spend by Cost Center": "الصرف حسب مركز التكلفة", "6-Month Cash Out Forecast": "توقعات التدفق النقدي الخارج لستة أشهر", "Cash Out by Category": "المدفوعات الخارجة حسب البند", "Upcoming Payments": "مدفوعات قادمة", "Account Transfers Log": "سجل التحويلات بين الحسابات", "Alerts by Severity": "التنبيهات حسب الخطورة", "Alerts by Type": "التنبيهات حسب النوع", "Active Alerts & Notifications": "التنبيهات والإشعارات النشطة", "Equipment Status": "حالة المعدات", "Top Vendors by Spend": "أعلى الموردين حسب الصرف", "Equipment Master": "سجل المعدات", "Budget vs Actual by Project": "الميزانية مقابل الفعلي حسب المشروع", "Budget Utilization by Project": "استخدام الميزانية حسب المشروع", "Financial Summary": "الملخص المالي", "Project Performance": "أداء المشروع", "Tons by Mine": "الأطنان حسب المنجم", "Avg Fe% by Mine (Lots)": "متوسط Fe% حسب المنجم (لوطات)", "Lot Inventory": "مخزون اللوطات", "Pass / Reject by Mine": "ناجح / مرفوض حسب المنجم", "Daily Avg Fe% Trend": "اتجاه متوسط Fe% اليومي", "Element Levels — By Batch & By Day": "مستويات العناصر — حسب الدفعة واليوم", "By Batch": "حسب الدفعة", "By Day": "حسب اليوم", "Full Sample Data — All Mines & Batches": "كل بيانات العينات — كل المناجم والدفعات", "Type": "النوع", "Category / Item": "البند / العنصر", "Issue": "المشكلة", "Due Date": "تاريخ الاستحقاق", "Amount (EGP)": "القيمة (جنيه)", "Amount": "القيمة", "Action": "الإجراء", "Task / Phase": "المهمة / المرحلة", "Start": "البداية", "Due": "الاستحقاق", "Complete": "الإنجاز", "Delay": "التأخير", "Milestone Name": "اسم المرحلة", "Budget (EGP)": "الميزانية (جنيه)", "Actual (EGP)": "الفعلي (جنيه)", "Remaining": "متبقي", "Variance (EGP)": "الانحراف (جنيه)", "Date": "التاريخ", "Payee": "المستفيد", "Priority": "الأولوية", "Project": "المشروع", "To": "إلى", "Spent": "المصروف", "Transactions": "العمليات", "ID": "الكود", "Contractor": "المقاول", "Monthly Rate": "المعدل الشهري", "Updated": "آخر تحديث", "Batch": "الدفعة", "Qty (Ton)": "الكمية (طن)", "Avg Fe%": "متوسط Fe%", "WBS": "WBS", "Notes": "ملاحظات", "Comments": "ملاحظات", "On Track": "على المسار", "Over Budget": "تجاوز الميزانية", "Unbudgeted": "غير مدرج بالميزانية", "Completed": "مكتمل", "In Progress": "جاري التنفيذ", "Delayed": "متأخر", "Planned": "مخطط", "Open": "مفتوح", "Overdue": "متأخر", "Critical": "حرج", "High": "عالي", "Medium": "متوسط", "Low": "منخفض", "Paid": "المدفوع", "Pending": "المعلق", "Items": "بنود", "Records": "سجلات", "of Total Budget": "من إجمالي الميزانية", "of Budget": "من الميزانية", "Required": "المطلوب", "View All Alerts →": "عرض كل التنبيهات ←", "View Details →": "عرض التفاصيل ←", "The project is performing within acceptable parameters.": "المشروع يعمل ضمن مؤشرات مقبولة.", "Live Data": "بيانات مباشرة", "Admin User": "مستخدم مسؤول", "Equipment Leasing": "تأجير المعدات", "Maintenance": "الصيانة", "Tools & Equipment": "الأدوات والمعدات", "CAPEX / Setup": "مصروفات تأسيسية / تجهيز", "Site Services": "خدمات الموقع", "Management Support": "دعم الإدارة", "Equipment Purchasing": "شراء المعدات", "Water for Road Preparation": "مياه تجهيز الطرق", "Manpower": "العمالة", "Security Services": "خدمات الأمن", "Fixed": "ثابتة", "Site Services Management": "إدارة خدمات الموقع", "HSE": "السلامة والصحة المهنية", "Temporary Staffing": "عمالة مؤقتة", "Transportation": "النقل", "Utilities": "المرافق", "Transport Services": "خدمات النقل", "Contractors": "المقاولون", "Accommodation": "الإقامة", "Fuel Expense": "مصروفات الوقود", "Other / Unmapped": "أخرى / غير مصنفة", "Maintenance Tools Purchase": "شراء أدوات الصيانة", "Rent Hub": "إيجار مركز الصيانة", "Workers Accommodation Setup": "تجهيز سكن العمال", "Rent Flat": "إيجار شقة", "Engineers Meal Allowance": "بدل وجبات المهندسين", "Actual": "الفعلي", "Pass": "ناجح", "Reject": "مرفوض", "Unknown": "غير معروف", "Hematite": "هيماتيت", "Limonite": "ليمونيت", "Magnetite": "ماجنتيت", "registered": "مسجل", "not_registered": "غير مسجل", "partnership": "شراكة", "partnership_with_equipment": "شراكة بالمعدات", "ownership": "ملكية", "trade": "تجارة", "April": "أبريل", "May": "مايو", "June": "يونيو", "January": "يناير", "February": "فبراير", "March": "مارس", "July": "يوليو", "August": "أغسطس", "September": "سبتمبر", "October": "أكتوبر", "November": "نوفمبر", "December": "ديسمبر", "Sign In": "تسجيل الدخول", "Signing in...": "جاري تسجيل الدخول...", "Email Address": "البريد الإلكتروني", "Password": "كلمة المرور", "Sign in to access your dashboard": "سجل الدخول للوصول إلى لوحة التحكم", "Please enter your email.": "من فضلك أدخل البريد الإلكتروني.", "Please enter your password.": "من فضلك أدخل كلمة المرور.", "Access denied.": "تم رفض الوصول.", "Connection error. Please try again.": "خطأ في الاتصال. حاول مرة أخرى.", "AIT Projects Dashboard": "لوحة تحكم مشاريع AIT", "All amounts are in EGP": "كل القيم بالجنيه المصري", "Data as of": "آخر تحديث للبيانات"};
+const TR_REV = Object.fromEntries(Object.entries(TR).map(([k,v])=>[v,k]));
+function tr(v){
+  if(v===null||v===undefined) return v;
+  const s=String(v).trim();
+  if(!s) return v;
+  if(LANG!=='ar') return v;
+  if(TR[s]) return TR[s];
+  const noColon=s.replace(/:$/,'');
+  if(TR[noColon]) return TR[noColon]+(s.endsWith(':')?'：':'');
+  return v;
+}
+function untr(v){ if(v===null||v===undefined) return v; const s=String(v).trim(); return TR_REV[s]||v; }
+function trTextValue(s){
+  if(LANG!=='ar' || !s) return s;
+  let out=String(s);
+  const exact=TR[out.trim()];
+  if(exact) return out.replace(out.trim(), exact);
+  Object.keys(TR).sort((a,b)=>b.length-a.length).forEach(k=>{
+    if(k.length<3) return;
+    out=out.replaceAll(k, TR[k]);
   });
-})();
+  return out;
+}
+function localizeChartData(data){
+  if(LANG!=='ar' || !data) return data;
+  const d=JSON.parse(JSON.stringify(data));
+  if(Array.isArray(d.labels)) d.labels=d.labels.map(x=>tr(x));
+  if(Array.isArray(d.datasets)) d.datasets=d.datasets.map(ds=>{ if(ds.label) ds.label=tr(ds.label); return ds; });
+  return d;
+}
+const __mkChart=mkChart;
+mkChart=function(id,type,data,opts={},onClickFilter=null){ return __mkChart(id,type,localizeChartData(data),opts,onClickFilter); };
+const __renderKpis=renderKpis;
+renderKpis=function(containerId,kpis,gridClass){
+  const list=(kpis||[]).map(k=>({...k,label:tr(k.label)||k.label,note:trTextValue(k.note||'')}));
+  __renderKpis(containerId,list,gridClass);
+  const el=document.getElementById(containerId);
+  if(el) el.style.setProperty('--kpi-count', String(Math.max(list.length,1)));
+};
+const __applyFilter=applyFilter;
+applyFilter=function(key,val){ __applyFilter(key,untr(val)); };
+function applyLocalization(){
+  document.documentElement.lang=LANG;
+  document.documentElement.dir=LANG==='ar'?'rtl':'ltr';
+  const langLbl=document.getElementById('langLbl'); if(langLbl) langLbl.textContent=LANG==='ar'?'EN':'AR';
+  const themeLbl=document.getElementById('themeLbl'); if(themeLbl) themeLbl.textContent=THEME==='dark'?(LANG==='ar'?'فاتح':'Light'):(LANG==='ar'?'داكن':'Dark');
+  document.querySelectorAll('select option').forEach(o=>{ if(!o.dataset.rawText) o.dataset.rawText=o.textContent; o.textContent=tr(o.dataset.rawText); });
+  const roots=[document.getElementById('appWrap'), document.getElementById('loginScreen')].filter(Boolean);
+  roots.forEach(root=>{
+    const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode(n){
+      const p=n.parentElement; if(!p||['SCRIPT','STYLE','CANVAS','IFRAME'].includes(p.tagName)) return NodeFilter.FILTER_REJECT;
+      if(!n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_ACCEPT;
+    }});
+    let nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(n=>{ if(!n.parentElement.dataset.rawTextNode) n.parentElement.dataset.rawTextNode=n.nodeValue; n.nodeValue=LANG==='ar'?trTextValue(n.parentElement.dataset.rawTextNode):n.parentElement.dataset.rawTextNode; });
+  });
+  // Keep mines iframe exactly as originally implemented; only send current language/theme.
+  syncMinesSettings();
+}
+const __goPage=goPage;
+goPage=function(page,el){ __goPage(page,el); setTimeout(applyLocalization,0); };
+const __renderPage=renderPage;
+renderPage=function(page){ __renderPage(page); setTimeout(applyLocalization,0); };
+const __renderFilterBar=renderFilterBar;
+renderFilterBar=function(page){ __renderFilterBar(page); setTimeout(applyLocalization,0); };
+const __populateProjectSelect=populateProjectSelect;
+populateProjectSelect=function(){ __populateProjectSelect(); setTimeout(applyLocalization,0); };
+toggleLang=function(){
+  LANG=LANG==='en'?'ar':'en';
+  document.documentElement.lang=LANG;
+  document.documentElement.dir=LANG==='ar'?'rtl':'ltr';
+  if(CURRENT_PAGE) renderFilterBar(CURRENT_PAGE);
+  if(API_DATA) renderPage(CURRENT_PAGE);
+  applyLocalization();
+};
+toggleTheme=function(){
+  THEME=THEME==='light'?'dark':'light';
+  document.documentElement.setAttribute('data-theme',THEME);
+  if(API_DATA) renderPage(CURRENT_PAGE);
+  applyLocalization();
+};
+// Stronger refresh: request live data and keep current correct embedded data if API is unavailable.
+const __refreshData=refreshData;
+refreshData=async function(){
+  const btn=document.querySelector('.tb-refresh'); const icon=document.getElementById('refreshIcon');
+  if(btn){btn.classList.add('spinning');btn.disabled=true;}
+  try{ await loadData(true); }
+  finally{ if(btn){btn.classList.remove('spinning');btn.disabled=false;} applyLocalization(); }
+};
+document.addEventListener('DOMContentLoaded',()=>{
+  document.documentElement.setAttribute('data-theme',THEME);
+  document.documentElement.dir=LANG==='ar'?'rtl':'ltr';
+  applyLocalization();
+});
 
 </script>
 </body>
