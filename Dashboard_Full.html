@@ -26,8 +26,29 @@ function clearSavedEmail(){localStorage.removeItem(USER_EMAIL_KEY);sessionStorag
 function getUserEmail(required){return getQueryEmail()||getSavedEmail()||(window.USER_EMAIL||'')||'';}
 function readAuthSession(){try{const raw=sessionStorage.getItem(USER_SESSION_KEY);return raw?JSON.parse(raw):null}catch(e){return null}}
 function saveAuthSession(auth,email){try{sessionStorage.setItem(USER_SESSION_KEY,JSON.stringify({email:normalizeEmail(email),name:auth.name||email,role:auth.role||'viewer',pages:auth.pages||[],canExcel:!!auth.canExcel,canPdf:!!auth.canPdf,active:!!auth.active}))}catch(e){}}
-function showLoginScreen(){const el=document.getElementById('ait-login-overlay');if(el){el.style.display='flex';el.setAttribute('aria-hidden','false');}}
-function hideLoginScreen(){const el=document.getElementById('ait-login-overlay');if(el){el.style.display='none';el.setAttribute('aria-hidden','true');}}
+function showLoginScreen(){
+  const el=document.getElementById('ait-login-overlay');
+  if(el){
+    el.style.cssText='display:flex;position:fixed;inset:0;z-index:9999;width:100vw;height:100vh;background:#08101e;';
+    el.setAttribute('aria-hidden','false');
+  }
+  // Hide loading screen behind it
+  const ld=document.getElementById('loading');
+  if(ld) ld.classList.add('hide');
+}
+function hideLoginScreen(){
+  const el=document.getElementById('ait-login-overlay');
+  if(el){
+    // Fade out
+    el.style.transition='opacity .4s ease';
+    el.style.opacity='0';
+    setTimeout(()=>{
+      el.style.display='none';
+      el.style.opacity='';
+      el.setAttribute('aria-hidden','true');
+    },400);
+  }
+}
 function showDashboardLoading(text){
   const l=document.getElementById('loading'); if(!l)return;
   const p=l.querySelector('p'); if(p&&text)p.textContent=text;
@@ -443,20 +464,24 @@ function render(){layout();nav();projects();filters();destroy();let m=META[CURRE
   const em=document.getElementById('login-email'); if(em&&saved)em.value=saved;
   const sess=readAuthSession();
   if(sess&&saved&&normalizeEmail(sess.email)===saved&&sess.active){
-    applyAuth(sess,saved); render(); hideLoginScreen();
+    // Valid session — render dashboard, hide login
+    applyAuth(sess,saved);
+    render();
+    hideLoginScreen();
     showDashboardLoading(LANG==='ar'?'جارٍ تحديث بيانات الداشبورد...':'Updating dashboard data...');
     refreshData({silent:true}).catch(()=>{}).finally(()=>hideDashboardLoading());
   }else{
-    render(); showLoginScreen();
+    // No session — show full-screen login ONLY, don't render dashboard behind it
+    showLoginScreen();
   }
   setInterval(()=>{if(getSavedEmail())refreshData({silent:true}).catch(()=>{})},3600000);
 });window.addEventListener('error',e=>{console.error(e.error||e.message);toast(LANG==='ar'?'تم منع توقف الداشبورد بسبب خطأ':'A runtime issue was caught')});
 </script>
-<div id="ait-login-overlay" style="display:flex;position:fixed;inset:0;z-index:9999">
+<div id="ait-login-overlay" style="display:flex;position:fixed;inset:0;z-index:9999;width:100vw;height:100vh;background:#08101e;">
 <style>
 #ait-login-overlay{font-family:Inter,Arial,sans-serif}
 #ait-login-overlay .lp-bg{
-  min-height:100vh;
+  min-height:100vh;width:100%;min-width:100vw;
   background:radial-gradient(circle at 20% 20%,rgba(255,70,23,.09),transparent 32%),
              radial-gradient(circle at 78% 75%,rgba(255,122,26,.08),transparent 30%),#0b1118;
   display:flex;align-items:center;justify-content:center;
