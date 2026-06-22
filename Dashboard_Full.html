@@ -10,14 +10,59 @@ function getQueryEmail(){try{return normalizeEmail(new URLSearchParams(location.
 function getSavedEmail(){return normalizeEmail(localStorage.getItem(USER_EMAIL_KEY)||'')}
 function setSavedEmail(email){email=normalizeEmail(email);if(email)localStorage.setItem(USER_EMAIL_KEY,email);return email}
 function getUserEmail(required){let email=getQueryEmail()||getSavedEmail();if(!email&&required){email=normalizeEmail(prompt(LANG==='ar'?'اكتب الإيميل المسجل في صلاحيات الداشبورد':'Enter your authorized dashboard email')||'');if(email)setSavedEmail(email)}return email}
-async function verifyUserEmail(email){let auth=await apiRequest('checkAuth',{email:email});if(!auth||!auth.active){throw new Error((auth&&auth.message)||'ACCESS_DENIED')}setSavedEmail(email);return auth}
+async function verifyUserEmail(email){
+  let auth=await apiRequest('checkAuth',{email:email});
+  if(!auth||!auth.active){throw new Error((auth&&auth.message)||'ACCESS_DENIED')}
+  setSavedEmail(email);
+  // Apply page permissions from server
+  if(auth.pages&&auth.pages.length){
+    // Filter PAGES to only what this user can see
+    const allowed=new Set(auth.pages);
+    // Rewrite PAGES in place (keep order)
+    PAGES.length=0;
+    ['exec','timeline','budget','expenses','cost','cashflow','risks','vendors',
+     'approvals','performance','production','quality','mines'].forEach(p=>{
+      if(allowed.has(p))PAGES.push(p);
+    });
+    // Store role + export perms
+    window.USER_ROLE    = auth.role   || 'viewer';
+    window.USER_EXCEL   = auth.canExcel || false;
+    window.USER_PDF     = auth.canPdf   || false;
+    window.USER_NAME    = auth.name     || email;
+    window.USER_EMAIL   = email;
+    // Show/hide export buttons
+    const exBtn=document.getElementById('excelBtn');
+    const pdBtn=document.getElementById('pdfBtn');
+    if(exBtn) exBtn.style.display = window.USER_EXCEL ? '' : 'none';
+    if(pdBtn) pdBtn.style.display = window.USER_PDF   ? '' : 'none';
+  }
+  return auth;
+}
 let LIVE=JSON.parse(document.getElementById('embedded-data').textContent), LANG=localStorage.getItem('ait_lang')||'en', CURRENT='exec', PROJECT='all', FILTERS={}, CHARTS={};
-const PAGES=['exec','timeline','budget','expenses','cost','cashflow','risks','vendors','performance','production','quality','mines'], ICONS={exec:'OV',timeline:'TL',budget:'BD',expenses:'EX',cost:'CA',cashflow:'CF',risks:'RK',vendors:'VD',performance:'PR',production:'PD',quality:'QL',mines:'MP'};
-const META={exec:['Executive Summary','Overview of project financial performance and key indicators','الملخص التنفيذي','نظرة عامة على الأداء المالي ومؤشرات المشروع الرئيسية'],timeline:['Project Timeline / Gantt','Schedule progress, milestones, delay and ownership','الجدول الزمني / جانت','متابعة الجدول الزمني والمعالم والتأخير والمسؤوليات'],budget:['Budget Overview','Budget allocation, actual spend and utilization control','نظرة عامة على الميزانية','توزيع الميزانية والمصروف الفعلي ونسب الاستخدام'],expenses:['Expenses & Payment Plan','Expense log, paid / pending payments and overdue items','المصروفات وخطة السداد','سجل المصروفات والمدفوع والمعلق والمتأخرات'],cost:['Cost Analysis','Cost centers, top spend items and overrun analysis','تحليل التكلفة','مراكز التكلفة وأعلى بنود الصرف وتحليل التجاوزات'],cashflow:['Cash Flow Forecast','Upcoming payments and six-month cash-out forecast','توقعات التدفق النقدي','المدفوعات القادمة وتوقعات الصرف لستة أشهر'],risks:['Risk & Alerts','Active alerts, severity distribution and overdue risks','المخاطر والتنبيهات','التنبيهات النشطة وتوزيع الخطورة والمخاطر المتأخرة'],vendors:['Vendor & Procurement','Vendors, contractors, equipment and procurement indicators','الموردون والمشتريات','الموردون والمقاولون والمعدات ومؤشرات التوريد'],performance:['Monthly Performance Report','Monthly financial performance and project status','تقرير الأداء الشهري','الأداء المالي الشهري وحالة المشاريع'],production:['Production / Lots','Lots inventory, mine quantities and quality production view','الإنتاج / اللوطات','مخزون اللوطات وكميات المناجم ومؤشرات الإنتاج'],quality:['Quality / Samples','Sample quality, Fe trend and pass / reject analysis','الجودة / العينات','تحليل العينات واتجاه الحديد والقبول والرفض'],mines:['Mines Map','Registered mines, quantities, materials and ownership data','خريطة المناجم','المناجم المسجلة والكميات والخامات وبيانات الملكية']};
+const PAGES=['exec','timeline','budget','expenses','cost','cashflow','risks','vendors','performance','production','quality','mines'], ICONS={exec:'OV',timeline:'TL',budget:'BD',expenses:'EX',cost:'CA',cashflow:'CF',risks:'RK',vendors:'VD',performance:'PR',production:'PD',quality:'QL',mines:'MP',admin:'👤'};
+const META={exec:['Executive Summary','Overview of project financial performance and key indicators','الملخص التنفيذي','نظرة عامة على الأداء المالي ومؤشرات المشروع الرئيسية'],timeline:['Project Timeline / Gantt','Schedule progress, milestones, delay and ownership','الجدول الزمني / جانت','متابعة الجدول الزمني والمعالم والتأخير والمسؤوليات'],budget:['Budget Overview','Budget allocation, actual spend and utilization control','نظرة عامة على الميزانية','توزيع الميزانية والمصروف الفعلي ونسب الاستخدام'],expenses:['Expenses & Payment Plan','Expense log, paid / pending payments and overdue items','المصروفات وخطة السداد','سجل المصروفات والمدفوع والمعلق والمتأخرات'],cost:['Cost Analysis','Cost centers, top spend items and overrun analysis','تحليل التكلفة','مراكز التكلفة وأعلى بنود الصرف وتحليل التجاوزات'],cashflow:['Cash Flow Forecast','Upcoming payments and six-month cash-out forecast','توقعات التدفق النقدي','المدفوعات القادمة وتوقعات الصرف لستة أشهر'],risks:['Risk & Alerts','Active alerts, severity distribution and overdue risks','المخاطر والتنبيهات','التنبيهات النشطة وتوزيع الخطورة والمخاطر المتأخرة'],vendors:['Vendor & Procurement','Vendors, contractors, equipment and procurement indicators','الموردون والمشتريات','الموردون والمقاولون والمعدات ومؤشرات التوريد'],performance:['Monthly Performance Report','Monthly financial performance and project status','تقرير الأداء الشهري','الأداء المالي الشهري وحالة المشاريع'],production:['Production / Lots','Lots inventory, mine quantities and quality production view','الإنتاج / اللوطات','مخزون اللوطات وكميات المناجم ومؤشرات الإنتاج'],quality:['Quality / Samples','Sample quality, Fe trend and pass / reject analysis','الجودة / العينات','تحليل العينات واتجاه الحديد والقبول والرفض'],mines:['Mines Map','Registered mines, quantities, materials and ownership data','خريطة المناجم','المناجم المسجلة والكميات والخامات وبيانات الملكية'],admin:['User Permissions','Manage user access and page permissions','إدارة المستخدمين','إدارة صلاحيات الوصول للصفحات']};
 const D={'Executive Control Center':'مركز التحكم التنفيذي','Project / Site':'المشروع / الموقع','All Projects':'كل المشاريع','Refresh Data':'تحديث البيانات','Refresh':'تحديث','Excel':'إكسل','PDF':'PDF','All amounts are in EGP':'كل المبالغ بالجنيه المصري','Data as of':'آخر تحديث','Filters':'الفلاتر','Clear Filters':'مسح الفلاتر','All':'الكل','Status':'الحالة','Category':'البند','Amount':'المبلغ','Actual':'الفعلي','Budget':'الميزانية','Remaining':'المتبقي','Variance':'الفارق','Project':'المشروع','Vendor':'المورد','Date':'التاريخ','Notes':'ملاحظات','Owner':'المسؤول','Start':'البداية','Due':'الاستحقاق','Complete':'الإنجاز','Delay':'التأخير','Priority':'الأولوية','Severity':'الخطورة','Issue':'المشكلة','Type':'النوع','Method':'طريقة الدفع','Payee':'المستفيد','Month':'الشهر','Open':'مفتوح','Overdue':'متأخر','Paid':'مدفوع','Pending':'معلق','Scheduled':'مجدول','Completed':'مكتمل','In Progress':'جارٍ التنفيذ','Delayed':'متأخر','Planned':'مخطط','On Track':'على المسار','At Risk':'تحت المراقبة','Off Track':'خارج المسار','Over Budget':'تجاوز الميزانية','Unbudgeted':'غير مدرج بالميزانية','Critical':'حرج','High':'مرتفع','Medium':'متوسط','Low':'منخفض','Healthy':'سليم','Active':'نشط','Expired':'منتهي','Expiring Soon':'قارب الانتهاء','Total':'الإجمالي','Pass':'مقبول','Reject':'مرفوض','TOTAL BUDGET':'إجمالي الميزانية','ACTUAL SPEND':'المصروف الفعلي','REMAINING BUDGET':'المتبقي من الميزانية','OVER BUDGET':'تجاوز الميزانية','PAID TO DATE':'المدفوع حتى الآن','PENDING PAYMENTS':'مدفوعات معلقة','BUDGET UTILIZATION':'استخدام الميزانية','OVERDUE / ALERTS':'المتأخرات / التنبيهات','TOTAL TASKS':'إجمالي المهام','COMPLETED':'مكتمل','IN PROGRESS':'جارٍ التنفيذ','DELAYED':'متأخر','PLANNED':'مخطط','OVERALL COMPLETION':'نسبة الإنجاز الكلية','BUDGET VARIANCE':'فارق الميزانية','OVER BUDGET ITEMS':'بنود متجاوزة','TOTAL TRANSACTIONS':'إجمالي العمليات','TOTAL BUDGET LINES':'بنود الميزانية','REGISTERED MINES':'المناجم المسجلة','TOTAL QTY (TON/MONTH)':'إجمالي الكمية طن / شهر','Expense Distribution by Category':'توزيع المصروفات حسب البند','Budget vs Actual by Category':'الميزانية مقابل الفعلي حسب البند','Monthly Spending Trend':'اتجاه الصرف الشهري','Paid vs Pending by Month':'المدفوع مقابل المعلق شهريًا','Budget Utilization % by Category':'نسبة استخدام الميزانية حسب البند','Top 5 Vendors by Expenses':'أعلى 5 موردين حسب المصروفات','Top 5 Cost Centers by Expenses':'أعلى 5 مراكز تكلفة حسب المصروفات','Top Alerts & Notifications':'أهم التنبيهات والإشعارات','Project Overall Status':'الحالة العامة للمشروع','Project Timeline (Gantt)':'الجدول الزمني للمشروع (جانت)','Task Details':'تفاصيل المهام','Tasks by Status':'المهام حسب الحالة','Budget Allocation by Category':'توزيع الميزانية حسب البند','Budget Notes & Status':'ملاحظات وحالة الميزانية','Detailed Budget Summary':'ملخص الميزانية التفصيلي','Spend by Category':'الصرف حسب البند','Payment Methods':'طرق الدفع','Expense Log':'سجل المصروفات','Actual vs Budget by Category':'الفعلي مقابل الميزانية حسب البند','Top 10 Spend Items':'أعلى 10 بنود صرف','Spend by Cost Center':'الصرف حسب مركز التكلفة','6-Month Cash Out Forecast':'توقعات الصرف النقدي 6 أشهر','Cash Out by Category':'الصرف النقدي حسب البند','Upcoming Payments':'المدفوعات القادمة','Account Transfers Log':'سجل تحويلات الحساب','Alerts by Severity':'التنبيهات حسب الخطورة','Alerts by Type':'التنبيهات حسب النوع','Active Alerts & Notifications':'التنبيهات والإشعارات النشطة','Top Vendors by Spend':'أعلى الموردين حسب الصرف','Equipment Master':'سجل المعدات','Equipment Status':'حالة المعدات','Budget vs Actual by Project':'الميزانية مقابل الفعلي حسب المشروع','Budget Utilization by Project':'استخدام الميزانية حسب المشروع','Financial Summary':'الملخص المالي','Project Performance':'أداء المشروع','Tons by Mine':'الأطنان حسب المنجم','Avg Fe% by Mine (Lots)':'متوسط الحديد حسب المنجم','Lot Inventory':'مخزون اللوطات','Pass / Reject by Mine':'القبول / الرفض حسب المنجم','Daily Avg Fe% Trend':'اتجاه متوسط الحديد اليومي','Element Levels — By Batch & By Day':'نسب العناصر حسب اللوط واليوم','Full Sample Data — All Mines & Batches':'بيانات العينات الكاملة — كل المناجم واللوطات','Mines Map':'خريطة المناجم','Registered Mines':'المناجم المسجلة','Total Qty':'إجمالي الكمية','Equipment Leasing':'تأجير المعدات','Maintenance':'الصيانة','Tools & Equipment':'الأدوات والمعدات','CAPEX / Setup':'تجهيزات / استثمارات','Site Services':'خدمات الموقع','Management Support':'دعم الإدارة','Equipment Purchasing':'شراء المعدات','Water for Road Preparation':'مياه تجهيز الطريق','Manpower':'عمالة','Security Services':'خدمات أمن','Fixed':'ثابتة','Site Services Management':'إدارة خدمات الموقع','HSE':'السلامة والصحة المهنية','Temporary Staffing':'عمالة مؤقتة','Transportation':'نقل','Utilities':'مرافق','Transport Services':'خدمات النقل','Contractors':'مقاولون','Accommodation':'إقامة','Fuel Expense':'وقود','Other / Unmapped':'أخرى / غير مصنفة','April':'أبريل','May':'مايو','June':'يونيو','July':'يوليو','August':'أغسطس','September':'سبتمبر','October':'أكتوبر','November':'نوفمبر','December':'ديسمبر','January':'يناير','February':'فبراير','March':'مارس'};
 function t(x){if(x==null)return '—';let s=String(x);return LANG==='ar'?(D[s]||s):s}function esc(s){return String(s??'—').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}function fmt(v){let n=Number(v)||0,a=Math.abs(n);if(a>=1e9)return(n/1e9).toFixed(2)+'B';if(a>=1e6)return(n/1e6).toFixed(2)+'M';if(a>=1e3)return(n/1e3).toFixed(0)+'K';return n.toLocaleString('en-EG',{maximumFractionDigits:0})}function badge(s){let k=String(s||'').toLowerCase(),c=k.includes('critical')||k.includes('over')||k.includes('reject')||k.includes('delayed')||k.includes('expired')?'red':k.includes('high')||k.includes('risk')||k.includes('pending')||k.includes('overdue')?'orange':k.includes('complete')||k.includes('track')||k.includes('paid')||k.includes('pass')||k.includes('active')?'green':k.includes('medium')?'blue':'purple';return `<span class="badge ${c}">${esc(t(s))}</span>`}
 function row(cells){return '<tr>'+cells.map(c=>`<td class="${c&&c.num?'num':''}">${c&&c.html?c.html:esc(t(c&&'text'in Object(c)?c.text:c))}</td>`).join('')+'</tr>'}function table(headers,rows){return `<div class="table-wrap"><table><thead><tr>${headers.map(h=>`<th class="${h.num?'num':''}">${t(h.label||h)}</th>`).join('')}</tr></thead><tbody>${rows.join('')||`<tr><td colspan="${headers.length}" class="muted">${LANG==='ar'?'لا توجد بيانات':'No data'}</td></tr>`}</tbody></table></div>`}function card(title,body){return `<div class="card"><div class="card-head"><h3>${esc(t(title))}</h3></div><div class="card-body">${body}</div></div>`}function chartBox(id,cls=''){return `<div class="chart ${cls}"><canvas id="${id}"></canvas></div>`}function kpis(k){return `<div class="kpis ${k.length>4?'big':''}">${(k||[]).map((x,i)=>`<div class="kpi"><div class="kpi-top"><span class="kpi-ico">${['↗','▣','◈','●','◆','■','▲','✓'][i%8]}</span><span>${esc(t(x.label))}</span></div><div class="kpi-val">${x.fmt==='currency'?fmt(x.value):x.fmt==='percent'?(Number(x.value)||0).toFixed(1)+'%':(typeof x.value==='number'?fmt(x.value):esc(t(x.value)))}</div><div class="kpi-note">${esc(t(x.note||'Live KPI'))}</div></div>`).join('')}</div>`}function bars(items,label,value){let max=Math.max(...(items||[]).map(x=>Number(x[value])||0),1);return `<div class="list">${(items||[]).slice(0,10).map(r=>{let v=Number(r[value])||0;return `<div class="list-row"><div><b>${esc(t(r[label]||r.category||r.name||r.center||'—'))}</b><div class="muted">${fmt(v)} EGP</div></div><div class="bar"><span style="width:${Math.min(v/max*100,100)}%"></span></div></div>`}).join('')}</div>`}
-function layout(){document.documentElement.dir='ltr';document.documentElement.dataset.theme='dark';document.body.classList.toggle('ar',LANG==='ar');langBtn.textContent=langBtn2.textContent=LANG==='ar'?'EN':'AR';eyebrow.textContent=t('Executive Control Center');projectLabel.textContent=t('Project / Site');excelBtn.textContent=t('Excel');pdfBtn.textContent=t('PDF');refreshBtn.textContent=t('Refresh Data');refreshSide.innerHTML='<span class="txt">'+t('Refresh')+'</span>';footAmounts.textContent=t('All amounts are in EGP');footUpdate.textContent=t('Data as of')+' '+(LIVE.lastUpdated||'—')}function nav(){navEl=document.getElementById('nav');navEl.innerHTML=PAGES.map(p=>`<div class="nav-item ${p===CURRENT?'active':''}" onclick="goPage('${p}')"><span class="nav-icon">${ICONS[p]}</span><span class="nav-label">${esc(LANG==='ar'?META[p][2]:META[p][0])}</span></div>`).join('')}function projects(){let ps=LIVE.exec?.projects||[];if(!ps.length)ps=[...new Set((LIVE.expenses?.log||[]).map(x=>x.project).filter(Boolean))];projectSelect.innerHTML=`<option value="all">${t('All Projects')}</option>`+ps.map(p=>`<option value="${esc(p)}" ${PROJECT===p?'selected':''}>${esc(t(p))}</option>`).join('')}function filters(){
+function layout(){document.documentElement.dir='ltr';document.documentElement.dataset.theme='dark';document.body.classList.toggle('ar',LANG==='ar');langBtn.textContent=langBtn2.textContent=LANG==='ar'?'EN':'AR';eyebrow.textContent=t('Executive Control Center');projectLabel.textContent=t('Project / Site');excelBtn.textContent=t('Excel');pdfBtn.textContent=t('PDF');refreshBtn.textContent=t('Refresh Data');refreshSide.innerHTML='<span class="txt">'+t('Refresh')+'</span>';footAmounts.textContent=t('All amounts are in EGP');footUpdate.textContent=t('Data as of')+' '+(LIVE.lastUpdated||'—')}function nav(){
+  navEl=document.getElementById('nav');
+  navEl.innerHTML=PAGES.map(p=>
+    `<div class="nav-item ${p===CURRENT?'active':''}" onclick="goPage('${p}')">
+      <span class="nav-icon">${ICONS[p]}</span>
+      <span class="nav-label">${esc(LANG==='ar'?META[p][2]:META[p][0])}</span>
+    </div>`
+  ).join('');
+  // Add admin link for admin/manager roles
+  if(window.USER_ROLE==='admin'||window.USER_ROLE==='manager'||window.USER_ROLE==='Admin'){
+    navEl.innerHTML+=`<div class="nav-item ${CURRENT==='admin'?'active':''}" onclick="goPage('admin')" style="margin-top:8px;border-top:1px solid rgba(255,255,255,.1);padding-top:8px">
+      <span class="nav-icon">👤</span>
+      <span class="nav-label">${LANG==='ar'?'إدارة المستخدمين':'User Permissions'}</span>
+    </div>`;
+  }
+  // Show logged-in user name
+  const userTag=document.getElementById('userTag');
+  if(userTag&&window.USER_NAME) userTag.textContent='● '+window.USER_NAME;
+}function projects(){let ps=LIVE.exec?.projects||[];if(!ps.length)ps=[...new Set((LIVE.expenses?.log||[]).map(x=>x.project).filter(Boolean))];projectSelect.innerHTML=`<option value="all">${t('All Projects')}</option>`+ps.map(p=>`<option value="${esc(p)}" ${PROJECT===p?'selected':''}>${esc(t(p))}</option>`).join('')}function filters(){
   // ── Page-specific filter definitions ───────────────────────────────────────
   // Each page only shows filters relevant to ITS OWN dataset.
   const PAGE_FILTER_CFG = {
@@ -275,6 +320,98 @@ function chartsQuality(){
     })),{legend:true});
 }
 function renderMines(){let x=LIVE.mines;return kpis(x.kpis)+`<div class="grid g2">${card('Registered Mines',chartBox('c_minesQty'))}${card('Total Qty',chartBox('c_minesMat'))}</div>${card('Mines Map',table([{label:'Mine'},{label:'Category'},{label:'Project'},{label:'Amount',num:1},{label:'Status'},{label:'Owner'}],(x.list||[]).slice(0,80).map(r=>row([r.name,r.material,r.gov,{text:fmt(r.qty_ton),num:1},{html:badge(r.status)},r.owner]))))}`}function chartsMines(){let list=LIVE.mines.list||[],m={};list.forEach(r=>m[r.material]=(m[r.material]||0)+(r.qty_ton||0));ch('c_minesQty','bar',list.slice(0,12).map(r=>r.name),[{label:'Total Qty',data:list.slice(0,12).map(r=>r.qty_ton),backgroundColor:'#fd480ecc'}]);ch('c_minesMat','doughnut',Object.keys(m),[{label:'Qty',data:Object.values(m),backgroundColor:PAL}])}
-const R={exec:renderExec,timeline:renderTimeline,budget:renderBudget,expenses:renderExpenses,cost:renderCost,cashflow:renderCashflow,risks:renderRisks,vendors:renderVendors,performance:renderPerformance,production:renderProduction,quality:renderQuality,mines:renderMines}, C={exec:chartsExec,timeline:chartsTimeline,budget:chartsBudget,expenses:chartsExpenses,cost:chartsCost,cashflow:chartsCashflow,risks:chartsRisks,vendors:chartsVendors,performance:chartsPerformance,production:chartsProduction,quality:chartsQuality,mines:chartsMines};
-function render(){layout();nav();projects();filters();destroy();let m=META[CURRENT];pageTitle.textContent=LANG==='ar'?m[2]:m[0];pageSub.textContent=LANG==='ar'?m[3]:m[1];pages.innerHTML=`<div class="page active" id="page-${CURRENT}">${R[CURRENT]()}</div>`;setTimeout(()=>{try{C[CURRENT]()}catch(e){console.error(e);toast(LANG==='ar'?'خطأ في رسم أحد المخططات':'Chart render error')}},20)}function goPage(p){CURRENT=p;render()}function setProject(v){PROJECT=v;render()}function toggleLang(){LANG=LANG==='ar'?'en':'ar';localStorage.setItem('ait_lang',LANG);render()}function toast(msg){let el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000)}async function refreshData(options={}){let silent=!!options.silent;let email=getUserEmail(!silent);if(!email){if(!silent)toast(LANG==='ar'?'لازم تدخل الإيميل المسجل أولًا':'Authorized email is required');return}let old=refreshBtn.textContent;refreshBtn.textContent=LANG==='ar'?'جاري التحديث...':'Refreshing...';refreshBtn.disabled=true;try{await verifyUserEmail(email);let fresh=await apiRequest('refresh',{email:email});if(fresh&&fresh.error)throw new Error(fresh.message||fresh.error);if(fresh&&!fresh.error){PAGES.forEach(p=>{if(fresh[p])LIVE[p]=fresh[p]});if(fresh.lastUpdated)LIVE.lastUpdated=fresh.lastUpdated;if(fresh.stats)LIVE.stats=fresh.stats;toast(LANG==='ar'?'تم تحديث البيانات بنجاح':'Data refreshed successfully')}else{toast(LANG==='ar'?'لم يرجع المصدر بيانات جديدة':'No new live data returned')}}catch(e){if(!silent)toast((LANG==='ar'?'تعذر التحديث: ':'Refresh failed: ')+(e.message||e));console.error(e)}finally{refreshBtn.textContent=old;refreshBtn.disabled=false;render()}}function changeDashboardUser(){localStorage.removeItem(USER_EMAIL_KEY);let email=getUserEmail(true);if(email)toast((LANG==='ar'?'تم حفظ الإيميل: ':'Saved email: ')+email)}function exportExcel(){let wb=XLSX.utils.book_new();Object.entries(LIVE).forEach(([k,v])=>{if(v&&typeof v==='object'&&!Array.isArray(v)){Object.entries(v).forEach(([sk,arr])=>{if(Array.isArray(arr)&&arr.length&&typeof arr[0]==='object')XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(arr),(k+'_'+sk).slice(0,31))})}});XLSX.writeFile(wb,'AIT_Dashboard_Data.xlsx')}function exportPDF(){window.print()}window.addEventListener('DOMContentLoaded',()=>{if(getQueryEmail())setSavedEmail(getQueryEmail());render();loading.classList.add('hide');setInterval(()=>{if(getSavedEmail())refreshData({silent:true})},30000);if(getSavedEmail())setTimeout(()=>refreshData({silent:true}),1500)});window.addEventListener('error',e=>{console.error(e.error||e.message);toast(LANG==='ar'?'تم منع توقف الداشبورد بسبب خطأ':'A runtime issue was caught')});
+function renderAdmin(){
+  const ALL_PAGES_LIST=['exec','timeline','budget','expenses','cost','cashflow','risks','vendors','approvals','performance','production','quality','mines'];
+  const PAGE_LABELS={
+    exec:'Executive Summary',timeline:'Project Timeline',budget:'Budget Overview',
+    expenses:'Expenses & Payments',cost:'Cost Analysis',cashflow:'Cash Flow',
+    risks:'Risk & Alerts',vendors:'Vendor & Procurement',approvals:'Approval Workflow',
+    performance:'Monthly Performance',production:'Production / Lots',
+    quality:'Quality / Samples',mines:'Mines Map'
+  };
+  const perms=LIVE.permissions||[];
+  const isAr=LANG==='ar';
+
+  const headerStyle=`style="background:#0d1b2a;color:#fd480e;font-size:11px;font-weight:700;padding:8px 12px;text-align:center;border:1px solid #1e3048;white-space:nowrap"`;
+  const thUser=`style="background:#0d1b2a;color:#fd480e;font-size:11px;font-weight:700;padding:8px 14px;border:1px solid #1e3048;white-space:nowrap"`;
+
+  const pageHeaders=ALL_PAGES_LIST.map(p=>`<th ${headerStyle}>${PAGE_LABELS[p]}</th>`).join('');
+
+  const rows=perms.map((u,i)=>{
+    const bg=i%2===0?'#0d1117':'#111827';
+    const activeDot=u.active?'<span style="color:#22c55e;font-size:16px">●</span>':'<span style="color:#ef4444;font-size:16px">○</span>';
+    const pageCells=ALL_PAGES_LIST.map(p=>{
+      const has=(u.pages||[]).includes(p);
+      return `<td style="text-align:center;background:${bg};border:1px solid #1e3048;padding:6px">
+        <span style="color:${has?'#22c55e':'#374151'};font-size:18px">${has?'✓':'○'}</span>
+      </td>`;
+    }).join('');
+    return `<tr>
+      <td style="background:${bg};border:1px solid #1e3048;padding:8px 12px;color:#e8ecf2;font-size:12px;white-space:nowrap">${u.email||'—'}</td>
+      <td style="background:${bg};border:1px solid #1e3048;padding:8px 12px;color:#8892a4;font-size:12px">${u.name||'—'}</td>
+      <td style="background:${bg};border:1px solid #1e3048;padding:8px 12px;text-align:center">
+        <span style="background:#1b2d44;color:#fd480e;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:700">${u.role||'—'}</span>
+      </td>
+      <td style="background:${bg};border:1px solid #1e3048;padding:8px 12px;text-align:center">${activeDot}</td>
+      <td style="background:${bg};border:1px solid #1e3048;padding:8px 12px;text-align:center">
+        <span style="color:${u.canExcel?'#22c55e':'#374151'};font-size:16px">${u.canExcel?'✓':'○'}</span>
+      </td>
+      <td style="background:${bg};border:1px solid #1e3048;padding:8px 12px;text-align:center">
+        <span style="color:${u.canPdf?'#22c55e':'#374151'};font-size:16px">${u.canPdf?'✓':'○'}</span>
+      </td>
+      ${pageCells}
+    </tr>`;
+  }).join('');
+
+  const notice=perms.length===0
+    ?`<div style="padding:40px;text-align:center;color:#8892a4">
+        <div style="font-size:32px;margin-bottom:12px">🔒</div>
+        <div style="font-size:14px">${isAr?'لا توجد بيانات صلاحيات. تأكد من وجود شيت Permissions في الداشبورد.':'No permissions data. Make sure the Permissions sheet exists in the Dashboard spreadsheet.'}</div>
+        <div style="margin-top:12px;font-size:12px;color:#6b7280">${isAr?'شغّل setupPermissionsSheet() في Apps Script لإنشاء الشيت.':'Run setupPermissionsSheet() in Apps Script to create the sheet.'}</div>
+      </div>` : '';
+
+  return `
+  <div style="padding:0 0 24px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#e8ecf2">${isAr?'إدارة صلاحيات المستخدمين':'User Permissions Management'}</div>
+        <div style="font-size:11px;color:#8892a4;margin-top:2px">${isAr?'لتعديل الصلاحيات، عدّل شيت Permissions في Google Sheets مباشرة':'To edit permissions, update the Permissions sheet in Google Sheets directly'}</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span style="background:#0d1b2a;border:1px solid #1e3048;border-radius:6px;padding:5px 12px;font-size:11px;color:#8892a4">${perms.length} ${isAr?'مستخدم':'users'}</span>
+        <button onclick="refreshData()" style="background:#fd480e;color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer">${isAr?'تحديث':'Refresh'}</button>
+      </div>
+    </div>
+
+    ${notice}
+
+    ${perms.length>0?`
+    <div style="overflow-x:auto;border-radius:10px;border:1px solid #1e3048">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr>
+            <th ${thUser}>${isAr?'البريد الإلكتروني':'Email'}</th>
+            <th ${thUser}>${isAr?'الاسم':'Name'}</th>
+            <th ${headerStyle}>${isAr?'الدور':'Role'}</th>
+            <th ${headerStyle}>${isAr?'نشط':'Active'}</th>
+            <th ${headerStyle}>Excel</th>
+            <th ${headerStyle}>PDF</th>
+            ${pageHeaders}
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <div style="margin-top:10px;font-size:11px;color:#6b7280;display:flex;gap:16px;flex-wrap:wrap">
+      <span><span style="color:#22c55e">✓</span> ${isAr?'مسموح':'Allowed'}</span>
+      <span><span style="color:#374151">○</span> ${isAr?'محظور':'Not allowed'}</span>
+      <span><span style="color:#22c55e">●</span> ${isAr?'نشط':'Active'}</span>
+      <span><span style="color:#ef4444">○</span> ${isAr?'موقوف':'Suspended'}</span>
+    </div>
+    `:''}
+  </div>`;
+}
+
+const R={exec:renderExec,timeline:renderTimeline,budget:renderBudget,expenses:renderExpenses,cost:renderCost,cashflow:renderCashflow,risks:renderRisks,vendors:renderVendors,performance:renderPerformance,production:renderProduction,quality:renderQuality,mines:renderMines,admin:renderAdmin}, C={exec:chartsExec,timeline:chartsTimeline,budget:chartsBudget,expenses:chartsExpenses,cost:chartsCost,cashflow:chartsCashflow,risks:chartsRisks,vendors:chartsVendors,performance:chartsPerformance,production:chartsProduction,quality:chartsQuality,mines:chartsMines,admin:()=>{}};
+function render(){layout();nav();projects();filters();destroy();let m=META[CURRENT];pageTitle.textContent=LANG==='ar'?m[2]:m[0];pageSub.textContent=LANG==='ar'?m[3]:m[1];pages.innerHTML=`<div class="page active" id="page-${CURRENT}">${R[CURRENT]()}</div>`;setTimeout(()=>{try{C[CURRENT]()}catch(e){console.error(e);toast(LANG==='ar'?'خطأ في رسم أحد المخططات':'Chart render error')}},20)}function goPage(p){CURRENT=p;render()}function setProject(v){PROJECT=v;render()}function toggleLang(){LANG=LANG==='ar'?'en':'ar';localStorage.setItem('ait_lang',LANG);render()}function toast(msg){let el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000)}async function refreshData(options={}){let silent=!!options.silent;let email=getUserEmail(!silent);if(!email){if(!silent)toast(LANG==='ar'?'لازم تدخل الإيميل المسجل أولًا':'Authorized email is required');return}let old=refreshBtn.textContent;refreshBtn.textContent=LANG==='ar'?'جاري التحديث...':'Refreshing...';refreshBtn.disabled=true;try{await verifyUserEmail(email);let fresh=await apiRequest('refresh',{email:email});if(fresh&&fresh.error)throw new Error(fresh.message||fresh.error);if(fresh&&!fresh.error){PAGES.forEach(p=>{if(fresh[p])LIVE[p]=fresh[p]});if(fresh.lastUpdated)LIVE.lastUpdated=fresh.lastUpdated;if(fresh.stats)LIVE.stats=fresh.stats;toast(LANG==='ar'?'تم تحديث البيانات بنجاح':'Data refreshed successfully')}else{toast(LANG==='ar'?'لم يرجع المصدر بيانات جديدة':'No new live data returned')}}catch(e){if(!silent)toast((LANG==='ar'?'تعذر التحديث: ':'Refresh failed: ')+(e.message||e));console.error(e)}finally{refreshBtn.textContent=old;refreshBtn.disabled=false;render()}}function changeDashboardUser(){localStorage.removeItem(USER_EMAIL_KEY);let email=getUserEmail(true);if(email)toast((LANG==='ar'?'تم حفظ الإيميل: ':'Saved email: ')+email)}function exportExcel(){let wb=XLSX.utils.book_new();Object.entries(LIVE).forEach(([k,v])=>{if(v&&typeof v==='object'&&!Array.isArray(v)){Object.entries(v).forEach(([sk,arr])=>{if(Array.isArray(arr)&&arr.length&&typeof arr[0]==='object')XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(arr),(k+'_'+sk).slice(0,31))})}});XLSX.writeFile(wb,'AIT_Dashboard_Data.xlsx')}function exportPDF(){window.print()}window.addEventListener('DOMContentLoaded',()=>{if(getQueryEmail())setSavedEmail(getQueryEmail());render();loading.classList.add('hide');setInterval(()=>{if(getSavedEmail())refreshData({silent:true})},3600000);if(getSavedEmail())setTimeout(()=>refreshData({silent:true}),1500)});window.addEventListener('error',e=>{console.error(e.error||e.message);toast(LANG==='ar'?'تم منع توقف الداشبورد بسبب خطأ':'A runtime issue was caught')});
 </script></body></html>
