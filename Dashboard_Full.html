@@ -104,7 +104,7 @@ async function doLogin(){
   const email=normalizeEmail(emailEl.value||''),pass=(passEl.value||'').trim();
   errEl.textContent='';
   if(!email){errEl.textContent=LANG==='ar'?'أدخل الإيميل':'Enter your email';return;}
-  if(!pass){errEl.textContent=LANG==='ar'?'أدخل كلمة المرور':'Enter your password';return;}
+  // Password validation handled server-side — sheet controls if password is required
   setLoginBusy(true,LANG==='ar'?'جارٍ التحقق من الإيميل وكلمة المرور...':'Checking email and password...');
   try{
     const auth=await apiRequest('checkAuth',{email,password:pass});
