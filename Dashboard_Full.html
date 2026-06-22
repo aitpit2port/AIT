@@ -9,9 +9,32 @@ function normalizeEmail(v){return String(v||'').trim().toLowerCase()}
 function getQueryEmail(){try{return normalizeEmail(new URLSearchParams(location.search).get('email'))}catch(e){return ''}}
 function getSavedEmail(){return normalizeEmail(localStorage.getItem(USER_EMAIL_KEY)||'')}
 function setSavedEmail(email){email=normalizeEmail(email);if(email)localStorage.setItem(USER_EMAIL_KEY,email);return email}
-function getUserEmail(required){let email=getQueryEmail()||getSavedEmail();if(!email&&required){email=normalizeEmail(prompt(LANG==='ar'?'اكتب الإيميل المسجل في صلاحيات الداشبورد':'Enter your authorized dashboard email')||'');if(email)setSavedEmail(email)}return email}
+function getUserEmail(required){return getQueryEmail()||getSavedEmail()||'';}
+function showLoginScreen(){document.getElementById('ait-login-overlay').style.display='flex';}
+function hideLoginScreen(){document.getElementById('ait-login-overlay').style.display='none';}
+async function doLogin(){
+  const emailEl=document.getElementById('login-email'),passEl=document.getElementById('login-pass'),errEl=document.getElementById('login-err'),btn=document.getElementById('login-btn');
+  const email=normalizeEmail(emailEl.value||''),pass=(passEl.value||'').trim();
+  errEl.textContent='';
+  if(!email){errEl.textContent=LANG==='ar'?'أدخل الإيميل':'Enter your email';return;}
+  if(!pass){errEl.textContent=LANG==='ar'?'أدخل كلمة المرور':'Enter your password';return;}
+  btn.disabled=true;btn.textContent=LANG==='ar'?'جارٍ التحقق...':'Signing in...';
+  try{
+    const auth=await apiRequest('checkAuth',{email,password:pass});
+    if(!auth||!auth.active){errEl.textContent=auth?.message||(LANG==='ar'?'غير مصرح':'Access denied');btn.disabled=false;btn.textContent=LANG==='ar'?'دخول':'Sign In';return;}
+    setSavedEmail(email);window.USER_PASS=pass;
+    await verifyUserEmail(email);
+    hideLoginScreen();refreshData({silent:true});
+  }catch(e){errEl.textContent=LANG==='ar'?'خطأ في الاتصال':'Connection error';}
+  btn.disabled=false;btn.textContent=LANG==='ar'?'دخول':'Sign In';
+}
+function doLogout(){
+  localStorage.removeItem(USER_EMAIL_KEY);window.USER_PASS='';window.USER_ROLE='';window.USER_NAME='';
+  PAGES.length=0;['exec','timeline','budget','expenses','cost','cashflow','risks','vendors','approvals','performance','production','quality','mines'].forEach(p=>PAGES.push(p));
+  showLoginScreen();document.getElementById('login-email').value='';document.getElementById('login-pass').value='';document.getElementById('login-err').textContent='';
+}
 async function verifyUserEmail(email){
-  let auth=await apiRequest('checkAuth',{email:email});
+  let auth=await apiRequest('checkAuth',{email:email,password:window.USER_PASS||''});
   if(!auth||!auth.active){throw new Error((auth&&auth.message)||'ACCESS_DENIED')}
   setSavedEmail(email);
   // Apply page permissions from server
@@ -52,108 +75,14 @@ function layout(){document.documentElement.dir='ltr';document.documentElement.da
       <span class="nav-label">${esc(LANG==='ar'?META[p][2]:META[p][0])}</span>
     </div>`
   ).join('');
-  // Add admin link for admin/manager roles
-  if(window.USER_ROLE==='admin'||window.USER_ROLE==='manager'||window.USER_ROLE==='Admin'){
-    navEl.innerHTML+=`<div class="nav-item ${CURRENT==='admin'?'active':''}" onclick="goPage('admin')" style="margin-top:8px;border-top:1px solid rgba(255,255,255,.1);padding-top:8px">
-      <span class="nav-icon">👤</span>
-      <span class="nav-label">${LANG==='ar'?'إدارة المستخدمين':'User Permissions'}</span>
-    </div>`;
+  if(window.USER_ROLE==='admin'||window.USER_ROLE==='Admin'){
+    navEl.innerHTML+=`<div class="nav-item ${'admin'===CURRENT?'active':''}" onclick="goPage('admin');adminLoadUsers()" style="margin-top:8px;border-top:1px solid #1b2d44;padding-top:8px">
+      <span class="nav-icon">👤</span><span class="nav-label">${LANG==='ar'?'إدارة المستخدمين':'User Permissions'}</span></div>`;
   }
-  // Show logged-in user name
-  const userTag=document.getElementById('userTag');
-  if(userTag&&window.USER_NAME) userTag.textContent='● '+window.USER_NAME;
-}function projects(){let ps=LIVE.exec?.projects||[];if(!ps.length)ps=[...new Set((LIVE.expenses?.log||[]).map(x=>x.project).filter(Boolean))];projectSelect.innerHTML=`<option value="all">${t('All Projects')}</option>`+ps.map(p=>`<option value="${esc(p)}" ${PROJECT===p?'selected':''}>${esc(t(p))}</option>`).join('')}function filters(){
-  // ── Page-specific filter definitions ───────────────────────────────────────
-  // Each page only shows filters relevant to ITS OWN dataset.
-  const PAGE_FILTER_CFG = {
-    exec:        [],
-    timeline:    ['tl_owner','tl_status'],
-    budget:      ['category'],
-    expenses:    ['category','month','method','exp_status'],
-    cost:        ['category'],
-    cashflow:    [],
-    risks:       ['sev'],
-    vendors:     [],
-    performance: [],
-    production:  ['mine','material'],
-    quality:     ['mine','material'],
-    mines:       [],
-  };
+  navEl.innerHTML+=`<div onclick="doLogout()" style="padding:8px 14px;cursor:pointer;color:#8892a4;font-size:12px;display:flex;align-items:center;gap:8px;border-top:1px solid #1b2d44;margin-top:12px" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#8892a4'">
+    <span>🚪</span><span class="nav-label">${LANG==='ar'?'تسجيل الخروج':'Logout'} ${window.USER_NAME?'('+window.USER_NAME+')':''}</span></div>`;
+}
 
-  const activeFilters = PAGE_FILTER_CFG[CURRENT] || [];
-
-  // ── Build option lists from the CORRECT source for each filter ──────────────
-  // Category: expenses page uses expense categories; budget/cost use budget cats
-  const expLog   = LIVE.expenses?.log || [];
-  const budCats  = (LIVE.budget?.by_category || []).map(r=>r.category).filter(Boolean);
-  const expCats  = [...new Set(expLog.map(r=>r.category||''))].filter(Boolean).sort();
-  const cats     = CURRENT === 'expenses' ? expCats : [...new Set([...expCats,...budCats])].filter(Boolean).sort();
-
-  // Mine: production uses lots mines; quality uses sample mines
-  const prodMines = [...new Set((LIVE.production?.lots||[]).map(r=>r.mine||''))].filter(Boolean).sort();
-  const qualMines = [...new Set((LIVE.quality?.samples||[]).map(r=>r.mine||''))].filter(Boolean).sort();
-  const mines     = CURRENT === 'quality' ? qualMines : prodMines;
-
-  // Material types
-  const materials = [...new Set([
-    ...(LIVE.production?.material_types||[]),
-    ...(LIVE.quality?.material_types||[]),
-  ])].filter(Boolean).sort();
-
-  // Timeline: owner list and statuses from real gantt tasks
-  const tasks    = LIVE.timeline?.tasks || [];
-  const tlOwners = [...new Set(tasks.map(t=>t.owner||'').filter(v=>v&&v!=='Unassigned'))].sort();
-  const tlStatus = ['Completed','In Progress','Delayed','Planned'];
-
-  // Month: from expense log dates
-  const months   = [...new Set(expLog.map(r=>(r.date||'').substring(0,7)).filter(Boolean))].sort();
-
-  // Payment method: from expense log
-  const methods  = [...new Set(expLog.map(r=>r.method||'').filter(Boolean))].sort();
-
-  // Expense statuses
-  const expStatuses = ['Paid','Scheduled','Overdue','Review'];
-
-  // Risk severities
-  const sevs = ['Critical','High','Medium','Low'];
-
-  if (!activeFilters.length) { document.getElementById('filters').innerHTML = ''; return; }
-
-  function sel(label, key, opts, curVal) {
-    const options = opts.map(o => `<option value="${esc(o)}" ${curVal===o?'selected':''}>${esc(t(o))}</option>`).join('');
-    return `<div class="field"><label>${t(label)}</label><select onchange="FILTERS['${key}']=this.value;render()"><option value="all">${t('All')}</option>${options}</select></div>`;
-  }
-
-  let html2 = `<span class="label">${t('Filters')}</span>`;
-  if (activeFilters.includes('category'))   html2 += sel('Category',   'category',  cats,       FILTERS.category||'all');
-  if (activeFilters.includes('month'))      html2 += sel('Month',      'month',     months,     FILTERS.month||'all');
-  if (activeFilters.includes('method'))     html2 += sel('Method',     'method',    methods,    FILTERS.method||'all');
-  if (activeFilters.includes('exp_status')) html2 += sel('Status',     'exp_status',expStatuses,FILTERS.exp_status||'all');
-  if (activeFilters.includes('tl_owner'))   html2 += sel('Owner',      'tl_owner',  tlOwners,   FILTERS.tl_owner||'all');
-  if (activeFilters.includes('tl_status'))  html2 += sel('Status',     'tl_status', tlStatus,   FILTERS.tl_status||'all');
-  if (activeFilters.includes('sev'))        html2 += sel('Severity',   'sev',       sevs,       FILTERS.sev||'all');
-  if (activeFilters.includes('mine'))       html2 += sel('Mine',       'mine',      mines,      FILTERS.mine||'all');
-  if (activeFilters.includes('material'))   html2 += sel('Material',   'material',  materials,  FILTERS.material||'all');
-  const anyActive=Object.values(FILTERS).some(v=>v&&v!=='all');
-  html2 += `<button class="btn${anyActive?' btn-warn':''}" onclick="FILTERS={};render()">${anyActive?'✕ ':''} ${t('Clear Filters')}${anyActive?' ('+Object.values(FILTERS).filter(v=>v&&v!=='all').length+')':''}</button>`;
-  document.getElementById('filters').innerHTML = html2;
-}function pass(r){
-  if (FILTERS.category && FILTERS.category!=='all' && r.category!==FILTERS.category && r.material!==FILTERS.category) return false;
-  if (FILTERS.exp_status && FILTERS.exp_status!=='all' && r.status!==FILTERS.exp_status) return false;
-  if (FILTERS.tl_status  && FILTERS.tl_status!=='all'  && r.status!==FILTERS.tl_status)  return false;
-  if (FILTERS.tl_owner   && FILTERS.tl_owner!=='all'   && r.owner!==FILTERS.tl_owner)    return false;
-  if (FILTERS.sev        && FILTERS.sev!=='all'         && r.severity!==FILTERS.sev)      return false;
-  if (FILTERS.mine       && FILTERS.mine!=='all'        && r.mine!==FILTERS.mine)         return false;
-  if (FILTERS.material   && FILTERS.material!=='all'    && (r.material||'').toLowerCase()!==(FILTERS.material||'').toLowerCase()) return false;
-  if (FILTERS.month      && FILTERS.month!=='all'       && !(r.date||'').startsWith(FILTERS.month)) return false;
-  if (FILTERS.method     && FILTERS.method!=='all'      && r.method!==FILTERS.method)     return false;
-  return true;
-}function fp(arr){return PROJECT==='all'?(arr||[]):(arr||[]).filter(r=>!r.project||r.project===PROJECT)}function destroy(){Object.values(CHARTS).forEach(c=>{try{c.destroy()}catch(e){}});CHARTS={}}const PAL=['#fd480e','#38bdf8','#22c55e','#a78bfa','#f59e0b','#ef4444','#14b8a6','#e879f9','#84cc16','#60a5fa','#fb7185'];// CHART_FILTER_KEY: which FILTERS key each chart controls when clicked
-const CHART_FILTER_KEY={
-  c_qMine:'mine', c_qDaily:'month', c_prodTons:'mine', c_prodFe:'mine',
-  c_expCat:'category', c_bva:'category', c_budCat:'category',
-  c_riskSev:'sev', c_riskType:'sev', c_tlStatus:'tl_status',
-};
 function ch(id,type,labels,datasets,opts={}){
   let el=document.getElementById(id);
   if(!el||!window.Chart)return;
@@ -412,6 +341,89 @@ function renderAdmin(){
   </div>`;
 }
 
+
+// ── Admin Panel JS Functions ──────────────────────────────────
+window.ADMIN_USERS=[];
+function adminSetField(ri,field,val){if(!window.ADMIN_USERS[ri])window.ADMIN_USERS[ri]={pages:[]};window.ADMIN_USERS[ri][field]=val;}
+function adminSetPagePerm(ri,pageKey,val){
+  if(!window.ADMIN_USERS[ri])window.ADMIN_USERS[ri]={pages:[]};
+  const u=window.ADMIN_USERS[ri];if(!u.pages)u.pages=[];
+  if(val&&!u.pages.includes(pageKey))u.pages.push(pageKey);
+  if(!val)u.pages=u.pages.filter(p=>p!==pageKey);
+}
+function adminAddRow(){
+  window.ADMIN_USERS.push({email:'',password:'',name:'',role:'viewer',active:true,canExcel:false,canPdf:false,pages:['exec']});
+  render();
+}
+async function adminLoadUsers(){
+  const email=getSavedEmail();if(!email)return;
+  try{
+    const res=await apiRequest('getUsers',{email,password:window.USER_PASS||''});
+    if(res&&res.users){
+      window.ADMIN_USERS=res.users;render();
+      const st=document.getElementById('admin-status');
+      if(st){st.style.color='#22c55e';st.textContent='✓ '+(LANG==='ar'?'تم تحميل المستخدمين':'Users loaded')+' ('+res.users.length+')';}
+    }
+  }catch(e){console.error('adminLoadUsers:',e);}
+}
+async function adminSaveAll(){
+  const email=getSavedEmail();if(!email)return;
+  const st=document.getElementById('admin-status');
+  if(st){st.style.color='#f59e0b';st.textContent=LANG==='ar'?'جارٍ الحفظ...':'Saving...';}
+  try{
+    const res=await apiRequest('saveUsers',{email,password:window.USER_PASS||'',users:JSON.stringify(window.ADMIN_USERS)});
+    if(st){
+      if(res&&res.ok){st.style.color='#22c55e';st.textContent='✓ '+(LANG==='ar'?'تم الحفظ بنجاح':'Saved successfully')+' — '+new Date().toLocaleTimeString();}
+      else{st.style.color='#ef4444';st.textContent='✗ '+(res?.message||'Save failed');}
+    }
+  }catch(e){if(st){st.style.color='#ef4444';st.textContent='✗ Connection error';}}
+}
+
 const R={exec:renderExec,timeline:renderTimeline,budget:renderBudget,expenses:renderExpenses,cost:renderCost,cashflow:renderCashflow,risks:renderRisks,vendors:renderVendors,performance:renderPerformance,production:renderProduction,quality:renderQuality,mines:renderMines,admin:renderAdmin}, C={exec:chartsExec,timeline:chartsTimeline,budget:chartsBudget,expenses:chartsExpenses,cost:chartsCost,cashflow:chartsCashflow,risks:chartsRisks,vendors:chartsVendors,performance:chartsPerformance,production:chartsProduction,quality:chartsQuality,mines:chartsMines,admin:()=>{}};
-function render(){layout();nav();projects();filters();destroy();let m=META[CURRENT];pageTitle.textContent=LANG==='ar'?m[2]:m[0];pageSub.textContent=LANG==='ar'?m[3]:m[1];pages.innerHTML=`<div class="page active" id="page-${CURRENT}">${R[CURRENT]()}</div>`;setTimeout(()=>{try{C[CURRENT]()}catch(e){console.error(e);toast(LANG==='ar'?'خطأ في رسم أحد المخططات':'Chart render error')}},20)}function goPage(p){CURRENT=p;render()}function setProject(v){PROJECT=v;render()}function toggleLang(){LANG=LANG==='ar'?'en':'ar';localStorage.setItem('ait_lang',LANG);render()}function toast(msg){let el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000)}async function refreshData(options={}){let silent=!!options.silent;let email=getUserEmail(!silent);if(!email){if(!silent)toast(LANG==='ar'?'لازم تدخل الإيميل المسجل أولًا':'Authorized email is required');return}let old=refreshBtn.textContent;refreshBtn.textContent=LANG==='ar'?'جاري التحديث...':'Refreshing...';refreshBtn.disabled=true;try{await verifyUserEmail(email);let fresh=await apiRequest('refresh',{email:email});if(fresh&&fresh.error)throw new Error(fresh.message||fresh.error);if(fresh&&!fresh.error){PAGES.forEach(p=>{if(fresh[p])LIVE[p]=fresh[p]});if(fresh.lastUpdated)LIVE.lastUpdated=fresh.lastUpdated;if(fresh.stats)LIVE.stats=fresh.stats;toast(LANG==='ar'?'تم تحديث البيانات بنجاح':'Data refreshed successfully')}else{toast(LANG==='ar'?'لم يرجع المصدر بيانات جديدة':'No new live data returned')}}catch(e){if(!silent)toast((LANG==='ar'?'تعذر التحديث: ':'Refresh failed: ')+(e.message||e));console.error(e)}finally{refreshBtn.textContent=old;refreshBtn.disabled=false;render()}}function changeDashboardUser(){localStorage.removeItem(USER_EMAIL_KEY);let email=getUserEmail(true);if(email)toast((LANG==='ar'?'تم حفظ الإيميل: ':'Saved email: ')+email)}function exportExcel(){let wb=XLSX.utils.book_new();Object.entries(LIVE).forEach(([k,v])=>{if(v&&typeof v==='object'&&!Array.isArray(v)){Object.entries(v).forEach(([sk,arr])=>{if(Array.isArray(arr)&&arr.length&&typeof arr[0]==='object')XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(arr),(k+'_'+sk).slice(0,31))})}});XLSX.writeFile(wb,'AIT_Dashboard_Data.xlsx')}function exportPDF(){window.print()}window.addEventListener('DOMContentLoaded',()=>{if(getQueryEmail())setSavedEmail(getQueryEmail());render();loading.classList.add('hide');setInterval(()=>{if(getSavedEmail())refreshData({silent:true})},3600000);if(getSavedEmail())setTimeout(()=>refreshData({silent:true}),1500)});window.addEventListener('error',e=>{console.error(e.error||e.message);toast(LANG==='ar'?'تم منع توقف الداشبورد بسبب خطأ':'A runtime issue was caught')});
-</script></body></html>
+function render(){layout();nav();projects();filters();destroy();let m=META[CURRENT];pageTitle.textContent=LANG==='ar'?m[2]:m[0];pageSub.textContent=LANG==='ar'?m[3]:m[1];pages.innerHTML=`<div class="page active" id="page-${CURRENT}">${R[CURRENT]()}</div>`;setTimeout(()=>{try{C[CURRENT]()}catch(e){console.error(e);toast(LANG==='ar'?'خطأ في رسم أحد المخططات':'Chart render error')}},20)}function goPage(p){CURRENT=p;render()}function setProject(v){PROJECT=v;render()}function toggleLang(){LANG=LANG==='ar'?'en':'ar';localStorage.setItem('ait_lang',LANG);render()}function toast(msg){let el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000)}async function refreshData(options={}){let silent=!!options.silent;let email=getUserEmail(!silent);if(!email){if(!silent)toast(LANG==='ar'?'لازم تدخل الإيميل المسجل أولًا':'Authorized email is required');return}let old=refreshBtn.textContent;refreshBtn.textContent=LANG==='ar'?'جاري التحديث...':'Refreshing...';refreshBtn.disabled=true;try{await verifyUserEmail(email);let fresh=await apiRequest('refresh',{email:email});if(fresh&&fresh.error)throw new Error(fresh.message||fresh.error);if(fresh&&!fresh.error){PAGES.forEach(p=>{if(fresh[p])LIVE[p]=fresh[p]});if(fresh.lastUpdated)LIVE.lastUpdated=fresh.lastUpdated;if(fresh.stats)LIVE.stats=fresh.stats;toast(LANG==='ar'?'تم تحديث البيانات بنجاح':'Data refreshed successfully')}else{toast(LANG==='ar'?'لم يرجع المصدر بيانات جديدة':'No new live data returned')}}catch(e){if(!silent)toast((LANG==='ar'?'تعذر التحديث: ':'Refresh failed: ')+(e.message||e));console.error(e)}finally{refreshBtn.textContent=old;refreshBtn.disabled=false;render()}}function changeDashboardUser(){localStorage.removeItem(USER_EMAIL_KEY);let email=getUserEmail(true);if(email)toast((LANG==='ar'?'تم حفظ الإيميل: ':'Saved email: ')+email)}function exportExcel(){let wb=XLSX.utils.book_new();Object.entries(LIVE).forEach(([k,v])=>{if(v&&typeof v==='object'&&!Array.isArray(v)){Object.entries(v).forEach(([sk,arr])=>{if(Array.isArray(arr)&&arr.length&&typeof arr[0]==='object')XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(arr),(k+'_'+sk).slice(0,31))})}});XLSX.writeFile(wb,'AIT_Dashboard_Data.xlsx')}function exportPDF(){window.print()}window.addEventListener('DOMContentLoaded',()=>{if(getQueryEmail())setSavedEmail(getQueryEmail());render();loading.classList.add('hide');setInterval(()=>{if(getSavedEmail())refreshData({silent:true})},3600000);if(getSavedEmail())setTimeout(()=>refreshData({silent:true}),2000);else showLoginScreen()});window.addEventListener('error',e=>{console.error(e.error||e.message);toast(LANG==='ar'?'تم منع توقف الداشبورد بسبب خطأ':'A runtime issue was caught')});
+</script>
+<div id="ait-login-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:#0f1117;align-items:center;justify-content:center;font-family:'Segoe UI',system-ui,sans-serif">
+  <div style="background:#ffffff;border-radius:20px;padding:44px 40px 36px;width:100%;max-width:400px;box-shadow:0 24px 64px rgba(0,0,0,.35);text-align:center">
+
+    <!-- Logo -->
+    <div style="width:64px;height:64px;background:#fd480e;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;margin:0 auto 20px;box-shadow:0 8px 24px rgba(253,72,14,.35)">AIT</div>
+
+    <!-- Title -->
+    <div style="font-size:22px;font-weight:700;color:#111827;margin-bottom:6px">AIT Projects Dashboard</div>
+    <div style="font-size:13px;color:#6b7280;margin-bottom:32px">Sign in to access your dashboard</div>
+
+    <!-- Email -->
+    <div style="text-align:left;margin-bottom:16px">
+      <label style="font-size:11px;font-weight:600;color:#374151;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:6px">Email Address</label>
+      <input id="login-email" type="email" placeholder="your@email.com" autocomplete="email"
+        style="width:100%;padding:11px 14px;background:#f3f4f6;border:1.5px solid #e5e7eb;border-radius:10px;color:#111827;font-size:14px;outline:none;box-sizing:border-box;transition:border .2s,background .2s;font-family:inherit"
+        onfocus="this.style.borderColor='#fd480e';this.style.background='#fff'"
+        onblur="this.style.borderColor='#e5e7eb';this.style.background='#f3f4f6'"
+        onkeydown="if(event.key==='Enter')document.getElementById('login-pass').focus()">
+    </div>
+
+    <!-- Password -->
+    <div style="text-align:left;margin-bottom:28px">
+      <label style="font-size:11px;font-weight:600;color:#374151;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:6px">Password</label>
+      <input id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password"
+        style="width:100%;padding:11px 14px;background:#f3f4f6;border:1.5px solid #e5e7eb;border-radius:10px;color:#111827;font-size:14px;outline:none;box-sizing:border-box;transition:border .2s,background .2s;font-family:inherit"
+        onfocus="this.style.borderColor='#fd480e';this.style.background='#fff'"
+        onblur="this.style.borderColor='#e5e7eb';this.style.background='#f3f4f6'"
+        onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+
+    <!-- Button -->
+    <button id="login-btn" onclick="doLogin()"
+      style="width:100%;padding:13px;background:#fd480e;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:background .2s,transform .1s;font-family:inherit;letter-spacing:.2px"
+      onmouseover="this.style.background='#e03d0a'"
+      onmouseout="this.style.background='#fd480e'"
+      onmousedown="this.style.transform='scale(.98)'"
+      onmouseup="this.style.transform='scale(1)'">
+      Sign In
+    </button>
+
+    <!-- Error -->
+    <div id="login-err" style="color:#ef4444;font-size:12.5px;text-align:center;margin-top:12px;min-height:18px;font-weight:500"></div>
+  </div>
+</div>
+</body></html>
