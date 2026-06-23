@@ -5,7 +5,7 @@
 // TO EDIT: only change this file for cross-page fixes.
 // ============================================================
 
-const API_URL='https://script.google.com/macros/s/AKfycbw17eoQz22-WWCbRQOowlSr0zadA2uIORnuX3W3B7WPlK4MmQw0hmsyXj8THQirsphp9Q/exec';
+const API_URL='https://script.google.com/macros/library/d/1OpIk9FL2a9H_q74YvLOqmZiZj6dOt_VKzRai_XpT0zSx4tINSvpMC-Io/12';
 const USER_EMAIL_KEY='ait_dashboard_user_email';
 const USER_SESSION_KEY='ait_dashboard_auth_session_v2';
 const ALL_PAGE_KEYS=['exec','timeline','budget','expenses','cost','cashflow','risks','vendors','approvals','performance','production','quality','mines'];
