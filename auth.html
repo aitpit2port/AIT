@@ -116,7 +116,14 @@ function apiCall(params){
 }
 function togglePassword(){const p=document.getElementById('password');const b=document.getElementById('showBtn');const show=p.type==='password';p.type=show?'text':'password';b.textContent=show?'Hide':'Show';}
 function setMsg(text,type){const m=document.getElementById('msg');m.textContent=text||'';m.className='msg '+(type||'');}
-function redirectAfterLogin(session){const first=(session.user.allowed_pages||[]).find(p=>p!=='auth')||'exec';location.href='Dashboard_Full.html#'+first;}
+function redirectAfterLogin(session){
+  const user = session && session.user ? session.user : {};
+  const pages = Array.isArray(user.allowed_pages) ? user.allowed_pages : [];
+  const first = pages.find(p => p && p !== 'auth') || 'exec';
+  const target = 'Dashboard_Full.html#' + encodeURIComponent(first);
+  window.location.replace(target);
+  setTimeout(() => { window.location.href = target; }, 600);
+}
 document.getElementById('loginForm').addEventListener('submit',async e=>{
   e.preventDefault();
   const btn=document.getElementById('loginBtn');
@@ -127,10 +134,16 @@ document.getElementById('loginForm').addEventListener('submit',async e=>{
   try{
     const res=await apiCall({module:'auth',action:'login',identifier,password});
     if(!res||res.error||res.ok===false) throw new Error(res?.message||'Login failed');
-    const session={token:res.token,user:res.user,loginAt:new Date().toISOString()};
+    const session={token:res.token || '',user:res.user || {},loginAt:new Date().toISOString()};
     localStorage.setItem('ait_auth_session',JSON.stringify(session));
     setMsg('Login successful. Opening dashboard...','ok');
-    setTimeout(()=>redirectAfterLogin(session),500);
+    redirectAfterLogin(session);
+    setTimeout(()=>{
+      btn.disabled=false;
+      btn.classList.remove('loading');
+      btn.innerHTML='Open Dashboard';
+      btn.onclick=()=>{ window.location.href='Dashboard_Full.html#exec'; };
+    },2500);
   }catch(err){
     setMsg(err.message||String(err),'error');
     btn.disabled=false;btn.classList.remove('loading');btn.textContent='Sign In';
