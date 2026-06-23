@@ -6,6 +6,7 @@
 <title>AIT — Quality / Samples</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -18,6 +19,11 @@
   --yellow:#f59e0b;--yellowbg:rgba(245,158,11,.12);
   --shadow:0 2px 12px rgba(0,0,0,.4);--radius:10px;
 }
+[data-theme="light"]{
+  --bg:#f0f2f5;--card:#fff;--card2:#f8f9fc;--border:#e1e5eb;
+  --text:#1a2030;--text2:#5a6478;--text3:#8b949e;
+  --shadow:0 1px 8px rgba(0,0,0,.08);
+}
 html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;font-size:13px;background:var(--bg);color:var(--text);overflow-x:hidden}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
@@ -29,6 +35,9 @@ html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;font-size:13px;bac
 .topbar-sub{font-size:10px;color:var(--text2)}
 .topbar-spacer{flex:1}
 .topbar-info{font-size:11px;color:var(--text2);background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:5px 10px;white-space:nowrap}
+.tb-btn{display:flex;align-items:center;gap:6px;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:6px 12px;font-size:11px;font-weight:700;color:var(--text2);cursor:pointer;transition:.2s;white-space:nowrap;font-family:inherit}
+.tb-btn:hover{border-color:var(--accent);color:var(--accent)}
+select.tb-btn{appearance:auto;min-width:92px}
 .btn-refresh{display:flex;align-items:center;gap:6px;background:var(--accent);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;transition:.2s;white-space:nowrap}
 .btn-refresh:hover{background:var(--accent2)}
 .btn-refresh:disabled{opacity:.6;cursor:not-allowed}
@@ -133,43 +142,53 @@ tbody tr:hover td{background:var(--card2)}
   </div>
 </div>
 
-<!-- TOPBAR — Logo/title will move to shared sidebar when pages are merged -->
+<!-- TOPBAR -->
 <div class="topbar">
   <div>
-    <div class="topbar-title">Quality / Samples</div>
-    <div class="topbar-sub">XRF analysis — Fe%, elements, pass/fail by mine</div>
+    <div class="topbar-title" data-i18n="pageTitle">Quality / Samples</div>
+    <div class="topbar-sub" data-i18n="pageSub">XRF analysis — Fe%, elements, sample category by mine</div>
   </div>
   <div class="topbar-spacer"></div>
   <div class="topbar-info" id="lastUpdate">—</div>
+  <select class="tb-btn" id="langSel" onchange="setLang(this.value)">
+    <option value="en">🌐 EN</option>
+    <option value="ar">🌐 عربي</option>
+    <option value="zh">🌐 中文</option>
+  </select>
+  <button class="tb-btn" id="themeBtn" onclick="toggleTheme()">🌙</button>
+  <button class="tb-btn" onclick="exportExcel()">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    <span data-i18n="exportExcel">Export Excel</span>
+  </button>
   <button class="btn-refresh" id="btnRefresh" onclick="refreshData()">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
       <path d="M1 4v6h6M23 20v-6h-6"/>
       <path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/>
     </svg>
-    Refresh Data
+    <span data-i18n="refresh">Refresh</span>
   </button>
 </div>
 
 <!-- FILTER BAR -->
 <div class="filterbar">
-  <span class="fl">Mine</span>
+  <span class="fl" data-i18n="mine">Mine</span>
   <select class="fs" id="fMine" onchange="applyFilters()">
     <option value="all">All Mines</option>
   </select>
 
-  <span class="fl">Zone / Batch</span>
+  <span class="fl" data-i18n="zoneBatch">Zone / Batch</span>
   <select class="fs" id="fZone" onchange="applyFilters()">
     <option value="all">All Zones</option>
   </select>
 
-  <span class="fl">Pass / Fail</span>
+  <span class="fl" data-i18n="sampleCategory">Sample Category</span>
   <select class="fs" id="fPass" onchange="applyFilters()">
-    <option value="all">All</option>
-    <option value="Pass">✓ Pass</option>
-    <option value="Fail">✗ Fail</option>
+    <option value="all" id="optCatAll">All Categories</option>
+    <option value="Pass" id="optAccepted">✓ Accepted</option>
+    <option value="Fail" id="optRejected">✗ Rejected</option>
   </select>
 
-  <span class="fl">Material Type</span>
+  <span class="fl" data-i18n="materialType">Material Type</span>
   <select class="fs" id="fGrade" onchange="applyFilters()">
     <option value="all">All Materials</option>
     <option value="Hematite">🔴 Hematite</option>
@@ -177,14 +196,14 @@ tbody tr:hover td{background:var(--card2)}
     <option value="Limonite">🟡 Limonite</option>
   </select>
 
-  <span class="fl">Date Range</span>
+  <span class="fl" data-i18n="dateRange">Date Range</span>
   <div class="date-range">
     <input type="date" id="fDateFrom" onchange="applyFilters()" title="From">
     <span class="date-sep">→</span>
     <input type="date" id="fDateTo" onchange="applyFilters()" title="To">
   </div>
 
-  <button class="btn-clear" id="btnClear" onclick="clearFilters()">✕ Clear</button>
+  <button class="btn-clear" id="btnClear" onclick="clearFilters()" data-i18n="clearFilters">✕ Clear</button>
   <span class="active-badge" id="activeBadge" style="display:none"></span>
 </div>
 
@@ -197,15 +216,15 @@ tbody tr:hover td{background:var(--card2)}
   <!-- Row 1: Fe by Mine | Pass/Fail by Mine | Daily Trend -->
   <div class="g3">
     <div class="card">
-      <div class="card-head"><h3>Avg Fe% by Mine</h3><span id="h1"></span></div>
+      <div class="card-head"><h3 data-i18n="avgFeByMine">Avg Fe% by Mine</h3><span id="h1"></span></div>
       <div class="card-body"><div class="chart-wrap h220"><canvas id="cMine"></canvas></div></div>
     </div>
     <div class="card">
-      <div class="card-head"><h3>Pass / Fail by Mine</h3><span id="h2"></span></div>
+      <div class="card-head"><h3 data-i18n="categoryByMine">Sample Category by Mine</h3><span id="h2"></span></div>
       <div class="card-body"><div class="chart-wrap h220"><canvas id="cPassFail"></canvas></div></div>
     </div>
     <div class="card">
-      <div class="card-head"><h3>Daily Fe% Trend</h3><span>Last 30 days</span></div>
+      <div class="card-head"><h3 data-i18n="dailyFeTrend">Daily Fe% Trend</h3><span data-i18n="last30Days">Last 30 days</span></div>
       <div class="card-body"><div class="chart-wrap h220"><canvas id="cTrend"></canvas></div></div>
     </div>
   </div>
@@ -213,11 +232,11 @@ tbody tr:hover td{background:var(--card2)}
   <!-- Row 2: Fe Distribution | Pass Rate Donut -->
   <div class="g2">
     <div class="card">
-      <div class="card-head"><h3>Fe% Distribution by Range</h3><span id="h3"></span></div>
+      <div class="card-head"><h3 data-i18n="feDistribution">Fe% Distribution by Range</h3><span id="h3"></span></div>
       <div class="card-body"><div class="chart-wrap h180"><canvas id="cDist"></canvas></div></div>
     </div>
     <div class="card">
-      <div class="card-head"><h3>Pass vs Fail — Overall</h3><span id="h4"></span></div>
+      <div class="card-head"><h3 data-i18n="categoryOverall">Sample Category — Overall</h3><span id="h4"></span></div>
       <div class="card-body">
         <div style="display:flex;align-items:center;gap:20px;height:180px">
           <div style="width:170px;height:170px;flex-shrink:0"><canvas id="cDonut"></canvas></div>
@@ -230,7 +249,7 @@ tbody tr:hover td{background:var(--card2)}
   <!-- Row 3: Element Levels -->
   <div class="card g1">
     <div class="card-head">
-      <h3>Element Levels — Last 50 Batches</h3>
+      <h3 data-i18n="elementLevels">Element Levels — Last 50 Batches</h3>
       <span id="hElem"></span>
     </div>
     <div class="card-body"><div class="chart-wrap h260"><canvas id="cElem"></canvas></div></div>
@@ -239,7 +258,7 @@ tbody tr:hover td{background:var(--card2)}
   <!-- Row 4: Table -->
   <div class="card g1">
     <div class="card-head">
-      <h3>Full Sample Data</h3>
+      <h3 data-i18n="fullSampleData">Full Sample Data</h3>
       <span id="hTable"></span>
     </div>
     <div class="tbl-wrap">
@@ -250,7 +269,7 @@ tbody tr:hover td{background:var(--card2)}
           <th class="td-r">Ca</th><th class="td-r">Mn</th>
           <th class="td-r">Sr</th><th class="td-r">Zn</th>
           <th class="td-r">Zr</th><th class="td-r">Pb</th>
-          <th>Material</th><th>Pass/Fail</th>
+          <th>Material</th><th data-i18n="sampleCategory">Sample Category</th>
         </tr></thead>
         <tbody id="tBody"></tbody>
       </table>
@@ -267,17 +286,75 @@ tbody tr:hover td{background:var(--card2)}
 </div>
 
 <script>
-// Register datalabels plugin
 Chart.register(ChartDataLabels);
 
-// ── CONFIG ───────────────────────────────────────────────────
 const API_URL = 'https://script.google.com/macros/s/AKfycbxFJroZzKQT1N0c70ktzFISQkWIkT7w_pyi7eAFxuDPx88icN-WvT2IGkrJ8W-Lt1uz/exec';
 
-// ── State ────────────────────────────────────────────────────
-let ALL = [], FILTERED = [], CHARTS = {};
-const PAL = ['#fd480e','#22c55e','#38bdf8','#f59e0b','#a78bfa','#ec4899','#14b8a6','#f97316','#84cc16','#06b6d4','#8b5cf6','#10b981'];
+const I18N = {
+  en:{
+    pageTitle:'Quality / Samples', pageSub:'XRF analysis — Fe%, elements, sample category by mine',
+    refresh:'Refresh', refreshing:'Refreshing...', exportExcel:'Export Excel',
+    mine:'Mine', zoneBatch:'Zone / Batch', sampleCategory:'Sample Category', materialType:'Material Type', dateRange:'Date Range', clearFilters:'✕ Clear',
+    allMines:'All Mines', allZones:'All Zones', allCategories:'All Categories', accepted:'Accepted', rejected:'Rejected',
+    avgFeByMine:'Avg Fe% by Mine', categoryByMine:'Sample Category by Mine', dailyFeTrend:'Daily Fe% Trend', last30Days:'Last 30 days',
+    feDistribution:'Fe% Distribution by Range', categoryOverall:'Sample Category — Overall', elementLevels:'Element Levels — Last 50 Batches', fullSampleData:'Full Sample Data',
+    totalSamples:'TOTAL SAMPLES', avgFe:'AVG FE%', feRange:'FE% RANGE', acceptanceRate:'ACCEPTANCE RATE', acceptedKpi:'ACCEPTED', rejectedKpi:'REJECTED', minesSampled:'MINES SAMPLED', latestSample:'LATEST SAMPLE',
+    batches:'batches', samples:'samples', rows:'rows', currentFilter:'In current filter', mostRecent:'Most recent batch', loading:'Loading quality data...', syncing:'Syncing new samples...', reading:'Reading from fact_samples...', checking:'Checking for new batches in supply chain...', live:'Live data', noMatch:'No samples match current filters', materialRule:'Hematite/Limonite: ≥55% | Magnetite: ≥37%'
+  },
+  ar:{
+    pageTitle:'الجودة / العينات', pageSub:'تحليل XRF — Fe% والعناصر وتصنيف العينة لكل منجم',
+    refresh:'تحديث', refreshing:'جاري التحديث...', exportExcel:'تصدير Excel',
+    mine:'المنجم', zoneBatch:'المنطقة / الباتش', sampleCategory:'تصنيف العينة', materialType:'نوع الخامة', dateRange:'الفترة الزمنية', clearFilters:'✕ مسح',
+    allMines:'كل المناجم', allZones:'كل المناطق', allCategories:'كل التصنيفات', accepted:'مقبول', rejected:'مرفوض',
+    avgFeByMine:'متوسط Fe% لكل منجم', categoryByMine:'تصنيف العينة لكل منجم', dailyFeTrend:'اتجاه Fe% اليومي', last30Days:'آخر 30 يوم',
+    feDistribution:'توزيع Fe% حسب النطاق', categoryOverall:'تصنيف العينات الإجمالي', elementLevels:'مستويات العناصر — آخر 50 باتش', fullSampleData:'بيانات العينات الكاملة',
+    totalSamples:'إجمالي العينات', avgFe:'متوسط Fe%', feRange:'نطاق Fe%', acceptanceRate:'نسبة القبول', acceptedKpi:'مقبول', rejectedKpi:'مرفوض', minesSampled:'المناجم sampled', latestSample:'آخر عينة',
+    batches:'باتش', samples:'عينة', rows:'صف', currentFilter:'ضمن الفلتر الحالي', mostRecent:'أحدث باتش', loading:'جاري تحميل بيانات الجودة...', syncing:'جاري مزامنة العينات...', reading:'قراءة من fact_samples...', checking:'فحص الباتشات الجديدة في قاعدة المصدر...', live:'بيانات مباشرة', noMatch:'لا توجد عينات مطابقة للفلاتر الحالية', materialRule:'الهيماتيت/الليمونيت: ≥55% | الماجنتيت: ≥37%'
+  },
+  zh:{
+    pageTitle:'质量 / 样品', pageSub:'XRF分析 — Fe%、元素、各矿区样品分类',
+    refresh:'刷新', refreshing:'正在刷新...', exportExcel:'导出Excel',
+    mine:'矿区', zoneBatch:'区域 / 批次', sampleCategory:'样品分类', materialType:'矿石类型', dateRange:'日期范围', clearFilters:'✕ 清除',
+    allMines:'所有矿区', allZones:'所有区域', allCategories:'全部分类', accepted:'合格', rejected:'不合格',
+    avgFeByMine:'各矿区平均Fe%', categoryByMine:'各矿区样品分类', dailyFeTrend:'每日Fe%趋势', last30Days:'最近30天',
+    feDistribution:'Fe%区间分布', categoryOverall:'样品分类总览', elementLevels:'元素水平 — 最近50批', fullSampleData:'完整样品数据',
+    totalSamples:'样品总数', avgFe:'平均Fe%', feRange:'Fe%范围', acceptanceRate:'合格率', acceptedKpi:'合格', rejectedKpi:'不合格', minesSampled:'采样矿区', latestSample:'最新样品',
+    batches:'批次', samples:'样品', rows:'行', currentFilter:'当前筛选', mostRecent:'最新批次', loading:'正在加载质量数据...', syncing:'正在同步新样品...', reading:'正在读取 fact_samples...', checking:'正在检查供应链新批次...', live:'实时数据', noMatch:'没有符合当前筛选的样品', materialRule:'赤铁矿/褐铁矿: ≥55% | 磁铁矿: ≥37%'
+  }
+};
 
-// ── JSONP ────────────────────────────────────────────────────
+let LANG  = localStorage.getItem('ait_lang')  || 'en';
+let THEME = localStorage.getItem('ait_theme') || 'dark';
+let ALL = [], FILTERED = [], CHARTS = {}, AVAILABLE_ELEMENTS = [];
+const PAL = ['#fd480e','#22c55e','#38bdf8','#f59e0b','#a78bfa','#ec4899','#14b8a6','#f97316','#84cc16','#06b6d4','#8b5cf6','#10b981'];
+function t(k){ return (I18N[LANG]&&I18N[LANG][k]) || I18N.en[k] || k; }
+function dateOnly(v){
+  if(!v) return '';
+  const s=String(v);
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  if(/^\d{4}-\d{2}-\d{2}T/.test(s)){
+    const d=new Date(s);
+    if(!isNaN(d.getTime())) return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    return s.slice(0,10);
+  }
+  const d=new Date(s);
+  if(!isNaN(d.getTime())) return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  return s.slice(0,10);
+}
+function categoryText(v){ return v==='Pass' ? t('accepted') : t('rejected'); }
+function applyI18n(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent=t(el.getAttribute('data-i18n'));});
+  const oAll=document.getElementById('optCatAll'), oAcc=document.getElementById('optAccepted'), oRej=document.getElementById('optRejected');
+  if(oAll) oAll.textContent=t('allCategories');
+  if(oAcc) oAcc.textContent='✓ '+t('accepted');
+  if(oRej) oRej.textContent='✗ '+t('rejected');
+  document.documentElement.lang=LANG;
+  document.documentElement.dir=LANG==='ar'?'rtl':'ltr';
+  const langSel=document.getElementById('langSel'); if(langSel) langSel.value=LANG;
+}
+function setLang(l){ LANG=l; localStorage.setItem('ait_lang',l); applyI18n(); populateDropdowns(); applyFilters(); }
+function toggleTheme(){ THEME=THEME==='dark'?'light':'dark'; localStorage.setItem('ait_theme',THEME); document.documentElement.setAttribute('data-theme',THEME); document.getElementById('themeBtn').textContent=THEME==='dark'?'🌙':'☀️'; if(ALL.length) renderCharts(); }
+
 function apiCall(action) {
   return new Promise((resolve, reject) => {
     const cb = 'ait_' + Date.now() + '_' + Math.random().toString(36).slice(2);
@@ -292,20 +369,20 @@ function apiCall(action) {
   });
 }
 
-// ── Load / Refresh ───────────────────────────────────────────
 async function loadData(action='data') {
-  setStatus('yellow','Loading...');
-  document.getElementById('ldMsg').textContent = action==='sync' ? 'Syncing new samples...' : 'Loading quality data...';
-  document.getElementById('ldSub').textContent = action==='sync' ? 'Checking for new batches in supply chain...' : 'Reading from fact_samples...';
+  setStatus('yellow', action==='sync'?t('syncing'):t('loading'));
+  document.getElementById('ldMsg').textContent = action==='sync' ? t('syncing') : t('loading');
+  document.getElementById('ldSub').textContent = action==='sync' ? t('checking') : t('reading');
   document.getElementById('pageLoading').classList.remove('hidden');
   try {
     const res = await apiCall(action);
     if (res.error) throw new Error(res.message||'API error');
-    ALL = res.quality?.samples || [];
+    ALL = (res.quality?.samples || []).map(r=>({...r,date:dateOnly(r.date)}));
+    AVAILABLE_ELEMENTS = Array.isArray(res.quality?.available_elements) ? res.quality.available_elements : [];
     populateDropdowns();
     applyFilters();
     document.getElementById('lastUpdate').textContent = '🕐 ' + (res.lastUpdated||'—');
-    setStatus('ok', 'Live data — ' + ALL.length + ' samples');
+    setStatus('ok', t('live') + ' — ' + ALL.length + ' ' + t('samples'));
   } catch(e) {
     setStatus('error','Error: '+e.message);
     console.error(e);
@@ -317,29 +394,23 @@ async function loadData(action='data') {
 async function refreshData() {
   const btn = document.getElementById('btnRefresh');
   btn.disabled = true; btn.classList.add('spinning');
-  btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg> Refreshing...';
+  const label = btn.querySelector('[data-i18n]'); if(label) label.textContent = t('refreshing');
   await loadData('sync');
   btn.disabled=false; btn.classList.remove('spinning');
-  btn.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg> Refresh Data';
+  if(label) label.textContent = t('refresh');
 }
 
-// ── Dropdowns ────────────────────────────────────────────────
 function populateDropdowns() {
   const mineSel = document.getElementById('fMine');
   const zoneSel = document.getElementById('fZone');
   const curMine = mineSel.value;
   const curZone = zoneSel.value;
-
   const mines = [...new Set(ALL.map(r=>r.mine).filter(Boolean))].sort();
   const zones = [...new Set(ALL.map(r=>r.zone).filter(Boolean))].sort();
-
-  mineSel.innerHTML = '<option value="all">All Mines</option>'
-    + mines.map(m=>`<option value="${m}"${curMine===m?' selected':''}>${m}</option>`).join('');
-  zoneSel.innerHTML = '<option value="all">All Zones</option>'
-    + zones.map(z=>`<option value="${z}"${curZone===z?' selected':''}>${z}</option>`).join('');
+  mineSel.innerHTML = `<option value="all">${t('allMines')}</option>` + mines.map(m=>`<option value="${m}"${curMine===m?' selected':''}>${m}</option>`).join('');
+  zoneSel.innerHTML = `<option value="all">${t('allZones')}</option>` + zones.map(z=>`<option value="${z}"${curZone===z?' selected':''}>${z}</option>`).join('');
 }
 
-// ── Filters ──────────────────────────────────────────────────
 function applyFilters() {
   const mine   = document.getElementById('fMine').value;
   const zone   = document.getElementById('fZone').value;
@@ -347,43 +418,33 @@ function applyFilters() {
   const grade  = document.getElementById('fGrade').value;
   const dfrom  = document.getElementById('fDateFrom').value;
   const dto    = document.getElementById('fDateTo').value;
-
   FILTERED = ALL.filter(r => {
+    const d = dateOnly(r.date);
     if (mine  !=='all' && r.mine      !==mine)  return false;
     if (zone  !=='all' && r.zone      !==zone)  return false;
     if (pf    !=='all' && r.pass_fail !==pf)    return false;
     if (grade !=='all' && r.material_type !==grade) return false;
-    if (dfrom && String(r.date) < dfrom)         return false;
-    if (dto   && String(r.date) > dto)           return false;
+    if (dfrom && d < dfrom) return false;
+    if (dto   && d > dto)   return false;
     return true;
   });
-
-  // Active filters badge
   const activeCount = [mine,zone,pf,grade,dfrom,dto].filter(v=>v&&v!=='all').length;
   const badge = document.getElementById('activeBadge');
   if (activeCount > 0) { badge.textContent = activeCount + ' active'; badge.style.display=''; }
   else badge.style.display='none';
-
   render();
 }
-
 function clearFilters() {
   ['fMine','fZone','fPass','fGrade'].forEach(id => document.getElementById(id).value='all');
   document.getElementById('fDateFrom').value='';
   document.getElementById('fDateTo').value='';
   applyFilters();
 }
-
-// ── Render all ───────────────────────────────────────────────
 function render() {
-  renderKPIs();
-  renderCharts();
-  renderTable();
-  document.getElementById('hTable').textContent = FILTERED.length + ' rows';
-  document.getElementById('sCount').textContent = FILTERED.length + ' / ' + ALL.length + ' samples';
+  renderKPIs(); renderCharts(); renderTable();
+  document.getElementById('hTable').textContent = FILTERED.length + ' ' + t('rows');
+  document.getElementById('sCount').textContent = FILTERED.length + ' / ' + ALL.length + ' ' + t('samples');
 }
-
-// ── KPIs ─────────────────────────────────────────────────────
 function renderKPIs() {
   const feV  = FILTERED.map(r=>+r.Fe).filter(v=>v>0);
   const pass = FILTERED.filter(r=>r.pass_fail==='Pass');
@@ -394,232 +455,92 @@ function renderKPIs() {
   const pRate   = FILTERED.length ? pass.length/FILTERED.length*100 : 0;
   const mines   = new Set(FILTERED.map(r=>r.mine)).size;
   const batches = new Set(FILTERED.map(r=>r.batch)).size;
-  const dates   = FILTERED.map(r=>String(r.date||'')).filter(Boolean).sort();
+  const dates   = FILTERED.map(r=>dateOnly(r.date)).filter(Boolean).sort();
   const latest  = dates[dates.length-1]||'—';
-
   const kpis = [
-    {l:'TOTAL SAMPLES', v:FILTERED.length,          n:batches+' batches',           c:'orange'},
-    {l:'AVG FE%',       v:avgFe.toFixed(1)+'%',     n:'±range shown in chart',      c:'blue'},
-    {l:'FE% RANGE',     v:minFe.toFixed(1)+'–'+maxFe.toFixed(1), n:'Min – Max',     c:'blue'},
-    {l:'PASS RATE',     v:pRate.toFixed(1)+'%',     n:pass.length+' passed',         c:pRate>=55?'green':'red'},
-    {l:'PASSED',        v:pass.length,               n:pRate.toFixed(1)+'% of total',c:'green'},
-    {l:'FAILED',        v:fail.length,               n:(100-pRate).toFixed(1)+'% of total',c:'red'},
-    {l:'MINES SAMPLED', v:mines,                     n:'In current filter',           c:'blue'},
-    {l:'LATEST SAMPLE', v:latest,                    n:'Most recent batch',           c:'orange'},
+    {l:t('totalSamples'), v:FILTERED.length, n:batches+' '+t('batches'), c:'orange'},
+    {l:t('avgFe'), v:avgFe.toFixed(1)+'%', n:'±range shown in chart', c:'blue'},
+    {l:t('feRange'), v:minFe.toFixed(1)+'–'+maxFe.toFixed(1), n:'Min – Max', c:'blue'},
+    {l:t('acceptanceRate'), v:pRate.toFixed(1)+'%', n:pass.length+' '+t('accepted'), c:pRate>=55?'green':'red'},
+    {l:t('acceptedKpi'), v:pass.length, n:pRate.toFixed(1)+'% of total', c:'green'},
+    {l:t('rejectedKpi'), v:fail.length, n:(100-pRate).toFixed(1)+'% of total', c:'red'},
+    {l:t('minesSampled'), v:mines, n:t('currentFilter'), c:'blue'},
+    {l:t('latestSample'), v:latest, n:t('mostRecent'), c:'orange'},
   ];
-
-  document.getElementById('kpiGrid').innerHTML = kpis.map(k=>`
-    <div class="kc ${k.c}">
-      <div class="kc-lbl">${k.l}</div>
-      <div class="kc-val ${k.c}">${k.v}</div>
-      <div class="kc-note">${k.n}</div>
-    </div>`).join('');
+  document.getElementById('kpiGrid').innerHTML = kpis.map(k=>`<div class="kc ${k.c}"><div class="kc-lbl">${k.l}</div><div class="kc-val ${k.c}">${k.v}</div><div class="kc-note">${k.n}</div></div>`).join('');
 }
-
-// ── Chart helper ─────────────────────────────────────────────
+function gc(){return {grid:getComputedStyle(document.documentElement).getPropertyValue('--border').trim()||'rgba(255,255,255,.04)',txt:getComputedStyle(document.documentElement).getPropertyValue('--text2').trim()||'#8892a4'};}
 function mkChart(id, type, labels, datasets, extra={}) {
   if (CHARTS[id]) CHARTS[id].destroy();
-  const el = document.getElementById(id);
-  if (!el) return;
-
+  const el = document.getElementById(id); if (!el) return;
   const isDoughnut = type==='doughnut'||type==='pie';
-  CHARTS[id] = new Chart(el, {
-    type,
-    data: { labels, datasets },
-    options: {
-      responsive:true, maintainAspectRatio:false,
-      plugins: {
-        legend: { display: extra.legend??false, labels:{color:'#8892a4',boxWidth:10,font:{size:10}} },
-        tooltip: { backgroundColor:'#07101f',borderColor:'#fd480e',borderWidth:1,titleColor:'#fd480e',bodyColor:'#e8ecf2',padding:10 },
-        datalabels: extra.datalabels ?? {
-          display: extra.showLabels ?? false,
-          color: '#fff',
-          font: { weight:'bold', size:10 },
-          formatter: v => v > 0 ? (Number.isInteger(v) ? v : (+v).toFixed(1)) : '',
-          anchor: extra.labelAnchor || 'end',
-          align:  extra.labelAlign  || 'top',
-          clamp:  true,
-        }
-      },
-      scales: isDoughnut ? {} : {
-        x: { stacked:extra.stacked||false, grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#8892a4',font:{size:10},maxRotation:30} },
-        y: { stacked:extra.stacked||false, grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#8892a4',font:{size:10}} }
-      },
-      ...extra.opts
-    }
-  });
+  const {grid,txt}=gc();
+  CHARTS[id] = new Chart(el, {type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:extra.legend??false,labels:{color:txt,boxWidth:10,font:{size:10}}},tooltip:{backgroundColor:'#07101f',borderColor:'#fd480e',borderWidth:1,titleColor:'#fd480e',bodyColor:'#e8ecf2',padding:10},datalabels:extra.datalabels??{display:extra.showLabels??false,color:'#fff',font:{weight:'bold',size:10},formatter:v=>v>0?(Number.isInteger(v)?v:(+v).toFixed(1)):'',anchor:extra.labelAnchor||'end',align:extra.labelAlign||'top',clamp:true}},scales:isDoughnut?{}:{x:{stacked:extra.stacked||false,grid:{color:grid},ticks:{color:txt,font:{size:10},maxRotation:30}},y:{stacked:extra.stacked||false,grid:{color:grid},ticks:{color:txt,font:{size:10}}}},...extra.opts}});
 }
-
-// ── Render charts ─────────────────────────────────────────────
 function renderCharts() {
-  // ── 1. Avg Fe% by Mine (with data labels on bars) ─────────
   const mMap={};
-  FILTERED.forEach(r=>{
-    if(!mMap[r.mine]) mMap[r.mine]={s:0,n:0};
-    mMap[r.mine].s+=+r.Fe; mMap[r.mine].n++;
-  });
+  FILTERED.forEach(r=>{ if(!mMap[r.mine]) mMap[r.mine]={s:0,n:0}; mMap[r.mine].s+=+r.Fe; mMap[r.mine].n++; });
   const mKeys=Object.keys(mMap).sort((a,b)=>mMap[b].s/mMap[b].n - mMap[a].s/mMap[a].n);
-  const mAvg =mKeys.map(m=>+(mMap[m].s/mMap[m].n).toFixed(2));
-  document.getElementById('h1').textContent = mKeys.length+' mines';
-  mkChart('cMine','bar',mKeys,[{
-    label:'Avg Fe%', data:mAvg, borderRadius:5,
-    backgroundColor:mAvg.map(v=>v>=55?'rgba(34,197,94,.8)':v>=37?'rgba(253,72,14,.8)':'rgba(239,68,68,.8)'),
-  }],{showLabels:true, labelAnchor:'end', labelAlign:'top'});
+  const mAvg=mKeys.map(m=>+(mMap[m].s/mMap[m].n).toFixed(2));
+  document.getElementById('h1').textContent=mKeys.length+' mines';
+  mkChart('cMine','bar',mKeys,[{label:'Avg Fe%',data:mAvg,borderRadius:5,backgroundColor:mAvg.map(v=>v>=55?'rgba(34,197,94,.8)':v>=37?'rgba(253,72,14,.8)':'rgba(239,68,68,.8)')}],{showLabels:true,labelAnchor:'end',labelAlign:'top'});
 
-  // ── 2. Pass / Fail by Mine (stacked bar with labels) ──────
   const pfMap={};
-  FILTERED.forEach(r=>{
-    if(!pfMap[r.mine]) pfMap[r.mine]={pass:0,fail:0};
-    r.pass_fail==='Pass' ? pfMap[r.mine].pass++ : pfMap[r.mine].fail++;
-  });
+  FILTERED.forEach(r=>{ if(!pfMap[r.mine]) pfMap[r.mine]={pass:0,fail:0}; r.pass_fail==='Pass'?pfMap[r.mine].pass++:pfMap[r.mine].fail++; });
   const pfMines=Object.keys(pfMap).sort();
-  document.getElementById('h2').textContent = pfMines.length+' mines';
-  mkChart('cPassFail','bar',pfMines,[
-    {label:'Pass', data:pfMines.map(m=>pfMap[m].pass), backgroundColor:'rgba(34,197,94,.8)',  borderRadius:4},
-    {label:'Fail', data:pfMines.map(m=>pfMap[m].fail), backgroundColor:'rgba(239,68,68,.8)',  borderRadius:4},
-  ],{
-    stacked:true, legend:true, showLabels:true,
-    labelAnchor:'center', labelAlign:'center',
-    datalabels:{
-      display: ctx => ctx.dataset.data[ctx.dataIndex] > 0,
-      color:'#fff', font:{weight:'bold',size:10},
-      formatter: v => v,
-      anchor:'center', align:'center',
-    }
-  });
+  document.getElementById('h2').textContent=pfMines.length+' mines';
+  mkChart('cPassFail','bar',pfMines,[{label:t('accepted'),data:pfMines.map(m=>pfMap[m].pass),backgroundColor:'rgba(34,197,94,.8)',borderRadius:4},{label:t('rejected'),data:pfMines.map(m=>pfMap[m].fail),backgroundColor:'rgba(239,68,68,.8)',borderRadius:4}],{stacked:true,legend:true,datalabels:{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,color:'#fff',font:{weight:'bold',size:10},formatter:v=>v,anchor:'center',align:'center'}});
 
-  // ── 3. Daily Fe% Trend (line — no labels on line) ─────────
   const daily={};
-  FILTERED.forEach(r=>{
-    const d=String(r.date||'').slice(0,10); if(!d) return;
-    if(!daily[d]) daily[d]=[];
-    daily[d].push(+r.Fe);
-  });
+  FILTERED.forEach(r=>{const d=dateOnly(r.date); if(!d)return; if(!daily[d])daily[d]=[]; daily[d].push(+r.Fe);});
   const days=Object.keys(daily).sort().slice(-30);
-  mkChart('cTrend','line',days,[{
-    label:'Avg Fe%',
-    data:days.map(d=>+(daily[d].reduce((a,b)=>a+b,0)/daily[d].length).toFixed(2)),
-    borderColor:'#fd480e', backgroundColor:'rgba(253,72,14,.1)',
-    fill:true, tension:.4, pointRadius:3, pointBackgroundColor:'#fd480e',
-  }],{
-    showLabels:false,
-    datalabels:{display:false}
-  });
+  mkChart('cTrend','line',days,[{label:'Avg Fe%',data:days.map(d=>+(daily[d].reduce((a,b)=>a+b,0)/daily[d].length).toFixed(2)),borderColor:'#fd480e',backgroundColor:'rgba(253,72,14,.1)',fill:true,tension:.4,pointRadius:3,pointBackgroundColor:'#fd480e'}],{datalabels:{display:false}});
 
-  // ── 4. Fe% Distribution (bar with labels) ─────────────────
   const bLabels=['<37%','37–45%','45–55%','55–65%','65%+'];
   const bCounts=[0,0,0,0,0];
-  FILTERED.forEach(r=>{
-    const fe=+r.Fe;
-    if(fe<37) bCounts[0]++;
-    else if(fe<45) bCounts[1]++;
-    else if(fe<55) bCounts[2]++;
-    else if(fe<65) bCounts[3]++;
-    else bCounts[4]++;
-  });
-  document.getElementById('h3').textContent = FILTERED.length+' samples';
-  mkChart('cDist','bar',bLabels,[{
-    label:'Samples', data:bCounts, borderRadius:5,
-    backgroundColor:['rgba(239,68,68,.8)','rgba(245,158,11,.8)','rgba(253,72,14,.8)','rgba(34,197,94,.8)','rgba(56,189,248,.8)'],
-  }],{showLabels:true, labelAnchor:'end', labelAlign:'top'});
+  FILTERED.forEach(r=>{const fe=+r.Fe;if(fe<37)bCounts[0]++;else if(fe<45)bCounts[1]++;else if(fe<55)bCounts[2]++;else if(fe<65)bCounts[3]++;else bCounts[4]++;});
+  document.getElementById('h3').textContent=FILTERED.length+' '+t('samples');
+  mkChart('cDist','bar',bLabels,[{label:t('samples'),data:bCounts,borderRadius:5,backgroundColor:['rgba(239,68,68,.8)','rgba(245,158,11,.8)','rgba(253,72,14,.8)','rgba(34,197,94,.8)','rgba(56,189,248,.8)']}],{showLabels:true,labelAnchor:'end',labelAlign:'top'});
 
-  // ── 5. Pass vs Fail Donut ─────────────────────────────────
   const passed=FILTERED.filter(r=>r.pass_fail==='Pass').length;
   const failed=FILTERED.filter(r=>r.pass_fail==='Fail').length;
-  document.getElementById('h4').textContent = FILTERED.length+' total';
-  mkChart('cDonut','doughnut',['Pass','Fail'],[{
-    data:[passed,failed],
-    backgroundColor:['rgba(34,197,94,.85)','rgba(239,68,68,.85)'],
-    borderColor:['#22c55e','#ef4444'],
-    borderWidth:1.5, hoverOffset:6,
-  }],{
-    legend:false,
-    datalabels:{
-      display:true, color:'#fff', font:{weight:'bold',size:12},
-      formatter:(v,ctx)=>v>0?ctx.chart.data.labels[ctx.dataIndex]+'\n'+v:'',
-    },
-    opts:{ cutout:'60%' }
-  });
+  document.getElementById('h4').textContent=FILTERED.length+' total';
+  mkChart('cDonut','doughnut',[t('accepted'),t('rejected')],[{data:[passed,failed],backgroundColor:['rgba(34,197,94,.85)','rgba(239,68,68,.85)'],borderColor:['#22c55e','#ef4444'],borderWidth:1.5,hoverOffset:6}],{legend:false,datalabels:{display:true,color:'#fff',font:{weight:'bold',size:12},formatter:(v,ctx)=>v>0?ctx.chart.data.labels[ctx.dataIndex]+'\n'+v:''},opts:{cutout:'60%'}});
+  const pRate=FILTERED.length?(passed/FILTERED.length*100).toFixed(1):0;
+  document.getElementById('donutLeg').innerHTML=`<div style="display:flex;align-items:center;gap:8px;font-size:12px"><span style="width:10px;height:10px;border-radius:50%;background:#22c55e;flex-shrink:0"></span><span style="color:var(--text2)">${t('accepted')}</span><span style="margin-left:auto;font-weight:700;color:var(--green)">${passed} (${pRate}%)</span></div><div style="display:flex;align-items:center;gap:8px;font-size:12px"><span style="width:10px;height:10px;border-radius:50%;background:#ef4444;flex-shrink:0"></span><span style="color:var(--text2)">${t('rejected')}</span><span style="margin-left:auto;font-weight:700;color:var(--red)">${failed} (${(100-pRate).toFixed(1)}%)</span></div><div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;color:var(--text2)">${t('materialRule')}</div>`;
 
-  // Donut legend
-  const pRate = FILTERED.length ? (passed/FILTERED.length*100).toFixed(1) : 0;
-  document.getElementById('donutLeg').innerHTML = `
-    <div style="display:flex;align-items:center;gap:8px;font-size:12px">
-      <span style="width:10px;height:10px;border-radius:50%;background:#22c55e;flex-shrink:0"></span>
-      <span style="color:var(--text2)">Pass</span>
-      <span style="margin-left:auto;font-weight:700;color:var(--green)">${passed} (${pRate}%)</span>
-    </div>
-    <div style="display:flex;align-items:center;gap:8px;font-size:12px">
-      <span style="width:10px;height:10px;border-radius:50%;background:#ef4444;flex-shrink:0"></span>
-      <span style="color:var(--text2)">Fail</span>
-      <span style="margin-left:auto;font-weight:700;color:var(--red)">${failed} (${(100-pRate).toFixed(1)}%)</span>
-    </div>
-    <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;color:var(--text2)">
-      Hematite/Limonite: ≥55% | Magnetite: ≥37%
-    </div>`;
-
-  // ── 6. Element Levels — last 50 batches ───────────────────
   const recent=FILTERED.slice(-50);
-  const ELEM_SHOW=['Fe','LE','Ca','Mn','Sr','Zn','Zr','Pb'];
-  const eKeys=ELEM_SHOW.filter(e=>recent.some(r=>+(r[e]||0)>0));
-  document.getElementById('hElem').textContent = eKeys.join(' · ');
-  mkChart('cElem','line',
-    recent.map((r,i)=>r.batch||String(i+1)),
-    eKeys.map((e,i)=>({
-      label:e,
-      data:recent.map(r=>+(r[e]||0)),
-      borderColor:PAL[i%PAL.length],
-      backgroundColor:PAL[i%PAL.length]+'18',
-      fill:false, tension:.3, pointRadius:2, borderWidth:2,
-    })),
-    {legend:true, datalabels:{display:false}}
-  );
+  // Show every numeric element that has at least one value above zero in the last 50 batches.
+  // Priority comes from the API available_elements list; fallback discovers numeric fields from the data.
+  const baseElements = AVAILABLE_ELEMENTS.length ? AVAILABLE_ELEMENTS : Object.keys(recent[0] || {}).filter(k => !['date','mine','zone','batch','material_type','pass_fail','Fe_grade'].includes(k));
+  const eKeys = baseElements.filter(e => recent.some(r => { const v = parseFloat(r[e] || 0); return !isNaN(v) && v > 0; }));
+  document.getElementById('hElem').textContent=eKeys.join(' · ');
+  mkChart('cElem','line',recent.map((r,i)=>r.batch||String(i+1)),eKeys.map((e,i)=>({label:e,data:recent.map(r=>{const v=parseFloat(r[e]||0);return isNaN(v)?0:v;}),borderColor:PAL[i%PAL.length],backgroundColor:PAL[i%PAL.length]+'18',fill:false,tension:.3,pointRadius:2,borderWidth:2})),{legend:true,datalabels:{display:false}});
 }
-
-// ── Table ────────────────────────────────────────────────────
 function renderTable() {
-  const body = document.getElementById('tBody');
-  if (!FILTERED.length) {
-    body.innerHTML='<tr><td colspan="14" style="text-align:center;color:var(--text2);padding:24px">No samples match current filters</td></tr>';
-    return;
-  }
-  const gc = g => g==='High'?'high':g==='Medium'?'med':g==='Low'?'low':'sub';
-  const fv = v => v&&+v>0 ? (+v).toFixed(2) : '—';
-  const feColor = fe => +fe>=55?'var(--green)':+fe>=37?'var(--accent)':'var(--red)';
-
-  body.innerHTML = FILTERED.map(r=>`<tr>
-    <td class="td-s">${String(r.date||'—').slice(0,10)}</td>
-    <td><strong>${r.mine||'—'}</strong></td>
-    <td class="td-s">${r.zone||'—'}</td>
-    <td>${r.batch||'—'}</td>
-    <td class="td-r td-b" style="color:${feColor(r.Fe)}">${fv(r.Fe)}</td>
-    <td class="td-r">${fv(r.LE)}</td>
-    <td class="td-r">${fv(r.Ca)}</td>
-    <td class="td-r">${fv(r.Mn)}</td>
-    <td class="td-r">${fv(r.Sr)}</td>
-    <td class="td-r">${fv(r.Zn)}</td>
-    <td class="td-r">${fv(r.Zr)}</td>
-    <td class="td-r">${fv(r.Pb)}</td>
-    <td><span class="badge ${r.material_type==='Magnetite'?'blue':r.material_type==='Limonite'?'yellow':'med'}">${r.material_type||'—'}</span></td>
-    <td><span class="badge ${r.pass_fail==='Pass'?'pass':'fail'}">${r.pass_fail||'—'}</span></td>
-  </tr>`).join('');
+  const body=document.getElementById('tBody');
+  if(!FILTERED.length){body.innerHTML=`<tr><td colspan="14" style="text-align:center;color:var(--text2);padding:24px">${t('noMatch')}</td></tr>`;return;}
+  const fv=v=>v&&+v>0?(+v).toFixed(2):'—';
+  const feColor=fe=>+fe>=55?'var(--green)':+fe>=37?'var(--accent)':'var(--red)';
+  body.innerHTML=FILTERED.map(r=>`<tr><td class="td-s">${dateOnly(r.date)||'—'}</td><td><strong>${r.mine||'—'}</strong></td><td class="td-s">${r.zone||'—'}</td><td>${r.batch||'—'}</td><td class="td-r td-b" style="color:${feColor(r.Fe)}">${fv(r.Fe)}</td><td class="td-r">${fv(r.LE)}</td><td class="td-r">${fv(r.Ca)}</td><td class="td-r">${fv(r.Mn)}</td><td class="td-r">${fv(r.Sr)}</td><td class="td-r">${fv(r.Zn)}</td><td class="td-r">${fv(r.Zr)}</td><td class="td-r">${fv(r.Pb)}</td><td><span class="badge ${r.material_type==='Magnetite'?'blue':r.material_type==='Limonite'?'yellow':'med'}">${r.material_type||'—'}</span></td><td><span class="badge ${r.pass_fail==='Pass'?'pass':'fail'}">${categoryText(r.pass_fail)}</span></td></tr>`).join('');
 }
-
-// ── Status ───────────────────────────────────────────────────
-function setStatus(type,msg) {
-  const dot=document.getElementById('sDot');
-  dot.className='s-dot'+(type==='error'?' red':type==='yellow'?' yellow':'');
-  document.getElementById('sText').textContent=msg;
+function exportExcel(){
+  if(!FILTERED.length){alert(t('noMatch'));return;}
+  const exportElements = AVAILABLE_ELEMENTS.length ? AVAILABLE_ELEMENTS : ['Fe','LE','Ca','Mn','Sr','Zn','Zr','Pb'];
+  const data=FILTERED.map(r=>{
+    const o={'Date':dateOnly(r.date),'Mine':r.mine||'','Zone':r.zone||'','Batch':r.batch||''};
+    exportElements.forEach(e=>{ const v=parseFloat(r[e]||0); o[e]=isNaN(v)?'':v; });
+    o['Material']=r.material_type||'';
+    o['Sample Category']=categoryText(r.pass_fail);
+    return o;
+  });
+  const wb=XLSX.utils.book_new(); const ws=XLSX.utils.json_to_sheet(data); ws['!cols']=Object.keys(data[0]||{}).map(k=>({wch:Math.max(10,Math.min(18,k.length+2))}));
+  XLSX.utils.book_append_sheet(wb,ws,'Quality Samples');
+  XLSX.writeFile(wb,'AIT_Quality_Samples_'+new Date().toISOString().slice(0,10)+'.xlsx');
 }
-
-// ── Auto-refresh every 30 min ─────────────────────────────────
-setInterval(()=>loadData('data'), 30*60*1000);
-
-// ── Init ──────────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('lastUpdate').textContent = '📅 ' + new Date().toLocaleDateString('en-GB');
-  loadData('data');
-});
+function setStatus(type,msg){const dot=document.getElementById('sDot');dot.className='s-dot'+(type==='error'?' red':type==='yellow'?' yellow':'');document.getElementById('sText').textContent=msg;}
+setInterval(()=>loadData('data'),30*60*1000);
+window.addEventListener('DOMContentLoaded',()=>{document.documentElement.setAttribute('data-theme',THEME);document.getElementById('themeBtn').textContent=THEME==='dark'?'🌙':'☀️';applyI18n();document.getElementById('lastUpdate').textContent='📅 '+new Date().toLocaleDateString('en-GB');loadData('data');});
 </script>
 </body>
 </html>
