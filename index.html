@@ -47,50 +47,37 @@
 <script>
 // ── Boot: check auth, load initial page ───────────────────────
 window.addEventListener('DOMContentLoaded', () => {
+  // ── NO LOGIN — direct access ──────────────────────────────
   hideDashboardLoading();
-  const q = getQueryEmail(); if(q) setSavedEmail(q);
-  const saved = getSavedEmail();
-  const em = document.getElementById('login-email'); if(em && saved) em.value = saved;
-  const sess = readAuthSession();
+  hideLoginScreen();
 
-  // Determine initial page from URL hash or default
   const hash = location.hash.replace('#','') || 'exec';
   CURRENT = hash;
 
-  if(sess && saved && normalizeEmail(sess.email) === saved && sess.active) {
-    applyAuth(sess, saved);
-    hideLoginScreen();
-    showDashboardLoading(LANG==='ar'?'جاري تحميل البيانات...':'Loading dashboard data...');
+  showDashboardLoading('Loading dashboard data...');
 
-    // Step 1: load the initial page script
-    window.AIT.loadPage(CURRENT).then(() => {
-      // Step 2: load live data
-      return refreshData({silent:true}).catch(()=>{});
-    }).then(() => {
-      // Step 3: render with live data
-      render();
-      hideDashboardLoading();
-      // Step 4: preload remaining pages in background
-      const others = (typeof PAGES !== 'undefined' ? PAGES : []).filter(p => p !== CURRENT);
-      let i = 0;
-      const preload = () => {
-        if(i >= others.length) return;
-        window.AIT.loadPage(others[i++]).catch(()=>{}).finally(() => setTimeout(preload, 300));
-      };
-      setTimeout(preload, 3000);
-    }).catch(e => {
-      console.error('Boot error:', e);
-      hideDashboardLoading();
-      render();
-    });
+  // Load initial page script → fetch live data → render
+  window.AIT.loadPage(CURRENT).then(() => {
+    return refreshData({silent:true}).catch(()=>{});
+  }).then(() => {
+    render();
+    hideDashboardLoading();
+    // Preload remaining pages in background
+    const others = (typeof PAGES !== 'undefined' ? PAGES : []).filter(p => p !== CURRENT);
+    let i = 0;
+    const preload = () => {
+      if(i >= others.length) return;
+      window.AIT.loadPage(others[i++]).catch(()=>{}).finally(() => setTimeout(preload, 300));
+    };
+    setTimeout(preload, 2000);
+  }).catch(e => {
+    console.error('Boot error:', e);
+    hideDashboardLoading();
+    render();
+  });
 
-  } else {
-    showLoginScreen();
-  }
-
-  setInterval(() => {
-    if(getSavedEmail()) refreshData({silent:true}).catch(()=>{});
-  }, 30000);
+  // Auto-refresh every 30 seconds
+  setInterval(() => refreshData({silent:true}).catch(()=>{}), 30000);
 });
 </script>
 <div id="ait-login-overlay" style="display:flex;position:fixed;inset:0;z-index:9999">
