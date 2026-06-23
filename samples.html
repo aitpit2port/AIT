@@ -208,11 +208,11 @@ tbody tr:hover td{background:var(--card2)}
     <option value="Limonite">🟡 Limonite</option>
   </select>
 
-  <span class="fl" data-i18n="result">Pass/Fail</span>
+  <span class="fl" id="lbl-result">Pass/Fail</span>
   <select class="fs" id="fPass" onchange="applyFilters()">
-    <option value="all" data-i18n="all">All</option>
-    <option value="Pass" data-i18n="pass">✓ Pass</option>
-    <option value="Fail" data-i18n="fail">✗ Fail</option>
+    <option value="all"      id="opt-pf-all">All Categories</option>
+    <option value="Accepted" id="opt-accepted">✓ Accepted</option>
+    <option value="Rejected" id="opt-rejected">✗ Rejected</option>
   </select>
 
   <span class="fl" data-i18n="dateRange">Date Range</span>
@@ -268,7 +268,7 @@ tbody tr:hover td{background:var(--card2)}
             <div class="pf-stat" style="border-color:var(--green)">
               <div class="pf-dot" style="background:var(--green)"></div>
               <div style="flex:1">
-                <div class="pf-label" data-i18n="pass">Pass</div>
+                <div class="pf-label" data-i18n="pass">Accepted</div>
                 <div class="pf-count" id="pfPassCount" style="color:var(--green)">—</div>
                 <div class="pf-pct" id="pfPassPct">—</div>
               </div>
@@ -276,7 +276,7 @@ tbody tr:hover td{background:var(--card2)}
             <div class="pf-stat" style="border-color:var(--red)">
               <div class="pf-dot" style="background:var(--red)"></div>
               <div style="flex:1">
-                <div class="pf-label" data-i18n="fail">Fail</div>
+                <div class="pf-label" data-i18n="fail">Rejected</div>
                 <div class="pf-count" id="pfFailCount" style="color:var(--red)">—</div>
                 <div class="pf-pct" id="pfFailPct">—</div>
               </div>
@@ -344,15 +344,15 @@ const I18N = {
   en:{
     pageTitle:'Quality / Samples',pageSub:'XRF analysis — Fe%, elements, pass/fail by mine',
     loading:'Loading quality data...',refresh:'Refresh',exportExcel:'Export Excel',
-    mine:'Mine',zone:'Zone',material:'Material',result:'Pass/Fail',dateRange:'Date Range',
+    mine:'Mine',zone:'Zone',material:'Material',result:'Sample Category',dateRange:'Date Range',
     clearFilters:'✕ Clear',allMines:'All Mines',allZones:'All Zones',allMat:'All Materials',
-    all:'All',pass:'Pass',fail:'Fail',last30:'Last 30 days',
-    feByMine:'Avg Fe% by Mine',pfByMine:'Pass / Fail by Mine',
+    all:'All',pass:'Accepted',fail:'Rejected',result:'Sample Category',optPfAll:'All Categories',optAccepted:'✓ Accepted',optRejected:'✗ Rejected',last30:'Last 30 days',
+    feByMine:'Avg Fe% by Mine',pfByMine:'Sample Category by Mine',
     dailyTrend:'Daily Fe% Trend',feDist:'Fe% Distribution',
-    pfOverall:'Pass vs Fail — Overall',elemLevels:'Element Levels — Last 50 Batches',
+    pfOverall:'Sample Category — Overall',elemLevels:'Element Levels — Last 50 Batches',
     fullData:'Full Sample Data',date:'Date',batch:'Batch',
     kpi_total:'TOTAL SAMPLES',kpi_avgfe:'AVG FE%',kpi_range:'FE% RANGE',
-    kpi_prate:'PASS RATE',kpi_pass:'PASSED',kpi_fail:'FAILED',
+    kpi_prate:'PASS RATE',kpi_pass:'ACCEPTED',kpi_fail:'REJECTED',
     kpi_mines:'MINES SAMPLED',kpi_latest:'LATEST SAMPLE',
     batches:'batches',of:'of',registered:'25 registered',
   },
@@ -361,25 +361,25 @@ const I18N = {
     loading:'جاري تحميل بيانات الجودة...',refresh:'تحديث',exportExcel:'تصدير Excel',
     mine:'المنجم',zone:'المنطقة',material:'نوع الخامة',result:'نجاح/رسوب',dateRange:'الفترة الزمنية',
     clearFilters:'✕ مسح',allMines:'كل المناجم',allZones:'كل المناطق',allMat:'كل الأنواع',
-    all:'الكل',pass:'ناجح',fail:'راسب',last30:'آخر 30 يوم',
-    feByMine:'متوسط Fe% لكل منجم',pfByMine:'النجاح والرسوب لكل منجم',
+    all:'الكل',pass:'مقبول',fail:'مرفوض',result:'تصنيف العينة',optPfAll:'كل التصنيفات',optAccepted:'✓ مقبول',optRejected:'✗ مرفوض',last30:'آخر 30 يوم',
+    feByMine:'متوسط Fe% لكل منجم',pfByMine:'تصنيف العينة لكل منجم',
     dailyTrend:'اتجاه Fe% اليومي',feDist:'توزيع نسب Fe%',
-    pfOverall:'النجاح والرسوب الإجمالي',elemLevels:'مستويات العناصر — آخر 50 دفعة',
+    pfOverall:'تصنيف العينات الإجمالي',elemLevels:'مستويات العناصر — آخر 50 دفعة',
     fullData:'بيانات العينات الكاملة',date:'التاريخ',batch:'الدفعة',
     kpi_total:'إجمالي العينات',kpi_avgfe:'متوسط Fe%',kpi_range:'نطاق Fe%',
-    kpi_prate:'معدل النجاح',kpi_pass:'ناجح',kpi_fail:'راسب',
+    kpi_prate:'معدل النجاح',kpi_pass:'مقبول',kpi_fail:'مرفوض',
     kpi_mines:'مناجم مُعاينة',kpi_latest:'آخر عينة',
     batches:'دفعة',of:'من',registered:'25 مسجل',
   },
   zh:{
     pageTitle:'质量/样品',pageSub:'XRF分析 — Fe%、元素、合格/不合格',
     loading:'加载质量数据...',refresh:'刷新',exportExcel:'导出Excel',
-    mine:'矿区',zone:'区域',material:'材料类型',result:'合格/不合格',dateRange:'日期范围',
+    mine:'矿区',zone:'区域',material:'材料类型',result:'样品分类',dateRange:'日期范围',
     clearFilters:'✕ 清除',allMines:'所有矿区',allZones:'所有区域',allMat:'所有材料',
-    all:'全部',pass:'合格',fail:'不合格',last30:'近30天',
-    feByMine:'各矿区平均Fe%',pfByMine:'各矿区合格/不合格',
+    all:'全部',pass:'合格',fail:'不合格',result:'样品分类',optPfAll:'全部分类',optAccepted:'✓ 合格',optRejected:'✗ 不合格',last30:'近30天',
+    feByMine:'各矿区平均Fe%',pfByMine:'各矿区样品分类',
     dailyTrend:'每日Fe%趋势',feDist:'Fe%分布',
-    pfOverall:'合格与不合格总览',elemLevels:'元素水平 — 最近50批次',
+    pfOverall:'样品分类总览',elemLevels:'元素水平 — 最近50批次',
     fullData:'完整样品数据',date:'日期',batch:'批次',
     kpi_total:'样品总数',kpi_avgfe:'平均Fe%',kpi_range:'Fe%范围',
     kpi_prate:'合格率',kpi_pass:'合格',kpi_fail:'不合格',
@@ -396,6 +396,17 @@ function t(key){ return (I18N[LANG]&&I18N[LANG][key]) || I18N.en[key] || key; }
 function applyI18n(){
   document.querySelectorAll('[data-i18n]').forEach(el=>{
     el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  // Update Pass/Fail dropdown — values stay English, display text changes
+  const ids = {
+    'lbl-result':  'result',
+    'opt-pf-all':  'optPfAll',
+    'opt-accepted':'optAccepted',
+    'opt-rejected':'optRejected',
+  };
+  Object.entries(ids).forEach(([id,key])=>{
+    const el=document.getElementById(id);
+    if(el) el.textContent=t(key);
   });
   document.documentElement.lang = LANG;
   document.documentElement.dir  = LANG==='ar' ? 'rtl' : 'ltr';
@@ -589,8 +600,8 @@ function render(){
 // ── KPIs ──────────────────────────────────────────────────────
 function renderKPIs(){
   const feV=FILTERED.map(r=>+r.Fe).filter(v=>v>0);
-  const pass=FILTERED.filter(r=>r.pass_fail==='Pass');
-  const fail=FILTERED.filter(r=>r.pass_fail==='Fail');
+  const pass=FILTERED.filter(r=>r.pass_fail==='مقبول');
+  const fail=FILTERED.filter(r=>r.pass_fail==='مرفوض');
   const avg=feV.length?feV.reduce((a,b)=>a+b,0)/feV.length:0;
   const pr=FILTERED.length?pass.length/FILTERED.length*100:0;
   const mines=new Set(FILTERED.map(r=>r.mine)).size;
@@ -682,7 +693,7 @@ function renderCharts(){
 
   // ── 2. Pass / Fail by Mine ───────────────────────────────
   const pfMap={};
-  FILTERED.forEach(r=>{if(!pfMap[r.mine])pfMap[r.mine]={pass:0,fail:0};r.pass_fail==='Pass'?pfMap[r.mine].pass++:pfMap[r.mine].fail++;});
+  FILTERED.forEach(r=>{if(!pfMap[r.mine])pfMap[r.mine]={pass:0,fail:0};r.pass_fail==='مقبول'?pfMap[r.mine].pass++:pfMap[r.mine].fail++;});
   const pfMines=Object.keys(pfMap).sort();
   document.getElementById('h2').textContent=pfMines.length+' mines';
   mkChart('cPF','bar',pfMines,[
@@ -697,7 +708,7 @@ function renderCharts(){
     },
     onClick:(evt,els)=>{
       if(!els.length)return;
-      const val=els[0].datasetIndex===0?'Pass':'Fail';
+      const val=els[0].datasetIndex===0?'مقبول':'مرفوض';
       if(ACTIVE_CHART_FILTER?.value===val){ clearChartFilter(); return; }
       ACTIVE_CHART_FILTER={type:'pf',chartType:'pf',value:val};
       document.getElementById('card-pf').classList.add('active-filter');
@@ -742,8 +753,8 @@ function renderCharts(){
   });
 
   // ── 5. Donut ─────────────────────────────────────────────
-  const pass=FILTERED.filter(r=>r.pass_fail==='Pass').length;
-  const fail=FILTERED.filter(r=>r.pass_fail==='Fail').length;
+  const pass=FILTERED.filter(r=>r.pass_fail==='مقبول').length;
+  const fail=FILTERED.filter(r=>r.pass_fail==='مرفوض').length;
   document.getElementById('h4').textContent=FILTERED.length+' total';
   mkChart('cDonut','doughnut',[t('pass'),t('fail')],[{
     data:[pass,fail],
@@ -771,8 +782,8 @@ function renderCharts(){
 
 // ── Pass/Fail Card ─────────────────────────────────────────────
 function renderPFCard(){
-  const pass=FILTERED.filter(r=>r.pass_fail==='Pass').length;
-  const fail=FILTERED.filter(r=>r.pass_fail==='Fail').length;
+  const pass=FILTERED.filter(r=>r.pass_fail==='مقبول').length;
+  const fail=FILTERED.filter(r=>r.pass_fail==='مرفوض').length;
   const total=pass+fail;
   const pr=total?+(pass/total*100).toFixed(1):0;
   document.getElementById('pfPassCount').textContent=pass;
@@ -806,7 +817,7 @@ function renderTable(){
     <td class="td-r">${fv(r.Zn)}</td>
     <td class="td-r">${fv(r.Zr)}</td>
     <td class="td-r">${fv(r.Pb)}</td>
-    <td><span class="badge ${r.pass_fail==='Pass'?'pass':'fail'}">${r.pass_fail||'—'}</span></td>
+    <td><span class="badge ${r.pass_fail==='مقبول'?'pass':'fail'}">${r.pass_fail||'—'}</span></td>
   </tr>`).join('');
 }
 
@@ -823,7 +834,7 @@ function exportExcel(){
     Zone:        r.zone||'',
     Batch:       r.batch||'',
     Material:    r.material_type||'',
-    'Pass/Fail': r.pass_fail||'',
+    'النتيجة': r.pass_fail||'',
     Fe_Grade:    r.Fe_grade||'',
     'Fe%':       +(r.Fe||0),
     LE:          +(r.LE||0),
@@ -869,7 +880,7 @@ function exportExcel(){
 
   // Summary sheet
   const feV=FILTERED.map(r=>+r.Fe).filter(v=>v>0);
-  const pass=FILTERED.filter(r=>r.pass_fail==='Pass').length;
+  const pass=FILTERED.filter(r=>r.pass_fail==='مقبول').length;
   const summaryData=[
     {Metric:'Export Date',    Value: new Date().toLocaleDateString()},
     {Metric:'Total Samples',  Value: FILTERED.length},
