@@ -5,7 +5,7 @@
 // TO EDIT: only change this file for cross-page fixes.
 // ============================================================
 
-const API_URL='https://script.google.com/macros/s/AKfycbyfbefqFAIJ34EfwVnJz-weZs0J6I3vmz9lohh-lNUjuoc1NwE73nxtUwiHr9wnRtd1jQ/exec';
+const API_URL='https://script.google.com/macros/s/AKfycbw17eoQz22-WWCbRQOowlSr0zadA2uIORnuX3W3B7WPlK4MmQw0hmsyXj8THQirsphp9Q/exec';
 const USER_EMAIL_KEY='ait_dashboard_user_email';
 const USER_SESSION_KEY='ait_dashboard_auth_session_v2';
 const ALL_PAGE_KEYS=['exec','timeline','budget','expenses','cost','cashflow','risks','vendors','approvals','performance','production','quality','mines'];
@@ -500,21 +500,25 @@ function destroy(){
 
 
 
-function render(){layout();nav();projects();filters();destroy();let m=META[CURRENT];pageTitle.textContent=LANG==='ar'?m[2]:m[0];pageSub.textContent=LANG==='ar'?m[3]:m[1];pages.innerHTML=`<div class="page active" id="page-${CURRENT}">${R[CURRENT]()}</div>`;setTimeout(()=>{try{C[CURRENT]()}catch(e){console.error(e);toast(LANG==='ar'?'خطأ في رسم أحد المخططات':'Chart render error')}},20)}function goPage(p){CURRENT=p;render()}function setProject(v){PROJECT=v;render()}function toggleLang(){LANG=LANG==='ar'?'en':'ar';localStorage.setItem('ait_lang',LANG);render()}function toast(msg){let el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000)}async function refreshData(options={}){let silent=!!options.silent;let email=getUserEmail(!silent);if(!email){if(!silent)toast(LANG==='ar'?'لازم تدخل الإيميل المسجل أولًا':'Authorized email is required');return}let old=refreshBtn.textContent;refreshBtn.textContent=LANG==='ar'?'جاري التحديث...':'Refreshing...';refreshBtn.disabled=true;try{await verifyUserEmail(email);let fresh=await apiRequest('refresh',{email:email,password:window.USER_PASS||'',pages:PAGES.join(',')});if(fresh&&fresh.error)throw new Error(fresh.message||fresh.error);if(fresh&&!fresh.error){PAGES.forEach(p=>{if(fresh[p])LIVE[p]=fresh[p]});if(fresh.lastUpdated)LIVE.lastUpdated=fresh.lastUpdated;if(fresh.stats)LIVE.stats=fresh.stats;if(!silent)toast(LANG==='ar'?'تم تحديث البيانات بنجاح':'Data refreshed successfully')}else{if(!silent)toast(LANG==='ar'?'لم يرجع المصدر بيانات جديدة':'No new live data returned')}}catch(e){if(!silent)toast((LANG==='ar'?'تعذر التحديث: ':'Refresh failed: ')+(e.message||e));console.error(e);throw e}finally{refreshBtn.textContent=old;refreshBtn.disabled=false;render()}}function changeDashboardUser(){localStorage.removeItem(USER_EMAIL_KEY);let email=getUserEmail(true);if(email)toast((LANG==='ar'?'تم حفظ الإيميل: ':'Saved email: ')+email)}function exportExcel(){if(!window.USER_EXCEL){toast(LANG==='ar'?'ليست لديك صلاحية تحميل Excel':'You do not have Excel export permission');return;}let wb=XLSX.utils.book_new();Object.entries(LIVE).forEach(([k,v])=>{if(v&&typeof v==='object'&&!Array.isArray(v)){Object.entries(v).forEach(([sk,arr])=>{if(Array.isArray(arr)&&arr.length&&typeof arr[0]==='object')XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(arr),(k+'_'+sk).slice(0,31))})}});XLSX.writeFile(wb,'AIT_Dashboard_Data.xlsx')}function exportPDF(){if(!window.USER_PDF){toast(LANG==='ar'?'ليست لديك صلاحية تحميل PDF':'You do not have PDF export permission');return;}window.print()}window.addEventListener('DOMContentLoaded',()=>{
-  hideDashboardLoading();
-  const q=getQueryEmail(); if(q)setSavedEmail(q);
-  const saved=getSavedEmail();
-  const em=document.getElementById('login-email'); if(em&&saved)em.value=saved;
-  const sess=readAuthSession();
-  if(sess&&saved&&normalizeEmail(sess.email)===saved&&sess.active){
-    applyAuth(sess,saved); render(); hideLoginScreen();
-    showDashboardLoading(LANG==='ar'?'جارٍ تحديث بيانات الداشبورد...':'Updating dashboard data...');
-    refreshData({silent:true}).catch(()=>{}).finally(()=>hideDashboardLoading());
-  }else{
-    showLoginScreen();
+function render(){
+  layout();nav();projects();filters();destroy();
+  let m=META[CURRENT]||['','','',''];
+  if(pageTitle) pageTitle.textContent=LANG==='ar'?m[2]:m[0];
+  if(pageSub)   pageSub.textContent  =LANG==='ar'?m[3]:m[1];
+  // If page script not loaded yet, load it first then render
+  if(typeof R==='undefined'||!R[CURRENT]){
+    window.AIT.loadPage(CURRENT).then(()=>render()).catch(e=>console.error(e));
+    return;
   }
-  setInterval(()=>{if(getSavedEmail())refreshData({silent:true}).catch(()=>{})},30000);
-});window.addEventListener('error',e=>{console.error(e.error||e.message);toast(LANG==='ar'?'تم منع توقف الداشبورد بسبب خطأ':'A runtime issue was caught')});
+  try{
+    if(pages) pages.innerHTML=`<div class="page active" id="page-${CURRENT}">${R[CURRENT]()}</div>`;
+  }catch(e){ console.error('Render error:',e); }
+  setTimeout(()=>{
+    try{ if(typeof C!=='undefined'&&C[CURRENT]) C[CURRENT](); }
+    catch(e){ console.error(e); toast(LANG==='ar'?'خطأ في رسم أحد المخططات':'Chart render error'); }
+  },20);
+}function goPage(p){CURRENT=p;render()}function setProject(v){PROJECT=v;render()}function toggleLang(){LANG=LANG==='ar'?'en':'ar';localStorage.setItem('ait_lang',LANG);render()}function toast(msg){let el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000)}async function refreshData(options={}){let silent=!!options.silent;let email=getUserEmail(!silent);if(!email){if(!silent)toast(LANG==='ar'?'لازم تدخل الإيميل المسجل أولًا':'Authorized email is required');return}let old=refreshBtn.textContent;refreshBtn.textContent=LANG==='ar'?'جاري التحديث...':'Refreshing...';refreshBtn.disabled=true;try{await verifyUserEmail(email);let fresh=await apiRequest('refresh',{email:email,password:window.USER_PASS||'',pages:PAGES.join(',')});if(fresh&&fresh.error)throw new Error(fresh.message||fresh.error);if(fresh&&!fresh.error){PAGES.forEach(p=>{if(fresh[p])LIVE[p]=fresh[p]});if(fresh.lastUpdated)LIVE.lastUpdated=fresh.lastUpdated;if(fresh.stats)LIVE.stats=fresh.stats;if(!silent)toast(LANG==='ar'?'تم تحديث البيانات بنجاح':'Data refreshed successfully')}else{if(!silent)toast(LANG==='ar'?'لم يرجع المصدر بيانات جديدة':'No new live data returned')}}catch(e){if(!silent)toast((LANG==='ar'?'تعذر التحديث: ':'Refresh failed: ')+(e.message||e));console.error(e);throw e}finally{refreshBtn.textContent=old;refreshBtn.disabled=false;render()}}function changeDashboardUser(){localStorage.removeItem(USER_EMAIL_KEY);let email=getUserEmail(true);if(email)toast((LANG==='ar'?'تم حفظ الإيميل: ':'Saved email: ')+email)}function exportExcel(){if(!window.USER_EXCEL){toast(LANG==='ar'?'ليست لديك صلاحية تحميل Excel':'You do not have Excel export permission');return;}let wb=XLSX.utils.book_new();Object.entries(LIVE).forEach(([k,v])=>{if(v&&typeof v==='object'&&!Array.isArray(v)){Object.entries(v).forEach(([sk,arr])=>{if(Array.isArray(arr)&&arr.length&&typeof arr[0]==='object')XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(arr),(k+'_'+sk).slice(0,31))})}});XLSX.writeFile(wb,'AIT_Dashboard_Data.xlsx')}function exportPDF(){if(!window.USER_PDF){toast(LANG==='ar'?'ليست لديك صلاحية تحميل PDF':'You do not have PDF export permission');return;}window.print()}// DOMContentLoaded is handled by index.html boot script
+// shared.js only provides the functionswindow.addEventListener('error',e=>{console.error(e.error||e.message);toast(LANG==='ar'?'تم منع توقف الداشبورد بسبب خطأ':'A runtime issue was caught')});
 
 
 // ── Dynamic page loader ────────────────────────────────────────
@@ -539,14 +543,15 @@ window.AIT.loadPage = function(pageKey) {
 };
 
 // Override goPage to lazy-load page scripts
-const _origGoPage = window.goPage;
 window.goPage = function(p) {
   CURRENT = p;
-  // Update URL hash without reload
   history.replaceState(null, '', '#' + p);
-  // Load page script if needed, then render
-  window.AIT.loadPage(p).then(() => render()).catch(e => {
-    console.error(e);
-    render(); // fallback
+  // Update nav active state immediately
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.page === p);
   });
+  // Load page script then render
+  window.AIT.loadPage(p)
+    .then(() => render())
+    .catch(e => { console.error(e); });
 };
