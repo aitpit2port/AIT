@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AIT — Production / Lots</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+:root{
+  --bg:#0b1118;--card:#111827;--card2:#1a2235;--border:#1e2d40;
+  --text:#e8ecf2;--text2:#8892a4;--text3:#4b5a6e;
+  --accent:#fd480e;--accent2:#ff6b35;--accentbg:rgba(253,72,14,.12);
+  --green:#22c55e;--greenbg:rgba(34,197,94,.12);
+  --red:#ef4444;--redbg:rgba(239,68,68,.12);
+  --blue:#38bdf8;--bluebg:rgba(56,189,248,.12);
+  --yellow:#f59e0b;--yellowbg:rgba(245,158,11,.12);
+  --purple:#a78bfa;--purplebg:rgba(167,139,250,.12);
+  --shadow:0 2px 12px rgba(0,0,0,.4);--radius:10px;
+  --chart-grid:rgba(255,255,255,.04);--chart-txt:#8892a4;
+}
+[data-theme="light"]{
+  --bg:#f0f2f5;--card:#fff;--card2:#f8f9fc;--border:#e1e5eb;
+  --text:#1a2030;--text2:#5a6478;--text3:#8b949e;
+  --shadow:0 1px 8px rgba(0,0,0,.08);
+  --chart-grid:rgba(0,0,0,.06);--chart-txt:#5a6478;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;font-size:13px;background:var(--bg);color:var(--text);overflow-x:hidden;transition:background .25s,color .25s}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--card);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow);transition:background .25s}
+.tb-title{font-size:15px;font-weight:700;line-height:1}
+.tb-sub{font-size:10px;color:var(--text2);margin-top:1px}
+.tb-spacer{flex:1}
+.tb-info{font-size:11px;color:var(--text2);background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;white-space:nowrap}
+.tb-btn{display:flex;align-items:center;gap:5px;background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:5px 11px;font-size:11px;font-weight:600;color:var(--text2);cursor:pointer;transition:.2s;white-space:nowrap;font-family:inherit}
+.tb-btn:hover{border-color:var(--accent);color:var(--accent)}
+.tb-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.tb-btn.primary:hover{background:var(--accent2)}
+.tb-btn.primary:disabled{opacity:.6;cursor:not-allowed}
+.tb-btn.primary.spinning svg{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── FILTER BAR ── */
+.filterbar{background:var(--card);border-bottom:1px solid var(--border);padding:8px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;transition:background .25s}
+.fl{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.fs{background:var(--card2);border:1.5px solid var(--border);border-radius:6px;padding:5px 26px 5px 9px;font-size:11px;color:var(--text);cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238892a4' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center;transition:.2s;min-width:110px;font-family:inherit}
+.fs:focus{border-color:var(--accent)}
+.date-wrap{display:flex;align-items:center;gap:5px}
+.date-wrap input[type=date]{background:var(--card2);border:1.5px solid var(--border);border-radius:6px;padding:5px 8px;font-size:11px;color:var(--text);outline:none;transition:.2s;cursor:pointer;font-family:inherit}
+.date-wrap input[type=date]:focus{border-color:var(--accent)}
+.date-sep{font-size:10px;color:var(--text2)}
+.btn-clear{background:none;border:1.5px solid var(--border);border-radius:6px;padding:5px 10px;font-size:11px;color:var(--text2);cursor:pointer;transition:.2s;font-family:inherit}
+.btn-clear:hover{border-color:var(--red);color:var(--red)}
+.active-badge{background:var(--accent);color:#fff;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700}
+
+/* ── CONTENT ── */
+.content{padding:14px 16px 72px}
+
+/* ── FLOW PIPELINE ── */
+.pipeline{display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;align-items:center;gap:0;margin-bottom:14px}
+.pipe-stage{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;text-align:center;transition:.2s}
+.pipe-stage:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.pipe-stage.mine   {border-top:3px solid var(--accent)}
+.pipe-stage.crusher{border-top:3px solid var(--yellow)}
+.pipe-stage.port   {border-top:3px solid var(--blue)}
+.pipe-stage.loss   {border-top:3px solid var(--red)}
+.pipe-icon{font-size:22px;margin-bottom:4px}
+.pipe-label{font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--text2);margin-bottom:4px}
+.pipe-value{font-size:20px;font-weight:800;line-height:1}
+.pipe-value.orange{color:var(--accent)}
+.pipe-value.yellow{color:var(--yellow)}
+.pipe-value.blue  {color:var(--blue)}
+.pipe-value.red   {color:var(--red)}
+.pipe-note{font-size:10px;color:var(--text2);margin-top:3px}
+.pipe-arrow{font-size:20px;color:var(--text3);text-align:center;padding:0 4px}
+
+/* ── KPI GRID ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin-bottom:14px}
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:700px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+.kc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;border-top:3px solid transparent;transition:.2s}
+.kc:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.kc.orange{border-top-color:var(--accent)} .kc.green{border-top-color:var(--green)}
+.kc.blue{border-top-color:var(--blue)}     .kc.yellow{border-top-color:var(--yellow)}
+.kc.red{border-top-color:var(--red)}       .kc.purple{border-top-color:var(--purple)}
+.kc-lbl{font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text2);margin-bottom:5px}
+.kc-val{font-size:20px;font-weight:800;line-height:1}
+.kc-val.orange{color:var(--accent)} .kc-val.green{color:var(--green)}
+.kc-val.blue{color:var(--blue)}     .kc-val.yellow{color:var(--yellow)}
+.kc-val.red{color:var(--red)}       .kc-val.purple{color:var(--purple)}
+.kc-note{font-size:10px;color:var(--text2);margin-top:3px}
+
+/* ── GRIDS ── */
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.g1{margin-bottom:12px}
+@media(max-width:900px){.g3{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.g3,.g2{grid-template-columns:1fr}}
+
+/* ── CARD ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;transition:background .25s,border .25s}
+.card.clickable:hover .card-head{background:var(--accentbg)}
+.card.active-filter .card-head{background:var(--accentbg);border-bottom-color:var(--accent)}
+.card-head{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;transition:background .2s}
+.card-head h3{font-size:12px;font-weight:700}
+.card-head span{font-size:10px;color:var(--text2)}
+.card-body{padding:12px 14px}
+.ch{position:relative}
+.ch.h180{height:180px} .ch.h200{height:200px} .ch.h240{height:240px}
+
+/* ── TABLE ── */
+.tbl-wrap{overflow-x:auto;max-height:400px;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:11px}
+thead th{background:var(--card2);color:var(--accent);font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;z-index:2}
+tbody td{padding:7px 12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--card2)}
+.td-r{text-align:right} .td-b{font-weight:700} .td-s{font-size:10px;color:var(--text2)}
+
+/* ── BADGE ── */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;white-space:nowrap}
+.badge.mine   {background:var(--accentbg);color:var(--accent)}
+.badge.crusher{background:var(--yellowbg);color:var(--yellow)}
+.badge.port   {background:var(--bluebg);color:var(--blue)}
+
+/* ── LOADING ── */
+.page-load{position:fixed;inset:0;background:rgba(11,17,24,.92);display:flex;align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(4px)}
+.page-load.hidden{display:none}
+.ld-spin{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px}
+.ld-msg{font-size:13px;color:var(--text2);text-align:center}
+
+/* ── STATUS BAR ── */
+.statusbar{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);padding:5px 16px;display:flex;align-items:center;gap:10px;font-size:10px;color:var(--text2);z-index:50;transition:background .25s}
+.s-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;box-shadow:0 0 5px var(--green)}
+.s-dot.red{background:var(--red);box-shadow:0 0 5px var(--red)}
+.s-dot.yellow{background:var(--yellow);box-shadow:0 0 5px var(--yellow)}
+
+/* ── CHIP ── */
+.chip-bar{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.chip{display:inline-flex;align-items:center;gap:5px;background:var(--accentbg);border:1px solid var(--accent);border-radius:4px;padding:2px 8px;font-size:10px;color:var(--accent);font-weight:600}
+.chip-x{cursor:pointer;opacity:.7}.chip-x:hover{opacity:1}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="page-load" id="pageLoad">
+  <div>
+    <div class="ld-spin"></div>
+    <div class="ld-msg" id="ldMsg">Loading production data...</div>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div>
+    <div class="tb-title" data-i18n="pageTitle">Production / Lots</div>
+    <div class="tb-sub" data-i18n="pageSub">Tonnage tracking — Mine → Crusher → Port</div>
+  </div>
+  <div class="tb-spacer"></div>
+  <div class="tb-info" id="lastUpdate">—</div>
+  <select class="tb-btn" id="langSel" onchange="setLang(this.value)" style="cursor:pointer">
+    <option value="en">🌐 EN</option>
+    <option value="ar">🌐 عربي</option>
+    <option value="zh">🌐 中文</option>
+  </select>
+  <button class="tb-btn" id="themeBtn" onclick="toggleTheme()">🌙</button>
+  <button class="tb-btn" onclick="exportExcel()">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    <span data-i18n="exportExcel">Export Excel</span>
+  </button>
+  <button class="tb-btn primary" id="btnRefresh" onclick="refreshData()">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
+    <span data-i18n="refresh">Refresh</span>
+  </button>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filterbar">
+  <span class="fl" data-i18n="mine">Mine</span>
+  <select class="fs" id="fMine" onchange="applyFilters()">
+    <option value="all" data-i18n="allMines">All Mines</option>
+  </select>
+
+  <span class="fl" data-i18n="stage">Stage</span>
+  <select class="fs" id="fStage" onchange="applyFilters()">
+    <option value="all" id="opt-stage-all">All Stages</option>
+    <option value="Mine"    id="opt-mine">⛏ Mine</option>
+    <option value="Crusher" id="opt-crusher">🏗 Crusher</option>
+    <option value="Port"    id="opt-port">🚢 Port</option>
+  </select>
+
+  <span class="fl" data-i18n="dateRange">Date Range</span>
+  <div class="date-wrap">
+    <input type="date" id="fFrom" onchange="applyFilters()">
+    <span class="date-sep">→</span>
+    <input type="date" id="fTo" onchange="applyFilters()">
+  </div>
+
+  <button class="btn-clear" onclick="clearFilters()" data-i18n="clearFilters">✕ Clear</button>
+  <span class="active-badge" id="activeBadge" style="display:none"></span>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- Active chips -->
+  <div class="chip-bar" id="chipBar"></div>
+
+  <!-- PIPELINE FLOW -->
+  <div class="pipeline" id="pipeline">
+    <div class="pipe-stage mine">
+      <div class="pipe-icon">⛏️</div>
+      <div class="pipe-label" data-i18n="atMine">At Mine</div>
+      <div class="pipe-value orange" id="pv-mine">—</div>
+      <div class="pipe-note" data-i18n="tons">Tons</div>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-stage crusher">
+      <div class="pipe-icon">🏗️</div>
+      <div class="pipe-label" data-i18n="afterCrusher">After Crusher</div>
+      <div class="pipe-value yellow" id="pv-crusher">—</div>
+      <div class="pipe-note" id="pn-crusher">Pending</div>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-stage port">
+      <div class="pipe-icon">🚢</div>
+      <div class="pipe-label" data-i18n="atPort">At Port</div>
+      <div class="pipe-value blue" id="pv-port">—</div>
+      <div class="pipe-note" id="pn-port">Pending</div>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-stage loss">
+      <div class="pipe-icon">📉</div>
+      <div class="pipe-label" data-i18n="totalLoss">Total Loss</div>
+      <div class="pipe-value red" id="pv-loss">—</div>
+      <div class="pipe-note" id="pn-loss">—</div>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <!-- Row 1: Tonnage by Mine | Fe% by Mine | Stage Distribution -->
+  <div class="g3">
+    <div class="card clickable" id="card-mine" onclick="chartClick('mine')">
+      <div class="card-head"><h3 data-i18n="tonByMine">Tonnage by Mine</h3><span id="h1"></span></div>
+      <div class="card-body"><div class="ch h200"><canvas id="cTon"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3 data-i18n="feByMine">Avg Fe% by Mine</h3><span id="h2"></span></div>
+      <div class="card-body"><div class="ch h200"><canvas id="cFe"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3 data-i18n="stageFlow">Mine → Crusher → Port Flow</h3><span id="h3"></span></div>
+      <div class="card-body"><div class="ch h200"><canvas id="cFlow"></canvas></div></div>
+    </div>
+  </div>
+
+  <!-- Row 2: Tonnage trend | Loss analysis -->
+  <div class="g2">
+    <div class="card">
+      <div class="card-head"><h3 data-i18n="tonTrend">Tonnage Trend by Date</h3><span data-i18n="allLots">All Lots</span></div>
+      <div class="card-body"><div class="ch h180"><canvas id="cTrend"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3 data-i18n="lossAnalysis">Loss Analysis by Mine</h3><span id="h4"></span></div>
+      <div class="card-body"><div class="ch h180"><canvas id="cLoss"></canvas></div></div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card g1">
+    <div class="card-head">
+      <h3 data-i18n="lotsLog">Production Lots Log</h3>
+      <span id="hTable"></span>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th data-i18n="date">Date</th>
+          <th data-i18n="mine">Mine</th>
+          <th data-i18n="zone">Zone</th>
+          <th data-i18n="batch">Batch</th>
+          <th class="td-r" data-i18n="mineTon">Mine (Ton)</th>
+          <th class="td-r" data-i18n="crusherTon">Crusher (Ton)</th>
+          <th class="td-r" data-i18n="portTon">Port (Ton)</th>
+          <th class="td-r">Fe%</th>
+          <th class="td-r" data-i18n="lossPct">Loss%</th>
+          <th data-i18n="stage">Stage</th>
+        </tr></thead>
+        <tbody id="tBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- end content -->
+
+<!-- STATUS BAR -->
+<div class="statusbar">
+  <div class="s-dot" id="sDot"></div>
+  <span id="sText">Connecting...</span>
+  <span style="margin-left:auto" id="sCount"></span>
+</div>
+
+<script>
+Chart.register(ChartDataLabels);
+
+// ── CONFIG ───────────────────────────────────────────────────
+const API_URL = 'PASTE_YOUR_PRODUCTION_WEB_APP_URL_HERE';
+
+// ── i18n ─────────────────────────────────────────────────────
+const I18N = {
+  en:{
+    pageTitle:'Production / Lots', pageSub:'Tonnage tracking — Mine → Crusher → Port',
+    refresh:'Refresh', exportExcel:'Export Excel',
+    mine:'Mine', zone:'Zone', stage:'Stage', dateRange:'Date Range',
+    clearFilters:'✕ Clear', allMines:'All Mines',
+    allStages:'All Stages', stgMine:'⛏ Mine', stgCrusher:'🏗 Crusher', stgPort:'🚢 Port',
+    atMine:'At Mine', afterCrusher:'After Crusher', atPort:'At Port', totalLoss:'Total Loss',
+    tons:'Tons', pending:'Pending',
+    tonByMine:'Tonnage by Mine', feByMine:'Avg Fe% by Mine',
+    stageFlow:'Mine → Crusher → Port Flow', tonTrend:'Tonnage Trend by Date',
+    lossAnalysis:'Loss Analysis by Mine', lotsLog:'Production Lots Log', allLots:'All Lots',
+    date:'Date', batch:'Batch', mineTon:'Mine (Ton)', crusherTon:'Crusher (Ton)',
+    portTon:'Port (Ton)', lossPct:'Loss%',
+    kpi_lots:'TOTAL LOTS', kpi_mine:'TOTAL @ MINE', kpi_crusher:'AFTER CRUSHER',
+    kpi_port:'AT PORT', kpi_loss:'TOTAL LOSS', kpi_fe:'AVG FE%', kpi_mines:'MINES',
+    mines:'mines', tons_ex:'Tons extracted', tons_crush:'Tons after crushing',
+    tons_ship:'Tons shipped', loss_pend:'Pending',
+  },
+  ar:{
+    pageTitle:'الإنتاج / اللوتات', pageSub:'تتبع الطناج — المنجم ← الكسارة ← الميناء',
+    refresh:'تحديث', exportExcel:'تصدير Excel',
+    mine:'المنجم', zone:'المنطقة', stage:'المرحلة', dateRange:'الفترة الزمنية',
+    clearFilters:'✕ مسح', allMines:'كل المناجم',
+    allStages:'كل المراحل', stgMine:'⛏ المنجم', stgCrusher:'🏗 الكسارة', stgPort:'🚢 الميناء',
+    atMine:'في المنجم', afterCrusher:'بعد الكسارة', atPort:'في الميناء', totalLoss:'الفاقد الكلي',
+    tons:'طن', pending:'قيد الانتظار',
+    tonByMine:'الطناج لكل منجم', feByMine:'متوسط Fe% لكل منجم',
+    stageFlow:'رحلة الخامة: منجم ← كسارة ← ميناء', tonTrend:'اتجاه الطناج بالتاريخ',
+    lossAnalysis:'تحليل الفاقد لكل منجم', lotsLog:'سجل اللوتات', allLots:'كل اللوتات',
+    date:'التاريخ', batch:'اللوت', mineTon:'المنجم (طن)', crusherTon:'الكسارة (طن)',
+    portTon:'الميناء (طن)', lossPct:'% الفاقد',
+    kpi_lots:'إجمالي اللوتات', kpi_mine:'في المنجم', kpi_crusher:'بعد الكسارة',
+    kpi_port:'في الميناء', kpi_loss:'الفاقد الكلي', kpi_fe:'متوسط Fe%', kpi_mines:'المناجم',
+    mines:'مناجم', tons_ex:'طن مستخرج', tons_crush:'طن بعد الكسارة',
+    tons_ship:'طن مشحون', loss_pend:'قيد الانتظار',
+  },
+  zh:{
+    pageTitle:'生产/批次', pageSub:'吨位跟踪 — 矿场 → 破碎机 → 港口',
+    refresh:'刷新', exportExcel:'导出Excel',
+    mine:'矿区', zone:'区域', stage:'阶段', dateRange:'日期范围',
+    clearFilters:'✕ 清除', allMines:'所有矿区',
+    allStages:'所有阶段', stgMine:'⛏ 矿场', stgCrusher:'🏗 破碎机', stgPort:'🚢 港口',
+    atMine:'矿场', afterCrusher:'破碎机后', atPort:'港口', totalLoss:'总损耗',
+    tons:'吨', pending:'待处理',
+    tonByMine:'各矿区吨位', feByMine:'各矿区平均Fe%',
+    stageFlow:'矿场 → 破碎机 → 港口', tonTrend:'按日期吨位趋势',
+    lossAnalysis:'各矿区损耗分析', lotsLog:'生产批次记录', allLots:'所有批次',
+    date:'日期', batch:'批次', mineTon:'矿场(吨)', crusherTon:'破碎机(吨)',
+    portTon:'港口(吨)', lossPct:'损耗%',
+    kpi_lots:'批次总数', kpi_mine:'矿场总量', kpi_crusher:'破碎后',
+    kpi_port:'港口', kpi_loss:'总损耗', kpi_fe:'平均Fe%', kpi_mines:'矿区',
+    mines:'矿区', tons_ex:'提取吨位', tons_crush:'破碎后吨位',
+    tons_ship:'装船吨位', loss_pend:'待处理',
+  }
+};
+
+let LANG  = localStorage.getItem('ait_lang')  || 'en';
+let THEME = localStorage.getItem('ait_theme') || 'dark';
+function t(k){ return (I18N[LANG]&&I18N[LANG][k]) || I18N.en[k] || k; }
+
+function applyI18n(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  const stgMap = {'opt-stage-all':'allStages','opt-mine':'stgMine','opt-crusher':'stgCrusher','opt-port':'stgPort'};
+  Object.entries(stgMap).forEach(([id,k])=>{ const el=document.getElementById(id); if(el) el.textContent=t(k); });
+  document.documentElement.lang = LANG;
+  document.documentElement.dir  = LANG==='ar' ? 'rtl' : 'ltr';
+}
+function setLang(l){ LANG=l; localStorage.setItem('ait_lang',l); document.getElementById('langSel').value=l; applyI18n(); render(); }
+function toggleTheme(){ THEME=THEME==='dark'?'light':'dark'; localStorage.setItem('ait_theme',THEME); document.documentElement.setAttribute('data-theme',THEME); document.getElementById('themeBtn').textContent=THEME==='dark'?'🌙':'☀️'; if(ALL.length) renderCharts(); }
+
+// ── State ─────────────────────────────────────────────────────
+let ALL=[], FILTERED=[], CHARTS={};
+let ACTIVE_CHART_FILTER=null;
+const PAL=['#fd480e','#22c55e','#38bdf8','#f59e0b','#a78bfa','#ec4899','#14b8a6','#f97316','#84cc16','#06b6d4'];
+const fmt=v=>v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(1)+'K':v.toFixed(0);
+
+// ── JSONP ─────────────────────────────────────────────────────
+function apiCall(action){
+  return new Promise((resolve,reject)=>{
+    const cb='ait_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+    const s=document.createElement('script');
+    let done=false;
+    const cleanup=()=>{done=true;delete window[cb];if(s.parentNode)s.parentNode.removeChild(s);};
+    window[cb]=data=>{cleanup();resolve(data);};
+    s.onerror=()=>{if(!done){cleanup();reject(new Error('Connection failed'));}};
+    setTimeout(()=>{if(!done){cleanup();reject(new Error('Timeout'));}},30000);
+    s.src=API_URL+'?action='+action+'&callback='+cb+'&t='+Date.now();
+    document.body.appendChild(s);
+  });
+}
+
+// ── Load ──────────────────────────────────────────────────────
+async function loadData(action='data'){
+  setStatus('yellow',t('refresh')+'...');
+  document.getElementById('ldMsg').textContent = action==='sync' ? 'Syncing new lots...' : 'Loading production data...';
+  document.getElementById('pageLoad').classList.remove('hidden');
+  try{
+    const res=await apiCall(action);
+    if(res.error) throw new Error(res.message||'API error');
+    ALL=res.production?.lots||[];
+    populateMineDropdown();
+    applyFilters();
+    document.getElementById('lastUpdate').textContent='🕐 '+(res.lastUpdated||'—');
+    setStatus('ok','Live — '+ALL.length+' lots');
+  }catch(e){
+    setStatus('error','Error: '+e.message);
+    console.error(e);
+  }finally{
+    document.getElementById('pageLoad').classList.add('hidden');
+  }
+}
+
+async function refreshData(){
+  const btn=document.getElementById('btnRefresh');
+  btn.disabled=true; btn.classList.add('spinning');
+  await loadData('sync');
+  btn.disabled=false; btn.classList.remove('spinning');
+}
+
+// ── Dropdown ──────────────────────────────────────────────────
+function populateMineDropdown(){
+  const sel=document.getElementById('fMine');
+  const cur=sel.value;
+  const mines=[...new Set(ALL.map(r=>r.mine).filter(Boolean))].sort();
+  sel.innerHTML=`<option value="all">${t('allMines')}</option>`+mines.map(m=>`<option value="${m}"${cur===m?' selected':''}>${m}</option>`).join('');
+}
+
+// ── Filters ───────────────────────────────────────────────────
+function applyFilters(){
+  const mine =document.getElementById('fMine').value;
+  const stage=document.getElementById('fStage').value;
+  const dfr  =document.getElementById('fFrom').value;
+  const dto  =document.getElementById('fTo').value;
+
+  FILTERED=ALL.filter(r=>{
+    if(mine !=='all' && r.mine !==mine)  return false;
+    if(stage!=='all' && r.stage!==stage) return false;
+    if(dfr && String(r.date)<dfr)        return false;
+    if(dto && String(r.date)>dto)        return false;
+    if(ACTIVE_CHART_FILTER && ACTIVE_CHART_FILTER.type==='mine' && r.mine!==ACTIVE_CHART_FILTER.value) return false;
+    return true;
+  });
+
+  const ac=[mine,stage,dfr,dto].filter(v=>v&&v!=='all').length+(ACTIVE_CHART_FILTER?1:0);
+  const badge=document.getElementById('activeBadge');
+  badge.style.display=ac>0?'':'none';
+  badge.textContent=ac+' active';
+  renderChips(mine,stage,dfr,dto);
+  render();
+}
+
+function renderChips(mine,stage,dfr,dto){
+  const chips=[];
+  if(mine !=='all') chips.push({l:'Mine: '+mine,   c:()=>{document.getElementById('fMine').value='all'; applyFilters();}});
+  if(stage!=='all') chips.push({l:'Stage: '+stage,  c:()=>{document.getElementById('fStage').value='all'; applyFilters();}});
+  if(dfr)           chips.push({l:'From: '+dfr,     c:()=>{document.getElementById('fFrom').value=''; applyFilters();}});
+  if(dto)           chips.push({l:'To: '+dto,       c:()=>{document.getElementById('fTo').value=''; applyFilters();}});
+  if(ACTIVE_CHART_FILTER) chips.push({l:'Chart: '+ACTIVE_CHART_FILTER.value, c:()=>clearChartFilter()});
+  document.getElementById('chipBar').innerHTML=chips.map((c,i)=>`<span class="chip">${c.l}<span class="chip-x" onclick="chips[${i}].c()">✕</span></span>`).join('');
+  window.chips=chips;
+}
+
+function clearFilters(){
+  ['fMine','fStage'].forEach(id=>document.getElementById(id).value='all');
+  document.getElementById('fFrom').value='';
+  document.getElementById('fTo').value='';
+  clearChartFilter();
+}
+
+function chartClick(type){
+  if(ACTIVE_CHART_FILTER&&ACTIVE_CHART_FILTER.chartType===type){ clearChartFilter(); return; }
+}
+
+function clearChartFilter(){
+  ACTIVE_CHART_FILTER=null;
+  document.querySelectorAll('.card.active-filter').forEach(el=>el.classList.remove('active-filter'));
+  applyFilters();
+}
+
+// ── Render ────────────────────────────────────────────────────
+function render(){ renderPipeline(); renderKPIs(); renderCharts(); renderTable(); document.getElementById('hTable').textContent=FILTERED.length+' lots'; document.getElementById('sCount').textContent=FILTERED.length+' / '+ALL.length+' lots'; }
+
+// ── Pipeline ──────────────────────────────────────────────────
+function renderPipeline(){
+  const mineTon   =FILTERED.reduce((s,r)=>s+parseFloat(r.mine_qty_ton||0),0);
+  const crusherTon=FILTERED.filter(r=>r.crusher_qty_ton).reduce((s,r)=>s+parseFloat(r.crusher_qty_ton||0),0);
+  const portTon   =FILTERED.filter(r=>r.port_qty_ton).reduce((s,r)=>s+parseFloat(r.port_qty_ton||0),0);
+  const loss      =mineTon-(portTon||crusherTon||mineTon);
+  const lossPct   =mineTon?loss/mineTon*100:0;
+
+  document.getElementById('pv-mine').textContent    = fmt(mineTon)+' t';
+  document.getElementById('pv-crusher').textContent = crusherTon ? fmt(crusherTon)+' t' : '—';
+  document.getElementById('pv-port').textContent    = portTon    ? fmt(portTon)+' t'    : '—';
+  document.getElementById('pv-loss').textContent    = (portTon||crusherTon) ? fmt(loss)+' t' : '—';
+  document.getElementById('pn-crusher').textContent = crusherTon ? t('tons') : t('pending');
+  document.getElementById('pn-port').textContent    = portTon    ? t('tons') : t('pending');
+  document.getElementById('pn-loss').textContent    = (portTon||crusherTon) ? lossPct.toFixed(1)+'% '+t('totalLoss').toLowerCase() : t('pending');
+}
+
+// ── KPIs ──────────────────────────────────────────────────────
+function renderKPIs(){
+  const mineTon   =FILTERED.reduce((s,r)=>s+parseFloat(r.mine_qty_ton||0),0);
+  const crusherTon=FILTERED.filter(r=>r.crusher_qty_ton).reduce((s,r)=>s+parseFloat(r.crusher_qty_ton||0),0);
+  const portTon   =FILTERED.filter(r=>r.port_qty_ton).reduce((s,r)=>s+parseFloat(r.port_qty_ton||0),0);
+  const feV       =FILTERED.map(r=>parseFloat(r.avg_fe_pct||0)).filter(v=>v>0);
+  const avgFe     =feV.length?feV.reduce((a,b)=>a+b,0)/feV.length:0;
+  const mines     =new Set(FILTERED.map(r=>r.mine)).size;
+  const loss      =mineTon-(portTon||crusherTon||mineTon);
+  const lossPct   =mineTon?loss/mineTon*100:0;
+
+  const kpis=[
+    {l:t('kpi_lots'),    v:FILTERED.length,                    n:mines+' '+t('mines'),    c:'orange'},
+    {l:t('kpi_mine'),    v:fmt(mineTon)+' t',                  n:t('tons_ex'),            c:'orange'},
+    {l:t('kpi_crusher'), v:crusherTon?fmt(crusherTon)+' t':'—',n:crusherTon?t('tons_crush'):t('pending'), c:'yellow'},
+    {l:t('kpi_port'),    v:portTon?fmt(portTon)+' t':'—',      n:portTon?t('tons_ship'):t('pending'),     c:'blue'},
+    {l:t('kpi_loss'),    v:(portTon||crusherTon)?fmt(loss)+' t':'—', n:(portTon||crusherTon)?lossPct.toFixed(1)+'%':t('pending'), c:'red'},
+    {l:t('kpi_fe'),      v:avgFe.toFixed(1)+'%',               n:'Weighted avg',          c:'green'},
+    {l:t('kpi_mines'),   v:mines,                               n:'Active',                c:'blue'},
+  ];
+  document.getElementById('kpiGrid').innerHTML=kpis.map(k=>`<div class="kc ${k.c}"><div class="kc-lbl">${k.l}</div><div class="kc-val ${k.c}">${k.v}</div><div class="kc-note">${k.n}</div></div>`).join('');
+}
+
+// ── Charts ────────────────────────────────────────────────────
+function gc(){ return { grid:getComputedStyle(document.documentElement).getPropertyValue('--chart-grid').trim()||'rgba(255,255,255,.04)', txt:getComputedStyle(document.documentElement).getPropertyValue('--chart-txt').trim()||'#8892a4' }; }
+
+function mkChart(id,type,labels,datasets,extra={}){
+  if(CHARTS[id])CHARTS[id].destroy();
+  const el=document.getElementById(id); if(!el)return;
+  const {grid,txt}=gc();
+  CHARTS[id]=new Chart(el,{type,data:{labels,datasets},options:{
+    responsive:true,maintainAspectRatio:false,animation:{duration:300},
+    plugins:{
+      legend:{display:extra.legend??false,labels:{color:txt,boxWidth:10,font:{size:10}}},
+      tooltip:{backgroundColor:'#07101f',borderColor:'#fd480e',borderWidth:1,titleColor:'#fd480e',bodyColor:'#e8ecf2',padding:10},
+      datalabels:extra.datalabels??{display:extra.showLabels?ctx=>ctx.dataset.data[ctx.dataIndex]>0:false,color:'#fff',font:{weight:'bold',size:10},formatter:v=>v>0?fmt(v):'',anchor:extra.labelAnchor||'end',align:extra.labelAlign||'top',clamp:true}
+    },
+    scales:(type==='doughnut'||type==='pie')?{}:{
+      x:{stacked:extra.stacked||false,grid:{color:grid},ticks:{color:txt,font:{size:10},maxRotation:30}},
+      y:{stacked:extra.stacked||false,grid:{color:grid},ticks:{color:txt,font:{size:10},callback:v=>fmt(v)}}
+    },
+    onClick:extra.onClick||undefined,
+    onHover:extra.onClick?(evt,els)=>{el.style.cursor=els.length?'pointer':'default';}:undefined,
+    ...(extra.opts||{})
+  }});
+}
+
+function renderCharts(){
+  const {grid,txt}=gc();
+  const mines=[...new Set(FILTERED.map(r=>r.mine).filter(Boolean))].sort();
+
+  // ── 1. Tonnage by Mine ────────────────────────────────────
+  const mTon=mines.map(m=>FILTERED.filter(r=>r.mine===m).reduce((s,r)=>s+parseFloat(r.mine_qty_ton||0),0));
+  document.getElementById('h1').textContent=mines.length+' mines';
+  mkChart('cTon','bar',mines,[{label:t('kpi_mine'),data:mTon,backgroundColor:'rgba(253,72,14,.8)',borderRadius:5}],{
+    showLabels:true,labelAnchor:'end',labelAlign:'top',
+    onClick:(evt,els)=>{
+      if(!els.length)return;
+      const mine=mines[els[0].index];
+      if(ACTIVE_CHART_FILTER?.value===mine){clearChartFilter();return;}
+      ACTIVE_CHART_FILTER={type:'mine',chartType:'mine',value:mine};
+      document.getElementById('card-mine').classList.add('active-filter');
+      applyFilters();
+    }
+  });
+
+  // ── 2. Fe% by Mine ────────────────────────────────────────
+  const mFe=mines.map(m=>{const v=FILTERED.filter(r=>r.mine===m).map(r=>parseFloat(r.avg_fe_pct||0)).filter(v=>v>0);return v.length?+(v.reduce((a,b)=>a+b,0)/v.length).toFixed(2):0;});
+  document.getElementById('h2').textContent=mines.length+' mines';
+  mkChart('cFe','bar',mines,[{label:'Avg Fe%',data:mFe,backgroundColor:mFe.map(v=>v>=55?'rgba(34,197,94,.8)':v>=37?'rgba(253,72,14,.8)':'rgba(239,68,68,.8)'),borderRadius:5}],{showLabels:true,labelAnchor:'end',labelAlign:'top'});
+
+  // ── 3. Mine → Crusher → Port Flow ────────────────────────
+  const mineTot   =FILTERED.reduce((s,r)=>s+parseFloat(r.mine_qty_ton||0),0);
+  const crusherTot=FILTERED.filter(r=>r.crusher_qty_ton).reduce((s,r)=>s+parseFloat(r.crusher_qty_ton||0),0);
+  const portTot   =FILTERED.filter(r=>r.port_qty_ton).reduce((s,r)=>s+parseFloat(r.port_qty_ton||0),0);
+  document.getElementById('h3').textContent=FILTERED.length+' lots';
+  mkChart('cFlow','bar',[t('atMine'),t('afterCrusher'),t('atPort')],[{
+    label:t('tons'),
+    data:[mineTot, crusherTot||null, portTot||null],
+    backgroundColor:['rgba(253,72,14,.8)','rgba(245,158,11,.8)','rgba(56,189,248,.8)'],
+    borderRadius:5
+  }],{showLabels:true,labelAnchor:'end',labelAlign:'top'});
+
+  // ── 4. Tonnage trend ──────────────────────────────────────
+  const daily={};
+  FILTERED.forEach(r=>{const d=String(r.date||'').slice(0,10);if(!d)return;if(!daily[d])daily[d]=0;daily[d]+=parseFloat(r.mine_qty_ton||0);});
+  const days=Object.keys(daily).sort();
+  mkChart('cTrend','line',days,[{label:t('tons'),data:days.map(d=>daily[d]),borderColor:'#fd480e',backgroundColor:'rgba(253,72,14,.1)',fill:true,tension:.4,pointRadius:3,pointBackgroundColor:'#fd480e'}],{datalabels:{display:false}});
+
+  // ── 5. Loss Analysis ──────────────────────────────────────
+  document.getElementById('h4').textContent=mines.length+' mines';
+  const mLoss=mines.map(m=>{
+    const lots=FILTERED.filter(r=>r.mine===m);
+    const mq=lots.reduce((s,r)=>s+parseFloat(r.mine_qty_ton||0),0);
+    const pq=lots.filter(r=>r.port_qty_ton).reduce((s,r)=>s+parseFloat(r.port_qty_ton||0),0);
+    const cq=lots.filter(r=>r.crusher_qty_ton).reduce((s,r)=>s+parseFloat(r.crusher_qty_ton||0),0);
+    const final=pq||cq||mq;
+    return mq?+((mq-final)/mq*100).toFixed(1):0;
+  });
+  mkChart('cLoss','bar',mines,[{label:'Loss%',data:mLoss,backgroundColor:'rgba(239,68,68,.8)',borderRadius:5}],{showLabels:true,labelAnchor:'end',labelAlign:'top'});
+}
+
+// ── Table ─────────────────────────────────────────────────────
+function renderTable(){
+  const body=document.getElementById('tBody');
+  if(!FILTERED.length){body.innerHTML=`<tr><td colspan="10" style="text-align:center;color:var(--text2);padding:24px">No lots match filters</td></tr>`;return;}
+  const fv=v=>v&&parseFloat(v)>0?parseFloat(v).toLocaleString():'—';
+  const stageBadge=s=>s==='Port'?'port':s==='Crusher'?'crusher':'mine';
+  body.innerHTML=FILTERED.map(r=>`<tr>
+    <td class="td-s">${String(r.date||'—').slice(0,10)}</td>
+    <td><strong>${r.mine||'—'}</strong></td>
+    <td class="td-s">${r.zone||'—'}</td>
+    <td>${r.batch||'—'}</td>
+    <td class="td-r td-b" style="color:var(--accent)">${fv(r.mine_qty_ton)}</td>
+    <td class="td-r" style="color:${r.crusher_qty_ton?'var(--yellow)':'var(--text3)'}">${fv(r.crusher_qty_ton)}</td>
+    <td class="td-r" style="color:${r.port_qty_ton?'var(--blue)':'var(--text3)'}">${fv(r.port_qty_ton)}</td>
+    <td class="td-r" style="color:${parseFloat(r.avg_fe_pct||0)>=55?'var(--green)':parseFloat(r.avg_fe_pct||0)>=37?'var(--accent)':'var(--red)'}">${r.avg_fe_pct?parseFloat(r.avg_fe_pct).toFixed(1)+'%':'—'}</td>
+    <td class="td-r" style="color:${r.loss_pct?'var(--red)':'var(--text2)'}">${r.loss_pct?r.loss_pct+'%':'—'}</td>
+    <td><span class="badge ${stageBadge(r.stage)}">${r.stage||'Mine'}</span></td>
+  </tr>`).join('');
+}
+
+// ── Export ────────────────────────────────────────────────────
+function exportExcel(){
+  if(!FILTERED.length){alert('No data to export');return;}
+  const data=FILTERED.map(r=>({'Date':String(r.date||''),'Mine':r.mine||'','Zone':r.zone||'','Batch':r.batch||'','Mine Qty (Ton)':parseFloat(r.mine_qty_ton||0),'Crusher Qty (Ton)':parseFloat(r.crusher_qty_ton||0)||'','Port Qty (Ton)':parseFloat(r.port_qty_ton||0)||'','Avg Fe%':parseFloat(r.avg_fe_pct||0),'Loss%':r.loss_pct||'','Stage':r.stage||'Mine'}));
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.json_to_sheet(data);
+  ws['!cols']=[{wch:12},{wch:16},{wch:18},{wch:22},{wch:14},{wch:14},{wch:14},{wch:8},{wch:8},{wch:10}];
+  XLSX.utils.book_append_sheet(wb,ws,'Production Lots');
+  XLSX.writeFile(wb,'AIT_Production_'+new Date().toISOString().slice(0,10)+'.xlsx');
+}
+
+// ── Status ────────────────────────────────────────────────────
+function setStatus(type,msg){
+  const dot=document.getElementById('sDot');
+  dot.className='s-dot'+(type==='error'?' red':type==='yellow'?' yellow':'');
+  document.getElementById('sText').textContent=msg;
+}
+
+// ── Init ──────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded',()=>{
+  document.documentElement.setAttribute('data-theme',THEME);
+  document.getElementById('themeBtn').textContent=THEME==='dark'?'🌙':'☀️';
+  document.getElementById('langSel').value=LANG;
+  applyI18n();
+  document.getElementById('lastUpdate').textContent='📅 '+new Date().toLocaleDateString('en-GB');
+  loadData('data');
+});
+setInterval(()=>loadData('data'),30*60*1000);
+</script>
+</body>
+</html>
