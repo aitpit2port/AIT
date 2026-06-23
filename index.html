@@ -55,31 +55,42 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // Determine initial page from URL hash or default
   const hash = location.hash.replace('#','') || 'exec';
-  CURRENT = (typeof META !== 'undefined' && META[hash]) ? hash : 'exec';
+  CURRENT = hash;
 
   if(sess && saved && normalizeEmail(sess.email) === saved && sess.active) {
     applyAuth(sess, saved);
     hideLoginScreen();
-    showDashboardLoading('Loading dashboard data...');
-    // Load initial page script then render
+    showDashboardLoading(LANG==='ar'?'جاري تحميل البيانات...':'Loading dashboard data...');
+
+    // Step 1: load the initial page script
     window.AIT.loadPage(CURRENT).then(() => {
+      // Step 2: load live data
+      return refreshData({silent:true}).catch(()=>{});
+    }).then(() => {
+      // Step 3: render with live data
       render();
       hideDashboardLoading();
-      // Preload remaining pages in background
-      const remainingPages = PAGES.filter(p => p !== CURRENT);
+      // Step 4: preload remaining pages in background
+      const others = (typeof PAGES !== 'undefined' ? PAGES : []).filter(p => p !== CURRENT);
       let i = 0;
       const preload = () => {
-        if(i >= remainingPages.length) return;
-        window.AIT.loadPage(remainingPages[i++]).catch(()=>{}).finally(preload);
+        if(i >= others.length) return;
+        window.AIT.loadPage(others[i++]).catch(()=>{}).finally(() => setTimeout(preload, 300));
       };
-      setTimeout(preload, 2000);
-    }).catch(() => hideDashboardLoading());
-    refreshData({silent:true}).catch(()=>{});
+      setTimeout(preload, 3000);
+    }).catch(e => {
+      console.error('Boot error:', e);
+      hideDashboardLoading();
+      render();
+    });
+
   } else {
     showLoginScreen();
   }
 
-  setInterval(() => { if(getSavedEmail()) refreshData({silent:true}).catch(()=>{}) }, 30000);
+  setInterval(() => {
+    if(getSavedEmail()) refreshData({silent:true}).catch(()=>{});
+  }, 30000);
 });
 </script>
 <div id="ait-login-overlay" style="display:flex;position:fixed;inset:0;z-index:9999">
