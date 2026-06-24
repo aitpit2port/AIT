@@ -120,7 +120,7 @@ function redirectAfterLogin(session){
   const user = session && session.user ? session.user : {};
   const pages = Array.isArray(user.allowed_pages) ? user.allowed_pages : [];
   const first = pages.find(p => p && p !== 'auth') || 'exec';
-  const target = 'Dashboard_Full.html#' + encodeURIComponent(first);
+  const target = 'Dashboard_Full.html#' + encodeURIComponent(first); 
   window.location.replace(target);
   setTimeout(() => { window.location.href = target; }, 600);
 }
