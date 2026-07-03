@@ -1,671 +1,127 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr" data-theme="dark">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AIT — Production / Lots</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 :root{
-  --bg:#0b1118;--card:#111827;--card2:#1a2235;--border:#1e2d40;
-  --text:#e8ecf2;--text2:#8892a4;--text3:#4b5a6e;
-  --accent:#fd480e;--accent2:#ff6b35;--accentbg:rgba(253,72,14,.12);
-  --green:#22c55e;--greenbg:rgba(34,197,94,.12);
-  --red:#ef4444;--redbg:rgba(239,68,68,.12);
-  --blue:#38bdf8;--bluebg:rgba(56,189,248,.12);
-  --yellow:#f59e0b;--yellowbg:rgba(245,158,11,.12);
-  --purple:#a78bfa;--purplebg:rgba(167,139,250,.12);
-  --shadow:0 2px 12px rgba(0,0,0,.4);--radius:10px;
-  --chart-grid:rgba(255,255,255,.04);--chart-txt:#8892a4;
+  --bg:#06101f;--panel:#0b1628;--panel2:#101d33;--card:#0f1b2f;--card2:#13243c;
+  --text:#eef4ff;--text2:#9aa9c2;--text3:#64748b;--line:rgba(255,255,255,.08);
+  --accent:#fd480e;--accent2:#ff7a3d;--green:#22c55e;--red:#ef4444;--yellow:#f59e0b;--blue:#38bdf8;--purple:#a78bfa;
+  --chart-grid:rgba(255,255,255,.06);--chart-txt:#a8b4c7;--shadow:0 14px 40px rgba(0,0,0,.28);
 }
-[data-theme="light"]{
-  --bg:#f0f2f5;--card:#fff;--card2:#f8f9fc;--border:#e1e5eb;
-  --text:#1a2030;--text2:#5a6478;--text3:#8b949e;
-  --shadow:0 1px 8px rgba(0,0,0,.08);
-  --chart-grid:rgba(0,0,0,.06);--chart-txt:#5a6478;
+:root[data-theme="light"]{
+  --bg:#f4f7fb;--panel:#ffffff;--panel2:#f8fafc;--card:#ffffff;--card2:#f3f6fb;
+  --text:#0f172a;--text2:#4b5563;--text3:#778093;--line:rgba(15,23,42,.12);
+  --chart-grid:rgba(15,23,42,.08);--chart-txt:#475569;--shadow:0 12px 28px rgba(15,23,42,.08);
 }
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;font-size:13px;background:var(--bg);color:var(--text);overflow-x:hidden;transition:background .25s,color .25s}
-::-webkit-scrollbar{width:5px;height:5px}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
-
-/* ── TOPBAR ── */
-.topbar{background:var(--card);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow);transition:background .25s}
-.tb-title{font-size:15px;font-weight:700;line-height:1}
-.tb-sub{font-size:10px;color:var(--text2);margin-top:1px}
-.tb-spacer{flex:1}
-.tb-info{font-size:11px;color:var(--text2);background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;white-space:nowrap}
-.tb-btn{display:flex;align-items:center;gap:5px;background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:5px 11px;font-size:11px;font-weight:600;color:var(--text2);cursor:pointer;transition:.2s;white-space:nowrap;font-family:inherit}
-.tb-btn:hover{border-color:var(--accent);color:var(--accent)}
-.tb-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-.tb-btn.primary:hover{background:var(--accent2)}
-.tb-btn.primary:disabled{opacity:.6;cursor:not-allowed}
-.tb-btn.primary.spinning svg{animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* ── FILTER BAR ── */
-.filterbar{background:var(--card);border-bottom:1px solid var(--border);padding:8px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;transition:background .25s}
-.fl{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
-.fs{background:var(--card2);border:1.5px solid var(--border);border-radius:6px;padding:5px 26px 5px 9px;font-size:11px;color:var(--text);cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238892a4' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center;transition:.2s;min-width:110px;font-family:inherit}
-.fs:focus{border-color:var(--accent)}
-.date-wrap{display:flex;align-items:center;gap:5px}
-.date-wrap input[type=date]{background:var(--card2);border:1.5px solid var(--border);border-radius:6px;padding:5px 8px;font-size:11px;color:var(--text);outline:none;transition:.2s;cursor:pointer;font-family:inherit}
-.date-wrap input[type=date]:focus{border-color:var(--accent)}
-.date-sep{font-size:10px;color:var(--text2)}
-.btn-clear{background:none;border:1.5px solid var(--border);border-radius:6px;padding:5px 10px;font-size:11px;color:var(--text2);cursor:pointer;transition:.2s;font-family:inherit}
-.btn-clear:hover{border-color:var(--red);color:var(--red)}
-.active-badge{background:var(--accent);color:#fff;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700}
-
-/* ── CONTENT ── */
-.content{padding:14px 16px 72px}
-
-/* ── FLOW PIPELINE ── */
-.pipeline{display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;align-items:center;gap:0;margin-bottom:14px}
-.pipe-stage{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;text-align:center;transition:.2s}
-.pipe-stage:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
-.pipe-stage.mine   {border-top:3px solid var(--accent)}
-.pipe-stage.crusher{border-top:3px solid var(--yellow)}
-.pipe-stage.port   {border-top:3px solid var(--blue)}
-.pipe-stage.loss   {border-top:3px solid var(--red)}
-.pipe-icon{font-size:22px;margin-bottom:4px}
-.pipe-label{font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--text2);margin-bottom:4px}
-.pipe-value{font-size:20px;font-weight:800;line-height:1}
-.pipe-value.orange{color:var(--accent)}
-.pipe-value.yellow{color:var(--yellow)}
-.pipe-value.blue  {color:var(--blue)}
-.pipe-value.red   {color:var(--red)}
-.pipe-note{font-size:10px;color:var(--text2);margin-top:3px}
-.pipe-arrow{font-size:20px;color:var(--text3);text-align:center;padding:0 4px}
-
-/* ── KPI GRID ── */
-.kpi-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin-bottom:14px}
-@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(4,1fr)}}
-@media(max-width:700px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
-.kc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;border-top:3px solid transparent;transition:.2s}
-.kc:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
-.kc.orange{border-top-color:var(--accent)} .kc.green{border-top-color:var(--green)}
-.kc.blue{border-top-color:var(--blue)}     .kc.yellow{border-top-color:var(--yellow)}
-.kc.red{border-top-color:var(--red)}       .kc.purple{border-top-color:var(--purple)}
-.kc-lbl{font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text2);margin-bottom:5px}
-.kc-val{font-size:20px;font-weight:800;line-height:1}
-.kc-val.orange{color:var(--accent)} .kc-val.green{color:var(--green)}
-.kc-val.blue{color:var(--blue)}     .kc-val.yellow{color:var(--yellow)}
-.kc-val.red{color:var(--red)}       .kc-val.purple{color:var(--purple)}
-.kc-note{font-size:10px;color:var(--text2);margin-top:3px}
-
-/* ── GRIDS ── */
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-.g1{margin-bottom:12px}
-@media(max-width:900px){.g3{grid-template-columns:1fr 1fr}}
-@media(max-width:600px){.g3,.g2{grid-template-columns:1fr}}
-
-/* ── CARD ── */
-.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;transition:background .25s,border .25s}
-.card.clickable:hover .card-head{background:var(--accentbg)}
-.card.active-filter .card-head{background:var(--accentbg);border-bottom-color:var(--accent)}
-.card-head{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;transition:background .2s}
-.card-head h3{font-size:12px;font-weight:700}
-.card-head span{font-size:10px;color:var(--text2)}
-.card-body{padding:12px 14px}
-.ch{position:relative}
-.ch.h180{height:180px} .ch.h200{height:200px} .ch.h240{height:240px}
-
-/* ── TABLE ── */
-.tbl-wrap{overflow-x:auto;max-height:400px;overflow-y:auto}
-table{width:100%;border-collapse:collapse;font-size:11px}
-thead th{background:var(--card2);color:var(--accent);font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;z-index:2}
-tbody td{padding:7px 12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
-tbody tr:last-child td{border-bottom:none}
-tbody tr:hover td{background:var(--card2)}
-.td-r{text-align:right} .td-b{font-weight:700} .td-s{font-size:10px;color:var(--text2)}
-
-/* ── BADGE ── */
-.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;white-space:nowrap}
-.badge.mine   {background:var(--accentbg);color:var(--accent)}
-.badge.crusher{background:var(--yellowbg);color:var(--yellow)}
-.badge.port   {background:var(--bluebg);color:var(--blue)}
-
-/* ── LOADING ── */
-.page-load{position:fixed;inset:0;background:rgba(11,17,24,.92);display:flex;align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(4px)}
-.page-load.hidden{display:none}
-.ld-spin{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px}
-.ld-msg{font-size:13px;color:var(--text2);text-align:center}
-
-/* ── STATUS BAR ── */
-.statusbar{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);padding:5px 16px;display:flex;align-items:center;gap:10px;font-size:10px;color:var(--text2);z-index:50;transition:background .25s}
-.s-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;box-shadow:0 0 5px var(--green)}
-.s-dot.red{background:var(--red);box-shadow:0 0 5px var(--red)}
-.s-dot.yellow{background:var(--yellow);box-shadow:0 0 5px var(--yellow)}
-
-/* ── CHIP ── */
-.chip-bar{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
-.chip{display:inline-flex;align-items:center;gap:5px;background:var(--accentbg);border:1px solid var(--accent);border-radius:4px;padding:2px 8px;font-size:10px;color:var(--accent);font-weight:600}
-.chip-x{cursor:pointer;opacity:.7}.chip-x:hover{opacity:1}
+*{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at top left,rgba(253,72,14,.18),transparent 28%),var(--bg);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif;min-height:100vh} body[dir="rtl"]{font-family:Tajawal,Cairo,Segoe UI,Arial,sans-serif}.wrap{max-width:1600px;margin:0 auto;padding:18px}.topbar{display:flex;align-items:center;gap:14px;margin-bottom:16px}.brand{display:flex;align-items:center;gap:12px}.logo{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,var(--accent),#ffd166);display:grid;place-items:center;color:#111;font-weight:900;box-shadow:var(--shadow)}.title h1{font-size:22px;margin:0}.title p{margin:3px 0 0;color:var(--text2);font-size:13px}.top-actions{margin-left:auto;display:flex;gap:8px;align-items:center}body[dir="rtl"] .top-actions{margin-left:0;margin-right:auto}.btn,.select,.input{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:12px;padding:10px 12px;font-size:13px;outline:none}.btn{cursor:pointer;font-weight:800;display:inline-flex;align-items:center;gap:8px}.btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent;color:#fff}.btn:hover{transform:translateY(-1px)}.btn:disabled{opacity:.55;cursor:not-allowed;transform:none}.filters{display:grid;grid-template-columns:1.2fr 1.2fr 1.3fr 1fr 1fr 1.6fr auto;gap:10px;background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:18px;padding:12px;margin-bottom:14px}.input,.select{width:100%}.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px}.kpi{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:var(--shadow);min-height:112px;position:relative;overflow:hidden}.kpi:before{content:"";position:absolute;inset:auto -26px -34px auto;width:92px;height:92px;border-radius:50%;background:rgba(253,72,14,.12)}.kpi .lbl{font-size:11px;color:var(--text2);font-weight:900;letter-spacing:.07em;text-transform:uppercase}.kpi .val{font-size:25px;font-weight:950;margin-top:8px;line-height:1.05}.kpi .note{font-size:12px;color:var(--text2);margin-top:8px}.kpi.orange .val{color:var(--accent)}.kpi.blue .val{color:var(--blue)}.kpi.green .val{color:var(--green)}.kpi.red .val{color:var(--red)}.kpi.yellow .val{color:var(--yellow)}.kpi.purple .val{color:var(--purple)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.card{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:20px;padding:14px;box-shadow:var(--shadow);min-height:360px}.card.wide{grid-column:1/-1}.card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}.card h3{margin:0;font-size:16px}.card span{color:var(--text2);font-size:12px}.chart{height:292px}.stage-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin:10px 0 14px}.stage-box{border:1px solid var(--line);border-radius:16px;padding:10px;background:rgba(255,255,255,.035)}.stage-box b{display:block;font-size:12px}.stage-box .qty{font-size:17px;margin-top:5px;font-weight:900;color:var(--accent)}.stage-box .lots{font-size:11px;color:var(--text2);margin-top:3px}.table-card{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:20px;padding:14px;box-shadow:var(--shadow);margin-top:14px}.table-wrap{overflow:auto;max-height:540px;border-radius:14px;border:1px solid var(--line)}table{width:100%;border-collapse:collapse;min-width:1420px}th,td{padding:11px 10px;border-bottom:1px solid var(--line);font-size:12px;white-space:nowrap}th{position:sticky;top:0;background:var(--panel);z-index:2;text-align:left;color:var(--text2);font-size:11px;text-transform:uppercase;letter-spacing:.04em}body[dir="rtl"] th{text-align:right}td.num{text-align:right;font-variant-numeric:tabular-nums}body[dir="rtl"] td.num{text-align:left}.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:999px;background:rgba(253,72,14,.14);color:var(--accent);font-weight:900;font-size:11px}.badge.port{background:rgba(56,189,248,.14);color:var(--blue)}.badge.factory{background:rgba(167,139,250,.14);color:var(--purple)}.badge.store{background:rgba(245,158,11,.14);color:var(--yellow)}.badge.crusher{background:rgba(34,197,94,.14);color:var(--green)}.statusbar{position:sticky;bottom:0;display:flex;gap:10px;align-items:center;background:rgba(6,16,31,.86);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:10px 18px;color:var(--text2);font-size:12px}.s-dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green)}.s-dot.red{background:var(--red);box-shadow:0 0 12px var(--red)}.s-dot.yellow{background:var(--yellow);box-shadow:0 0 12px var(--yellow)}.loader{position:fixed;inset:0;background:rgba(2,6,23,.72);backdrop-filter:blur(6px);z-index:99;display:grid;place-items:center}.loader.hidden{display:none}.load-card{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:24px;box-shadow:var(--shadow);text-align:center}.spinner{width:42px;height:42px;border:4px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}@keyframes spin{to{transform:rotate(360deg)}}@media(max-width:1200px){.kpi-grid{grid-template-columns:repeat(3,1fr)}.filters{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:1fr}.stage-strip{grid-template-columns:repeat(2,1fr)}}@media(max-width:720px){.wrap{padding:10px}.topbar{flex-direction:column;align-items:stretch}.top-actions{margin:0}.filters{grid-template-columns:1fr}.kpi-grid{grid-template-columns:1fr}.stage-strip{grid-template-columns:1fr}.chart{height:260px}}
 </style>
 </head>
 <body>
-
-<!-- LOADING -->
-<div class="page-load" id="pageLoad">
-  <div>
-    <div class="ld-spin"></div>
-    <div class="ld-msg" id="ldMsg">Loading production data...</div>
-  </div>
-</div>
-
-<!-- TOPBAR -->
-<div class="topbar">
-  <div>
-    <div class="tb-title" data-i18n="pageTitle">Production / Lots</div>
-    <div class="tb-sub" data-i18n="pageSub">Tonnage tracking — Mine → Crusher → Port</div>
-  </div>
-  <div class="tb-spacer"></div>
-  <div class="tb-info" id="lastUpdate">—</div>
-  <select class="tb-btn" id="langSel" onchange="setLang(this.value)" style="cursor:pointer">
-    <option value="en">🌐 EN</option>
-    <option value="ar">🌐 عربي</option>
-    <option value="zh">🌐 中文</option>
-  </select>
-  <button class="tb-btn" id="themeBtn" onclick="toggleTheme()">🌙</button>
-  <button class="tb-btn" onclick="exportExcel()">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-    <span data-i18n="exportExcel">Export Excel</span>
-  </button>
-  <button class="tb-btn primary" id="btnRefresh" onclick="refreshData()">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
-    <span data-i18n="refresh">Refresh</span>
-  </button>
-</div>
-
-<!-- FILTER BAR -->
-<div class="filterbar">
-  <span class="fl" data-i18n="mine">Mine</span>
-  <select class="fs" id="fMine" onchange="applyFilters()">
-    <option value="all" data-i18n="allMines">All Mines</option>
-  </select>
-
-  <span class="fl" data-i18n="stage">Stage</span>
-  <select class="fs" id="fStage" onchange="applyFilters()">
-    <option value="all" id="opt-stage-all">All Stages</option>
-    <option value="Mine"    id="opt-mine">⛏ Mine</option>
-    <option value="Crusher" id="opt-crusher">🏗 Crusher</option>
-    <option value="Port"    id="opt-port">🚢 Port</option>
-  </select>
-
-  <span class="fl" data-i18n="dateRange">Date Range</span>
-  <div class="date-wrap">
-    <input type="date" id="fFrom" onchange="applyFilters()">
-    <span class="date-sep">→</span>
-    <input type="date" id="fTo" onchange="applyFilters()">
-  </div>
-
-  <button class="btn-clear" onclick="clearFilters()" data-i18n="clearFilters">✕ Clear</button>
-  <span class="active-badge" id="activeBadge" style="display:none"></span>
-</div>
-
-<!-- CONTENT -->
-<div class="content">
-
-  <!-- Active chips -->
-  <div class="chip-bar" id="chipBar"></div>
-
-  <!-- PIPELINE FLOW -->
-  <div class="pipeline" id="pipeline">
-    <div class="pipe-stage mine">
-      <div class="pipe-icon">⛏️</div>
-      <div class="pipe-label" data-i18n="atMine">At Mine</div>
-      <div class="pipe-value orange" id="pv-mine">—</div>
-      <div class="pipe-note" data-i18n="tons">Tons</div>
-    </div>
-    <div class="pipe-arrow">→</div>
-    <div class="pipe-stage crusher">
-      <div class="pipe-icon">🏗️</div>
-      <div class="pipe-label" data-i18n="afterCrusher">After Crusher</div>
-      <div class="pipe-value yellow" id="pv-crusher">—</div>
-      <div class="pipe-note" id="pn-crusher">Pending</div>
-    </div>
-    <div class="pipe-arrow">→</div>
-    <div class="pipe-stage port">
-      <div class="pipe-icon">🚢</div>
-      <div class="pipe-label" data-i18n="atPort">At Port</div>
-      <div class="pipe-value blue" id="pv-port">—</div>
-      <div class="pipe-note" id="pn-port">Pending</div>
-    </div>
-    <div class="pipe-arrow">→</div>
-    <div class="pipe-stage loss">
-      <div class="pipe-icon">📉</div>
-      <div class="pipe-label" data-i18n="totalLoss">Total Loss</div>
-      <div class="pipe-value red" id="pv-loss">—</div>
-      <div class="pipe-note" id="pn-loss">—</div>
+<div class="loader" id="pageLoad"><div class="load-card"><div class="spinner"></div><div id="ldMsg">Loading production data...</div></div></div>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand"><div class="logo">AIT</div><div class="title"><h1 data-i18n="pageTitle">Production / Lots</h1><p data-i18n="pageSub">Full lot tracking from zone to port stockpile</p></div></div>
+    <div class="top-actions">
+      <select class="select" id="langSel" onchange="setLang(this.value)"><option value="en">EN</option><option value="ar">AR</option></select>
+      <button class="btn" id="themeBtn" onclick="toggleTheme()">🌙</button>
+      <button class="btn" onclick="loadData('data')" data-i18n="load">Load</button>
+      <button class="btn primary" id="btnRefresh" onclick="refreshData()" data-i18n="refresh">Sync / Refresh</button>
+      <button class="btn" onclick="exportExcel()" data-i18n="exportExcel">Export Excel</button>
     </div>
   </div>
 
-  <!-- KPIs -->
+  <div class="filters">
+    <select class="select" id="fMine" onchange="applyFilters()"><option value="all">All Mines</option></select>
+    <select class="select" id="fZone" onchange="applyFilters()"><option value="all">All Zones</option></select>
+    <select class="select" id="fStage" onchange="applyFilters()"><option value="all">All Stages</option></select>
+    <input class="input" id="fFrom" type="date" onchange="applyFilters()">
+    <input class="input" id="fTo" type="date" onchange="applyFilters()">
+    <input class="input" id="fSearch" placeholder="Search batch / mine / zone" oninput="applyFilters()">
+    <button class="btn" onclick="clearFilters()" data-i18n="clearFilters">Clear</button>
+  </div>
+
   <div class="kpi-grid" id="kpiGrid"></div>
+  <div class="stage-strip" id="stageStrip"></div>
 
-  <!-- Row 1: Tonnage by Mine | Fe% by Mine | Stage Distribution -->
-  <div class="g3">
-    <div class="card clickable" id="card-mine" onclick="chartClick('mine')">
-      <div class="card-head"><h3 data-i18n="tonByMine">Tonnage by Mine</h3><span id="h1"></span></div>
-      <div class="card-body"><div class="ch h200"><canvas id="cTon"></canvas></div></div>
+  <div class="grid">
+    <div class="card wide">
+      <div class="card-head"><div><h3 data-i18n="stageFlow">Full Stage Flow</h3><span id="hFlow">All stages</span></div><span id="lastUpdate">—</span></div>
+      <div class="chart"><canvas id="cFlow"></canvas></div>
     </div>
-    <div class="card">
-      <div class="card-head"><h3 data-i18n="feByMine">Avg Fe% by Mine</h3><span id="h2"></span></div>
-      <div class="card-body"><div class="ch h200"><canvas id="cFe"></canvas></div></div>
-    </div>
-    <div class="card">
-      <div class="card-head"><h3 data-i18n="stageFlow">Mine → Crusher → Port Flow</h3><span id="h3"></span></div>
-      <div class="card-body"><div class="ch h200"><canvas id="cFlow"></canvas></div></div>
-    </div>
+    <div class="card"><div class="card-head"><div><h3 data-i18n="stageDistribution">Current Stage Distribution</h3><span id="hStage">Current position of each lot</span></div></div><div class="chart"><canvas id="cStage"></canvas></div></div>
+    <div class="card"><div class="card-head"><div><h3 data-i18n="tonByMine">Current Stock by Mine</h3><span id="hMine">Mines</span></div></div><div class="chart"><canvas id="cMine"></canvas></div></div>
+    <div class="card"><div class="card-head"><div><h3 data-i18n="feByMine">Weighted Fe% by Mine</h3><span id="hFe">Quality</span></div></div><div class="chart"><canvas id="cFe"></canvas></div></div>
+    <div class="card"><div class="card-head"><div><h3 data-i18n="trend">Daily Lot Trend</h3><span id="hTrend">Current stock by latest update date</span></div></div><div class="chart"><canvas id="cTrend"></canvas></div></div>
+    <div class="card"><div class="card-head"><div><h3 data-i18n="losses">Transition Variance / Loss</h3><span id="hLoss">Difference between stages</span></div></div><div class="chart"><canvas id="cLoss"></canvas></div></div>
   </div>
 
-  <!-- Row 2: Tonnage trend | Loss analysis -->
-  <div class="g2">
-    <div class="card">
-      <div class="card-head"><h3 data-i18n="tonTrend">Tonnage Trend by Date</h3><span data-i18n="allLots">All Lots</span></div>
-      <div class="card-body"><div class="ch h180"><canvas id="cTrend"></canvas></div></div>
-    </div>
-    <div class="card">
-      <div class="card-head"><h3 data-i18n="lossAnalysis">Loss Analysis by Mine</h3><span id="h4"></span></div>
-      <div class="card-body"><div class="ch h180"><canvas id="cLoss"></canvas></div></div>
-    </div>
-  </div>
-
-  <!-- Table -->
-  <div class="card g1">
-    <div class="card-head">
-      <h3 data-i18n="lotsLog">Production Lots Log</h3>
-      <span id="hTable"></span>
-    </div>
-    <div class="tbl-wrap">
+  <div class="table-card">
+    <div class="card-head"><div><h3 data-i18n="lotsLog">Production Lots Detailed Log</h3><span id="hTable">0 lots</span></div><span id="apiMsg"></span></div>
+    <div class="table-wrap">
       <table>
         <thead><tr>
-          <th data-i18n="date">Date</th>
-          <th data-i18n="mine">Mine</th>
-          <th data-i18n="zone">Zone</th>
-          <th data-i18n="batch">Batch</th>
-          <th class="td-r" data-i18n="mineTon">Mine (Ton)</th>
-          <th class="td-r" data-i18n="crusherTon">Crusher (Ton)</th>
-          <th class="td-r" data-i18n="portTon">Port (Ton)</th>
-          <th class="td-r">Fe%</th>
-          <th class="td-r" data-i18n="lossPct">Loss%</th>
-          <th data-i18n="stage">Stage</th>
+          <th>Date</th><th>Mine</th><th>Zone</th><th>Batch</th>
+          <th>Before Crusher</th><th>After Crusher</th><th>Mine Store</th><th>General Store</th>
+          <th>Factory</th><th>Factory Store</th><th>Port Stockpile</th>
+          <th>Current Stage</th><th>Current Qty</th><th>Avg Fe%</th><th>Total Loss</th><th>Loss%</th>
         </tr></thead>
         <tbody id="tBody"></tbody>
       </table>
     </div>
   </div>
-
-</div><!-- end content -->
-
-<!-- STATUS BAR -->
-<div class="statusbar">
-  <div class="s-dot" id="sDot"></div>
-  <span id="sText">Connecting...</span>
-  <span style="margin-left:auto" id="sCount"></span>
 </div>
+<div class="statusbar"><div class="s-dot yellow" id="sDot"></div><span id="sText">Connecting...</span><span style="margin-left:auto" id="sCount"></span></div>
 
 <script>
-Chart.register(ChartDataLabels);
+if (window.ChartDataLabels) Chart.register(ChartDataLabels);
 
-// ── CONFIG ───────────────────────────────────────────────────
+// Keep this URL equal to your current Apps Script Web App URL.
 const API_URL = 'https://script.google.com/macros/s/AKfycbxFJroZzKQT1N0c70ktzFISQkWIkT7w_pyi7eAFxuDPx88icN-WvT2IGkrJ8W-Lt1uz/exec';
 
-// ── i18n ─────────────────────────────────────────────────────
-const I18N = {
-  en:{
-    pageTitle:'Production / Lots', pageSub:'Tonnage tracking — Mine → Crusher → Port',
-    refresh:'Refresh', exportExcel:'Export Excel',
-    mine:'Mine', zone:'Zone', stage:'Stage', dateRange:'Date Range',
-    clearFilters:'✕ Clear', allMines:'All Mines',
-    allStages:'All Stages', stgMine:'⛏ Mine', stgCrusher:'🏗 Crusher', stgPort:'🚢 Port',
-    atMine:'At Mine', afterCrusher:'After Crusher', atPort:'At Port', totalLoss:'Total Loss',
-    tons:'Tons', pending:'Pending',
-    tonByMine:'Tonnage by Mine', feByMine:'Avg Fe% by Mine',
-    stageFlow:'Mine → Crusher → Port Flow', tonTrend:'Tonnage Trend by Date',
-    lossAnalysis:'Loss Analysis by Mine', lotsLog:'Production Lots Log', allLots:'All Lots',
-    date:'Date', batch:'Batch', mineTon:'Mine (Ton)', crusherTon:'Crusher (Ton)',
-    portTon:'Port (Ton)', lossPct:'Loss%',
-    kpi_lots:'TOTAL LOTS', kpi_mine:'TOTAL @ MINE', kpi_crusher:'AFTER CRUSHER',
-    kpi_port:'AT PORT', kpi_loss:'TOTAL LOSS', kpi_fe:'AVG FE%', kpi_mines:'MINES',
-    mines:'mines', tons_ex:'Tons extracted', tons_crush:'Tons after crushing',
-    tons_ship:'Tons shipped', loss_pend:'Pending',
-  },
-  ar:{
-    pageTitle:'الإنتاج / اللوتات', pageSub:'تتبع الطناج — المنجم ← الكسارة ← الميناء',
-    refresh:'تحديث', exportExcel:'تصدير Excel',
-    mine:'المنجم', zone:'المنطقة', stage:'المرحلة', dateRange:'الفترة الزمنية',
-    clearFilters:'✕ مسح', allMines:'كل المناجم',
-    allStages:'كل المراحل', stgMine:'⛏ المنجم', stgCrusher:'🏗 الكسارة', stgPort:'🚢 الميناء',
-    atMine:'في المنجم', afterCrusher:'بعد الكسارة', atPort:'في الميناء', totalLoss:'الفاقد الكلي',
-    tons:'طن', pending:'قيد الانتظار',
-    tonByMine:'الطناج لكل منجم', feByMine:'متوسط Fe% لكل منجم',
-    stageFlow:'رحلة الخامة: منجم ← كسارة ← ميناء', tonTrend:'اتجاه الطناج بالتاريخ',
-    lossAnalysis:'تحليل الفاقد لكل منجم', lotsLog:'سجل اللوتات', allLots:'كل اللوتات',
-    date:'التاريخ', batch:'اللوت', mineTon:'المنجم (طن)', crusherTon:'الكسارة (طن)',
-    portTon:'الميناء (طن)', lossPct:'% الفاقد',
-    kpi_lots:'إجمالي اللوتات', kpi_mine:'في المنجم', kpi_crusher:'بعد الكسارة',
-    kpi_port:'في الميناء', kpi_loss:'الفاقد الكلي', kpi_fe:'متوسط Fe%', kpi_mines:'المناجم',
-    mines:'مناجم', tons_ex:'طن مستخرج', tons_crush:'طن بعد الكسارة',
-    tons_ship:'طن مشحون', loss_pend:'قيد الانتظار',
-  },
-  zh:{
-    pageTitle:'生产/批次', pageSub:'吨位跟踪 — 矿场 → 破碎机 → 港口',
-    refresh:'刷新', exportExcel:'导出Excel',
-    mine:'矿区', zone:'区域', stage:'阶段', dateRange:'日期范围',
-    clearFilters:'✕ 清除', allMines:'所有矿区',
-    allStages:'所有阶段', stgMine:'⛏ 矿场', stgCrusher:'🏗 破碎机', stgPort:'🚢 港口',
-    atMine:'矿场', afterCrusher:'破碎机后', atPort:'港口', totalLoss:'总损耗',
-    tons:'吨', pending:'待处理',
-    tonByMine:'各矿区吨位', feByMine:'各矿区平均Fe%',
-    stageFlow:'矿场 → 破碎机 → 港口', tonTrend:'按日期吨位趋势',
-    lossAnalysis:'各矿区损耗分析', lotsLog:'生产批次记录', allLots:'所有批次',
-    date:'日期', batch:'批次', mineTon:'矿场(吨)', crusherTon:'破碎机(吨)',
-    portTon:'港口(吨)', lossPct:'损耗%',
-    kpi_lots:'批次总数', kpi_mine:'矿场总量', kpi_crusher:'破碎后',
-    kpi_port:'港口', kpi_loss:'总损耗', kpi_fe:'平均Fe%', kpi_mines:'矿区',
-    mines:'矿区', tons_ex:'提取吨位', tons_crush:'破碎后吨位',
-    tons_ship:'装船吨位', loss_pend:'待处理',
-  }
+const I18N={
+  en:{pageTitle:'Production / Lots',pageSub:'Full lot tracking from zone to port stockpile',load:'Load',refresh:'Sync / Refresh',exportExcel:'Export Excel',clearFilters:'Clear',stageFlow:'Full Stage Flow',stageDistribution:'Current Stage Distribution',tonByMine:'Current Stock by Mine',feByMine:'Weighted Fe% by Mine',trend:'Daily Lot Trend',losses:'Transition Variance / Loss',lotsLog:'Production Lots Detailed Log'},
+  ar:{pageTitle:'الإنتاج / اللوتات',pageSub:'تتبع كامل للوط من الزون حتى تشوين الميناء',load:'تحميل',refresh:'مزامنة / تحديث',exportExcel:'تصدير Excel',clearFilters:'مسح',stageFlow:'مسار اللوطات الكامل',stageDistribution:'توزيع المراحل الحالية',tonByMine:'المخزون الحالي لكل منجم',feByMine:'متوسط Fe% المرجح لكل منجم',trend:'اتجاه اللوطات اليومي',losses:'الفروقات / الفاقد بين المراحل',lotsLog:'سجل تفصيلي للوطات الإنتاج'}
 };
-
-let LANG  = localStorage.getItem('ait_lang')  || 'en';
-let THEME = localStorage.getItem('ait_theme') || 'dark';
-function t(k){ return (I18N[LANG]&&I18N[LANG][k]) || I18N.en[k] || k; }
-
-function applyI18n(){
-  document.querySelectorAll('[data-i18n]').forEach(el=>{
-    el.textContent = t(el.getAttribute('data-i18n'));
-  });
-  const stgMap = {'opt-stage-all':'allStages','opt-mine':'stgMine','opt-crusher':'stgCrusher','opt-port':'stgPort'};
-  Object.entries(stgMap).forEach(([id,k])=>{ const el=document.getElementById(id); if(el) el.textContent=t(k); });
-  document.documentElement.lang = LANG;
-  document.documentElement.dir  = LANG==='ar' ? 'rtl' : 'ltr';
-}
-function setLang(l){ LANG=l; localStorage.setItem('ait_lang',l); document.getElementById('langSel').value=l; applyI18n(); render(); }
-function toggleTheme(){ THEME=THEME==='dark'?'light':'dark'; localStorage.setItem('ait_theme',THEME); document.documentElement.setAttribute('data-theme',THEME); document.getElementById('themeBtn').textContent=THEME==='dark'?'🌙':'☀️'; if(ALL.length) renderCharts(); }
-
-// ── State ─────────────────────────────────────────────────────
-let ALL=[], FILTERED=[], CHARTS={};
-let ACTIVE_CHART_FILTER=null;
-const PAL=['#fd480e','#22c55e','#38bdf8','#f59e0b','#a78bfa','#ec4899','#14b8a6','#f97316','#84cc16','#06b6d4'];
-const fmt=v=>v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(1)+'K':v.toFixed(0);
-
-// ── JSONP ─────────────────────────────────────────────────────
-function apiCall(action){
-  return new Promise((resolve,reject)=>{
-    const cb='ait_'+Date.now()+'_'+Math.random().toString(36).slice(2);
-    const s=document.createElement('script');
-    let done=false;
-    const cleanup=()=>{done=true;delete window[cb];if(s.parentNode)s.parentNode.removeChild(s);};
-    window[cb]=data=>{cleanup();resolve(data);};
-    s.onerror=()=>{if(!done){cleanup();reject(new Error('Connection failed'));}};
-    setTimeout(()=>{if(!done){cleanup();reject(new Error('Timeout'));}},30000);
-    s.src=API_URL+'?module=production&action='+encodeURIComponent(action)+'&callback='+encodeURIComponent(cb)+'&t='+Date.now();
-    document.body.appendChild(s);
-  });
-}
-
-// ── Load ──────────────────────────────────────────────────────
-async function loadData(action='data'){
-  setStatus('yellow',t('refresh')+'...');
-  document.getElementById('ldMsg').textContent = action==='sync' ? 'Syncing new lots...' : 'Loading production data...';
-  document.getElementById('pageLoad').classList.remove('hidden');
-  try{
-    const res=await apiCall(action);
-    if(res.error) throw new Error(res.message||'API error');
-    ALL=res.production?.lots||[];
-    populateMineDropdown();
-    applyFilters();
-    document.getElementById('lastUpdate').textContent='🕐 '+(res.lastUpdated||'—');
-    setStatus('ok','Live — '+ALL.length+' lots');
-  }catch(e){
-    setStatus('error','Error: '+e.message);
-    console.error(e);
-  }finally{
-    document.getElementById('pageLoad').classList.add('hidden');
-  }
-}
-
-async function refreshData(){
-  const btn=document.getElementById('btnRefresh');
-  btn.disabled=true; btn.classList.add('spinning');
-  await loadData('sync');
-  btn.disabled=false; btn.classList.remove('spinning');
-}
-
-// ── Dropdown ──────────────────────────────────────────────────
-function populateMineDropdown(){
-  const sel=document.getElementById('fMine');
-  const cur=sel.value;
-  const mines=[...new Set(ALL.map(r=>r.mine).filter(Boolean))].sort();
-  sel.innerHTML=`<option value="all">${t('allMines')}</option>`+mines.map(m=>`<option value="${m}"${cur===m?' selected':''}>${m}</option>`).join('');
-}
-
-// ── Filters ───────────────────────────────────────────────────
-function applyFilters(){
-  const mine =document.getElementById('fMine').value;
-  const stage=document.getElementById('fStage').value;
-  const dfr  =document.getElementById('fFrom').value;
-  const dto  =document.getElementById('fTo').value;
-
-  FILTERED=ALL.filter(r=>{
-    if(mine !=='all' && r.mine !==mine)  return false;
-    if(stage!=='all' && r.stage!==stage) return false;
-    if(dfr && String(r.date)<dfr)        return false;
-    if(dto && String(r.date)>dto)        return false;
-    if(ACTIVE_CHART_FILTER && ACTIVE_CHART_FILTER.type==='mine' && r.mine!==ACTIVE_CHART_FILTER.value) return false;
-    return true;
-  });
-
-  const ac=[mine,stage,dfr,dto].filter(v=>v&&v!=='all').length+(ACTIVE_CHART_FILTER?1:0);
-  const badge=document.getElementById('activeBadge');
-  badge.style.display=ac>0?'':'none';
-  badge.textContent=ac+' active';
-  renderChips(mine,stage,dfr,dto);
-  render();
-}
-
-function renderChips(mine,stage,dfr,dto){
-  const chips=[];
-  if(mine !=='all') chips.push({l:'Mine: '+mine,   c:()=>{document.getElementById('fMine').value='all'; applyFilters();}});
-  if(stage!=='all') chips.push({l:'Stage: '+stage,  c:()=>{document.getElementById('fStage').value='all'; applyFilters();}});
-  if(dfr)           chips.push({l:'From: '+dfr,     c:()=>{document.getElementById('fFrom').value=''; applyFilters();}});
-  if(dto)           chips.push({l:'To: '+dto,       c:()=>{document.getElementById('fTo').value=''; applyFilters();}});
-  if(ACTIVE_CHART_FILTER) chips.push({l:'Chart: '+ACTIVE_CHART_FILTER.value, c:()=>clearChartFilter()});
-  document.getElementById('chipBar').innerHTML=chips.map((c,i)=>`<span class="chip">${c.l}<span class="chip-x" onclick="chips[${i}].c()">✕</span></span>`).join('');
-  window.chips=chips;
-}
-
-function clearFilters(){
-  ['fMine','fStage'].forEach(id=>document.getElementById(id).value='all');
-  document.getElementById('fFrom').value='';
-  document.getElementById('fTo').value='';
-  clearChartFilter();
-}
-
-function chartClick(type){
-  if(ACTIVE_CHART_FILTER&&ACTIVE_CHART_FILTER.chartType===type){ clearChartFilter(); return; }
-}
-
-function clearChartFilter(){
-  ACTIVE_CHART_FILTER=null;
-  document.querySelectorAll('.card.active-filter').forEach(el=>el.classList.remove('active-filter'));
-  applyFilters();
-}
-
-// ── Render ────────────────────────────────────────────────────
-function render(){ renderPipeline(); renderKPIs(); renderCharts(); renderTable(); document.getElementById('hTable').textContent=FILTERED.length+' lots'; document.getElementById('sCount').textContent=FILTERED.length+' / '+ALL.length+' lots'; }
-
-// ── Pipeline ──────────────────────────────────────────────────
-function renderPipeline(){
-  const mineTon   =FILTERED.reduce((s,r)=>s+parseFloat(r.mine_qty_ton||0),0);
-  const crusherTon=FILTERED.filter(r=>r.crusher_qty_ton).reduce((s,r)=>s+parseFloat(r.crusher_qty_ton||0),0);
-  const portTon   =FILTERED.filter(r=>r.port_qty_ton).reduce((s,r)=>s+parseFloat(r.port_qty_ton||0),0);
-  const loss      =mineTon-(portTon||crusherTon||mineTon);
-  const lossPct   =mineTon?loss/mineTon*100:0;
-
-  document.getElementById('pv-mine').textContent    = fmt(mineTon)+' t';
-  document.getElementById('pv-crusher').textContent = crusherTon ? fmt(crusherTon)+' t' : '—';
-  document.getElementById('pv-port').textContent    = portTon    ? fmt(portTon)+' t'    : '—';
-  document.getElementById('pv-loss').textContent    = (portTon||crusherTon) ? fmt(loss)+' t' : '—';
-  document.getElementById('pn-crusher').textContent = crusherTon ? t('tons') : t('pending');
-  document.getElementById('pn-port').textContent    = portTon    ? t('tons') : t('pending');
-  document.getElementById('pn-loss').textContent    = (portTon||crusherTon) ? lossPct.toFixed(1)+'% '+t('totalLoss').toLowerCase() : t('pending');
-}
-
-// ── KPIs ──────────────────────────────────────────────────────
-function renderKPIs(){
-  const mineTon   =FILTERED.reduce((s,r)=>s+parseFloat(r.mine_qty_ton||0),0);
-  const crusherTon=FILTERED.filter(r=>r.crusher_qty_ton).reduce((s,r)=>s+parseFloat(r.crusher_qty_ton||0),0);
-  const portTon   =FILTERED.filter(r=>r.port_qty_ton).reduce((s,r)=>s+parseFloat(r.port_qty_ton||0),0);
-  const feV       =FILTERED.map(r=>parseFloat(r.avg_fe_pct||0)).filter(v=>v>0);
-  const avgFe     =feV.length?feV.reduce((a,b)=>a+b,0)/feV.length:0;
-  const mines     =new Set(FILTERED.map(r=>r.mine)).size;
-  const loss      =mineTon-(portTon||crusherTon||mineTon);
-  const lossPct   =mineTon?loss/mineTon*100:0;
-
-  const kpis=[
-    {l:t('kpi_lots'),    v:FILTERED.length,                    n:mines+' '+t('mines'),    c:'orange'},
-    {l:t('kpi_mine'),    v:fmt(mineTon)+' t',                  n:t('tons_ex'),            c:'orange'},
-    {l:t('kpi_crusher'), v:crusherTon?fmt(crusherTon)+' t':'—',n:crusherTon?t('tons_crush'):t('pending'), c:'yellow'},
-    {l:t('kpi_port'),    v:portTon?fmt(portTon)+' t':'—',      n:portTon?t('tons_ship'):t('pending'),     c:'blue'},
-    {l:t('kpi_loss'),    v:(portTon||crusherTon)?fmt(loss)+' t':'—', n:(portTon||crusherTon)?lossPct.toFixed(1)+'%':t('pending'), c:'red'},
-    {l:t('kpi_fe'),      v:avgFe.toFixed(1)+'%',               n:'Weighted avg',          c:'green'},
-    {l:t('kpi_mines'),   v:mines,                               n:'Active',                c:'blue'},
-  ];
-  document.getElementById('kpiGrid').innerHTML=kpis.map(k=>`<div class="kc ${k.c}"><div class="kc-lbl">${k.l}</div><div class="kc-val ${k.c}">${k.v}</div><div class="kc-note">${k.n}</div></div>`).join('');
-}
-
-// ── Charts ────────────────────────────────────────────────────
-function gc(){ return { grid:getComputedStyle(document.documentElement).getPropertyValue('--chart-grid').trim()||'rgba(255,255,255,.04)', txt:getComputedStyle(document.documentElement).getPropertyValue('--chart-txt').trim()||'#8892a4' }; }
-
-function mkChart(id,type,labels,datasets,extra={}){
-  if(CHARTS[id])CHARTS[id].destroy();
-  const el=document.getElementById(id); if(!el)return;
-  const {grid,txt}=gc();
-  CHARTS[id]=new Chart(el,{type,data:{labels,datasets},options:{
-    responsive:true,maintainAspectRatio:false,animation:{duration:300},
-    plugins:{
-      legend:{display:extra.legend??false,labels:{color:txt,boxWidth:10,font:{size:10}}},
-      tooltip:{backgroundColor:'#07101f',borderColor:'#fd480e',borderWidth:1,titleColor:'#fd480e',bodyColor:'#e8ecf2',padding:10},
-      datalabels:extra.datalabels??{display:extra.showLabels?ctx=>ctx.dataset.data[ctx.dataIndex]>0:false,color:'#fff',font:{weight:'bold',size:10},formatter:v=>v>0?fmt(v):'',anchor:extra.labelAnchor||'end',align:extra.labelAlign||'top',clamp:true}
-    },
-    scales:(type==='doughnut'||type==='pie')?{}:{
-      x:{stacked:extra.stacked||false,grid:{color:grid},ticks:{color:txt,font:{size:10},maxRotation:30}},
-      y:{stacked:extra.stacked||false,grid:{color:grid},ticks:{color:txt,font:{size:10},callback:v=>fmt(v)}}
-    },
-    onClick:extra.onClick||undefined,
-    onHover:extra.onClick?(evt,els)=>{el.style.cursor=els.length?'pointer':'default';}:undefined,
-    ...(extra.opts||{})
-  }});
-}
-
-function renderCharts(){
-  const {grid,txt}=gc();
-  const mines=[...new Set(FILTERED.map(r=>r.mine).filter(Boolean))].sort();
-
-  // ── 1. Tonnage by Mine ────────────────────────────────────
-  const mTon=mines.map(m=>FILTERED.filter(r=>r.mine===m).reduce((s,r)=>s+parseFloat(r.mine_qty_ton||0),0));
-  document.getElementById('h1').textContent=mines.length+' mines';
-  mkChart('cTon','bar',mines,[{label:t('kpi_mine'),data:mTon,backgroundColor:'rgba(253,72,14,.8)',borderRadius:5}],{
-    showLabels:true,labelAnchor:'end',labelAlign:'top',
-    onClick:(evt,els)=>{
-      if(!els.length)return;
-      const mine=mines[els[0].index];
-      if(ACTIVE_CHART_FILTER?.value===mine){clearChartFilter();return;}
-      ACTIVE_CHART_FILTER={type:'mine',chartType:'mine',value:mine};
-      document.getElementById('card-mine').classList.add('active-filter');
-      applyFilters();
-    }
-  });
-
-  // ── 2. Fe% by Mine ────────────────────────────────────────
-  const mFe=mines.map(m=>{const v=FILTERED.filter(r=>r.mine===m).map(r=>parseFloat(r.avg_fe_pct||0)).filter(v=>v>0);return v.length?+(v.reduce((a,b)=>a+b,0)/v.length).toFixed(2):0;});
-  document.getElementById('h2').textContent=mines.length+' mines';
-  mkChart('cFe','bar',mines,[{label:'Avg Fe%',data:mFe,backgroundColor:mFe.map(v=>v>=55?'rgba(34,197,94,.8)':v>=37?'rgba(253,72,14,.8)':'rgba(239,68,68,.8)'),borderRadius:5}],{showLabels:true,labelAnchor:'end',labelAlign:'top'});
-
-  // ── 3. Mine → Crusher → Port Flow ────────────────────────
-  const mineTot   =FILTERED.reduce((s,r)=>s+parseFloat(r.mine_qty_ton||0),0);
-  const crusherTot=FILTERED.filter(r=>r.crusher_qty_ton).reduce((s,r)=>s+parseFloat(r.crusher_qty_ton||0),0);
-  const portTot   =FILTERED.filter(r=>r.port_qty_ton).reduce((s,r)=>s+parseFloat(r.port_qty_ton||0),0);
-  document.getElementById('h3').textContent=FILTERED.length+' lots';
-  mkChart('cFlow','bar',[t('atMine'),t('afterCrusher'),t('atPort')],[{
-    label:t('tons'),
-    data:[mineTot, crusherTot||null, portTot||null],
-    backgroundColor:['rgba(253,72,14,.8)','rgba(245,158,11,.8)','rgba(56,189,248,.8)'],
-    borderRadius:5
-  }],{showLabels:true,labelAnchor:'end',labelAlign:'top'});
-
-  // ── 4. Tonnage trend ──────────────────────────────────────
-  const daily={};
-  FILTERED.forEach(r=>{const d=String(r.date||'').slice(0,10);if(!d)return;if(!daily[d])daily[d]=0;daily[d]+=parseFloat(r.mine_qty_ton||0);});
-  const days=Object.keys(daily).sort();
-  mkChart('cTrend','line',days,[{label:t('tons'),data:days.map(d=>daily[d]),borderColor:'#fd480e',backgroundColor:'rgba(253,72,14,.1)',fill:true,tension:.4,pointRadius:3,pointBackgroundColor:'#fd480e'}],{datalabels:{display:false}});
-
-  // ── 5. Loss Analysis ──────────────────────────────────────
-  document.getElementById('h4').textContent=mines.length+' mines';
-  const mLoss=mines.map(m=>{
-    const lots=FILTERED.filter(r=>r.mine===m);
-    const mq=lots.reduce((s,r)=>s+parseFloat(r.mine_qty_ton||0),0);
-    const pq=lots.filter(r=>r.port_qty_ton).reduce((s,r)=>s+parseFloat(r.port_qty_ton||0),0);
-    const cq=lots.filter(r=>r.crusher_qty_ton).reduce((s,r)=>s+parseFloat(r.crusher_qty_ton||0),0);
-    const final=pq||cq||mq;
-    return mq?+((mq-final)/mq*100).toFixed(1):0;
-  });
-  mkChart('cLoss','bar',mines,[{label:'Loss%',data:mLoss,backgroundColor:'rgba(239,68,68,.8)',borderRadius:5}],{showLabels:true,labelAnchor:'end',labelAlign:'top'});
-}
-
-// ── Table ─────────────────────────────────────────────────────
-function renderTable(){
-  const body=document.getElementById('tBody');
-  if(!FILTERED.length){body.innerHTML=`<tr><td colspan="10" style="text-align:center;color:var(--text2);padding:24px">No lots match filters</td></tr>`;return;}
-  const fv=v=>v&&parseFloat(v)>0?parseFloat(v).toLocaleString():'—';
-  const stageBadge=s=>s==='Port'?'port':s==='Crusher'?'crusher':'mine';
-  body.innerHTML=FILTERED.map(r=>`<tr>
-    <td class="td-s">${String(r.date||'—').slice(0,10)}</td>
-    <td><strong>${r.mine||'—'}</strong></td>
-    <td class="td-s">${r.zone||'—'}</td>
-    <td>${r.batch||'—'}</td>
-    <td class="td-r td-b" style="color:var(--accent)">${fv(r.mine_qty_ton)}</td>
-    <td class="td-r" style="color:${r.crusher_qty_ton?'var(--yellow)':'var(--text3)'}">${fv(r.crusher_qty_ton)}</td>
-    <td class="td-r" style="color:${r.port_qty_ton?'var(--blue)':'var(--text3)'}">${fv(r.port_qty_ton)}</td>
-    <td class="td-r" style="color:${parseFloat(r.avg_fe_pct||0)>=55?'var(--green)':parseFloat(r.avg_fe_pct||0)>=37?'var(--accent)':'var(--red)'}">${r.avg_fe_pct?parseFloat(r.avg_fe_pct).toFixed(1)+'%':'—'}</td>
-    <td class="td-r" style="color:${r.loss_pct?'var(--red)':'var(--text2)'}">${r.loss_pct?r.loss_pct+'%':'—'}</td>
-    <td><span class="badge ${stageBadge(r.stage)}">${r.stage||'Mine'}</span></td>
-  </tr>`).join('');
-}
-
-// ── Export ────────────────────────────────────────────────────
-function exportExcel(){
-  if(!FILTERED.length){alert('No data to export');return;}
-  const data=FILTERED.map(r=>({'Date':String(r.date||''),'Mine':r.mine||'','Zone':r.zone||'','Batch':r.batch||'','Mine Qty (Ton)':parseFloat(r.mine_qty_ton||0),'Crusher Qty (Ton)':parseFloat(r.crusher_qty_ton||0)||'','Port Qty (Ton)':parseFloat(r.port_qty_ton||0)||'','Avg Fe%':parseFloat(r.avg_fe_pct||0),'Loss%':r.loss_pct||'','Stage':r.stage||'Mine'}));
-  const wb=XLSX.utils.book_new();
-  const ws=XLSX.utils.json_to_sheet(data);
-  ws['!cols']=[{wch:12},{wch:16},{wch:18},{wch:22},{wch:14},{wch:14},{wch:14},{wch:8},{wch:8},{wch:10}];
-  XLSX.utils.book_append_sheet(wb,ws,'Production Lots');
-  XLSX.writeFile(wb,'AIT_Production_'+new Date().toISOString().slice(0,10)+'.xlsx');
-}
-
-// ── Status ────────────────────────────────────────────────────
-function setStatus(type,msg){
-  const dot=document.getElementById('sDot');
-  dot.className='s-dot'+(type==='error'?' red':type==='yellow'?' yellow':'');
-  document.getElementById('sText').textContent=msg;
-}
-
-// ── Init ──────────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded',()=>{
-  document.documentElement.setAttribute('data-theme',THEME);
-  document.getElementById('themeBtn').textContent=THEME==='dark'?'🌙':'☀️';
-  document.getElementById('langSel').value=LANG;
-  applyI18n();
-  document.getElementById('lastUpdate').textContent='📅 '+new Date().toLocaleDateString('en-GB');
-  loadData('data');
-});
+let LANG=localStorage.getItem('ait_lang')||'en';
+let THEME=localStorage.getItem('ait_theme')||'dark';
+let ALL=[],FILTERED=[],STAGES=[],PAYLOAD=null,CHARTS={};
+const COLORS=['#fd480e','#22c55e','#f59e0b','#a78bfa','#38bdf8','#14b8a6','#ef4444','#ec4899'];
+function t(k){return (I18N[LANG]&&I18N[LANG][k])||I18N.en[k]||k;}
+function applyI18n(){document.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent=t(el.getAttribute('data-i18n'));});document.documentElement.lang=LANG;document.body.dir=LANG==='ar'?'rtl':'ltr';}
+function setLang(l){LANG=l;localStorage.setItem('ait_lang',l);document.getElementById('langSel').value=l;applyI18n();render();}
+function toggleTheme(){THEME=THEME==='dark'?'light':'dark';localStorage.setItem('ait_theme',THEME);document.documentElement.setAttribute('data-theme',THEME);document.getElementById('themeBtn').textContent=THEME==='dark'?'🌙':'☀️';renderCharts();}
+function num(v){const n=parseFloat(String(v||0).replace(/,/g,''));return isNaN(n)?0:n;}
+function fmt(v,dec=0){v=num(v);if(Math.abs(v)>=1000000)return (v/1000000).toFixed(1)+'M';if(Math.abs(v)>=1000)return (v/1000).toFixed(1)+'K';return v.toLocaleString(undefined,{maximumFractionDigits:dec,minimumFractionDigits:dec});}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
+function stageLabel(st){return LANG==='ar'?(st.ar||st.label):st.label;}
+function apiCall(action){return new Promise((resolve,reject)=>{const cb='ait_'+Date.now()+'_'+Math.random().toString(36).slice(2);const s=document.createElement('script');let done=false;const cleanup=()=>{done=true;delete window[cb];if(s.parentNode)s.parentNode.removeChild(s);};window[cb]=data=>{cleanup();resolve(data);};s.onerror=()=>{if(!done){cleanup();reject(new Error('Connection failed'));}};setTimeout(()=>{if(!done){cleanup();reject(new Error('Timeout'));}},60000);s.src=API_URL+'?module=production&action='+encodeURIComponent(action)+'&callback='+encodeURIComponent(cb)+'&t='+Date.now();document.body.appendChild(s);});}
+async function loadData(action='data'){setStatus('yellow',action==='sync'?'Syncing production lots...':'Loading production data...');document.getElementById('ldMsg').textContent=action==='sync'?'Syncing production lots...':'Loading production data...';document.getElementById('pageLoad').classList.remove('hidden');try{const res=await apiCall(action);if(res.error||res.ok===false)throw new Error(res.message||'API error');PAYLOAD=res.production||{};ALL=PAYLOAD.lots||PAYLOAD.rows||[];STAGES=PAYLOAD.stage_types||defaultStages();populateFilters();applyFilters(false);document.getElementById('lastUpdate').textContent='🕐 '+(res.lastUpdated||'—');document.getElementById('apiMsg').textContent=PAYLOAD.message||'';setStatus('ok','Live — '+ALL.length+' lots');}catch(e){console.error(e);setStatus('error','Error: '+e.message);}finally{document.getElementById('pageLoad').classList.add('hidden');}}
+async function refreshData(){const b=document.getElementById('btnRefresh');b.disabled=true;await loadData('sync');b.disabled=false;}
+function defaultStages(){return[{key:'lot_before_crusher_ton',label:'Before Crusher / Zone',ar:'قبل الكسارة من الزون'},{key:'lot_after_crusher_ton',label:'After Crusher',ar:'بعد الكسارة'},{key:'lot_mine_store_ton',label:'Mine Store',ar:'مخزن المنجم'},{key:'lot_general_store_ton',label:'General Store',ar:'المخزن العام'},{key:'lot_factory_ton',label:'Factory',ar:'المصنع'},{key:'lot_factory_store_ton',label:'Factory Store',ar:'مخزن المصنع'},{key:'lot_port_stockpile_ton',label:'Port Stockpile',ar:'تشوين الميناء'}];}
+function unique(arr){return [...new Set((arr||[]).filter(Boolean).map(x=>String(x).trim()).filter(Boolean))].sort();}
+function populateFilters(){const mineCur=document.getElementById('fMine').value;const zoneCur=document.getElementById('fZone').value;const stageCur=document.getElementById('fStage').value;const mines=PAYLOAD.mines&&PAYLOAD.mines.length?PAYLOAD.mines:unique(ALL.map(r=>r.mine));const zones=PAYLOAD.zones&&PAYLOAD.zones.length?PAYLOAD.zones:unique(ALL.map(r=>r.zone));document.getElementById('fMine').innerHTML='<option value="all">All Mines</option>'+mines.map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join('');document.getElementById('fZone').innerHTML='<option value="all">All Zones</option>'+zones.map(z=>`<option value="${esc(z)}">${esc(z)}</option>`).join('');document.getElementById('fStage').innerHTML='<option value="all">All Stages</option>'+STAGES.map(s=>`<option value="${esc(s.key)}">${esc(stageLabel(s))}</option>`).join('');if(mines.includes(mineCur))document.getElementById('fMine').value=mineCur;if(zones.includes(zoneCur))document.getElementById('fZone').value=zoneCur;if(STAGES.some(s=>s.key===stageCur))document.getElementById('fStage').value=stageCur;}
+function applyFilters(doRender=true){const mine=document.getElementById('fMine').value;const zone=document.getElementById('fZone').value;const stage=document.getElementById('fStage').value;const from=document.getElementById('fFrom').value;const to=document.getElementById('fTo').value;const q=document.getElementById('fSearch').value.trim().toLowerCase();FILTERED=ALL.filter(r=>{if(mine!=='all'&&String(r.mine)!==mine)return false;if(zone!=='all'&&String(r.zone)!==zone)return false;if(stage!=='all'&&String(r.stage_key)!==stage)return false;const d=String(r.date||'').slice(0,10);if(from&&d<from)return false;if(to&&d>to)return false;if(q){const hay=[r.batch,r.lot_id,r.mine,r.zone,r.stage,r.current_stage].join(' ').toLowerCase();if(!hay.includes(q))return false;}return true;});if(doRender)render();else render();}
+function clearFilters(){['fMine','fZone','fStage'].forEach(id=>document.getElementById(id).value='all');['fFrom','fTo','fSearch'].forEach(id=>document.getElementById(id).value='');applyFilters();}
+function totals(rows){const out={total_lots:rows.length,active_mines:unique(rows.map(r=>r.mine)).length,active_zones:unique(rows.map(r=>r.zone)).length,current_stock_ton:0,loss_total_ton:0,avg_fe_pct:0,completed_lots:0,in_process_lots:0};STAGES.forEach(s=>out[s.key]=0);let feSum=0,feWeight=0;rows.forEach(r=>{STAGES.forEach(s=>out[s.key]+=num(r[s.key]));out.current_stock_ton+=num(r.current_qty_ton);out.loss_total_ton+=num(r.loss_total_ton);if(r.stage_key==='lot_port_stockpile_ton')out.completed_lots++;const fe=num(r.avg_fe_pct),w=num(r.current_qty_ton||r.lot_before_crusher_ton||1);if(fe>0){feSum+=fe*(w||1);feWeight+=(w||1);}});out.in_process_lots=out.total_lots-out.completed_lots;out.avg_fe_pct=feWeight?feSum/feWeight:0;out.loss_pct=out.lot_before_crusher_ton?out.loss_total_ton/out.lot_before_crusher_ton*100:0;return out;}
+function kpiColor(k){if(k.includes('loss'))return 'red';if(k.includes('fe'))return 'green';if(k.includes('port'))return 'blue';if(k.includes('factory'))return 'purple';if(k.includes('store'))return 'yellow';return 'orange';}
+function renderKPIs(){const tt=totals(FILTERED);const cards=[{k:'total_lots',l:'Total Lots',v:tt.total_lots,n:tt.active_mines+' mines / '+tt.active_zones+' zones'},{k:'lot_before_crusher_ton',l:'Before Crusher / Zone',v:fmt(tt.lot_before_crusher_ton)+' t',n:'Lot before crusher from zone'},{k:'lot_after_crusher_ton',l:'After Crusher',v:fmt(tt.lot_after_crusher_ton)+' t',n:'Crushed quantity'},{k:'lot_mine_store_ton',l:'Mine Store',v:fmt(tt.lot_mine_store_ton)+' t',n:'Stored at mine'},{k:'lot_general_store_ton',l:'General Store',v:fmt(tt.lot_general_store_ton)+' t',n:'General warehouse stock'},{k:'lot_factory_ton',l:'Factory',v:fmt(tt.lot_factory_ton)+' t',n:'Inside factory'},{k:'lot_factory_store_ton',l:'Factory Store',v:fmt(tt.lot_factory_store_ton)+' t',n:'Factory warehouse'},{k:'lot_port_stockpile_ton',l:'Port Stockpile',v:fmt(tt.lot_port_stockpile_ton)+' t',n:'Port stockpile'},{k:'current_stock_ton',l:'Current Stock',v:fmt(tt.current_stock_ton)+' t',n:'Last available stage per lot'},{k:'loss_total_ton',l:'Total Variance / Loss',v:fmt(tt.loss_total_ton)+' t',n:fmt(tt.loss_pct,1)+'%'},{k:'avg_fe_pct',l:'Weighted Avg Fe%',v:fmt(tt.avg_fe_pct,1)+'%',n:'Weighted by current stock'},{k:'completed_lots',l:'Port-Ready Lots',v:tt.completed_lots,n:tt.in_process_lots+' in process'}];document.getElementById('kpiGrid').innerHTML=cards.map(c=>`<div class="kpi ${kpiColor(c.k)}"><div class="lbl">${esc(c.l)}</div><div class="val">${esc(c.v)}</div><div class="note">${esc(c.n)}</div></div>`).join('');}
+function renderStageStrip(){const tt=totals(FILTERED);const counts={};FILTERED.forEach(r=>{counts[r.stage_key]=(counts[r.stage_key]||0)+1;});document.getElementById('stageStrip').innerHTML=STAGES.map(s=>`<div class="stage-box"><b>${esc(stageLabel(s))}</b><div class="qty">${fmt(tt[s.key])} t</div><div class="lots">${counts[s.key]||0} current lots</div></div>`).join('');}
+function chartOpts(extra={}){const cs=getComputedStyle(document.documentElement);const grid=cs.getPropertyValue('--chart-grid').trim(),txt=cs.getPropertyValue('--chart-txt').trim();return{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:extra.legend||false,position:'bottom',labels:{color:txt,boxWidth:10,font:{size:10}}},tooltip:{backgroundColor:'#07101f',borderColor:'#fd480e',borderWidth:1,titleColor:'#fd480e',bodyColor:'#e8ecf2'},datalabels:extra.labels?{color:'#fff',font:{weight:'bold',size:10},formatter:v=>num(v)?fmt(v):'',anchor:'end',align:'top',clamp:true}:{display:false}},scales:extra.noScale?{}:{x:{grid:{color:grid},ticks:{color:txt,font:{size:10},maxRotation:35}},y:{grid:{color:grid},ticks:{color:txt,font:{size:10},callback:v=>fmt(v)}}}};}
+function mk(id,type,labels,datasets,opts={}){if(CHARTS[id])CHARTS[id].destroy();const el=document.getElementById(id);if(!el)return;CHARTS[id]=new Chart(el,{type,data:{labels,datasets},options:chartOpts(opts)});}
+function groupByMine(){const map={};FILTERED.forEach(r=>{const m=r.mine||'Unknown';if(!map[m])map[m]={mine:m,lots:0,current_qty_ton:0,loss_total_ton:0,feSum:0,feWeight:0};const x=map[m];x.lots++;x.current_qty_ton+=num(r.current_qty_ton);x.loss_total_ton+=num(r.loss_total_ton);const fe=num(r.avg_fe_pct),w=num(r.current_qty_ton||r.lot_before_crusher_ton||1);if(fe>0){x.feSum+=fe*(w||1);x.feWeight+=(w||1);}});return Object.values(map).map(x=>{x.avg_fe_pct=x.feWeight?x.feSum/x.feWeight:0;return x;}).sort((a,b)=>b.current_qty_ton-a.current_qty_ton);}
+function renderCharts(){if(!STAGES.length)STAGES=defaultStages();const tt=totals(FILTERED);const labels=STAGES.map(stageLabel);mk('cFlow','bar',labels,[{label:'Tons',data:STAGES.map(s=>tt[s.key]||0),backgroundColor:COLORS,borderRadius:8}],{labels:true});const curCounts=STAGES.map(s=>FILTERED.filter(r=>r.stage_key===s.key).length);mk('cStage','doughnut',labels,[{data:curCounts,backgroundColor:COLORS,borderWidth:0}],{legend:true,noScale:true});const bm=groupByMine();document.getElementById('hMine').textContent=bm.length+' mines';mk('cMine','bar',bm.map(x=>x.mine),[{label:'Current Stock',data:bm.map(x=>x.current_qty_ton),backgroundColor:'#fd480e',borderRadius:8}],{labels:true});mk('cFe','bar',bm.map(x=>x.mine),[{label:'Avg Fe%',data:bm.map(x=>+x.avg_fe_pct.toFixed(2)),backgroundColor:bm.map(x=>x.avg_fe_pct>=55?'#22c55e':x.avg_fe_pct>=37?'#f59e0b':'#ef4444'),borderRadius:8}],{labels:true});const daily={};FILTERED.forEach(r=>{const d=String(r.date||'').slice(0,10);if(!d)return;if(!daily[d])daily[d]=0;daily[d]+=num(r.current_qty_ton);});const days=Object.keys(daily).sort();mk('cTrend','line',days,[{label:'Current Stock',data:days.map(d=>daily[d]),borderColor:'#38bdf8',backgroundColor:'rgba(56,189,248,.12)',fill:true,tension:.35,pointRadius:3}],{});const lossFields=[['loss_crusher','Crusher'],['loss_after_crusher_to_mine_store','To Mine Store'],['loss_mine_store_to_general_store','To General Store'],['loss_general_store_to_factory','To Factory'],['loss_factory_to_factory_store','To Factory Store'],['loss_factory_store_to_port','To Port']];mk('cLoss','bar',lossFields.map(x=>x[1]),[{label:'Variance / Loss',data:lossFields.map(x=>FILTERED.reduce((s,r)=>s+num(r[x[0]]),0)),backgroundColor:'#ef4444',borderRadius:8}],{labels:true});document.getElementById('hFlow').textContent=FILTERED.length+' lots / '+fmt(tt.current_stock_ton)+' t current';document.getElementById('hStage').textContent=tt.completed_lots+' port-ready / '+tt.in_process_lots+' in process';document.getElementById('hFe').textContent='Weighted avg '+fmt(tt.avg_fe_pct,1)+'%';document.getElementById('hTrend').textContent=days.length+' update days';document.getElementById('hLoss').textContent=fmt(tt.loss_total_ton)+' t total variance';}
+function badgeClass(r){const k=String(r.stage_key||'');if(k.includes('port'))return 'port';if(k.includes('factory'))return 'factory';if(k.includes('store'))return 'store';if(k.includes('crusher'))return 'crusher';return '';}
+function renderTable(){const body=document.getElementById('tBody');document.getElementById('hTable').textContent=FILTERED.length+' / '+ALL.length+' lots';document.getElementById('sCount').textContent=FILTERED.length+' / '+ALL.length+' lots';if(!FILTERED.length){body.innerHTML='<tr><td colspan="16" style="text-align:center;color:var(--text2);padding:26px">No lots match current filters</td></tr>';return;}const rows=FILTERED.slice(0,600);body.innerHTML=rows.map(r=>`<tr><td>${esc(String(r.date||'').slice(0,10)||'—')}</td><td><b>${esc(r.mine||'—')}</b></td><td>${esc(r.zone||'—')}</td><td><b>${esc(r.batch||'—')}</b></td><td class="num">${fmt(r.lot_before_crusher_ton)}</td><td class="num">${fmt(r.lot_after_crusher_ton)}</td><td class="num">${fmt(r.lot_mine_store_ton)}</td><td class="num">${fmt(r.lot_general_store_ton)}</td><td class="num">${fmt(r.lot_factory_ton)}</td><td class="num">${fmt(r.lot_factory_store_ton)}</td><td class="num">${fmt(r.lot_port_stockpile_ton)}</td><td><span class="badge ${badgeClass(r)}">${esc(r.stage||r.current_stage||'—')}</span></td><td class="num"><b>${fmt(r.current_qty_ton)}</b></td><td class="num">${num(r.avg_fe_pct)?fmt(r.avg_fe_pct,1)+'%':'—'}</td><td class="num">${fmt(r.loss_total_ton)}</td><td class="num">${fmt(r.loss_pct,1)}%</td></tr>`).join('')+(FILTERED.length>600?`<tr><td colspan="16" style="text-align:center;color:var(--text2);padding:14px">Showing first 600 rows only. Use Excel export for all ${FILTERED.length} rows.</td></tr>`:'');}
+function render(){renderKPIs();renderStageStrip();renderCharts();renderTable();}
+function exportExcel(){if(!FILTERED.length){alert('No data to export');return;}const data=FILTERED.map(r=>({'Date':r.date||'','Mine':r.mine||'','Zone':r.zone||'','Batch':r.batch||'','Before Crusher':num(r.lot_before_crusher_ton),'After Crusher':num(r.lot_after_crusher_ton),'Mine Store':num(r.lot_mine_store_ton),'General Store':num(r.lot_general_store_ton),'Factory':num(r.lot_factory_ton),'Factory Store':num(r.lot_factory_store_ton),'Port Stockpile':num(r.lot_port_stockpile_ton),'Current Stage':r.stage||r.current_stage||'','Current Qty':num(r.current_qty_ton),'Avg Fe%':num(r.avg_fe_pct),'Total Loss':num(r.loss_total_ton),'Loss%':num(r.loss_pct)}));const wb=XLSX.utils.book_new();const ws=XLSX.utils.json_to_sheet(data);ws['!cols']=[{wch:12},{wch:18},{wch:18},{wch:24},{wch:15},{wch:15},{wch:15},{wch:15},{wch:15},{wch:15},{wch:15},{wch:20},{wch:15},{wch:10},{wch:12},{wch:10}];XLSX.utils.book_append_sheet(wb,ws,'Production Lots');XLSX.writeFile(wb,'AIT_Production_Lots_'+new Date().toISOString().slice(0,10)+'.xlsx');}
+function setStatus(type,msg){const dot=document.getElementById('sDot');dot.className='s-dot '+(type==='error'?'red':type==='yellow'?'yellow':'');document.getElementById('sText').textContent=msg;}
+window.addEventListener('DOMContentLoaded',()=>{document.documentElement.setAttribute('data-theme',THEME);document.getElementById('themeBtn').textContent=THEME==='dark'?'🌙':'☀️';document.getElementById('langSel').value=LANG;applyI18n();loadData('data');});
 setInterval(()=>loadData('data'),30*60*1000);
 </script>
 </body>
