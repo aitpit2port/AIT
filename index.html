@@ -75,6 +75,12 @@
     @media(max-width:920px){html,body{overflow:hidden}.topbar{gap:8px}.page-title{font-size:14px}.page-sub{max-width:54vw}.sidebar{max-width:calc(100vw - 36px);box-shadow:0 20px 60px rgba(0,0,0,.45)}.nav-link{padding:11px 10px}.menu-btn{flex:0 0 auto}.frame-wrap{height:calc(100dvh - var(--topbar))}}
     @media(max-width:560px){:root{--topbar:64px}.topbar{height:auto;min-height:var(--topbar);padding-top:8px;padding-bottom:8px;flex-wrap:wrap}.crumb{order:2;flex-basis:100%;padding-left:46px;margin-top:-4px}.menu-btn{position:absolute;left:12px;top:10px}.page-title{font-size:14px}.page-sub{font-size:10px;max-width:100%}.tb-btn{font-size:11px;padding:7px 9px}.tb-btn.primary{margin-left:auto}.frame-wrap{height:calc(100dvh - var(--topbar))}.sidebar{width:min(88vw,320px)}.brand{height:68px;padding:13px 15px}.nav-tools{padding:10px 12px}.sidebar-footer{padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))}}
 
+
+    /* V2 scroll fix: parent frame scrolls naturally, useful on mobile and laptops */
+    .frame-wrap{overflow-y:auto!important;overflow-x:hidden!important;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+    iframe{height:100%;min-height:100%;overflow:hidden!important}
+    @media(max-width:920px){.frame-wrap{overflow-y:auto!important}}
+
   </style>
 </head>
 <body>
@@ -162,6 +168,23 @@
     const subEl = document.getElementById('pageSub');
     const openNew = document.getElementById('openNew');
 
+    function resizeFrameToContent(){
+      try{
+        const doc = frame.contentDocument || (frame.contentWindow && frame.contentWindow.document);
+        if(!doc) return;
+        doc.documentElement.style.overflow = 'hidden';
+        if(doc.body) doc.body.style.overflow = 'hidden';
+        const h = Math.max(
+          frame.parentElement.clientHeight || 0,
+          doc.documentElement.scrollHeight || 0,
+          doc.body ? doc.body.scrollHeight : 0
+        );
+        frame.style.height = Math.max(h, 400) + 'px';
+      }catch(e){
+        frame.style.height = '100%';
+      }
+    }
+
     function getPageFromHash(){
       const h = (location.hash || '#exec').replace('#','').trim().toLowerCase();
       return PAGES[h] ? h : 'exec';
@@ -174,12 +197,14 @@
       subEl.textContent = p.sub;
       openNew.href = p.file;
       loader.classList.remove('hidden');
+      frame.style.height = '100%';
       frame.src = p.file + '?v=' + Date.now();
       localStorage.setItem('ait_shell_page', pageKey);
       toggleMenu(false);
     }
 
-    frame.addEventListener('load',()=>{ setTimeout(()=>loader.classList.add('hidden'), 180); });
+    frame.addEventListener('load',()=>{ resizeFrameToContent(); setTimeout(()=>{ resizeFrameToContent(); loader.classList.add('hidden'); }, 220); setTimeout(resizeFrameToContent, 1000); setTimeout(resizeFrameToContent, 2500); });
+    window.addEventListener('resize',()=>setTimeout(resizeFrameToContent,120));
     window.addEventListener('keydown',(e)=>{ if(e.key === 'Escape') toggleMenu(false); });
 
     window.addEventListener('hashchange',()=>loadPage(getPageFromHash()));
