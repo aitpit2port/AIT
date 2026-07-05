@@ -355,6 +355,7 @@ function applyI18n(){
 function setLang(l){ LANG=l; localStorage.setItem('ait_lang',l); applyI18n(); populateDropdowns(); applyFilters(); }
 function toggleTheme(){ THEME=THEME==='dark'?'light':'dark'; localStorage.setItem('ait_theme',THEME); document.documentElement.setAttribute('data-theme',THEME); document.getElementById('themeBtn').textContent=THEME==='dark'?'🌙':'☀️'; if(ALL.length) renderCharts(); }
 
+function getAuthToken(){try{const q=new URLSearchParams(location.search);const fromUrl=q.get('token');if(fromUrl)return fromUrl;const s=JSON.parse(localStorage.getItem('ait_auth_session')||'null');return s&&s.token?s.token:'';}catch(e){return '';}}
 function apiCall(action) {
   return new Promise((resolve, reject) => {
     const cb = 'ait_' + Date.now() + '_' + Math.random().toString(36).slice(2);
@@ -364,7 +365,7 @@ function apiCall(action) {
     window[cb] = data => { cleanup(); resolve(data); };
     s.onerror  = () => { if(!done){ cleanup(); reject(new Error('Connection failed')); }};
     setTimeout(() => { if(!done){ cleanup(); reject(new Error('Timeout')); }}, 30000);
-    s.src = API_URL + '?module=samples&action=' + encodeURIComponent(action) + '&callback=' + encodeURIComponent(cb) + '&t=' + Date.now();
+    const token=getAuthToken();s.src = API_URL + '?module=samples&action=' + encodeURIComponent(action) + '&callback=' + encodeURIComponent(cb) + '&t=' + Date.now() + (token ? '&token=' + encodeURIComponent(token) : '');
     document.body.appendChild(s);
   });
 }
