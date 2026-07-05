@@ -150,14 +150,29 @@ document.getElementById('loginForm').addEventListener('submit',async e=>{
   }
 });
 
-(function bootAuth(){
+(async function bootAuth(){
   try{
+    const reason=new URLSearchParams(location.search).get('reason');
+    if(reason==='expired') setMsg('Session expired. Please sign in again.','error');
+    if(reason==='no_access') setMsg('This account has no page permissions. Ask the administrator to update auth_users.','error');
     const existing=JSON.parse(localStorage.getItem('ait_auth_session')||'null');
-    if(existing&&existing.token&&existing.user){
-      document.getElementById('msg').textContent='Active session found. Opening dashboard...';
-      setTimeout(()=>redirectAfterLogin(existing),350);
+    if(existing&&existing.token&&existing.user&&!reason){
+      setMsg('Checking active session...','');
+      const verified=await apiCall({module:'auth',action:'verify',token:existing.token});
+      if(verified&&verified.ok!==false&&verified.user){
+        const session={token:existing.token,user:verified.user,loginAt:existing.loginAt||new Date().toISOString()};
+        localStorage.setItem('ait_auth_session',JSON.stringify(session));
+        setMsg('Active session found. Opening dashboard...','ok');
+        setTimeout(()=>redirectAfterLogin(session),250);
+      }else{
+        localStorage.removeItem('ait_auth_session');
+        setMsg(verified&&verified.message?verified.message:'Please sign in again.','error');
+      }
     }
-  }catch(e){}
+  }catch(e){
+    localStorage.removeItem('ait_auth_session');
+    if(!document.getElementById('msg').textContent) setMsg('Please sign in again.','');
+  }
 })();
 
 </script>
