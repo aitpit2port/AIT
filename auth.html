@@ -149,6 +149,17 @@ document.getElementById('loginForm').addEventListener('submit',async e=>{
     btn.disabled=false;btn.classList.remove('loading');btn.textContent='Sign In';
   }
 });
+
+(function bootAuth(){
+  try{
+    const existing=JSON.parse(localStorage.getItem('ait_auth_session')||'null');
+    if(existing&&existing.token&&existing.user){
+      document.getElementById('msg').textContent='Active session found. Opening dashboard...';
+      setTimeout(()=>redirectAfterLogin(existing),350);
+    }
+  }catch(e){}
+})();
+
 </script>
 </body>
 </html>
