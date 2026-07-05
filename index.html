@@ -18,8 +18,8 @@
     *{box-sizing:border-box;margin:0;padding:0}
     html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
     button,a,select{font-family:inherit}
-    .app{height:100vh;display:grid;grid-template-columns:var(--sidebar) 1fr;background:var(--bg)}
-    .sidebar{background:linear-gradient(180deg,var(--panel),#0d1521);border-right:1px solid var(--border);display:flex;flex-direction:column;min-width:0;box-shadow:var(--shadow);z-index:5}
+    .app{height:100vh;min-height:0;display:grid;grid-template-columns:var(--sidebar) 1fr;background:var(--bg);overflow:hidden}
+    .sidebar{background:linear-gradient(180deg,var(--panel),#0d1521);border-right:1px solid var(--border);display:flex;flex-direction:column;min-width:0;min-height:0;box-shadow:var(--shadow);z-index:5;overflow:hidden}
     .brand{height:74px;padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
     .logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;letter-spacing:.4px;box-shadow:0 8px 18px rgba(253,72,14,.22)}
     .brand-title{font-size:15px;font-weight:800;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -27,14 +27,14 @@
     .nav-tools{padding:12px 14px;border-bottom:1px solid var(--border)}
     .search{width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:10px;color:var(--text);outline:none;padding:10px 12px;font-size:12px}
     .search:focus{border-color:var(--accent)}
-    .nav{padding:10px 10px 18px;overflow:auto;flex:1}
+    .nav{padding:10px 10px 18px;overflow-y:auto;overflow-x:hidden;flex:1;min-height:0;scrollbar-width:thin}
     .group-label{font-size:10px;font-weight:800;color:var(--muted2);letter-spacing:.7px;text-transform:uppercase;margin:12px 10px 7px}
     .nav-link{width:100%;display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--muted);padding:10px 10px;border-radius:10px;margin:2px 0;font-size:13px;font-weight:650;transition:.16s;border:1px solid transparent}
     .nav-link:hover{background:var(--panel2);color:var(--text);border-color:var(--border)}
     .nav-link.active{background:rgba(253,72,14,.13);color:var(--accent);border-color:rgba(253,72,14,.35)}
     .nav-code{width:30px;height:24px;border-radius:7px;background:var(--panel3);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:var(--muted);flex-shrink:0}
     .nav-link.active .nav-code{background:var(--accent);border-color:var(--accent);color:#fff}
-    .main{min-width:0;display:grid;grid-template-rows:var(--topbar) 1fr;height:100vh}
+    .main{min-width:0;min-height:0;display:grid;grid-template-rows:var(--topbar) minmax(0,1fr);height:100vh;overflow:hidden}
     .topbar{height:var(--topbar);display:flex;align-items:center;gap:10px;background:rgba(17,24,39,.92);border-bottom:1px solid var(--border);padding:0 16px;backdrop-filter:blur(10px);z-index:4}
     [data-theme="light"] .topbar{background:rgba(255,255,255,.92)}
     .menu-btn{display:none;background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:10px;width:38px;height:36px;font-size:20px;cursor:pointer}
@@ -45,8 +45,8 @@
     .tb-btn:hover{border-color:var(--accent);color:var(--accent)}
     .tb-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
     .tb-btn.primary:hover{background:var(--accent2);color:#fff}
-    .frame-wrap{position:relative;background:var(--bg);padding:0;overflow:hidden}
-    iframe{width:100%;height:100%;border:0;background:var(--bg);display:block}
+    .frame-wrap{position:relative;background:var(--bg);padding:0;overflow:hidden;min-height:0;height:100%}
+    iframe{width:100%;height:100%;border:0;background:var(--bg);display:block;overflow:auto}
     .loader{position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,17,24,.94),rgba(11,17,24,.86));display:flex;align-items:center;justify-content:center;z-index:3;transition:.25s}
     [data-theme="light"] .loader{background:rgba(238,242,247,.86)}
     .loader.hidden{opacity:0;pointer-events:none}
@@ -55,7 +55,7 @@
     .load-text{text-align:center;color:var(--muted);font-size:13px;font-weight:700}
     .mobile-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:8}
     .mobile-overlay.show{display:block}
-    .sidebar-footer{padding:12px 14px;border-top:1px solid var(--border);font-size:10px;color:var(--muted2);line-height:1.5}
+    .sidebar-footer{padding:12px 14px;border-top:1px solid var(--border);font-size:10px;color:var(--muted2);line-height:1.5;flex-shrink:0}
     .status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);margin-right:6px}
     @media(max-width:920px){
       .app{grid-template-columns:1fr}
@@ -130,7 +130,7 @@
     const PAGES = {
       exec:{file:'exec.html',title:'Executive Summary',sub:'Overall status, KPIs and management view'},
       samples:{file:'samples.html',title:'Quality / Samples',sub:'XRF analysis, sample category and element levels'},
-      production:{file:'production.html',title:'Production / Lots',sub:'Mine to crusher to port production flow'},
+      production:{file:'production.html',title:'Production / Lots',sub:'Daily tons, cubic meters, equipment production and operating hours'},
       budget:{file:'budget.html',title:'Budget Overview',sub:'Budget model, CAPEX, OPEX and plan values'},
       expenses:{file:'expenses.html',title:'Expenses',sub:'Actual expenses and payment tracking'},
       cost:{file:'cost.html',title:'Cost Analysis',sub:'Cost structure and operating analysis'},
