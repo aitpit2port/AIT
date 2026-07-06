@@ -143,7 +143,10 @@ const NoDataPlugin = {
 };
 if (window.Chart) Chart.register(NoDataPlugin);
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbxFJroZzKQT1N0c70ktzFISQkWIkT7w_pyi7eAFxuDPx88icN-WvT2IGkrJ8W-Lt1uz/exec';
+const qs=new URLSearchParams(location.search);
+const DEFAULT_API_URL='https://script.google.com/macros/s/AKfycbxFJroZzKQT1N0c70ktzFISQkWIkT7w_pyi7eAFxuDPx88icN-WvT2IGkrJ8W-Lt1uz/exec';
+const API_URL=qs.get('api')||localStorage.getItem('ait_api_url')||DEFAULT_API_URL;
+if(qs.get('api')) localStorage.setItem('ait_api_url',qs.get('api'));
 const I18N={
   en:{pageTitle:'Production / Lots & Equipment',pageSub:'Daily tons, daily cubic meters, excavators, loaders, and operating hours',load:'Load',refresh:'Sync / Refresh',exportExcel:'Export Excel',clearFilters:'Clear',search:'Search lot / equipment / contractor',stageFlow:'Full Stage Flow',dailyTons:'Daily Production - Tons',dailyM3:'Daily Production - m³',excavatorProduction:'Excavator Production',dailyHours:'Daily Operating Hours',loaderProduction:'Loader Production',equipmentProduction:'Production by Equipment',productivityByEquipment:'Productivity by Equipment',stageDistribution:'Current Lot Stage Distribution',tonByMine:'Current Stock by Mine',feByMine:'Weighted Fe% by Mine',losses:'Transition Variance / Loss',equipmentSummary:'Equipment Summary',equipmentLog:'Equipment Production & Hours Log',lotsLog:'Production Lots Detailed Log'},
   ar:{pageTitle:'الإنتاج / اللوتات والمعدات',pageSub:'إنتاج يومي بالطن والمتر المكعب، إنتاج الحفارات واللوادر، وساعات التشغيل',load:'تحميل',refresh:'مزامنة / تحديث',exportExcel:'تصدير Excel',clearFilters:'مسح',search:'بحث في اللوت / المعدة / المقاول',stageFlow:'مسار اللوطات الكامل',dailyTons:'إنتاج كل يوم بالطن',dailyM3:'إنتاج كل يوم بالمتر المكعب',excavatorProduction:'إنتاج كل حفار',dailyHours:'عدد الساعات اليومية',loaderProduction:'إنتاج اللوادر',equipmentProduction:'إنتاج كل معدة',productivityByEquipment:'إنتاجية كل معدة',stageDistribution:'توزيع مراحل اللوتات الحالية',tonByMine:'المخزون الحالي لكل منجم',feByMine:'متوسط Fe% المرجح لكل منجم',losses:'الفروقات / الفاقد بين المراحل',equipmentSummary:'ملخص كل معدة',equipmentLog:'سجل إنتاج وساعات المعدات',lotsLog:'سجل تفصيلي للوطات الإنتاج'}
@@ -165,7 +168,7 @@ function fmt(v,dec=0){v=num(v);if(Math.abs(v)>=1000000)return (v/1000000).toFixe
 function pct(v){return num(v)?fmt(v,1)+'%':'—';}
 function esc(s){return String(s==null?'':s).replace(/[&<>\"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
 function stageLabel(st){return LANG==='ar'?(st.ar||st.label):st.label;}
-function date10(v){return String(v||'').slice(0,10);}
+function date10(v){if(!v)return '';if(v instanceof Date&&!isNaN(v))return v.toISOString().slice(0,10);const s=String(v).trim();if(/^\d{4}-\d{2}-\d{2}/.test(s))return s.slice(0,10);const serial=parseFloat(s);if(!isNaN(serial)&&serial>20000&&serial<90000){const d=new Date(Math.round((serial-25569)*86400000));return isNaN(d)?s.slice(0,10):d.toISOString().slice(0,10)}const d=new Date(s);return isNaN(d)?s.slice(0,10):d.toISOString().slice(0,10)}
 function todayDate(){return (PAYLOAD&&PAYLOAD.equipment&&PAYLOAD.equipment.today_date)||new Date().toISOString().slice(0,10);}
 function getAuthToken(){try{const q=new URLSearchParams(location.search);const fromUrl=q.get('token');if(fromUrl)return fromUrl;const s=JSON.parse(localStorage.getItem('ait_auth_session')||'null');return s&&s.token?s.token:'';}catch(e){return '';}}
 function apiCall(action){return new Promise((resolve,reject)=>{const cb='ait_'+Date.now()+'_'+Math.random().toString(36).slice(2);const s=document.createElement('script');let done=false;const cleanup=()=>{done=true;delete window[cb];if(s.parentNode)s.parentNode.removeChild(s);};window[cb]=data=>{cleanup();resolve(data);};s.onerror=()=>{if(!done){cleanup();reject(new Error('Connection failed'));}};setTimeout(()=>{if(!done){cleanup();reject(new Error('Timeout'));}},60000);const token=getAuthToken();s.src=API_URL+'?module=production&action='+encodeURIComponent(action)+'&callback='+encodeURIComponent(cb)+'&t='+Date.now()+(token?'&token='+encodeURIComponent(token):'');document.body.appendChild(s);});}
