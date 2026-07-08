@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" data-theme="light" data-lang="ar">
+<html lang="en" dir="ltr" data-theme="light" data-lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -95,22 +95,32 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;color:var(--text);background
 @media(max-width:900px){.mines-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:600px){.mines-grid{grid-template-columns:repeat(2,1fr)}.mines-grid-wrap{padding:8px}.mapwrap{height:50vh}}
 @media(max-width:400px){.mines-grid{grid-template-columns:1fr}}
+
+/* ── SECURE MAP ACCESS GUARD ── */
+body.map-locked > *:not(#mapAccessOverlay){display:none!important}
+#mapAccessOverlay{position:fixed;inset:0;z-index:999999;background:linear-gradient(135deg,#0b1118,#111827);color:#e8ecf2;display:flex;align-items:center;justify-content:center;font-family:'Segoe UI',Arial,sans-serif;padding:20px;text-align:center}
+#mapAccessOverlay.hidden{display:none!important}
+.access-card{width:min(92vw,440px);background:#111827;border:1px solid #243244;border-radius:18px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.38)}
+.access-logo{width:54px;height:54px;border-radius:14px;margin:0 auto 14px;background:#FF6B35;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900}
+.access-title{font-size:18px;font-weight:900;margin-bottom:8px}.access-msg{font-size:13px;color:#93a0b5;line-height:1.7}.access-spin{width:34px;height:34px;border-radius:50%;border:3px solid #243244;border-top-color:#FF6B35;animation:accessSpin .8s linear infinite;margin:12px auto 0}@keyframes accessSpin{to{transform:rotate(360deg)}}
 </style>
 </head>
-<body>
+<body class="map-locked">
+<div id="mapAccessOverlay"><div class="access-card"><div class="access-logo">AIT</div><div class="access-title" id="accessTitle">Checking map access...</div><div class="access-msg" id="accessMsg">Please wait while your permissions are verified.</div><div class="access-spin" id="accessSpin"></div></div></div>
+
 
 <!-- HEADER: Title + Refresh -->
 <div id="map-header" style="background:var(--tb-bg);border-bottom:1px solid var(--card-border);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:12px">
   <div style="display:flex;align-items:center;gap:10px;min-width:0">
     <div style="width:36px;height:36px;background:var(--org);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:13px;flex-shrink:0">AIT</div>
     <div style="min-width:0">
-      <div style="font-size:15px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">AIT Projects Portfolio — Mines Map</div>
-      <div style="font-size:10px;color:var(--text-sec)">Interactive map of all mining sites, zones, and samples</div>
+      <div style="font-size:15px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span data-i18n="headerTitle">AIT Projects Portfolio - Mines Map</span></div>
+      <div style="font-size:10px;color:var(--text-sec)" data-i18n="headerSubtitle">Interactive map of mining sites, zones, blocks, and samples</div>
     </div>
   </div>
   <button onclick="loadMinesFromSheet()" style="display:flex;align-items:center;gap:6px;background:var(--org);color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;flex-shrink:0;white-space:nowrap">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
-    Refresh Data
+    <span data-i18n="refreshBtn">Refresh Data</span>
   </button>
 </div>
 
@@ -118,6 +128,14 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;color:var(--text);background
 <div class="mines-fb" id="minesFb" style="padding:10px 16px;gap:12px">
   <!-- Filters Row -->
   <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%">
+    <span class="fl" data-i18n="langLabel">Language</span>
+    <select id="langSel" onchange="setLang(this.value)">
+      <option value="en">English</option>
+      <option value="ar">العربية</option>
+      <option value="zh">中文</option>
+    </select>
+    <span class="sep"></span>
+    
     <span class="fl" data-i18n="matLabel">المادة</span>
     <select id="fmat" onchange="applyFilters()">
       <option value="" data-i18n="optAllMat">كل المواد</option>
@@ -135,16 +153,16 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;color:var(--text);background
     <select id="fgov" onchange="applyFilters()"><option value="" data-i18n="optAllGov">كل المحافظات</option></select>
     <span class="fl" data-i18n="goldLabel">الذهب</span>
     <select id="fgold" onchange="applyFilters()">
-      <option value="" data-i18n="optAllGold">كل الحزم</option>
-      <option value="A">Package A — 4,000$</option>
-      <option value="B">Package B — 3,500$</option>
-      <option value="C">Package C — 5,000$</option>
-      <option value="D">Package D — 8,000$</option>
-      <option value="E">Package E — 5,000$</option>
-      <option value="F">Package F — 5,500$</option>
-      <option value="G">Package G — 6,000$</option>
-      <option value="H">Package H — 6,500$</option>
-      <option value="I">Package I — 3,500$</option>
+      <option value="" data-i18n="optAllGold">All gold areas</option>
+      <option value="A">Package A - 6,000$</option>
+      <option value="B">Package B - 5,000$</option>
+      <option value="C">Package C - 7,000$</option>
+      <option value="D">Package D - 8,000$</option>
+      <option value="E">Package E - 7,000$</option>
+      <option value="F">Package F - 7,000$</option>
+      <option value="G">Package G - 7,000$</option>
+      <option value="H">Package H - 7,000$</option>
+      <option value="I">Package I - 5,000$</option>
     </select>
   </div>
 
@@ -156,14 +174,26 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;color:var(--text);background
     <div class="sep"></div>
 
     <!-- Layer Buttons -->
-    <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
-      <button class="layer-btn" id="btn-blocks" onclick="toggleLayer('blocks')">
-        <span style="width:10px;height:10px;border-radius:2px;background:rgba(37,99,235,0.3);border:1.5px solid #2563eb;flex-shrink:0"></span>
-        <span data-i18n="btnBlocks">المربعات</span>
-      </button>
+    <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;flex-wrap:wrap">
       <button class="layer-btn" id="btn-gold" onclick="toggleLayer('gold')">
         <span style="width:10px;height:10px;border-radius:50%;background:#FFD700;border:1.5px solid #B8860B;flex-shrink:0"></span>
-        <span data-i18n="btnGold">مربعات الذهب</span>
+        <span data-i18n="btnGold">بلوكات الذهب</span>
+      </button>
+      <button class="layer-btn" id="btn-goldareas" onclick="toggleLayer('goldareas')">
+        <span style="width:10px;height:10px;border-radius:2px;background:linear-gradient(135deg,#9EA0C6,#CBBDF8,#C5F0E4,#E8D8A8,#B79CEB,#A9D5F0,#A8F5B6,#EE9DBA,#9BC3AE);border:1.5px solid #64748B;flex-shrink:0"></span>
+        <span data-i18n="btnGoldAreas">Gold Areas</span>
+      </button>
+      <button class="layer-btn" id="btn-talc" onclick="toggleLayer('talc')">
+        <span style="width:10px;height:10px;border-radius:2px;background:rgba(139,92,246,.35);border:1.5px solid #7C3AED;flex-shrink:0"></span>
+        <span data-i18n="btnTalc">Talc Ore</span>
+      </button>
+      <button class="layer-btn" id="btn-kaolin" onclick="toggleLayer('kaolin')">
+        <span style="width:10px;height:10px;border-radius:2px;background:rgba(34,197,94,.35);border:1.5px solid #16A34A;flex-shrink:0"></span>
+        <span data-i18n="btnKaolin">Kaolin_Kalabsha</span>
+      </button>
+      <button class="layer-btn" id="btn-phosphate" onclick="toggleLayer('phosphate')">
+        <span style="width:10px;height:10px;border-radius:2px;background:rgba(249,115,22,.35);border:1.5px solid #EA580C;flex-shrink:0"></span>
+        <span data-i18n="btnPhosphate">Phosphate Ore</span>
       </button>
     </div>
 
@@ -186,26 +216,29 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;color:var(--text);background
         <div class="leg-i"><div class="ldot" style="background:#059669;border:2px solid #166534;box-sizing:border-box"></div><span data-i18n="legendRegistered">مسجل</span></div>
         <div class="leg-i"><div class="ldot" style="background:#dc2626;border:2px solid #991b1b;box-sizing:border-box"></div><span data-i18n="legendNotRegistered">غير مسجل</span></div>
       </div>
-      <div class="leg-sec" id="leg-blocks" style="display:none"><div class="leg-t" data-i18n="legendBlocksTitle">المربعات</div>
-        <div class="leg-i"><div class="lblue"></div><span data-i18n="legendBlocksItem">المربعات المفتوحة</span></div>
+      <div class="leg-sec" id="leg-gold" style="display:none"><div class="leg-t" data-i18n="legendGoldBlocksTitle">بلوكات الذهب</div>
+        <div class="leg-i"><div class="lsq" style="background:rgba(255,215,0,.38);border-color:#B8860B"></div><span data-i18n="legendGoldBlocksItem">Gold Blocks</span></div>
       </div>
-      <div id="leg-gold" style="display:none">
-        <div class="leg-sec"><div class="leg-t" data-i18n="legendGoldOcc">مؤشرات الذهب</div>
-          <div class="leg-i"><svg width="14" height="14" viewBox="0 0 24 24"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" fill="#FFD700" stroke="#B8860B" stroke-width="1.5"/></svg><span data-i18n="legendGoldOccItem">مؤشرات الذهب</span></div>
-          <div class="leg-i"><div class="lblue"></div><span data-i18n="legendGoldBlocksItem">مربعات الذهب</span></div>
-          <div class="leg-i"><div class="lsq" style="background:rgba(134,239,172,0.4);border-color:#22c55e"></div><span data-i18n="legendInvestPlots">قطع أراضي استثمارية</span></div>
-        </div>
-        <div class="leg-sec"><div class="leg-t" data-i18n="legendPackages">الحزم</div>
-          <div class="leg-i"><div class="lsq" style="background:rgba(70,50,130,0.5);border-color:#4B3283"></div>A (4000$)</div>
-          <div class="leg-i"><div class="lsq" style="background:rgba(140,70,190,0.5);border-color:#8C46BE"></div>B (3500$)</div>
-          <div class="leg-i"><div class="lsq" style="background:rgba(0,155,135,0.5);border-color:#009B87"></div>C (5000$)</div>
-          <div class="leg-i"><div class="lsq" style="background:rgba(145,105,45,0.5);border-color:#91692D"></div>D (8000$)</div>
-          <div class="leg-i"><div class="lsq" style="background:rgba(105,65,175,0.5);border-color:#6941AF"></div>E (5000$)</div>
-          <div class="leg-i"><div class="lsq" style="background:rgba(45,125,205,0.5);border-color:#2D7DCD"></div>F (5500$)</div>
-          <div class="leg-i"><div class="lsq" style="background:rgba(175,55,95,0.5);border-color:#AF3760"></div>G (6000$)</div>
-          <div class="leg-i"><div class="lsq" style="background:rgba(205,65,105,0.5);border-color:#CD4169"></div>H (6500$)</div>
-          <div class="leg-i"><div class="lsq" style="background:rgba(0,145,125,0.5);border-color:#00917D"></div>I (3500$)</div>
-        </div>
+      <div class="leg-sec" id="leg-goldareas" style="display:none"><div class="leg-t" data-i18n="legendGoldAreasTitle">Gold Areas</div>
+        <div class="leg-i"><svg width="14" height="14" viewBox="0 0 24 24"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" fill="#FFD700" stroke="#111827" stroke-width="1.5"/></svg><span data-i18n="legendGoldOccItem">Gold Occurrences</span></div>
+        <div class="leg-i"><div class="lsq" style="background:rgba(158,160,198,.55);border-color:#7477AA"></div>A (6000$)</div>
+        <div class="leg-i"><div class="lsq" style="background:rgba(203,189,248,.55);border-color:#B39BEF"></div>B (5000$)</div>
+        <div class="leg-i"><div class="lsq" style="background:rgba(197,240,228,.55);border-color:#75CDBB"></div>C (7000$)</div>
+        <div class="leg-i"><div class="lsq" style="background:rgba(232,216,168,.60);border-color:#C9B46E"></div>D (8000$)</div>
+        <div class="leg-i"><div class="lsq" style="background:rgba(183,156,235,.55);border-color:#9A7BE1"></div>E (7000$)</div>
+        <div class="leg-i"><div class="lsq" style="background:rgba(169,213,240,.60);border-color:#6CAED7"></div>F (7000$)</div>
+        <div class="leg-i"><div class="lsq" style="background:rgba(168,245,182,.55);border-color:#57D46F"></div>G (7000$)</div>
+        <div class="leg-i"><div class="lsq" style="background:rgba(238,157,186,.55);border-color:#D76A95"></div>H (7000$)</div>
+        <div class="leg-i"><div class="lsq" style="background:rgba(155,195,174,.60);border-color:#679B82"></div>I (5000$)</div>
+      </div>
+      <div class="leg-sec" id="leg-talc" style="display:none"><div class="leg-t" data-i18n="legendTalcBlocksTitle">بلوكات Talc Ore</div>
+        <div class="leg-i"><div class="lsq" style="background:rgba(139,92,246,.35);border-color:#7C3AED"></div><span data-i18n="legendTalcBlocksItem">Talc Ore Blocks</span></div>
+      </div>
+      <div class="leg-sec" id="leg-kaolin" style="display:none"><div class="leg-t" data-i18n="legendKaolinBlocksTitle">بلوكات Kaolin_Kalabsha</div>
+        <div class="leg-i"><div class="lsq" style="background:rgba(34,197,94,.35);border-color:#16A34A"></div><span data-i18n="legendKaolinBlocksItem">Kaolin_Kalabsha Blocks</span></div>
+      </div>
+      <div class="leg-sec" id="leg-phosphate" style="display:none"><div class="leg-t" data-i18n="legendPhosphateBlocksTitle">بلوكات Phosphate Ore</div>
+        <div class="leg-i"><div class="lsq" style="background:rgba(249,115,22,.35);border-color:#EA580C"></div><span data-i18n="legendPhosphateBlocksItem">Phosphate Ore Blocks</span></div>
       </div>
     </div>
   </div>
@@ -216,6 +249,64 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;color:var(--text);background
   <div class="mines-grid" id="mlist"></div>
 </div>
 <script>
+// ================================================================
+// SECURE DASHBOARD ACCESS GUARD
+// This page is visible only when loaded from Dashboard_Full.html with
+// a valid auth token and the dedicated permission key: goldmap.
+// Add column "goldmap" in auth_users and set TRUE/1/yes for allowed users.
+// ================================================================
+const MAP_PAGE_KEY = 'goldmap';
+const MAP_AUTH_API_URL = new URLSearchParams(location.search).get('api') || 'https://script.google.com/macros/s/AKfycbxFJroZzKQT1N0c70ktzFISQkWIkT7w_pyi7eAFxuDPx88icN-WvT2IGkrJ8W-Lt1uz/exec';
+const MAP_TOKEN = new URLSearchParams(location.search).get('token') || '';
+let MAP_ACCESS_GRANTED = false;
+function mapAccessSet(title,msg,spin){
+  const t=document.getElementById('accessTitle'),m=document.getElementById('accessMsg'),s=document.getElementById('accessSpin');
+  if(t)t.textContent=title||''; if(m)m.textContent=msg||''; if(s)s.style.display=spin?'block':'none';
+}
+function mapAuthJsonp(params){
+  return new Promise((resolve,reject)=>{
+    const cb='ait_map_auth_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+    const scr=document.createElement('script'); let done=false;
+    const cleanup=()=>{done=true;delete window[cb];if(scr.parentNode)scr.parentNode.removeChild(scr);};
+    window[cb]=data=>{cleanup();resolve(data);};
+    scr.onerror=()=>{if(!done){cleanup();reject(new Error('Connection failed'));}};
+    setTimeout(()=>{if(!done){cleanup();reject(new Error('Timeout'));}},25000);
+    const q=new URLSearchParams({...params,callback:cb,t:Date.now()});
+    scr.src=MAP_AUTH_API_URL+'?'+q.toString();
+    document.body.appendChild(scr);
+  });
+}
+function mapUserHasGoldAccess(user){
+  const pages=(user&&user.pages)||{};
+  return !!(pages[MAP_PAGE_KEY] || pages.gold_map || pages.goldareas);
+}
+function unlockSecureMap(){
+  MAP_ACCESS_GRANTED=true;
+  document.body.classList.remove('map-locked');
+  const ov=document.getElementById('mapAccessOverlay'); if(ov)ov.classList.add('hidden');
+  setTimeout(()=>{try{if(window.AIT_MAP)window.AIT_MAP.invalidateSize();}catch(e){}},250);
+}
+async function requireMapAccess(){
+  if(!MAP_TOKEN){
+    mapAccessSet('Access required','Open this map from the secure dashboard using an account with Gold Map permission.',false);
+    setTimeout(()=>{try{location.href='auth.html?reason=no_access';}catch(e){}},900);
+    return;
+  }
+  try{
+    const res=await mapAuthJsonp({module:'auth',action:'verify',token:MAP_TOKEN});
+    if(!res || res.ok===false || !res.user) throw new Error((res&&res.message)||'Session expired');
+    if(!mapUserHasGoldAccess(res.user)){
+      mapAccessSet('No access','Your account is not allowed to open the Gold Map. Ask the administrator to enable goldmap in auth_users.',false);
+      return;
+    }
+    unlockSecureMap();
+  }catch(e){
+    mapAccessSet('Access check failed',e.message||String(e),false);
+    setTimeout(()=>{try{location.href='auth.html?reason=expired';}catch(err){}},1200);
+  }
+}
+requireMapAccess();
+
 const mines=[
   {name:"Dakhla",lng:28.786,lat:25.591,code:"D",gov:"الوادي الجديد",govEn:"New Valley",region:"موط",regionEn:"Mut",mat:"limonite",status:"registered",contract:"partnership",qty:60000,fe:0.51,owner:"Ahmed Megahed",phone:"01144999185",block:"خارج النطاق",blockEn:"Outside Range",gp:"—"},
   {name:"Hurghada",lng:33.769,lat:26.997,code:"H",gov:"البحر الأحمر",govEn:"Red Sea",region:"الغردقة",regionEn:"Hurghada",mat:"hematite",status:"registered",contract:"partnership",qty:20000,fe:0.55,owner:"Ahmed Megahed",phone:"01144999185",block:"Fc75",blockEn:"Fc75",gp:"B"},
@@ -235,121 +326,266 @@ const mines=[
 
 // ── i18n & theme ──────────────────────────────────────────────────
 const I18N = {
-  ar:{
-    title:'خريطة المناجم التفاعلية',
-    subtitle:'شركة الياسمين الدولية للتجارة · خريطة التعدين المصرية',
-    btnBlocks:'المربعات',
-    btnGold:'مربعات الذهب',
-    optAllMat:'📦 كل أنواع المواد',
-    optAllStatus:'📋 كل الحالات',
-    optRegistered:'✅ مسجل',
-    optNotRegistered:'❌ غير مسجل',
-    optAllGov:'🗺️ كل المحافظات',
-    optAllGold:'⭐ كل حزم الذهب',
-    legendTitle:'مفتاح الخريطة',
-    legendMaterial:'نوع المادة',
-    legendStatus:'الحالة',
-    legendRegistered:'مسجل',
-    legendNotRegistered:'غير مسجل',
-    legendBlocksTitle:'المربعات — هيئة الثروة المعدنية',
-    legendBlocksItem:'المربعات المفتوحة (رسمي)',
-    legendGoldOcc:'مؤشرات الذهب',
-    legendGoldOccItem:'مؤشرات الذهب',
-    legendGoldBlocksItem:'مربعات الذهب',
-    legendInvestPlots:'قطع أراضي استثمارية',
-    legendPackages:'الحزم',
-    statMines:'المناجم',
-    statRegistered:'مسجل',
-    statQty:'طن/شهر',
-    statGov:'محافظات',
-    cardMaterial:'المادة',
-    cardStatus:'الحالة',
-    cardQty:'طن/شهر',
-    cardOwner:'المالك',
-    cardContract:'العقد',
-    popupCode:'كود',
-    popupLocation:'الموقع',
-    popupMaterial:'المادة',
-    popupStatus:'الحالة',
-    popupQty:'طن/شهر',
-    popupOwner:'المالك',
-    statusRegistered:'✅ مسجل',
-    statusNotRegistered:'❌ غير مسجل',
-    badgeRegistered:'مسجل',
-    badgeNotRegistered:'غير مسجل',
-    contracts:{partnership:'شراكة',ownership:'ملكية',trade:'تجارة',partnership_with_equipment:'شراكة بمعدات'},
+  "en": {
+    "headerTitle": "AIT Projects Portfolio - Mines Map",
+    "headerSubtitle": "Interactive map of mining sites, gold areas, ore blocks, and samples",
+    "refreshBtn": "Refresh Data",
+    "title": "Interactive Mining Map",
+    "subtitle": "AIT Projects Portfolio - Egypt Mining Map",
+    "langLabel": "Language",
+    "matLabel": "Material",
+    "statusLabel": "Status",
+    "govLabel": "Governorate",
+    "goldLabel": "Gold Area",
+    "btnBlocks": "Blocks ID",
+    "btnGold": "Gold Blocks",
+    "btnGoldAreas": "Gold Areas",
+    "btnTalc": "Talc Ore Blocks",
+    "btnKaolin": "Kaolin_Kalabsha Blocks",
+    "btnPhosphate": "Phosphate Ore Blocks",
+    "clearBtn": "Clear",
+    "optAllMat": "All materials",
+    "optAllStatus": "All statuses",
+    "optRegistered": "Registered",
+    "optNotRegistered": "Not Registered",
+    "optAllGov": "All governorates",
+    "optAllGold": "All gold areas",
+    "legendTitle": "Map Legend",
+    "legendMaterial": "Material Type",
+    "legendStatus": "Status",
+    "legendRegistered": "Registered",
+    "legendNotRegistered": "Not Registered",
+    "legendBlocksTitle": "Blocks ID - EMRA Official",
+    "legendBlocksItem": "Open Blocks",
+    "legendGoldBlocksTitle": "Gold Blocks",
+    "legendGoldAreasTitle": "Gold Areas / Packages",
+    "legendTalcBlocksTitle": "Talc Ore Blocks",
+    "legendKaolinBlocksTitle": "Kaolin_Kalabsha Blocks",
+    "legendPhosphateBlocksTitle": "Phosphate Ore Blocks",
+    "legendGoldOcc": "Gold Occurrences",
+    "legendGoldOccItem": "Gold Occurrences",
+    "legendGoldBlocksItem": "Gold Blocks",
+    "legendTalcBlocksItem": "Talc Ore Blocks",
+    "legendKaolinBlocksItem": "Kaolin_Kalabsha Blocks",
+    "legendPhosphateBlocksItem": "Phosphate Ore Blocks",
+    "legendPackages": "Packages",
+    "legendInvestPlots": "Investment Land Plots",
+    "statMines": "Mines",
+    "statRegistered": "Registered",
+    "statQty": "Ton/Month",
+    "statGov": "Governorates",
+    "cardMaterial": "Material",
+    "cardStatus": "Status",
+    "cardQty": "Ton/Month",
+    "cardOwner": "Owner",
+    "cardContract": "Contract",
+    "cardBlock": "Block",
+    "cardArea": "Gold Area",
+    "popupCode": "Code",
+    "popupLocation": "Location",
+    "popupMaterial": "Material",
+    "popupStatus": "Status",
+    "popupQty": "Ton/Month",
+    "popupOwner": "Owner",
+    "popupBlock": "Block",
+    "popupArea": "Gold Area",
+    "popupPrice": "Price",
+    "statusRegistered": "Registered",
+    "statusNotRegistered": "Not Registered",
+    "badgeRegistered": "Registered",
+    "badgeNotRegistered": "Not Registered",
+    "noBlock": "Outside Range",
+    "pkgPrefix": "Package",
+    "contracts": {
+      "partnership": "Partnership",
+      "ownership": "Ownership",
+      "trade": "Trade",
+      "partnership_with_equipment": "Partnership w/ Equipment"
+    }
   },
-  en:{
-    title:'Interactive Mining Map',
-    subtitle:'Al Yasmein International For Trade · Egypt Mining Map',
-    btnBlocks:'Blocks ID',
-    btnGold:'Gold Blocks',
-    optAllMat:'📦 All Materials',
-    optAllStatus:'📋 All Statuses',
-    optRegistered:'✅ Registered',
-    optNotRegistered:'❌ Not Registered',
-    optAllGov:'🗺️ All Governorates',
-    optAllGold:'⭐ All Gold Packages',
-    legendTitle:'Map Legend',
-    legendMaterial:'Material Type',
-    legendStatus:'Status',
-    legendRegistered:'Registered',
-    legendNotRegistered:'Not Registered',
-    legendBlocksTitle:'Blocks ID — EMRA Official',
-    legendBlocksItem:'Open Blocks (EMRA Official)',
-    legendGoldOcc:'Gold Occurrences',
-    legendGoldOccItem:'Gold Occurrences',
-    legendGoldBlocksItem:'Gold Blocks',
-    legendInvestPlots:'Investment Land Plots',
-    legendPackages:'Packages',
-    statMines:'Mines',
-    statRegistered:'Registered',
-    statQty:'Ton/Month',
-    statGov:'Governorates',
-    cardMaterial:'Material',
-    cardStatus:'Status',
-    cardQty:'Ton/Month',
-    cardOwner:'Owner',
-    cardContract:'Contract',
-    popupCode:'Code',
-    popupLocation:'Location',
-    popupMaterial:'Material',
-    popupStatus:'Status',
-    popupQty:'Ton/Month',
-    popupOwner:'Owner',
-    statusRegistered:'✅ Registered',
-    statusNotRegistered:'❌ Not Registered',
-    badgeRegistered:'Registered',
-    badgeNotRegistered:'Not Registered',
-    contracts:{partnership:'Partnership',ownership:'Ownership',trade:'Trade',partnership_with_equipment:'Partnership w/ Equipment'},
+  "ar": {
+    "headerTitle": "محفظة مشاريع AIT - خريطة المناجم",
+    "headerSubtitle": "خريطة تفاعلية لمواقع التعدين ومناطق الذهب وبلوكات الخامات والعينات",
+    "refreshBtn": "تحديث البيانات",
+    "title": "خريطة المناجم التفاعلية",
+    "subtitle": "محفظة مشاريع AIT - خريطة التعدين المصرية",
+    "langLabel": "اللغة",
+    "matLabel": "المادة",
+    "statusLabel": "الحالة",
+    "govLabel": "المحافظة",
+    "goldLabel": "منطقة الذهب",
+    "btnBlocks": "المربعات",
+    "btnGold": "بلوكات الذهب",
+    "btnGoldAreas": "مناطق الذهب",
+    "btnTalc": "بلوكات Talc Ore",
+    "btnKaolin": "بلوكات Kaolin_Kalabsha",
+    "btnPhosphate": "بلوكات Phosphate Ore",
+    "clearBtn": "مسح",
+    "optAllMat": "كل المواد",
+    "optAllStatus": "كل الحالات",
+    "optRegistered": "مسجل",
+    "optNotRegistered": "غير مسجل",
+    "optAllGov": "كل المحافظات",
+    "optAllGold": "كل مناطق الذهب",
+    "legendTitle": "مفتاح الخريطة",
+    "legendMaterial": "نوع المادة",
+    "legendStatus": "الحالة",
+    "legendRegistered": "مسجل",
+    "legendNotRegistered": "غير مسجل",
+    "legendBlocksTitle": "المربعات - هيئة الثروة المعدنية",
+    "legendBlocksItem": "المربعات المفتوحة",
+    "legendGoldBlocksTitle": "بلوكات الذهب",
+    "legendGoldAreasTitle": "مناطق الذهب / الحزم",
+    "legendTalcBlocksTitle": "بلوكات Talc Ore",
+    "legendKaolinBlocksTitle": "بلوكات Kaolin_Kalabsha",
+    "legendPhosphateBlocksTitle": "بلوكات Phosphate Ore",
+    "legendGoldOcc": "مؤشرات الذهب",
+    "legendGoldOccItem": "مؤشرات الذهب",
+    "legendGoldBlocksItem": "بلوكات الذهب",
+    "legendTalcBlocksItem": "بلوكات Talc Ore",
+    "legendKaolinBlocksItem": "بلوكات Kaolin_Kalabsha",
+    "legendPhosphateBlocksItem": "بلوكات Phosphate Ore",
+    "legendPackages": "الحزم",
+    "legendInvestPlots": "قطع أراضي استثمارية",
+    "statMines": "المناجم",
+    "statRegistered": "مسجل",
+    "statQty": "طن/شهر",
+    "statGov": "محافظات",
+    "cardMaterial": "المادة",
+    "cardStatus": "الحالة",
+    "cardQty": "طن/شهر",
+    "cardOwner": "المالك",
+    "cardContract": "العقد",
+    "cardBlock": "المربع",
+    "cardArea": "منطقة الذهب",
+    "popupCode": "كود",
+    "popupLocation": "الموقع",
+    "popupMaterial": "المادة",
+    "popupStatus": "الحالة",
+    "popupQty": "طن/شهر",
+    "popupOwner": "المالك",
+    "popupBlock": "المربع",
+    "popupArea": "منطقة الذهب",
+    "popupPrice": "السعر",
+    "statusRegistered": "مسجل",
+    "statusNotRegistered": "غير مسجل",
+    "badgeRegistered": "مسجل",
+    "badgeNotRegistered": "غير مسجل",
+    "noBlock": "خارج النطاق",
+    "pkgPrefix": "الحزمة",
+    "contracts": {
+      "partnership": "شراكة",
+      "ownership": "ملكية",
+      "trade": "تجارة",
+      "partnership_with_equipment": "شراكة بمعدات"
+    }
+  },
+  "zh": {
+    "headerTitle": "AIT 项目组合 - 矿山地图",
+    "headerSubtitle": "矿点、黄金区域、矿石区块和样品的交互式地图",
+    "refreshBtn": "刷新数据",
+    "title": "交互式矿业地图",
+    "subtitle": "AIT 项目组合 - 埃及矿业地图",
+    "langLabel": "语言",
+    "matLabel": "材料",
+    "statusLabel": "状态",
+    "govLabel": "省份/地区",
+    "goldLabel": "黄金区域",
+    "btnBlocks": "区块编号",
+    "btnGold": "黄金区块",
+    "btnGoldAreas": "黄金区域",
+    "btnTalc": "滑石矿区块",
+    "btnKaolin": "高岭土区块",
+    "btnPhosphate": "磷酸盐矿区块",
+    "clearBtn": "清除",
+    "optAllMat": "全部材料",
+    "optAllStatus": "全部状态",
+    "optRegistered": "已登记",
+    "optNotRegistered": "未登记",
+    "optAllGov": "全部省份/地区",
+    "optAllGold": "全部黄金区域",
+    "legendTitle": "地图图例",
+    "legendMaterial": "材料类型",
+    "legendStatus": "状态",
+    "legendRegistered": "已登记",
+    "legendNotRegistered": "未登记",
+    "legendBlocksTitle": "区块编号 - EMRA 官方",
+    "legendBlocksItem": "开放区块",
+    "legendGoldBlocksTitle": "黄金区块",
+    "legendGoldAreasTitle": "黄金区域 / 套餐",
+    "legendTalcBlocksTitle": "滑石矿区块",
+    "legendKaolinBlocksTitle": "高岭土区块",
+    "legendPhosphateBlocksTitle": "磷酸盐矿区块",
+    "legendGoldOcc": "黄金矿化点",
+    "legendGoldOccItem": "黄金矿化点",
+    "legendGoldBlocksItem": "黄金区块",
+    "legendTalcBlocksItem": "滑石矿区块",
+    "legendKaolinBlocksItem": "高岭土区块",
+    "legendPhosphateBlocksItem": "磷酸盐矿区块",
+    "legendPackages": "套餐",
+    "legendInvestPlots": "投资地块",
+    "statMines": "矿点",
+    "statRegistered": "已登记",
+    "statQty": "吨/月",
+    "statGov": "省份/地区",
+    "cardMaterial": "材料",
+    "cardStatus": "状态",
+    "cardQty": "吨/月",
+    "cardOwner": "所有者",
+    "cardContract": "合同",
+    "cardBlock": "区块",
+    "cardArea": "黄金区域",
+    "popupCode": "代码",
+    "popupLocation": "位置",
+    "popupMaterial": "材料",
+    "popupStatus": "状态",
+    "popupQty": "吨/月",
+    "popupOwner": "所有者",
+    "popupBlock": "区块",
+    "popupArea": "黄金区域",
+    "popupPrice": "价格",
+    "statusRegistered": "已登记",
+    "statusNotRegistered": "未登记",
+    "badgeRegistered": "已登记",
+    "badgeNotRegistered": "未登记",
+    "noBlock": "范围外",
+    "pkgPrefix": "套餐",
+    "contracts": {
+      "partnership": "合作",
+      "ownership": "所有权",
+      "trade": "贸易",
+      "partnership_with_equipment": "设备合作"
+    }
   }
 };
-let LANG = 'ar';
+let LANG = 'en';
 let THEME = 'light';
-function t(key){ return (I18N[LANG] && I18N[LANG][key]) || I18N.ar[key] || key; }
+function t(key){ return (I18N[LANG] && I18N[LANG][key]) || I18N.en[key] || key; }
+function textDir(){ return LANG === 'ar' ? 'rtl' : 'ltr'; }
+function nonArabicValue(enValue, arValue){ return LANG === 'ar' ? (arValue||enValue) : (enValue||arValue); }
 function applyI18n(){
   document.querySelectorAll('[data-i18n]').forEach(el=>{
     const key = el.getAttribute('data-i18n');
     el.textContent = t(key);
   });
 }
-function toggleLang(){
-  LANG = LANG === 'ar' ? 'en' : 'ar';
-  document.documentElement.lang = LANG;
-  document.documentElement.dir = LANG === 'ar' ? 'rtl' : 'ltr';
-  document.documentElement.setAttribute('data-lang', LANG);
-  applyI18n();
-  populateGovDropdown();
-  renderStats(); renderCards(); drawMarkers();
-}
 function setLang(lang){
+  if(!I18N[lang]) lang='en';
   LANG = lang;
   document.documentElement.lang = LANG;
-  document.documentElement.dir = LANG === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.dir = textDir();
   document.documentElement.setAttribute('data-lang', LANG);
+  const ls=document.getElementById('langSel'); if(ls) ls.value=LANG;
   applyI18n();
   populateGovDropdown();
+  populateGoldDropdown();
+  rebuildActiveLayers();
   renderStats(); renderCards(); drawMarkers();
+}
+function toggleLang(){
+  const order=['en','ar','zh'];
+  const next=order[(order.indexOf(LANG)+1)%order.length];
+  setLang(next);
 }
 function toggleTheme(){
   THEME = THEME === 'light' ? 'dark' : 'light';
@@ -378,547 +614,229 @@ function toggleHeader(){
 }
 
 
-// EMRA Official Open Blocks - real coordinates extracted from EMRA attribute table (UTM Zone 36N converted)
-const EMRA_BLOCKS=[
-  {id:'Ba76',c:[[23.0,34.375],[23.0,34.5],[23.125,34.5],[23.125,34.375],[23.0,34.375]]},
-  {id:'Ba77',c:[[23.0,34.5],[23.0,34.625],[23.125,34.625],[23.125,34.5],[23.0,34.5]]},
-  {id:'Ba78',c:[[23.0,34.625],[23.0,34.75],[23.125,34.75],[23.125,34.625],[23.0,34.625]]},
-  {id:'Ba79',c:[[23.0,34.75],[23.0,34.875],[23.125,34.875],[23.125,34.75],[23.0,34.75]]},
-  {id:'Ba80',c:[[23.0,34.875],[23.0,35.0],[23.125,35.0],[23.125,34.875],[23.0,34.875]]},
-  {id:'Ba81',c:[[23.0,35.0],[23.0,35.125],[23.125,35.125],[23.125,35.0],[23.0,35.0]]},
-  {id:'Ba82',c:[[23.0,35.125],[23.0,35.25],[23.125,35.25],[23.0,35.125]]},
-  {id:'Bb76',c:[[23.125,34.375],[23.125,34.5],[23.25,34.5],[23.25,34.375],[23.125,34.375]]},
-  {id:'Bb77',c:[[23.125,34.5],[23.125,34.625],[23.25,34.625],[23.25,34.5],[23.125,34.5]]},
-  {id:'Bb78',c:[[23.125,34.625],[23.125,34.75],[23.25,34.75],[23.25,34.625],[23.125,34.625]]},
-  {id:'Bb79',c:[[23.125,34.75],[23.125,34.875],[23.25,34.875],[23.25,34.75],[23.125,34.75]]},
-  {id:'Bb80',c:[[23.125,34.875],[23.125,35.0],[23.25,35.0],[23.25,34.875],[23.125,34.875]]},
-  {id:'Bb81',c:[[23.125,35.0],[23.125,35.125],[23.25,35.125],[23.25,35.0],[23.125,35.0]]},
-  {id:'Bb82',c:[[23.125,35.125],[23.25,35.25],[23.25,35.125],[23.125,35.125]]},
-  {id:'Bb83',c:[[23.125,35.25],[23.125,35.375],[23.25,35.375],[23.25,35.25],[23.125,35.25]]},
-  {id:'Bc76',c:[[23.25,34.375],[23.25,34.5],[23.375,34.5],[23.375,34.375],[23.25,34.375]]},
-  {id:'Bc77',c:[[23.25,34.5],[23.25,34.625],[23.375,34.625],[23.375,34.5],[23.25,34.5]]},
-  {id:'Bc78',c:[[23.25,34.625],[23.25,34.75],[23.375,34.75],[23.375,34.625],[23.25,34.625]]},
-  {id:'Bc79',c:[[23.25,34.75],[23.25,34.875],[23.375,34.875],[23.375,34.75],[23.25,34.75]]},
-  {id:'Bc80',c:[[23.25,34.875],[23.25,35.0],[23.375,35.0],[23.375,34.875],[23.25,34.875]]},
-  {id:'Bc81',c:[[23.25,35.0],[23.25,35.125],[23.375,35.125],[23.375,35.0],[23.25,35.0]]},
-  {id:'Bc82',c:[[23.25,35.125],[23.25,35.25],[23.375,35.25],[23.375,35.125],[23.25,35.125]]},
-  {id:'Bc83',c:[[23.25,35.25],[23.25,35.375],[23.375,35.375],[23.375,35.25],[23.25,35.25]]},
-  {id:'Bd71',c:[[23.375,33.75],[23.375,33.875],[23.5,33.875],[23.5,33.75],[23.375,33.75]]},
-  {id:'Bd72',c:[[23.375,33.875],[23.375,34.0],[23.5,34.0],[23.5,33.875],[23.375,33.875]]},
-  {id:'Bd73',c:[[23.375,34.0],[23.375,34.125],[23.5,34.125],[23.5,34.0],[23.375,34.0]]},
-  {id:'Bd74',c:[[23.375,34.125],[23.375,34.25],[23.5,34.25],[23.5,34.125],[23.375,34.125]]},
-  {id:'Bd75',c:[[23.375,34.25],[23.375,34.375],[23.5,34.375],[23.5,34.25],[23.375,34.25]]},
-  {id:'Bd76',c:[[23.375,34.375],[23.375,34.5],[23.5,34.5],[23.5,34.375],[23.375,34.375]]},
-  {id:'Bd77',c:[[23.375,34.5],[23.375,34.625],[23.5,34.625],[23.5,34.5],[23.375,34.5]]},
-  {id:'Bd78',c:[[23.375,34.625],[23.375,34.75],[23.5,34.75],[23.5,34.625],[23.375,34.625]]},
-  {id:'Bd79',c:[[23.375,34.75],[23.375,34.875],[23.5,34.875],[23.5,34.75],[23.375,34.75]]},
-  {id:'Bd80',c:[[23.375,34.875],[23.375,35.0],[23.5,35.0],[23.5,34.875],[23.375,34.875]]},
-  {id:'Bd81',c:[[23.375,35.0],[23.375,35.125],[23.5,35.125],[23.5,35.0],[23.375,35.0]]},
-  {id:'Bd82',c:[[23.375,35.125],[23.375,35.25],[23.5,35.25],[23.5,35.125],[23.375,35.125]]},
-  {id:'Bd83',c:[[23.375,35.25],[23.375,35.375],[23.5,35.375],[23.5,35.25],[23.375,35.25]]},
-  {id:'Be71',c:[[23.5,33.75],[23.5,33.875],[23.625,33.875],[23.625,33.75],[23.5,33.75]]},
-  {id:'Be72',c:[[23.5,33.875],[23.5,34.0],[23.625,34.0],[23.625,33.875],[23.5,33.875]]},
-  {id:'Be73',c:[[23.5,34.0],[23.5,34.125],[23.625,34.125],[23.625,34.0],[23.5,34.0]]},
-  {id:'Be74',c:[[23.5,34.125],[23.5,34.25],[23.625,34.25],[23.625,34.125],[23.5,34.125]]},
-  {id:'Be75',c:[[23.5,34.25],[23.5,34.375],[23.625,34.375],[23.625,34.25],[23.5,34.25]]},
-  {id:'Be76',c:[[23.5,34.375],[23.5,34.5],[23.625,34.5],[23.625,34.375],[23.5,34.375]]},
-  {id:'Be77',c:[[23.5,34.5],[23.5,34.625],[23.625,34.625],[23.625,34.5],[23.5,34.5]]},
-  {id:'Be78',c:[[23.5,34.625],[23.5,34.75],[23.625,34.75],[23.625,34.625],[23.5,34.625]]},
-  {id:'Be80',c:[[23.5,34.875],[23.5,35.0],[23.625,35.0],[23.625,34.875],[23.5,34.875]]},
-  {id:'Be81',c:[[23.5,35.0],[23.5,35.125],[23.625,35.125],[23.625,35.0],[23.5,35.0]]},
-  {id:'Be82',c:[[23.5,35.125],[23.5,35.25],[23.625,35.25],[23.625,35.125],[23.5,35.125]]},
-  {id:'Be83',c:[[23.5,35.25],[23.5,35.375],[23.625,35.375],[23.625,35.25],[23.5,35.25]]},
-  {id:'Bf71',c:[[23.625,33.75],[23.625,33.875],[23.75,33.875],[23.75,33.75],[23.625,33.75]]},
-  {id:'Bf72',c:[[23.625,33.875],[23.625,34.0],[23.75,34.0],[23.75,33.875],[23.625,33.875]]},
-  {id:'Bf73',c:[[23.625,34.0],[23.625,34.125],[23.75,34.125],[23.75,34.0],[23.625,34.0]]},
-  {id:'Bf74',c:[[23.625,34.125],[23.625,34.25],[23.75,34.25],[23.75,34.125],[23.625,34.125]]},
-  {id:'Bf75',c:[[23.625,34.25],[23.625,34.375],[23.75,34.375],[23.75,34.25],[23.625,34.25]]},
-  {id:'Bf76',c:[[23.625,34.375],[23.625,34.5],[23.75,34.5],[23.75,34.375],[23.625,34.375]]},
-  {id:'Bf77',c:[[23.625,34.5],[23.625,34.625],[23.75,34.625],[23.75,34.5],[23.625,34.5]]},
-  {id:'Bf78',c:[[23.625,34.625],[23.625,34.75],[23.75,34.75],[23.75,34.625],[23.625,34.625]]},
-  {id:'Bf79',c:[[23.625,34.75],[23.625,34.875],[23.75,34.875],[23.75,34.75],[23.625,34.75]]},
-  {id:'Bf80',c:[[23.625,34.875],[23.625,35.0],[23.75,35.0],[23.75,34.875],[23.625,34.875]]},
-  {id:'Bf81',c:[[23.625,35.0],[23.625,35.125],[23.75,35.125],[23.75,35.0],[23.625,35.0]]},
-  {id:'Bf82',c:[[23.625,35.125],[23.625,35.25],[23.75,35.25],[23.75,35.125],[23.625,35.125]]},
-  {id:'Bf83',c:[[23.625,35.25],[23.625,35.375],[23.75,35.375],[23.75,35.25],[23.625,35.25]]},
-  {id:'Bg71',c:[[23.75,33.75],[23.75,33.875],[23.875,33.875],[23.875,33.75],[23.75,33.75]]},
-  {id:'Bg72',c:[[23.75,33.875],[23.75,34.0],[23.875,34.0],[23.875,33.875],[23.75,33.875]]},
-  {id:'Bg73',c:[[23.75,34.0],[23.75,34.125],[23.875,34.125],[23.875,34.0],[23.75,34.0]]},
-  {id:'Bg74',c:[[23.75,34.125],[23.75,34.25],[23.875,34.25],[23.875,34.125],[23.75,34.125]]},
-  {id:'Bg75',c:[[23.75,34.25],[23.75,34.375],[23.875,34.375],[23.875,34.25],[23.75,34.25]]},
-  {id:'Bg76',c:[[23.75,34.375],[23.75,34.5],[23.875,34.5],[23.875,34.375],[23.75,34.375]]},
-  {id:'Bg77',c:[[23.75,34.5],[23.75,34.625],[23.875,34.625],[23.875,34.5],[23.75,34.5]]},
-  {id:'Bg78',c:[[23.75,34.625],[23.75,34.75],[23.875,34.75],[23.875,34.625],[23.75,34.625]]},
-  {id:'Bg79',c:[[23.75,34.75],[23.75,34.875],[23.875,34.875],[23.875,34.75],[23.75,34.75]]},
-  {id:'Bg80',c:[[23.75,34.875],[23.75,35.0],[23.875,35.0],[23.875,34.875],[23.75,34.875]]},
-  {id:'Bg81',c:[[23.75,35.0],[23.75,35.125],[23.875,35.125],[23.875,35.0],[23.75,35.0]]},
-  {id:'Bg82',c:[[23.75,35.125],[23.75,35.25],[23.875,35.25],[23.875,35.125],[23.75,35.125]]},
-  {id:'Bg83',c:[[23.75,35.25],[23.75,35.375],[23.875,35.375],[23.875,35.25],[23.75,35.25]]},
-  {id:'Bh71',c:[[23.875,33.75],[23.875,33.875],[24.0,33.875],[24.0,33.75],[23.875,33.75]]},
-  {id:'Bh72',c:[[23.875,33.875],[23.875,34.0],[24.0,34.0],[24.0,33.875],[23.875,33.875]]},
-  {id:'Bh73',c:[[23.875,34.0],[23.875,34.125],[24.0,34.125],[24.0,34.0],[23.875,34.0]]},
-  {id:'Bh74',c:[[23.875,34.125],[23.875,34.25],[24.0,34.25],[24.0,34.125],[23.875,34.125]]},
-  {id:'Bh75',c:[[23.875,34.25],[23.875,34.375],[24.0,34.375],[24.0,34.25],[23.875,34.25]]},
-  {id:'Bh76',c:[[23.875,34.375],[23.875,34.5],[24.0,34.5],[24.0,34.375],[23.875,34.375]]},
-  {id:'Bh77',c:[[23.875,34.5],[23.875,34.625],[24.0,34.625],[24.0,34.5],[23.875,34.5]]},
-  {id:'Bh78',c:[[23.875,34.625],[23.875,34.75],[24.0,34.75],[24.0,34.625],[23.875,34.625]]},
-  {id:'Bh79',c:[[23.875,34.75],[23.875,34.875],[24.0,34.875],[24.0,34.75],[23.875,34.75]]},
-  {id:'Bh80',c:[[23.875,34.875],[23.875,35.0],[24.0,35.0],[24.0,34.875],[23.875,34.875]]},
-  {id:'Bh81',c:[[23.875,35.0],[23.875,35.125],[24.0,35.125],[24.0,35.0],[23.875,35.0]]},
-  {id:'Bh82',c:[[23.875,35.125],[23.875,35.25],[24.0,35.25],[24.0,35.125],[23.875,35.125]]},
-  {id:'Bh83',c:[[23.875,35.25],[23.875,35.375],[24.0,35.375],[24.0,35.25],[23.875,35.25]]},
-  {id:'Ca71',c:[[24.0,33.75],[24.0,33.875],[24.125,33.875],[24.125,33.75],[24.0,33.75]]},
-  {id:'Ca72',c:[[24.0,33.875],[24.0,34.0],[24.125,34.0],[24.125,33.875],[24.0,33.875]]},
-  {id:'Ca73',c:[[24.0,34.0],[24.0,34.125],[24.125,34.125],[24.125,34.0],[24.0,34.0]]},
-  {id:'Ca74',c:[[24.0,34.125],[24.0,34.25],[24.125,34.25],[24.125,34.125],[24.0,34.125]]},
-  {id:'Ca75',c:[[24.0,34.25],[24.0,34.375],[24.125,34.375],[24.125,34.25],[24.0,34.25]]},
-  {id:'Ca76',c:[[24.0,34.375],[24.0,34.5],[24.125,34.5],[24.125,34.375],[24.0,34.375]]},
-  {id:'Ca77',c:[[24.0,34.5],[24.0,34.625],[24.125,34.625],[24.125,34.5],[24.0,34.5]]},
-  {id:'Ca78',c:[[24.0,34.625],[24.0,34.75],[24.125,34.75],[24.125,34.625],[24.0,34.625]]},
-  {id:'Ca79',c:[[24.0,34.75],[24.0,34.875],[24.125,34.875],[24.125,34.75],[24.0,34.75]]},
-  {id:'Ca80',c:[[24.0,34.875],[24.0,35.0],[24.125,35.0],[24.125,34.875],[24.0,34.875]]},
-  {id:'Cb71',c:[[24.125,33.75],[24.125,33.875],[24.25,33.875],[24.25,33.75],[24.125,33.75]]},
-  {id:'Cb72',c:[[24.125,33.875],[24.125,34.0],[24.25,34.0],[24.25,33.875],[24.125,33.875]]},
-  {id:'Cb73',c:[[24.125,34.0],[24.125,34.125],[24.25,34.125],[24.25,34.0],[24.125,34.0]]},
-  {id:'Cb74',c:[[24.125,34.125],[24.125,34.25],[24.25,34.25],[24.25,34.125],[24.125,34.125]]},
-  {id:'Cb75',c:[[24.125,34.25],[24.125,34.375],[24.25,34.375],[24.25,34.25],[24.125,34.25]]},
-  {id:'Cb76',c:[[24.125,34.375],[24.125,34.5],[24.25,34.5],[24.25,34.375],[24.125,34.375]]},
-  {id:'Cb77',c:[[24.125,34.5],[24.125,34.625],[24.25,34.625],[24.25,34.5],[24.125,34.5]]},
-  {id:'Cb78',c:[[24.125,34.625],[24.125,34.75],[24.25,34.75],[24.25,34.625],[24.125,34.625]]},
-  {id:'Cb79',c:[[24.125,34.75],[24.125,34.875],[24.25,34.875],[24.25,34.75],[24.125,34.75]]},
-  {id:'Cb80',c:[[24.125,34.875],[24.125,35.0],[24.25,35.0],[24.25,34.875],[24.125,34.875]]},
-  {id:'Cc71',c:[[24.25,33.75],[24.25,33.875],[24.375,33.875],[24.375,33.75],[24.25,33.75]]},
-  {id:'Cc72',c:[[24.25,33.875],[24.25,34.0],[24.375,34.0],[24.375,33.875],[24.25,33.875]]},
-  {id:'Cc73',c:[[24.25,34.0],[24.25,34.125],[24.375,34.125],[24.375,34.0],[24.25,34.0]]},
-  {id:'Cc74',c:[[24.25,34.125],[24.25,34.25],[24.375,34.25],[24.375,34.125],[24.25,34.125]]},
-  {id:'Cc75',c:[[24.25,34.25],[24.25,34.375],[24.375,34.375],[24.375,34.25],[24.25,34.25]]},
-  {id:'Cc76',c:[[24.25,34.375],[24.25,34.5],[24.375,34.5],[24.375,34.375],[24.25,34.375]]},
-  {id:'Cc77',c:[[24.25,34.5],[24.25,34.625],[24.375,34.625],[24.375,34.5],[24.25,34.5]]},
-  {id:'Cc78',c:[[24.25,34.625],[24.25,34.75],[24.375,34.75],[24.375,34.625],[24.25,34.625]]},
-  {id:'Cc79',c:[[24.25,34.75],[24.25,34.875],[24.375,34.875],[24.375,34.75],[24.25,34.75]]},
-  {id:'Cc80',c:[[24.25,34.875],[24.25,35.0],[24.375,35.0],[24.375,34.875],[24.25,34.875]]},
-  {id:'Cd70',c:[[24.375,33.625],[24.375,33.75],[24.5,33.75],[24.5,33.625],[24.375,33.625]]},
-  {id:'Cd71',c:[[24.375,33.75],[24.375,33.875],[24.5,33.875],[24.5,33.75],[24.375,33.75]]},
-  {id:'Cd72',c:[[24.375,33.875],[24.375,34.0],[24.5,34.0],[24.5,33.875],[24.375,33.875]]},
-  {id:'Cd73',c:[[24.375,34.0],[24.375,34.125],[24.5,34.125],[24.5,34.0],[24.375,34.0]]},
-  {id:'Cd74',c:[[24.375,34.125],[24.375,34.25],[24.5,34.25],[24.5,34.125],[24.375,34.125]]},
-  {id:'Cd75',c:[[24.375,34.25],[24.375,34.375],[24.5,34.375],[24.5,34.25],[24.375,34.25]]},
-  {id:'Cd76',c:[[24.375,34.375],[24.375,34.5],[24.5,34.5],[24.5,34.375],[24.375,34.375]]},
-  {id:'Cd77',c:[[24.375,34.5],[24.375,34.625],[24.5,34.625],[24.5,34.5],[24.375,34.5]]},
-  {id:'Cd78',c:[[24.375,34.625],[24.375,34.75],[24.5,34.75],[24.5,34.625],[24.375,34.625]]},
-  {id:'Cd79',c:[[24.375,34.75],[24.375,34.875],[24.5,34.875],[24.5,34.75],[24.375,34.75]]},
-  {id:'Cd80',c:[[24.375,34.875],[24.375,35.0],[24.5,35.0],[24.5,34.875],[24.375,34.875]]},
-  {id:'Ce70',c:[[24.5,33.625],[24.5,33.75],[24.625,33.75],[24.625,33.625],[24.5,33.625]]},
-  {id:'Ce71',c:[[24.5,33.75],[24.5,33.875],[24.625,33.875],[24.625,33.75],[24.5,33.75]]},
-  {id:'Ce72',c:[[24.5,33.875],[24.5,34.0],[24.625,34.0],[24.625,33.875],[24.5,33.875]]},
-  {id:'Ce73',c:[[24.5,34.0],[24.5,34.125],[24.625,34.125],[24.625,34.0],[24.5,34.0]]},
-  {id:'Ce75',c:[[24.5,34.25],[24.5,34.375],[24.625,34.375],[24.625,34.25],[24.5,34.25]]},
-  {id:'Ce76',c:[[24.5,34.375],[24.5,34.5],[24.625,34.5],[24.625,34.375],[24.5,34.375]]},
-  {id:'Ce77',c:[[24.5,34.5],[24.5,34.625],[24.625,34.625],[24.625,34.5],[24.5,34.5]]},
-  {id:'Ce78',c:[[24.5,34.625],[24.5,34.75],[24.625,34.75],[24.625,34.625],[24.5,34.625]]},
-  {id:'Ce79',c:[[24.5,34.75],[24.5,34.875],[24.625,34.875],[24.625,34.75],[24.5,34.75]]},
-  {id:'Ce80',c:[[24.5,34.875],[24.5,35.0],[24.625,35.0],[24.625,34.875],[24.5,34.875]]},
-  {id:'Cf70',c:[[24.625,33.625],[24.625,33.75],[24.75,33.75],[24.75,33.625],[24.625,33.625]]},
-  {id:'Cf71',c:[[24.625,33.75],[24.625,33.875],[24.75,33.875],[24.75,33.75],[24.625,33.75]]},
-  {id:'Cf72',c:[[24.625,33.875],[24.625,34.0],[24.75,34.0],[24.75,33.875],[24.625,33.875]]},
-  {id:'Cf75',c:[[24.625,34.25],[24.625,34.375],[24.75,34.375],[24.75,34.25],[24.625,34.25]]},
-  {id:'Cf76',c:[[24.625,34.375],[24.625,34.5],[24.75,34.5],[24.75,34.375],[24.625,34.375]]},
-  {id:'Cf77',c:[[24.625,34.5],[24.625,34.625],[24.75,34.625],[24.75,34.5],[24.625,34.5]]},
-  {id:'Cf78',c:[[24.625,34.625],[24.625,34.75],[24.75,34.75],[24.75,34.625],[24.625,34.625]]},
-  {id:'Cf79',c:[[24.625,34.75],[24.625,34.875],[24.75,34.875],[24.75,34.75],[24.625,34.75]]},
-  {id:'Cf80',c:[[24.625,34.875],[24.625,35.0],[24.75,35.0],[24.75,34.875],[24.625,34.875]]},
-  {id:'Cg70',c:[[24.75,33.625],[24.75,33.75],[24.875,33.75],[24.875,33.625],[24.75,33.625]]},
-  {id:'Cg71',c:[[24.75,33.75],[24.75,33.875],[24.875,33.875],[24.875,33.75],[24.75,33.75]]},
-  {id:'Cg72',c:[[24.75,33.875],[24.75,34.0],[24.875,34.0],[24.875,33.875],[24.75,33.875]]},
-  {id:'Cg73',c:[[24.75,34.0],[24.75,34.125],[24.875,34.125],[24.875,34.0],[24.75,34.0]]},
-  {id:'Cg74',c:[[24.75,34.125],[24.75,34.25],[24.875,34.25],[24.875,34.125],[24.75,34.125]]},
-  {id:'Cg75',c:[[24.75,34.25],[24.75,34.375],[24.875,34.375],[24.875,34.25],[24.75,34.25]]},
-  {id:'Ch70',c:[[24.875,33.625],[24.875,33.75],[25.0,33.75],[25.0,33.625],[24.875,33.625]]},
-  {id:'Ch71',c:[[24.875,33.75],[24.875,33.875],[25.0,33.875],[25.0,33.75],[24.875,33.75]]},
-  {id:'Ch72',c:[[24.875,33.875],[24.875,34.0],[25.0,34.0],[25.0,33.875],[24.875,33.875]]},
-  {id:'Ch73',c:[[24.875,34.0],[24.875,34.125],[25.0,34.125],[25.0,34.0],[24.875,34.0]]},
-  {id:'Ch74',c:[[24.875,34.125],[24.875,34.25],[25.0,34.25],[25.0,34.125],[24.875,34.125]]},
-  {id:'Ch75',c:[[24.875,34.25],[24.875,34.375],[25.0,34.375],[25.0,34.25],[24.875,34.25]]},
-  {id:'Da74',c:[[25.0,34.125],[25.0,34.25],[25.125,34.25],[25.125,34.125],[25.0,34.125]]},
-  {id:'Db74',c:[[25.125,34.125],[25.125,34.25],[25.25,34.25],[25.25,34.125],[25.125,34.125]]},
-  {id:'Db75',c:[[25.125,34.25],[25.125,34.375],[25.25,34.375],[25.25,34.25],[25.125,34.25]]},
-  {id:'Db76',c:[[25.125,34.375],[25.125,34.5],[25.25,34.5],[25.25,34.375],[25.125,34.375]]},
-  {id:'Db77',c:[[25.125,34.5],[25.125,34.625],[25.25,34.625],[25.25,34.5],[25.125,34.5]]},
-  {id:'Db78',c:[[25.125,34.625],[25.125,34.75],[25.25,34.75],[25.25,34.625],[25.125,34.625]]},
-  {id:'Dc69',c:[[25.25,33.5],[25.25,33.625],[25.375,33.625],[25.375,33.5],[25.25,33.5]]},
-  {id:'Dc71',c:[[25.25,33.75],[25.25,33.875],[25.375,33.8125],[25.25,33.75]]},
-  {id:'Dc75',c:[[25.25,34.25],[25.25,34.375],[25.375,34.375],[25.375,34.25],[25.25,34.25]]},
-  {id:'Dc76',c:[[25.25,34.375],[25.25,34.5],[25.375,34.5],[25.375,34.375],[25.25,34.375]]},
-  {id:'Dd69',c:[[25.375,33.5],[25.375,33.625],[25.5,33.625],[25.5,33.5],[25.375,33.5]]},
-  {id:'Dd75',c:[[25.375,34.25],[25.375,34.375],[25.5,34.375],[25.5,34.25],[25.375,34.25]]},
-  {id:'Dd76',c:[[25.375,34.375],[25.375,34.5],[25.5,34.5],[25.5,34.375],[25.375,34.375]]},
-  {id:'De69',c:[[25.5,33.5],[25.5,33.625],[25.625,33.625],[25.625,33.5],[25.5,33.5]]},
-  {id:'De74',c:[[25.5,34.125],[25.5,34.25],[25.625,34.25],[25.625,34.125],[25.5,34.125]]},
-  {id:'De75',c:[[25.5,34.25],[25.5,34.375],[25.625,34.375],[25.625,34.25],[25.5,34.25]]},
-  {id:'De76',c:[[25.5,34.375],[25.5,34.5],[25.625,34.5],[25.625,34.375],[25.5,34.375]]},
-  {id:'Df69',c:[[25.625,33.5],[25.625,33.625],[25.75,33.625],[25.75,33.5],[25.625,33.5]]},
-  {id:'Df70',c:[[25.625,33.625],[25.625,33.75],[25.75,33.75],[25.75,33.625],[25.625,33.625]]},
-  {id:'Df71',c:[[25.625,33.75],[25.625,33.875],[25.75,33.875],[25.75,33.75],[25.625,33.75]]},
-  {id:'Df72',c:[[25.625,33.875],[25.625,34.0],[25.75,34.0],[25.75,33.875],[25.625,33.875]]},
-  {id:'Df74',c:[[25.625,34.125],[25.625,34.25],[25.75,34.25],[25.75,34.125],[25.625,34.125]]},
-  {id:'Df75',c:[[25.625,34.25],[25.625,34.375],[25.75,34.375],[25.75,34.25],[25.625,34.25]]},
-  {id:'Df76',c:[[25.625,34.375],[25.625,34.5],[25.75,34.5],[25.75,34.375],[25.625,34.375]]},
-  {id:'Dg69',c:[[25.75,33.5],[25.75,33.625],[25.875,33.625],[25.875,33.5],[25.75,33.5]]},
-  {id:'Dh68',c:[[25.875,33.375],[25.875,33.5],[26.0,33.5],[26.0,33.375],[25.875,33.375]]},
-  {id:'Ea68',c:[[26.0,33.375],[26.0,33.5],[26.125,33.5],[26.125,33.375],[26.0,33.375]]},
-  {id:'Ea71',c:[[26.0,33.75],[26.0,33.875],[26.125,33.875],[26.125,33.75],[26.0,33.75]]},
-  {id:'Ea72',c:[[26.0,33.875],[26.0,34.0],[26.125,34.0],[26.125,33.875],[26.0,33.875]]},
-  {id:'Ea73',c:[[26.0,34.0],[26.0,34.125],[26.125,34.125],[26.125,34.0],[26.0,34.0]]},
-  {id:'Ea74',c:[[26.0,34.125],[26.0,34.2],[26.125,34.225],[26.125,34.125],[26.0,34.125]]},
-  {id:'Eb68',c:[[26.125,33.375],[26.125,33.5],[26.25,33.5],[26.25,33.375],[26.125,33.375]]},
-  {id:'Eb71',c:[[26.125,33.75],[26.125,33.875],[26.25,33.875],[26.25,33.75],[26.125,33.75]]},
-  {id:'Eb73',c:[[26.125,34.0],[26.125,34.175],[26.22,34.205],[26.25,34.125],[26.25,34.0],[26.125,34.0]]},
-  {id:'Ec68',c:[[26.25,33.375],[26.25,33.5],[26.375,33.5],[26.375,33.375],[26.25,33.375]]},
-  {id:'Ec69',c:[[26.25,33.5],[26.25,33.625],[26.375,33.625],[26.375,33.5],[26.25,33.5]]},
-  {id:'Ec70',c:[[26.25,33.625],[26.25,33.75],[26.375,33.75],[26.375,33.625],[26.25,33.625]]},
-  {id:'Ec71',c:[[26.25,33.75],[26.25,33.875],[26.375,33.875],[26.375,33.75],[26.25,33.75]]},
-  {id:'Ec72',c:[[26.25,33.875],[26.25,34.05],[26.335,34.09],[26.375,34.0],[26.375,33.875],[26.25,33.875]]},
-  {id:'Ed66',c:[[26.375,33.125],[26.375,33.25],[26.5,33.25],[26.5,33.125],[26.375,33.125]]},
-  {id:'Ed70',c:[[26.375,33.625],[26.375,33.75],[26.5,33.75],[26.5,33.625],[26.375,33.625]]},
-  {id:'Ed72',c:[[26.375,33.875],[26.375,34.05],[26.47,34.08],[26.5,34.0],[26.5,33.875],[26.375,33.875]]},
-  {id:'Ee68',c:[[26.5,33.375],[26.5,33.5],[26.625,33.5],[26.625,33.375],[26.5,33.375]]},
-  {id:'Ee69',c:[[26.5,33.5],[26.5,33.625],[26.625,33.625],[26.625,33.5],[26.5,33.5]]},
-  {id:'Ee70',c:[[26.5,33.625],[26.5,33.75],[26.5875,33.75],[26.5875,33.6875],[26.625,33.6875],[26.625,33.625],[26.5,33.625]]},
-  {id:'Ee71',c:[[26.575,33.75],[26.575,33.875],[26.625,33.875],[26.625,33.75],[26.575,33.75]]},
-  {id:'Ee72',c:[[26.5,33.875],[26.5,34.04],[26.605,34.06],[26.625,34.0],[26.625,33.875],[26.5,33.875]]},
-  {id:'Ef68',c:[[26.625,33.375],[26.625,33.5],[26.75,33.5],[26.75,33.375],[26.625,33.375]]},
-  {id:'Ef69',c:[[26.625,33.5],[26.625,33.625],[26.75,33.625],[26.75,33.5],[26.625,33.5]]},
-  {id:'Ef70',c:[[26.625,33.625],[26.625,33.75],[26.75,33.75],[26.75,33.625],[26.625,33.625]]},
-  {id:'Ef71',c:[[26.625,33.75],[26.625,33.875],[26.75,33.875],[26.75,33.75],[26.625,33.75]]},
-  {id:'Eg67',c:[[26.75,33.25],[26.75,33.375],[26.875,33.375],[26.875,33.25],[26.75,33.25]]},
-  {id:'Eg68',c:[[26.75,33.375],[26.75,33.5],[26.875,33.5],[26.875,33.375],[26.75,33.375]]},
-  {id:'Eg69',c:[[26.75,33.5],[26.75,33.625],[26.875,33.625],[26.875,33.5],[26.75,33.5]]},
-  {id:'Eg70',c:[[26.75,33.625],[26.75,33.75],[26.875,33.75],[26.875,33.625],[26.75,33.625]]},
-  {id:'Eg71',c:[[26.75,33.75],[26.75,33.875],[26.875,33.875],[26.875,33.75],[26.75,33.75]]},
-  {id:'Eh65',c:[[26.875,33.0],[26.875,33.125],[27.0,33.125],[27.0,33.0],[26.875,33.0]]},
-  {id:'Eh66',c:[[26.875,33.125],[26.875,33.25],[27.0,33.25],[27.0,33.125],[26.875,33.125]]},
-  {id:'Eh67',c:[[26.875,33.25],[26.875,33.375],[27.0,33.375],[27.0,33.25],[26.875,33.25]]},
-  {id:'Eh68',c:[[26.875,33.375],[26.875,33.5],[27.0,33.5],[27.0,33.375],[26.875,33.375]]},
-  {id:'Eh69',c:[[26.875,33.5],[26.875,33.625],[27.0,33.625],[27.0,33.5],[26.875,33.5]]},
-  {id:'Eh70',c:[[26.875,33.625],[26.875,33.75],[27.0,33.75],[27.0,33.625],[26.875,33.625]]},
-  {id:'Fa65',c:[[27.0,33.0],[27.0,33.125],[27.125,33.125],[27.125,33.0],[27.0,33.0]]},
-  {id:'Fa66',c:[[27.0,33.125],[27.0,33.25],[27.125,33.25],[27.125,33.125],[27.0,33.125]]},
-  {id:'Fa67',c:[[27.0,33.25],[27.0,33.375],[27.125,33.375],[27.125,33.25],[27.0,33.25]]},
-  {id:'Fa68',c:[[27.0,33.375],[27.0,33.5],[27.125,33.5],[27.125,33.375],[27.0,33.375]]},
-  {id:'Fa69',c:[[27.0,33.5],[27.0,33.625],[27.125,33.625],[27.125,33.5],[27.0,33.5]]},
-  {id:'Fa70',c:[[27.0,33.625],[27.0,33.75],[27.125,33.75],[27.125,33.625],[27.0,33.625]]},
-  {id:'Fb65',c:[[27.125,33.0],[27.125,33.125],[27.25,33.125],[27.25,33.0],[27.125,33.0]]},
-  {id:'Fb66',c:[[27.125,33.125],[27.125,33.25],[27.25,33.25],[27.25,33.125],[27.125,33.125]]},
-  {id:'Fb67',c:[[27.125,33.25],[27.125,33.375],[27.25,33.375],[27.25,33.25],[27.125,33.25]]},
-  {id:'Fb68',c:[[27.125,33.375],[27.125,33.5],[27.25,33.5],[27.25,33.375],[27.125,33.375]]},
-  {id:'Fb69',c:[[27.125,33.5],[27.125,33.625],[27.25,33.625],[27.25,33.5],[27.125,33.5]]},
-  {id:'Fc63',c:[[27.25,32.75],[27.25,32.875],[27.375,32.875],[27.375,32.75],[27.25,32.75]]},
-  {id:'Fc64',c:[[27.25,32.875],[27.25,33.0],[27.375,33.0],[27.375,32.875],[27.25,32.875]]},
-  {id:'Fc65',c:[[27.25,33.0],[27.25,33.125],[27.375,33.125],[27.375,33.0],[27.25,33.0]]},
-  {id:'Fc66',c:[[27.25,33.125],[27.25,33.25],[27.375,33.25],[27.375,33.125],[27.25,33.125]]},
-  {id:'Fc67',c:[[27.25,33.25],[27.25,33.375],[27.375,33.375],[27.375,33.25],[27.25,33.25]]},
-  {id:'Fc68',c:[[27.25,33.375],[27.25,33.5],[27.375,33.5],[27.375,33.375],[27.25,33.375]]},
-  {id:'Fd63',c:[[27.375,32.75],[27.375,32.875],[27.5,32.875],[27.5,32.75],[27.375,32.75]]},
-  {id:'Fd64',c:[[27.375,32.875],[27.375,33.0],[27.5,33.0],[27.5,32.875],[27.375,32.875]]},
-  {id:'Fd65',c:[[27.375,33.0],[27.375,33.125],[27.5,33.125],[27.5,33.0],[27.375,33.0]]},
-  {id:'Fd66',c:[[27.375,33.125],[27.375,33.25],[27.5,33.25],[27.5,33.125],[27.375,33.125]]},
-  {id:'Fd67',c:[[27.375,33.25],[27.375,33.375],[27.5,33.375],[27.5,33.25],[27.375,33.25]]},
-  {id:'Fd68',c:[[27.375,33.375],[27.375,33.5],[27.5,33.5],[27.5,33.375],[27.375,33.375]]},
-  {id:'Fe62',c:[[27.5,32.625],[27.5,32.75],[27.625,32.75],[27.625,32.625],[27.5,32.625]]},
-  {id:'Fe63',c:[[27.5,32.75],[27.5,32.875],[27.625,32.875],[27.625,32.75],[27.5,32.75]]},
-  {id:'Fe64',c:[[27.5,32.875],[27.5,33.0],[27.625,33.0],[27.625,32.875],[27.5,32.875]]},
-  {id:'Fe65',c:[[27.5,33.0],[27.5,33.125],[27.625,33.125],[27.625,33.0],[27.5,33.0]]},
-  {id:'Fe66',c:[[27.5,33.125],[27.5,33.25],[27.625,33.25],[27.625,33.125],[27.5,33.125]]},
-  {id:'Fe67',c:[[27.5,33.25],[27.5,33.375],[27.625,33.375],[27.625,33.25],[27.5,33.25]]},
-  {id:'Ff62',c:[[27.625,32.625],[27.625,32.75],[27.75,32.75],[27.75,32.625],[27.625,32.625]]},
-  {id:'Ff63',c:[[27.625,32.75],[27.625,32.875],[27.75,32.875],[27.75,32.75],[27.625,32.75]]},
-  {id:'Ff64',c:[[27.625,32.875],[27.625,33.0],[27.75,33.0],[27.75,32.875],[27.625,32.875]]},
-  {id:'Ff65',c:[[27.625,33.0],[27.625,33.125],[27.75,33.125],[27.75,33.0],[27.625,33.0]]},
-  {id:'Ff66',c:[[27.625,33.125],[27.625,33.25],[27.75,33.25],[27.75,33.125],[27.625,33.125]]},
-  {id:'Fg62',c:[[27.75,32.625],[27.75,32.75],[27.875,32.75],[27.875,32.625],[27.75,32.625]]},
-  {id:'Fg66',c:[[27.75,33.125],[27.75,33.25],[27.875,33.25],[27.875,33.125],[27.75,33.125]]},
-  {id:'Fh62',c:[[27.875,32.625],[27.875,32.75],[28.0,32.75],[28.0,32.625],[27.875,32.625]]},
-  {id:'Fh64',c:[[27.875,32.875],[27.875,33.0],[28.0,33.0],[28.0,32.875],[27.875,32.875]]},
-  {id:'Fh65',c:[[27.875,33.0],[27.875,33.125],[28.0,33.125],[28.0,33.0],[27.875,33.0]]},
-  {id:'Fh66',c:[[27.875,33.125],[27.875,33.25],[28.0,33.25],[28.0,33.125],[27.875,33.125]]}
-];
+// Coordinate block layers extracted from the provided PDF files
+const GOLD_BLOCKS=[{"id":"Fh65","area":138.0,"ore":"gold","c":[[28.00000028,33.125],[27.875,33.125],[27.87500333,33.11666667],[27.9,33.11666667],[27.90011639,33.0],[28.00000028,33.0],[28.00000028,33.125]],"pages":[1]},{"id":"Fg62","area":125.0,"ore":"gold","c":[[27.75001083,32.71666667],[27.75,32.625],[27.875,32.625],[27.87501083,32.71666667],[27.75001083,32.71666667]],"pages":[1]},{"id":"Dc69","area":174.0,"ore":"gold","c":[[25.375,33.5],[25.375,33.625],[25.25,33.625],[25.25,33.5],[25.375,33.5]],"pages":[1]},{"id":"Fe66","area":171.0,"ore":"gold","c":[[27.625,33.125],[27.625,33.25],[27.5,33.25000028],[27.5,33.125],[27.625,33.125]],"pages":[1]},{"id":"Ff64","area":103.0,"ore":"gold","c":[[27.625,33.0],[27.625,32.875],[27.700135,32.875],[27.70011667,33.00000028],[27.625,33.0]],"pages":[1]},{"id":"Ff62","area":152.0,"ore":"gold","c":[[27.75001083,32.71666667],[27.7,32.71666667],[27.70004306,32.75],[27.625,32.75],[27.625,32.625],[27.75,32.625],[27.75001083,32.71666667]],"pages":[1]},{"id":"Fc68","area":171.0,"ore":"gold","c":[[27.375,33.375],[27.375,33.5],[27.25000028,33.50000028],[27.25,33.375],[27.375,33.375]],"pages":[1]},{"id":"Fc65","area":171.0,"ore":"gold","c":[[27.375,33.0],[27.375,33.125],[27.25,33.125],[27.25,33.0],[27.375,33.0]],"pages":[1]},{"id":"Fd63","area":171.0,"ore":"gold","c":[[27.375,32.875],[27.375,32.75],[27.5,32.75],[27.5,32.875],[27.375,32.875]],"pages":[1]},{"id":"Fa70","area":172.0,"ore":"gold","c":[[27.125,33.625],[27.125,33.75],[27.0,33.75000028],[27.0,33.625],[27.125,33.625]],"pages":[2]},{"id":"Fb68","area":171.0,"ore":"gold","c":[[27.125,33.50000028],[27.125,33.375],[27.25,33.375],[27.25000028,33.50000028],[27.125,33.50000028]],"pages":[2]},{"id":"Fa65","area":172.0,"ore":"gold","c":[[27.125,33.0],[27.125,33.125],[27.0,33.125],[27.0,33.0],[27.125,33.0]],"pages":[2]},{"id":"Eg70","area":172.0,"ore":"gold","c":[[26.875,33.625],[26.875,33.75],[26.75,33.75],[26.75,33.625],[26.875,33.625]],"pages":[2]},{"id":"Eh68","area":172.0,"ore":"gold","c":[[26.875,33.5],[26.875,33.375],[27.0,33.375],[27.00000028,33.50000028],[26.875,33.5]],"pages":[2]},{"id":"Ef69","area":172.0,"ore":"gold","c":[[26.625,33.625],[26.625,33.5],[26.75,33.5],[26.75,33.625],[26.625,33.625]],"pages":[2]},{"id":"Ec71","area":173.0,"ore":"gold","c":[[26.375,33.75],[26.375,33.875],[26.25,33.875],[26.25,33.75],[26.375,33.75]],"pages":[2]},{"id":"Ea72","area":173.0,"ore":"gold","c":[[26.125,33.875],[26.125,34.0],[26.0,34.0],[26.0,33.875],[26.125,33.875]],"pages":[2]},{"id":"Ea68","area":159.0,"ore":"gold","c":[[26.125,33.375],[26.125,33.45],[26.1,33.45],[26.1,33.5],[26.0,33.50000028],[26.0,33.375],[26.125,33.375]],"pages":[2]},{"id":"Ca77","area":176.0,"ore":"gold","c":[[24.125,34.5],[24.125,34.625],[24.0,34.625],[24.0,34.5],[24.125,34.5]],"pages":[2,3]},{"id":"Ca75","area":176.0,"ore":"gold","c":[[24.125,34.25],[24.125,34.375],[24.0,34.375],[24.0,34.25],[24.125,34.25]],"pages":[3]},{"id":"Cb73","area":176.0,"ore":"gold","c":[[24.125,34.125],[24.125,34.0],[24.25,34.0],[24.25,34.125],[24.125,34.125]],"pages":[3]},{"id":"De75","area":174.0,"ore":"gold","c":[[25.625,34.25],[25.625,34.375],[25.5,34.375],[25.5,34.25000028],[25.625,34.25]],"pages":[3]},{"id":"Df70","area":174.0,"ore":"gold","c":[[25.625,33.75],[25.625,33.625],[25.75,33.625],[25.75,33.75000028],[25.625,33.75]],"pages":[3]},{"id":"Db76","area":174.0,"ore":"gold","c":[[25.15945472,34.375],[25.25,34.375],[25.25,34.50000028],[25.125,34.50000028],[25.12500694,34.39262139],[25.125,34.375],[25.15945472,34.375]],"pages":[3]},{"id":"Cg71","area":175.0,"ore":"gold","c":[[24.875,33.75],[24.875,33.875],[24.75,33.875],[24.75,33.75],[24.875,33.75]],"pages":[3]},{"id":"Ch70","area":175.0,"ore":"gold","c":[[24.875,33.75],[24.875,33.625],[25.0,33.625],[25.0,33.75000028],[24.875,33.75]],"pages":[3]},{"id":"Ce77","area":175.0,"ore":"gold","c":[[24.625,34.5],[24.625,34.625],[24.5,34.625],[24.5,34.5],[24.625,34.5]],"pages":[3]},{"id":"Cf76","area":175.0,"ore":"gold","c":[[24.625,34.5],[24.625,34.375],[24.75,34.375],[24.75,34.5],[24.625,34.5]],"pages":[3]},{"id":"Ce71","area":175.0,"ore":"gold","c":[[24.625,33.75],[24.625,33.875],[24.5,33.875],[24.5,33.75000028],[24.625,33.75]],"pages":[3,4]},{"id":"Ce70","area":175.0,"ore":"gold","c":[[24.625,33.625],[24.625,33.75],[24.5,33.75000028],[24.5,33.625],[24.625,33.625]],"pages":[4]},{"id":"Cd77","area":175.0,"ore":"gold","c":[[24.375,34.625],[24.375,34.5],[24.5,34.5],[24.5,34.625],[24.375,34.625]],"pages":[4]},{"id":"Cc76","area":176.0,"ore":"gold","c":[[24.375,34.375],[24.375,34.5],[24.25,34.5],[24.25,34.375],[24.375,34.375]],"pages":[4]},{"id":"Cc73","area":176.0,"ore":"gold","c":[[24.375,34.0],[24.375,34.125],[24.25,34.125],[24.25,34.0],[24.375,34.0]],"pages":[4]},{"id":"Cc71","area":176.0,"ore":"gold","c":[[24.375,33.75000028],[24.375,33.875],[24.25,33.875],[24.25,33.75],[24.375,33.75000028]],"pages":[4]},{"id":"Cd70","area":175.0,"ore":"gold","c":[[24.375,33.75000028],[24.375,33.625],[24.5,33.625],[24.5,33.75000028],[24.375,33.75000028]],"pages":[4]},{"id":"Ca72","area":176.0,"ore":"gold","c":[[24.125,33.875],[24.125,34.0],[24.0,34.00000028],[24.0,33.875],[24.125,33.875]],"pages":[4]},{"id":"Bg83","area":176.0,"ore":"gold","c":[[23.875,35.25],[23.875,35.375],[23.75,35.375],[23.75,35.25],[23.875,35.25]],"pages":[4]},{"id":"Bg81","area":176.0,"ore":"gold","c":[[23.875,35.0],[23.875,35.125],[23.75,35.125],[23.75,35.0],[23.875,35.0]],"pages":[4]},{"id":"Bg79","area":176.0,"ore":"gold","c":[[23.875,34.75],[23.875,34.875],[23.75,34.875],[23.75,34.75],[23.875,34.75]],"pages":[4,5]},{"id":"Bh77","area":176.0,"ore":"gold","c":[[23.875,34.625],[23.875,34.5],[24.0,34.5],[24.0,34.625],[23.875,34.625]],"pages":[5]},{"id":"Bh75","area":176.0,"ore":"gold","c":[[23.875,34.375],[23.875,34.25],[24.0,34.25],[24.0,34.375],[23.875,34.375]],"pages":[5]},{"id":"Bg73","area":176.0,"ore":"gold","c":[[23.875,34.0],[23.875,34.125],[23.75,34.125],[23.75,34.0],[23.875,34.0]],"pages":[5]},{"id":"Bh72","area":176.0,"ore":"gold","c":[[23.875,34.0],[23.875,33.875],[24.0,33.875],[24.0,34.00000028],[23.875,34.0]],"pages":[5]},{"id":"Be83","area":177.0,"ore":"gold","c":[[23.625,35.25],[23.625,35.375],[23.5,35.375],[23.5,35.25],[23.625,35.25]],"pages":[5]},{"id":"Bf79","area":177.0,"ore":"gold","c":[[23.625,34.875],[23.625,34.75],[23.75,34.75],[23.75,34.875],[23.625,34.875]],"pages":[5]},{"id":"Bf77","area":176.0,"ore":"gold","c":[[23.625,34.625],[23.625,34.5],[23.75,34.5],[23.75,34.625],[23.625,34.625]],"pages":[5]},{"id":"Be75","area":177.0,"ore":"gold","c":[[23.625,34.25],[23.625,34.375],[23.5,34.375],[23.5,34.25],[23.625,34.25]],"pages":[5]},{"id":"Be73","area":177.0,"ore":"gold","c":[[23.625,34.0],[23.625,34.125],[23.5,34.125],[23.5,34.0],[23.625,34.0]],"pages":[5]},{"id":"Bf71","area":176.0,"ore":"gold","c":[[23.625,33.875],[23.625,33.75],[23.75,33.75],[23.75,33.875],[23.625,33.875]],"pages":[5,6]},{"id":"Bd83","area":177.0,"ore":"gold","c":[[23.375,35.375],[23.375,35.25],[23.5,35.25],[23.5,35.375],[23.375,35.375]],"pages":[6]},{"id":"Bc81","area":177.0,"ore":"gold","c":[[23.375,35.0],[23.375,35.125],[23.25,35.125],[23.25,35.00000028],[23.375,35.0]],"pages":[6]},{"id":"Bc80","area":177.0,"ore":"gold","c":[[23.375,34.875],[23.375,35.0],[23.25,35.00000028],[23.25,34.875],[23.375,34.875]],"pages":[6]},{"id":"Bd78","area":177.0,"ore":"gold","c":[[23.375,34.75000028],[23.375,34.625],[23.5,34.625],[23.5,34.75000028],[23.375,34.75000028]],"pages":[6]},{"id":"Bc76","area":177.0,"ore":"gold","c":[[23.375,34.375],[23.375,34.5],[23.25,34.50000028],[23.25,34.375],[23.375,34.375]],"pages":[6]},{"id":"Bd71","area":177.0,"ore":"gold","c":[[23.375,33.875],[23.375,33.75],[23.5,33.75],[23.5,33.875],[23.375,33.875]],"pages":[6]},{"id":"Bb80","area":177.0,"ore":"gold","c":[[23.125,35.0],[23.125,34.875],[23.25,34.875],[23.25,35.00000028],[23.125,35.0]],"pages":[6]},{"id":"Bb78","area":177.0,"ore":"gold","c":[[23.125,34.75],[23.125,34.625],[23.25,34.625],[23.25,34.75000028],[23.125,34.75]],"pages":[6]},{"id":"Bb76","area":177.0,"ore":"gold","c":[[23.125,34.5],[23.125,34.375],[23.25,34.375],[23.25,34.50000028],[23.125,34.5]],"pages":[6]},{"id":"Fe63","area":171.0,"ore":"gold","c":[[27.625,32.75],[27.625,32.875],[27.5,32.875],[27.5,32.75],[27.625,32.75]],"pages":[6,7]},{"id":"Fc64","area":171.0,"ore":"gold","c":[[27.375,32.875],[27.375,33.0],[27.25,33.0],[27.25,32.875],[27.375,32.875]],"pages":[7]},{"id":"Fh66","area":170.0,"ore":"gold","c":[[27.875,33.25],[27.875,33.125],[28.00000028,33.125],[28.00000028,33.25],[27.875,33.25]],"pages":[7]},{"id":"Fe65","area":171.0,"ore":"gold","c":[[27.625,33.0],[27.625,33.125],[27.5,33.125],[27.5,33.0],[27.625,33.0]],"pages":[7]},{"id":"Fd66","area":171.0,"ore":"gold","c":[[27.375,33.25],[27.375,33.125],[27.5,33.125],[27.5,33.25000028],[27.375,33.25]],"pages":[7]},{"id":"Fa66","area":172.0,"ore":"gold","c":[[27.125,33.125],[27.125,33.25],[27.0,33.25],[27.0,33.125],[27.125,33.125]],"pages":[7]},{"id":"Ed66","area":173.0,"ore":"gold","c":[[26.375,33.25],[26.375,33.125],[26.5,33.125],[26.5,33.25],[26.375,33.25]],"pages":[7]},{"id":"Fc67","area":171.0,"ore":"gold","c":[[27.375,33.25],[27.375,33.375],[27.25,33.375],[27.25,33.25],[27.375,33.25]],"pages":[7]},{"id":"Fb67","area":171.0,"ore":"gold","c":[[27.125,33.375],[27.125,33.25],[27.25,33.25],[27.25,33.375],[27.125,33.375]],"pages":[7]},{"id":"Eg67","area":172.0,"ore":"gold","c":[[26.875,33.25],[26.875,33.375],[26.75,33.375],[26.75,33.25],[26.875,33.25]],"pages":[7]},{"id":"Ee68","area":172.0,"ore":"gold","c":[[26.625,33.375],[26.625,33.5],[26.5,33.5],[26.5,33.375],[26.625,33.375]],"pages":[7,8]},{"id":"Fb69","area":171.0,"ore":"gold","c":[[27.125,33.625],[27.125,33.50000028],[27.25000028,33.50000028],[27.25,33.625],[27.125,33.625]],"pages":[8]},{"id":"Eg69","area":172.0,"ore":"gold","c":[[26.875,33.5],[26.875,33.625],[26.75,33.625],[26.75,33.5],[26.875,33.5]],"pages":[8]},{"id":"Ee70","area":156.0,"ore":"gold","c":[[26.62523972,33.62500556],[26.62523972,33.75000583],[26.50023972,33.75000556],[26.5,33.66706861],[26.53629444,33.66728667],[26.53635083,33.63056111],[26.53104444,33.625],[26.62523972,33.62500556]],"pages":[8]},{"id":"Ec70","area":163.0,"ore":"gold","c":[[26.375,33.66692778],[26.375,33.75],[26.25,33.75],[26.25,33.625],[26.34089139,33.625],[26.34089139,33.63355278],[26.375,33.66692778]],"pages":[8]},{"id":"De69","area":174.0,"ore":"gold","c":[[25.625,33.50000028],[25.625,33.625],[25.5,33.625],[25.5,33.50000028],[25.625,33.50000028]],"pages":[8]},{"id":"Eg71","area":172.0,"ore":"gold","c":[[26.875,33.75],[26.875,33.875],[26.75,33.875],[26.75,33.75],[26.875,33.75]],"pages":[8]},{"id":"Ch72","area":175.0,"ore":"gold","c":[[24.875,34.0],[24.875,33.875],[25.0,33.875],[25.0,34.0],[24.875,34.0]],"pages":[8]},{"id":"Ce72","area":175.0,"ore":"gold","c":[[24.625,33.875],[24.625,34.0],[24.5,34.0],[24.5,33.875],[24.625,33.875]],"pages":[8]},{"id":"Cd72","area":175.0,"ore":"gold","c":[[24.375,34.0],[24.375,33.875],[24.5,33.875],[24.5,34.0],[24.375,34.0]],"pages":[8,9]},{"id":"Cb71","area":176.0,"ore":"gold","c":[[24.125,33.875],[24.125,33.75],[24.25,33.75],[24.25,33.875],[24.125,33.875]],"pages":[9]},{"id":"Bg71","area":176.0,"ore":"gold","c":[[23.875,33.75],[23.875,33.875],[23.75,33.875],[23.75,33.75],[23.875,33.75]],"pages":[9]},{"id":"Bf72","area":176.0,"ore":"gold","c":[[23.625,34.0],[23.625,33.875],[23.75,33.875],[23.75,34.0],[23.625,34.0]],"pages":[9]},{"id":"Ea73","area":173.0,"ore":"gold","c":[[26.07587611,34.125],[26.0,34.125],[26.0,34.0],[26.125,34.0],[26.12500889,34.02520111],[26.07587611,34.125]],"pages":[9]},{"id":"Dg74","area":174.0,"ore":"gold","c":[[25.875,34.125],[25.875,34.25],[25.75,34.25],[25.75,34.125],[25.875,34.125]],"pages":[9]},{"id":"Cb74","area":176.0,"ore":"gold","c":[[24.125,34.25],[24.125,34.125],[24.25,34.125],[24.25,34.25],[24.125,34.25]],"pages":[9]},{"id":"De74","area":174.0,"ore":"gold","c":[[25.625,34.125],[25.625,34.25],[25.5,34.25000028],[25.5,34.125],[25.625,34.125]],"pages":[9]},{"id":"Ch74","area":175.0,"ore":"gold","c":[[24.875,34.25],[24.875,34.125],[25.0,34.125],[25.0,34.25],[24.875,34.25]],"pages":[9]},{"id":"Bg74","area":176.0,"ore":"gold","c":[[23.875,34.125],[23.875,34.25],[23.75,34.25],[23.75,34.125],[23.875,34.125]],"pages":[9]},{"id":"Be74","area":177.0,"ore":"gold","c":[[23.625,34.125],[23.625,34.25],[23.5,34.25],[23.5,34.125],[23.625,34.125]],"pages":[10]},{"id":"Dc75","area":174.0,"ore":"gold","c":[[25.375,34.25],[25.375,34.375],[25.25,34.375],[25.25,34.25],[25.375,34.25]],"pages":[10]},{"id":"Cb76","area":176.0,"ore":"gold","c":[[24.125,34.5],[24.125,34.375],[24.25,34.375],[24.25,34.5],[24.125,34.5]],"pages":[10]},{"id":"De76","area":174.0,"ore":"gold","c":[[25.625,34.375],[25.625,34.5],[25.5,34.5],[25.5,34.375],[25.625,34.375]],"pages":[10]},{"id":"Db75","area":174.0,"ore":"gold","c":[[25.125,34.375],[25.125,34.25],[25.25,34.25],[25.25,34.375],[25.125,34.375]],"pages":[10]},{"id":"Ch75","area":175.0,"ore":"gold","c":[[24.875,34.375],[24.875,34.25],[25.0,34.25],[24.9999475,34.37493722],[24.875,34.375]],"pages":[10]},{"id":"Cc75","area":176.0,"ore":"gold","c":[[24.375,34.25],[24.375,34.375],[24.25,34.375],[24.25,34.25],[24.375,34.25]],"pages":[10]},{"id":"Bh76","area":176.0,"ore":"gold","c":[[23.875,34.5],[23.875,34.375],[24.0,34.375],[24.0,34.5],[23.875,34.5]],"pages":[10]},{"id":"Be76","area":177.0,"ore":"gold","c":[[23.625,34.375],[23.625,34.5],[23.5,34.5],[23.5,34.375],[23.625,34.375]],"pages":[10]},{"id":"Bd75","area":177.0,"ore":"gold","c":[[23.375,34.375],[23.375,34.25],[23.5,34.25],[23.5,34.375],[23.375,34.375]],"pages":[10]},{"id":"Ca78","area":176.0,"ore":"gold","c":[[24.125,34.625],[24.125,34.75],[24.0,34.75],[24.0,34.625],[24.125,34.625]],"pages":[11]},{"id":"Ce78","area":175.0,"ore":"gold","c":[[24.625,34.625],[24.625,34.75],[24.5,34.75],[24.5,34.625],[24.625,34.625]],"pages":[11]},{"id":"Cd78","area":175.0,"ore":"gold","c":[[24.375,34.75],[24.375,34.625],[24.5,34.625],[24.5,34.75],[24.375,34.75]],"pages":[11]},{"id":"Bh78","area":176.0,"ore":"gold","c":[[23.875,34.75],[23.875,34.625],[24.0,34.625],[24.0,34.75],[23.875,34.75]],"pages":[11]},{"id":"Be78","area":177.0,"ore":"gold","c":[[23.625,34.625],[23.625,34.75],[23.5,34.75000028],[23.5,34.625],[23.625,34.625]],"pages":[11]},{"id":"Bd77","area":177.0,"ore":"gold","c":[[23.375,34.625],[23.375,34.5],[23.5,34.5],[23.5,34.625],[23.375,34.625]],"pages":[11]},{"id":"Ba77","area":106.0,"ore":"gold","c":[[23.05,34.625],[23.05,34.5],[23.125,34.5],[23.125,34.625],[23.05,34.625]],"pages":[11]},{"id":"Ca80","area":176.0,"ore":"gold","c":[[24.125,34.875],[24.125,35.0],[24.0,35.00000028],[24.0,34.875],[24.125,34.875]],"pages":[11]},{"id":"Cf80","area":175.0,"ore":"gold","c":[[24.625,35.0],[24.625,34.875],[24.75,34.875],[24.75,35.0],[24.625,35.0]],"pages":[11]},{"id":"Cc80","area":176.0,"ore":"gold","c":[[24.375,34.875],[24.375,35.0],[24.25,35.0],[24.25,34.875],[24.375,34.875]],"pages":[11]},{"id":"Bh80","area":176.0,"ore":"gold","c":[[23.875,35.0],[23.875,34.875],[24.0,34.875],[24.0,35.00000028],[23.875,35.0]],"pages":[12]},{"id":"Be80","area":177.0,"ore":"gold","c":[[23.625,34.875],[23.625,35.0],[23.5,35.0],[23.5,34.875],[23.625,34.875]],"pages":[12]},{"id":"Bc79","area":177.0,"ore":"gold","c":[[23.375,34.75000028],[23.375,34.875],[23.25,34.875],[23.25,34.75000028],[23.375,34.75000028]],"pages":[12]},{"id":"Ba79","area":106.0,"ore":"gold","c":[[23.05,34.875],[23.05,34.75],[23.125,34.75],[23.125,34.875],[23.05,34.875]],"pages":[12]},{"id":"Bh82","area":176.0,"ore":"gold","c":[[23.875,35.25],[23.875,35.125],[24.0,35.125],[24.0,35.25],[23.875,35.25]],"pages":[12]},{"id":"Ba81","area":106.0,"ore":"gold","c":[[23.05,35.125],[23.05,35.0],[23.125,35.0],[23.125,35.125],[23.05,35.125]],"pages":[12]},{"id":"Bb83","area":177.0,"ore":"gold","c":[[23.125,35.375],[23.125,35.25000028],[23.25,35.25],[23.25,35.375],[23.125,35.375]],"pages":[12]},{"id":"Ba80","area":106.0,"ore":"gold","c":[[23.05,35.0],[23.05,34.875],[23.125,34.875],[23.125,35.0],[23.05,35.0]],"pages":[12]},{"id":"Ba78","area":106.0,"ore":"gold","c":[[23.05,34.75],[23.05,34.625],[23.125,34.625],[23.125,34.75],[23.05,34.75]],"pages":[12]},{"id":"Ba76","area":106.0,"ore":"gold","c":[[23.05,34.5],[23.05,34.375],[23.125,34.375],[23.125,34.5],[23.05,34.5]],"pages":[12]},{"id":"Bb77","area":177.0,"ore":"gold","c":[[23.125,34.625],[23.125,34.5],[23.25,34.50000028],[23.25,34.625],[23.125,34.625]],"pages":[13]},{"id":"Bb79","area":177.0,"ore":"gold","c":[[23.125,34.875],[23.125,34.75],[23.25,34.75000028],[23.25,34.875],[23.125,34.875]],"pages":[13]},{"id":"Bb81","area":177.0,"ore":"gold","c":[[23.125,35.125],[23.125,35.0],[23.25,35.00000028],[23.25,35.125],[23.125,35.125]],"pages":[13]},{"id":"Ba83","area":106.0,"ore":"gold","c":[[23.05,35.375],[23.05,35.25],[23.125,35.25000028],[23.125,35.375],[23.05,35.375]],"pages":[13]},{"id":"Bc83","area":177.0,"ore":"gold","c":[[23.375,35.25],[23.375,35.375],[23.25,35.375],[23.25,35.25],[23.375,35.25]],"pages":[13]},{"id":"Bd80","area":177.0,"ore":"gold","c":[[23.375,35.0],[23.375,34.875],[23.5,34.875],[23.5,35.0],[23.375,35.0]],"pages":[13]},{"id":"Bc78","area":177.0,"ore":"gold","c":[[23.375,34.625],[23.375,34.75000028],[23.25,34.75000028],[23.25,34.625],[23.375,34.625]],"pages":[13]},{"id":"Bd76","area":177.0,"ore":"gold","c":[[23.375,34.5],[23.375,34.375],[23.5,34.375],[23.5,34.5],[23.375,34.5]],"pages":[13]},{"id":"Bd73","area":177.0,"ore":"gold","c":[[23.375,34.125],[23.375,34.0],[23.5,34.0],[23.5,34.125],[23.375,34.125]],"pages":[13]},{"id":"Bd72","area":177.0,"ore":"gold","c":[[23.375,34.0],[23.375,33.875],[23.5,33.875],[23.5,34.0],[23.375,34.0]],"pages":[13]},{"id":"Bd74","area":177.0,"ore":"gold","c":[[23.375,34.25],[23.375,34.125],[23.5,34.125],[23.5,34.25],[23.375,34.25]],"pages":[14]},{"id":"Bc77","area":177.0,"ore":"gold","c":[[23.375,34.5],[23.375,34.625],[23.25,34.625],[23.25,34.50000028],[23.375,34.5]],"pages":[14]},{"id":"Bd79","area":177.0,"ore":"gold","c":[[23.375,34.875],[23.375,34.75000028],[23.5,34.75000028],[23.5,34.875],[23.375,34.875]],"pages":[14]},{"id":"Bf83","area":177.0,"ore":"gold","c":[[23.625,35.375],[23.625,35.25],[23.75,35.25],[23.75,35.375],[23.625,35.375]],"pages":[14]},{"id":"Be77","area":177.0,"ore":"gold","c":[[23.625,34.5],[23.625,34.625],[23.5,34.625],[23.5,34.5],[23.625,34.5]],"pages":[14]},{"id":"Bf75","area":176.0,"ore":"gold","c":[[23.625,34.375],[23.625,34.25],[23.75,34.25],[23.75,34.375],[23.625,34.375]],"pages":[14]},{"id":"Bf73","area":176.0,"ore":"gold","c":[[23.625,34.125],[23.625,34.0],[23.75,34.0],[23.75,34.125],[23.625,34.125]],"pages":[14]},{"id":"Be71","area":177.0,"ore":"gold","c":[[23.625,33.75],[23.625,33.875],[23.5,33.875],[23.5,33.75],[23.625,33.75]],"pages":[14]},{"id":"Be72","area":177.0,"ore":"gold","c":[[23.625,33.875],[23.625,34.0],[23.5,34.0],[23.5,33.875],[23.625,33.875]],"pages":[14]},{"id":"Bf74","area":176.0,"ore":"gold","c":[[23.625,34.25],[23.625,34.125],[23.75,34.125],[23.75,34.25],[23.625,34.25]],"pages":[14]},{"id":"Bf76","area":176.0,"ore":"gold","c":[[23.625,34.5],[23.625,34.375],[23.75,34.375],[23.75,34.5],[23.625,34.5]],"pages":[15]},{"id":"Bf78","area":176.0,"ore":"gold","c":[[23.625,34.75],[23.625,34.625],[23.75,34.625],[23.75,34.75],[23.625,34.75]],"pages":[15]},{"id":"Bf80","area":177.0,"ore":"gold","c":[[23.625,35.0],[23.625,34.875],[23.75,34.875],[23.75,35.0],[23.625,35.0]],"pages":[15]},{"id":"Bh83","area":176.0,"ore":"gold","c":[[23.875,35.375],[23.875,35.25],[24.0,35.25],[24.0,35.375],[23.875,35.375]],"pages":[15]},{"id":"Bh81","area":176.0,"ore":"gold","c":[[23.875,35.125],[23.875,35.0],[24.0,35.00000028],[24.0,35.125],[23.875,35.125]],"pages":[15]},{"id":"Bh79","area":176.0,"ore":"gold","c":[[23.875,34.875],[23.875,34.75],[24.0,34.75],[24.0,34.875],[23.875,34.875]],"pages":[15]},{"id":"Bg77","area":176.0,"ore":"gold","c":[[23.875,34.5],[23.875,34.625],[23.75,34.625],[23.75,34.5],[23.875,34.5]],"pages":[15]},{"id":"Bg75","area":176.0,"ore":"gold","c":[[23.875,34.25],[23.875,34.375],[23.75,34.375],[23.75,34.25],[23.875,34.25]],"pages":[15]},{"id":"Bh73","area":176.0,"ore":"gold","c":[[23.875,34.125],[23.875,34.0],[24.0,34.00000028],[24.0,34.125],[23.875,34.125]],"pages":[15]},{"id":"Bg72","area":176.0,"ore":"gold","c":[[23.875,33.875],[23.875,34.0],[23.75,34.0],[23.75,33.875],[23.875,33.875]],"pages":[15]},{"id":"Bh71","area":176.0,"ore":"gold","c":[[23.875,33.875],[23.875,33.75],[24.0,33.75000028],[24.0,33.875],[23.875,33.875]],"pages":[16]},{"id":"Bh74","area":176.0,"ore":"gold","c":[[23.875,34.25],[23.875,34.125],[24.0,34.125],[24.0,34.25],[23.875,34.25]],"pages":[16]},{"id":"Bg76","area":176.0,"ore":"gold","c":[[23.875,34.375],[23.875,34.5],[23.75,34.5],[23.75,34.375],[23.875,34.375]],"pages":[16]},{"id":"Bg78","area":176.0,"ore":"gold","c":[[23.875,34.625],[23.875,34.75],[23.75,34.75],[23.75,34.625],[23.875,34.625]],"pages":[16]},{"id":"Bg80","area":176.0,"ore":"gold","c":[[23.875,34.875],[23.875,35.0],[23.75,35.0],[23.75,34.875],[23.875,34.875]],"pages":[16]},{"id":"Bg82","area":176.0,"ore":"gold","c":[[23.875,35.125],[23.875,35.25],[23.75,35.25],[23.75,35.125],[23.875,35.125]],"pages":[16]},{"id":"Ca79","area":176.0,"ore":"gold","c":[[24.125,34.75],[24.125,34.875],[24.0,34.875],[24.0,34.75],[24.125,34.75]],"pages":[16]},{"id":"Cb77","area":176.0,"ore":"gold","c":[[24.125,34.625],[24.125,34.5],[24.25,34.5],[24.25,34.625],[24.125,34.625]],"pages":[16]},{"id":"Cb75","area":176.0,"ore":"gold","c":[[24.125,34.375],[24.125,34.25],[24.25,34.25],[24.25,34.375],[24.125,34.375]],"pages":[16]},{"id":"Ca73","area":176.0,"ore":"gold","c":[[24.125,34.0],[24.125,34.125],[24.0,34.125],[24.0,34.00000028],[24.125,34.0]],"pages":[16]},{"id":"Cb72","area":176.0,"ore":"gold","c":[[24.125,34.0],[24.125,33.875],[24.25,33.875],[24.25,34.0],[24.125,34.0]],"pages":[17]},{"id":"Ca71","area":176.0,"ore":"gold","c":[[24.125,33.75],[24.125,33.875],[24.0,33.875],[24.0,33.75000028],[24.125,33.75]],"pages":[17]},{"id":"Ca74","area":176.0,"ore":"gold","c":[[24.125,34.125],[24.125,34.25],[24.0,34.25],[24.0,34.125],[24.125,34.125]],"pages":[17]},{"id":"Ca76","area":176.0,"ore":"gold","c":[[24.125,34.375],[24.125,34.5],[24.0,34.5],[24.0,34.375],[24.125,34.375]],"pages":[17]},{"id":"Cb80","area":176.0,"ore":"gold","c":[[24.125,35.0],[24.125,34.875],[24.25,34.875],[24.25,35.0],[24.125,35.0]],"pages":[17]},{"id":"Cd79","area":176.0,"ore":"gold","c":[[24.375,34.875],[24.375,34.75],[24.5,34.75],[24.5,34.875],[24.375,34.875]],"pages":[17]},{"id":"Cc77","area":176.0,"ore":"gold","c":[[24.375,34.5],[24.375,34.625],[24.25,34.625],[24.25,34.5],[24.375,34.5]],"pages":[17]},{"id":"Cd76","area":175.0,"ore":"gold","c":[[24.375,34.5],[24.375,34.375],[24.5,34.375],[24.5,34.5],[24.375,34.5]],"pages":[17]},{"id":"Cd73","area":175.0,"ore":"gold","c":[[24.375,34.125],[24.375,34.0],[24.5,34.0],[24.5,34.125],[24.375,34.125]],"pages":[17]},{"id":"Cd71","area":175.0,"ore":"gold","c":[[24.375,33.875],[24.375,33.75000028],[24.5,33.75000028],[24.5,33.875],[24.375,33.875]],"pages":[17]},{"id":"Cc72","area":176.0,"ore":"gold","c":[[24.375,33.875],[24.375,34.0],[24.25,34.0],[24.25,33.875],[24.375,33.875]],"pages":[18]},{"id":"Cc74","area":176.0,"ore":"gold","c":[[24.375,34.125],[24.375,34.25],[24.25,34.25],[24.25,34.125],[24.375,34.125]],"pages":[18]},{"id":"Cd75","area":175.0,"ore":"gold","c":[[24.375,34.375],[24.375,34.25],[24.5,34.25000028],[24.5,34.375],[24.375,34.375]],"pages":[18]},{"id":"Cd80","area":176.0,"ore":"gold","c":[[24.375,35.0],[24.375,34.875],[24.5,34.875],[24.5,35.0],[24.375,35.0]],"pages":[18]},{"id":"Cf77","area":175.0,"ore":"gold","c":[[24.625,34.625],[24.625,34.5],[24.75,34.5],[24.75,34.625],[24.625,34.625]],"pages":[18]},{"id":"Ce76","area":175.0,"ore":"gold","c":[[24.625,34.375],[24.625,34.5],[24.5,34.5],[24.5,34.375],[24.625,34.375]],"pages":[18]},{"id":"Ce73","area":175.0,"ore":"gold","c":[[24.625,34.0],[24.625,34.125],[24.5,34.125],[24.5,34.0],[24.625,34.0]],"pages":[18]},{"id":"Cf71","area":175.0,"ore":"gold","c":[[24.625,33.875],[24.625,33.75],[24.75,33.75],[24.75,33.875],[24.625,33.875]],"pages":[18]},{"id":"Cf70","area":175.0,"ore":"gold","c":[[24.625,33.75],[24.625,33.625],[24.75,33.625],[24.75,33.75],[24.625,33.75]],"pages":[18]},{"id":"Ce75","area":175.0,"ore":"gold","c":[[24.625,34.25000028],[24.625,34.375],[24.5,34.375],[24.5,34.25000028],[24.625,34.25000028]],"pages":[18]},{"id":"Ch73","area":175.0,"ore":"gold","c":[[24.875,34.125],[24.875,34.0],[25.0,34.0],[25.0,34.125],[24.875,34.125]],"pages":[19]},{"id":"Ch71","area":175.0,"ore":"gold","c":[[24.875,33.875],[24.875,33.75],[25.0,33.75000028],[25.0,33.875],[24.875,33.875]],"pages":[19]},{"id":"Cg70","area":175.0,"ore":"gold","c":[[24.875,33.625],[24.875,33.75],[24.75,33.75],[24.75,33.625],[24.875,33.625]],"pages":[19]},{"id":"Ec69","area":140.0,"ore":"gold","c":[[26.34086944,33.61573056],[26.34086944,33.62500833],[26.25035944,33.62500833],[26.25035944,33.50000806],[26.32449083,33.5],[26.32449083,33.55090472],[26.37537306,33.55090472],[26.375,33.61573056],[26.34086944,33.61573056]],"pages":[19]},{"id":"Ed72","area":173.0,"ore":"gold","c":[[26.37500056,33.99890222],[26.375,33.875],[26.5,33.875],[26.50000778,33.89642167],[26.37500056,33.99890222]],"pages":[19]},{"id":"Ee69","area":171.0,"ore":"gold","c":[[26.625,33.5],[26.625,33.625],[26.53104444,33.625],[26.52515417,33.61919833],[26.5,33.61919833],[26.5,33.5],[26.625,33.5]],"pages":[19]},{"id":"Ef68","area":172.0,"ore":"gold","c":[[26.625,33.5],[26.625,33.375],[26.75,33.375],[26.75,33.5],[26.625,33.5]],"pages":[19]},{"id":"Ef70","area":172.0,"ore":"gold","c":[[26.625,33.75],[26.625,33.625],[26.75,33.625],[26.75,33.75],[26.625,33.75]],"pages":[19]},{"id":"Ef71","area":172.0,"ore":"gold","c":[[26.625,33.875],[26.625,33.75],[26.75,33.75],[26.75,33.875],[26.625,33.875]],"pages":[19,20]},{"id":"Eh70","area":172.0,"ore":"gold","c":[[26.875,33.75],[26.875,33.625],[27.0,33.625],[27.0,33.75000028],[26.875,33.75]],"pages":[20]},{"id":"Eg68","area":172.0,"ore":"gold","c":[[26.875,33.375],[26.875,33.5],[26.75,33.5],[26.75,33.375],[26.875,33.375]],"pages":[20]},{"id":"Eh65","area":172.0,"ore":"gold","c":[[26.875,33.125],[26.875,33.0],[27.0,33.0],[27.0,33.125],[26.875,33.125]],"pages":[20]},{"id":"Eh66","area":172.0,"ore":"gold","c":[[26.875,33.25],[26.875,33.125],[27.0,33.125],[27.0,33.25],[26.875,33.25]],"pages":[20]},{"id":"Eh67","area":172.0,"ore":"gold","c":[[26.875,33.375],[26.875,33.25],[27.0,33.25],[27.0,33.375],[26.875,33.375]],"pages":[20]},{"id":"Eh69","area":172.0,"ore":"gold","c":[[26.875,33.625],[26.875,33.5],[27.00000028,33.50000028],[27.0,33.625],[26.875,33.625]],"pages":[20]},{"id":"Fa68","area":172.0,"ore":"gold","c":[[27.125,33.375],[27.125,33.50000028],[27.00000028,33.50000028],[27.0,33.375],[27.125,33.375]],"pages":[20]},{"id":"Fb65","area":171.0,"ore":"gold","c":[[27.125,33.125],[27.125,33.0],[27.25,33.0],[27.25,33.125],[27.125,33.125]],"pages":[20]},{"id":"Fb66","area":171.0,"ore":"gold","c":[[27.125,33.25],[27.125,33.125],[27.25,33.125],[27.25,33.25],[27.125,33.25]],"pages":[20]},{"id":"Fa67","area":172.0,"ore":"gold","c":[[27.125,33.25],[27.125,33.375],[27.0,33.375],[27.0,33.25],[27.125,33.25]],"pages":[20,21]},{"id":"Fa69","area":172.0,"ore":"gold","c":[[27.125,33.50000028],[27.125,33.625],[27.0,33.625],[27.00000028,33.50000028],[27.125,33.50000028]],"pages":[21]},{"id":"Fd68","area":171.0,"ore":"gold","c":[[27.375,33.5],[27.375,33.375],[27.5,33.375],[27.5,33.5],[27.375,33.5]],"pages":[21]},{"id":"Fd65","area":171.0,"ore":"gold","c":[[27.375,33.125],[27.375,33.0],[27.5,33.0],[27.5,33.125],[27.375,33.125]],"pages":[21]},{"id":"Fc63","area":171.0,"ore":"gold","c":[[27.375,32.75],[27.375,32.875],[27.25,32.875],[27.25,32.75],[27.375,32.75]],"pages":[21]},{"id":"Fd64","area":171.0,"ore":"gold","c":[[27.375,33.0],[27.375,32.875],[27.5,32.875],[27.5,33.0],[27.375,33.0]],"pages":[21]},{"id":"Fc66","area":171.0,"ore":"gold","c":[[27.375,33.125],[27.375,33.25],[27.25,33.25],[27.25,33.125],[27.375,33.125]],"pages":[21]},{"id":"Fd67","area":171.0,"ore":"gold","c":[[27.375,33.375],[27.375,33.25],[27.5,33.25000028],[27.5,33.375],[27.375,33.375]],"pages":[21]},{"id":"Fe67","area":171.0,"ore":"gold","c":[[27.625,33.25],[27.625,33.375],[27.5,33.375],[27.5,33.25000028],[27.625,33.25]],"pages":[21]},{"id":"Ff66","area":171.0,"ore":"gold","c":[[27.625,33.25],[27.625,33.125],[27.75000028,33.125],[27.75000028,33.25],[27.625,33.25]],"pages":[21]},{"id":"Fe64","area":171.0,"ore":"gold","c":[[27.625,32.875],[27.625,33.0],[27.5,33.0],[27.5,32.875],[27.625,32.875]],"pages":[21,22]},{"id":"Fe62","area":171.0,"ore":"gold","c":[[27.625,32.625],[27.625,32.75],[27.5,32.75],[27.5,32.625],[27.625,32.625]],"pages":[22]},{"id":"Ff63","area":103.0,"ore":"gold","c":[[27.625,32.875],[27.625,32.75],[27.70004306,32.75],[27.700135,32.875],[27.625,32.875]],"pages":[22]},{"id":"Ff65","area":107.0,"ore":"gold","c":[[27.625,33.125],[27.625,33.0],[27.70011667,33.00000028],[27.7,33.11666667],[27.75000361,33.11666667],[27.75000028,33.125],[27.625,33.125]],"pages":[22]},{"id":"Fh64","area":136.0,"ore":"gold","c":[[27.90011639,33.0],[27.90013472,32.875],[28.0,32.875],[28.00000028,33.0],[27.90011639,33.0]],"pages":[22]},{"id":"Fh62","area":161.0,"ore":"gold","c":[[27.87501083,32.71666667],[27.875,32.625],[28.0,32.625],[28.0,32.75],[27.90004306,32.75],[27.9,32.71666667],[27.87501083,32.71666667]],"pages":[22]},{"id":"Fg66","area":170.0,"ore":"gold","c":[[27.875,33.125],[27.875,33.25],[27.75000028,33.25],[27.75000028,33.125],[27.875,33.125]],"pages":[22]},{"id":"Df75","area":174.0,"ore":"gold","c":[[25.625,34.375],[25.625,34.25],[25.75,34.25],[25.75,34.375],[25.625,34.375]],"pages":[22]},{"id":"Df69","area":174.0,"ore":"gold","c":[[25.625,33.625],[25.625,33.50000028],[25.75,33.5],[25.75,33.625],[25.625,33.625]],"pages":[22]},{"id":"Df74","area":174.0,"ore":"gold","c":[[25.625,34.25],[25.625,34.125],[25.75,34.125],[25.75,34.25],[25.625,34.25]],"pages":[22]},{"id":"Df76","area":174.0,"ore":"gold","c":[[25.625,34.5],[25.625,34.375],[25.75,34.375],[25.75,34.5],[25.625,34.5]],"pages":[23]},{"id":"Dd69","area":174.0,"ore":"gold","c":[[25.375,33.625],[25.375,33.5],[25.5,33.50000028],[25.5,33.625],[25.375,33.625]],"pages":[23]},{"id":"Dd75","area":174.0,"ore":"gold","c":[[25.375,34.375],[25.375,34.25],[25.5,34.25000028],[25.5,34.375],[25.375,34.375]],"pages":[23]},{"id":"Db78","area":174.0,"ore":"gold","c":[[25.125,34.75],[25.125,34.625],[25.25,34.625],[25.25,34.75],[25.125,34.75]],"pages":[23]},{"id":"Db77","area":174.0,"ore":"gold","c":[[25.125,34.625],[25.125,34.50000028],[25.25,34.50000028],[25.25,34.625],[25.125,34.625]],"pages":[23]},{"id":"Dh68","area":173.0,"ore":"gold","c":[[25.875,33.50000028],[25.875,33.375],[26.0,33.375],[26.0,33.50000028],[25.875,33.50000028]],"pages":[23]},{"id":"Dh74","area":173.0,"ore":"gold","c":[[26.00000944,34.15155194],[25.94861778,34.15420528],[25.94988389,34.2071575],[25.99922222,34.17306583],[25.99919056,34.25015],[25.875,34.25],[25.875,34.125],[26.0,34.125],[26.00000944,34.15155194]],"pages":[23]},{"id":"Ea71","area":173.0,"ore":"gold","c":[[26.125,33.75],[26.125,33.875],[26.0,33.875],[26.0,33.75],[26.125,33.75]],"pages":[23]},{"id":"Dg69","area":170.0,"ore":"gold","c":[[25.75,33.625],[25.75,33.5],[25.81255806,33.49999722],[25.81208056,33.50832528],[25.84133917,33.51076056],[25.84160833,33.5],[25.875,33.5],[25.875,33.625],[25.75,33.625]],"pages":[23,24]},{"id":"Dc71","area":87.0,"ore":"gold","c":[[25.375,33.875],[25.25,33.75],[25.375,33.75],[25.375,33.875]],"pages":[24]},{"id":"Ec68","area":151.0,"ore":"gold","c":[[26.375,33.37947556],[26.375,33.43171111],[26.35505194,33.44550278],[26.35505194,33.47051194],[26.344065,33.47051194],[26.344065,33.48801528],[26.32449083,33.48801528],[26.32449083,33.5],[26.25,33.50000028],[26.25,33.375],[26.33256694,33.375],[26.33256694,33.37947556],[26.375,33.37947556]],"pages":[24]},{"id":"Ed70","area":114.0,"ore":"gold","c":[[26.375,33.66742417],[26.5,33.66706861],[26.5,33.75],[26.375,33.75],[26.375,33.66742417]],"pages":[24]},{"id":"Cd74","area":175.0,"ore":"gold","c":[[24.5,34.125],[24.5,34.25000028],[24.375,34.25],[24.375,34.125],[24.5,34.125]],"pages":[24]},{"id":"Dc76","area":174.0,"ore":"gold","c":[[25.375,34.375],[25.375,34.5],[25.25,34.50000028],[25.25,34.375],[25.375,34.375]],"pages":[24]},{"id":"Dd76","area":174.0,"ore":"gold","c":[[25.375,34.5],[25.375,34.375],[25.5,34.375],[25.5,34.5],[25.375,34.5]],"pages":[24]},{"id":"Dc77","area":174.0,"ore":"gold","c":[[25.306275,34.625],[25.25,34.625],[25.25,34.50000028],[25.375,34.5],[25.37501028,34.52948889],[25.34208667,34.529155],[25.34196667,34.59176972],[25.30664667,34.59127583],[25.306275,34.625]],"pages":[24]},{"id":"Ee71","area":165.0,"ore":"gold","c":[[26.50013278,33.83908],[26.54650333,33.83975944],[26.5465575,33.80980222],[26.50023611,33.80919917],[26.50042167,33.75008278],[26.54738333,33.75],[26.547,33.76833333],[26.5841,33.76833333],[26.5841,33.75],[26.625,33.75],[26.625,33.875],[26.5,33.875],[26.50013278,33.83908]],"pages":[24,25]},{"id":"Cc78","area":176.0,"ore":"gold","c":[[24.375,34.625],[24.375,34.75],[24.25,34.75],[24.25,34.625],[24.375,34.625]],"pages":[25]},{"id":"Cc79","area":176.0,"ore":"gold","c":[[24.375,34.75],[24.375,34.875],[24.25,34.875],[24.25,34.75],[24.375,34.75]],"pages":[25]},{"id":"Cb79","area":176.0,"ore":"gold","c":[[24.125,34.875],[24.125,34.75],[24.25,34.75],[24.25,34.875],[24.125,34.875]],"pages":[25]},{"id":"Cb78","area":176.0,"ore":"gold","c":[[24.125,34.75],[24.125,34.625],[24.25,34.625],[24.25,34.75],[24.125,34.75]],"pages":[25]},{"id":"Be82","area":177.0,"ore":"gold","c":[[23.625,35.125],[23.625,35.25],[23.5,35.25],[23.5,35.125],[23.625,35.125]],"pages":[25]},{"id":"Bd81","area":177.0,"ore":"gold","c":[[23.375,35.125],[23.375,35.0],[23.5,35.0],[23.5,35.125],[23.375,35.125]],"pages":[25]},{"id":"Bd82","area":177.0,"ore":"gold","c":[[23.375,35.25],[23.375,35.125],[23.5,35.125],[23.5,35.25],[23.375,35.25]],"pages":[25]},{"id":"Bf82","area":177.0,"ore":"gold","c":[[23.625,35.25],[23.625,35.125],[23.75,35.125],[23.75,35.25],[23.625,35.25]],"pages":[25,26]},{"id":"Bc82","area":177.0,"ore":"gold","c":[[23.25,35.125],[23.375,35.125],[23.375,35.25],[23.25,35.25],[23.25,35.125]],"pages":[26]},{"id":"Bf81","area":177.0,"ore":"gold","c":[[23.625,35.125],[23.625,35.0],[23.75,35.0],[23.75,35.125],[23.625,35.125]],"pages":[26]},{"id":"Be81","area":177.0,"ore":"gold","c":[[23.625,35.0],[23.625,35.125],[23.5,35.125],[23.5,35.0],[23.625,35.0]],"pages":[26]},{"id":"Cf73","area":132.0,"ore":"gold","c":[[24.71666667,34.125],[24.71666667,34.03333333],[24.675,34.03333333],[24.675,34.125],[24.625,34.125],[24.625,34.0],[24.75,34.0],[24.75,34.125],[24.71666667,34.125]],"pages":[26]},{"id":"Cf75","area":175.0,"ore":"gold","c":[[24.625,34.375],[24.625,34.25000028],[24.75,34.25],[24.75,34.375],[24.625,34.375]],"pages":[26]},{"id":"Cf72","area":175.0,"ore":"gold","c":[[24.625,34.0],[24.625,33.875],[24.75,33.875],[24.75,34.0],[24.625,34.0]],"pages":[26]},{"id":"Cf74","area":140.0,"ore":"gold","c":[[24.675,34.125],[24.675,34.20045139],[24.71666667,34.2],[24.71666667,34.125],[24.75,34.125],[24.75,34.25],[24.625,34.25000028],[24.625,34.125],[24.675,34.125]],"pages":[26]},{"id":"Cg74","area":175.0,"ore":"gold","c":[[24.875,34.125],[24.875,34.25],[24.75,34.25],[24.75,34.125],[24.875,34.125]],"pages":[26]},{"id":"Cg75","area":175.0,"ore":"gold","c":[[24.875,34.25],[24.875,34.375],[24.75,34.375],[24.75,34.25],[24.875,34.25]],"pages":[27]},{"id":"Cg73","area":175.0,"ore":"gold","c":[[24.75,34.125],[24.75,34.0],[24.875,34.0],[24.875,34.125],[24.75,34.125]],"pages":[27]},{"id":"Cg72","area":175.0,"ore":"gold","c":[[24.75,34.0],[24.75,33.875],[24.875,33.875],[24.875,34.0],[24.75,34.0]],"pages":[27]},{"id":"Bb82","area":29.0,"ore":"gold","c":[[23.16353361,35.16774417],[23.16258472,35.25],[23.125,35.25],[23.125,35.19601667],[23.16353361,35.16774417]],"pages":[27]},{"id":"Ba82","area":23.0,"ore":"gold","c":[[23.05139472,35.25],[23.125,35.19601667],[23.125,35.25],[23.05139472,35.25]],"pages":[27]},{"id":"Eb71","area":173.0,"ore":"gold","c":[[26.125,33.875],[26.125,33.75],[26.25,33.75],[26.25,33.875],[26.125,33.875]],"pages":[27]},{"id":"Eb68","area":104.0,"ore":"gold","c":[[26.125,33.45],[26.125,33.375],[26.25,33.375],[26.25,33.45],[26.125,33.45]],"pages":[27]},{"id":"Db74","area":174.0,"ore":"gold","c":[[25.125,34.25],[25.125,34.125],[25.25,34.125],[25.25,34.25],[25.125,34.25]],"pages":[27]},{"id":"Da74","area":175.0,"ore":"gold","c":[[25.125,34.125],[25.125,34.25],[25.0,34.25],[25.0,34.125],[25.125,34.125]],"pages":[27]},{"id":"Df72","area":174.0,"ore":"gold","c":[[25.625,34.0],[25.625,33.875],[25.75,33.875],[25.75,34.0],[25.625,34.0]],"pages":[27]},{"id":"Cf79","area":175.0,"ore":"gold","c":[[24.625,34.875],[24.625,34.75],[24.75,34.75],[24.75,34.875],[24.625,34.875]],"pages":[27,28]},{"id":"Ce79","area":175.0,"ore":"gold","c":[[24.625,34.75],[24.625,34.875],[24.5,34.875],[24.5,34.75],[24.625,34.75]],"pages":[28]},{"id":"Cf78","area":175.0,"ore":"gold","c":[[24.625,34.75],[24.625,34.625],[24.75,34.625],[24.75,34.75],[24.625,34.75]],"pages":[28]},{"id":"Ce80","area":175.0,"ore":"gold","c":[[24.625,34.875],[24.625,35.0],[24.5,35.0],[24.5,34.875],[24.625,34.875]],"pages":[28]},{"id":"Ec72","area":173.0,"ore":"gold","c":[[26.25150528,34.0],[26.37501,33.90460056],[26.375,34.0],[26.25150528,34.0]],"pages":[28]},{"id":"Ee72","area":172.0,"ore":"gold","c":[[26.59717667,33.93419361],[26.50000806,33.897005],[26.5,33.875],[26.625,33.875],[26.62501389,33.93400917],[26.59717667,33.93419361]],"pages":[28]},{"id":"Eb73","area":173.0,"ore":"gold","c":[[26.15537139,34.125],[26.25000056,34.00183167],[26.25,34.125],[26.15537139,34.125]],"pages":[28]},{"id":"Ea74","area":173.0,"ore":"gold","c":[[26.05739556,34.125],[26.05756583,34.25],[26.0,34.25],[26.0,34.125],[26.05739556,34.125]],"pages":[28]},{"id":"Ce74","area":174.0,"ore":"gold","c":[[24.62487167,34.24978667],[24.50034444,34.24978667],[24.50034444,34.12516056],[24.62487167,34.12516056],[24.62487167,34.24978667]],"pages":[28]}];
+const TALC_BLOCKS=[{"id":"T6","area":8.78901,"ore":"talc","c":[[25.10426667,34.77491667],[25.10395,34.80053889],[25.08878889,34.80055556],[25.08868889,34.79658056],[25.08071667,34.79658056],[25.07071111,34.79658056],[25.07062222,34.77455],[25.10426667,34.77491667]],"pages":[1]},{"id":"T4","area":8.4467,"ore":"talc","c":[[25.06159444,34.38263611],[25.06017222,34.42632222],[25.04285278,34.42654167],[25.0442,34.38258056],[25.06159444,34.38263611]],"pages":[1]},{"id":"T1","area":10.917,"ore":"talc","c":[[25.37256667,34.53178611],[25.371775,34.59263333],[25.35587222,34.59283056],[25.35628611,34.53118611],[25.37256667,34.53178611]],"pages":[1]},{"id":"T3","area":5.20451,"ore":"talc","c":[[25.15817222,34.37611111],[25.15803056,34.39186667],[25.12814722,34.39186111],[25.12828611,34.37623056],[25.15817222,34.37611111]],"pages":[1]},{"id":"T5","area":12.9321,"ore":"talc","c":[[25.03795556,34.37970833],[25.03671944,34.42531389],[25.01169444,34.42580556],[25.01221944,34.37966944],[25.03795556,34.37970833]],"pages":[1]},{"id":"T2","area":7.48346,"ore":"talc","c":[[25.30979722,34.625],[25.30979444,34.59439722],[25.33186389,34.59439167],[25.33186667,34.625],[25.30979722,34.625]],"pages":[1]}];
+const KAOLIN_BLOCKS=[{"id":"kk1","area":1.0,"ore":"kaolin","c":[[23.49583333,32.33577778],[23.50433333,32.33577778],[23.50433333,32.35077778],[23.49583333,32.35077778],[23.49583333,32.33577778]],"pages":[1]},{"id":"kk2","area":5.0,"ore":"kaolin","c":[[23.50472222,32.255],[23.50472222,32.28333333],[23.4875,32.28333333],[23.4875,32.255],[23.50472222,32.255]],"pages":[1]},{"id":"kk5","area":5.0,"ore":"kaolin","c":[[23.46691667,32.28461111],[23.46691667,32.29877778],[23.4325,32.29877778],[23.4325,32.28461111],[23.46691667,32.28461111]],"pages":[1]},{"id":"kk8","area":8.0,"ore":"kaolin","c":[[23.40594444,32.44458333],[23.40594444,32.46747222],[23.37402778,32.46747222],[23.37402778,32.44458333],[23.40594444,32.44458333]],"pages":[1]},{"id":"kk12","area":10.0,"ore":"kaolin","c":[[23.36172306,32.35942222],[23.36159667,32.39155556],[23.33455556,32.39155556],[23.33455556,32.35911278],[23.36172306,32.35942222]],"pages":[1]},{"id":"kk9","area":11.0,"ore":"kaolin","c":[[23.40388889,32.39155556],[23.36159667,32.39155556],[23.36168389,32.36938417],[23.40388889,32.36955444],[23.40388889,32.39155556]],"pages":[1]},{"id":"kk6","area":12.0,"ore":"kaolin","c":[[23.46388889,32.24111111],[23.46388889,32.27222222],[23.43055556,32.27222222],[23.43055556,32.24111111],[23.46388889,32.24111111]],"pages":[1]},{"id":"kk7","area":12.0,"ore":"kaolin","c":[[23.46388889,32.24111111],[23.43055556,32.24111111],[23.43055556,32.21],[23.46388889,32.21],[23.46388889,32.24111111]],"pages":[1,2]},{"id":"kk14","area":11.0,"ore":"kaolin","c":[[23.37322028,32.31077778],[23.37334639,32.33516694],[23.33455556,32.33494528],[23.33455556,32.31077778],[23.37322028,32.31077778]],"pages":[2]},{"id":"kk13","area":11.0,"ore":"kaolin","c":[[23.37334639,32.33516694],[23.37347222,32.35955611],[23.33455556,32.35911278],[23.33455556,32.33494528],[23.37334639,32.33516694]],"pages":[2]},{"id":"kk15","area":8.0,"ore":"kaolin","c":[[23.19277778,32.51623611],[23.17395833,32.51623611],[23.17395833,32.47861111],[23.19277778,32.47861111],[23.19277778,32.51623611]],"pages":[2]},{"id":"kk16","area":8.0,"ore":"kaolin","c":[[23.17395833,32.51623611],[23.15513889,32.51623611],[23.15513889,32.47861111],[23.17395833,32.47861111],[23.17395833,32.51623611]],"pages":[2]},{"id":"k11","area":9.0,"ore":"kaolin","c":[[23.37335556,32.3369475],[23.37322028,32.31077778],[23.40388889,32.31077778],[23.40388889,32.3368925],[23.37335556,32.3369475]],"pages":[2]},{"id":"kk10","area":6.0,"ore":"kaolin","c":[[23.40388889,32.3368925],[23.40388889,32.36955444],[23.38879611,32.36949361],[23.3887825,32.35954472],[23.38517528,32.35955639],[23.38526833,32.33692611],[23.40388889,32.3368925]],"pages":[2]},{"id":"kk4","area":7.0,"ore":"kaolin","c":[[23.46527778,32.34961889],[23.439825,32.34961417],[23.43966667,32.32388889],[23.46527778,32.32388889],[23.46527778,32.34961889]],"pages":[2]},{"id":"kk3","area":4.0,"ore":"kaolin","c":[[23.45779306,32.36827778],[23.43994,32.36827778],[23.439825,32.34961417],[23.45775833,32.3496175],[23.45779306,32.36827778]],"pages":[2]},{"id":"ks6","area":15.0,"ore":"kaolin","c":[[29.07501833,33.34431722],[29.07519611,33.37310611],[29.03862583,33.37678639],[29.04275139,33.34269972],[29.07501833,33.34431722]],"pages":[3]},{"id":"ks7","area":16.0,"ore":"kaolin","c":[[29.07519611,33.37310611],[29.07538528,33.40494667],[29.04382444,33.40911472],[29.03862583,33.37678639],[29.07519611,33.37310611]],"pages":[3]},{"id":"ks1","area":7.0,"ore":"kaolin","c":[[29.20845972,33.3712025],[29.20854917,33.35747111],[29.229225,33.37273056],[29.21515778,33.39281472],[29.19956972,33.38051167],[29.19944194,33.37362111],[29.20985222,33.37346083],[29.20985222,33.37140083],[29.20845972,33.3712025]],"pages":[3]},{"id":"ks2","area":4.0,"ore":"kaolin","c":[[29.21515778,33.39281472],[29.20220917,33.41129333],[29.19959972,33.40908778],[29.19956972,33.38051167],[29.21515778,33.39281472]],"pages":[3]},{"id":"ks4","area":12.0,"ore":"kaolin","c":[[29.13466972,33.59735361],[29.12454389,33.61175722],[29.08913222,33.58377806],[29.099375,33.56685194],[29.13466972,33.59735361]],"pages":[3]},{"id":"ks5","area":11.0,"ore":"kaolin","c":[[29.12454389,33.61175722],[29.11506167,33.62524083],[29.07933111,33.59996806],[29.08913222,33.58377806],[29.12454389,33.61175722]],"pages":[3]},{"id":"ks8","area":22.0,"ore":"kaolin","c":[[29.06405944,33.70488306],[29.05294056,33.72307083],[29.01564639,33.69820639],[29.03247611,33.6715025],[29.0674,33.68011278],[29.0580275,33.70032833],[29.06405944,33.70488306]],"pages":[3,4]},{"id":"ks9","area":24.0,"ore":"kaolin","c":[[29.05294056,33.72307083],[29.03246667,33.75522583],[28.99601361,33.72933611],[29.01564639,33.69820639],[29.05294056,33.72307083]],"pages":[4]},{"id":"ks10","area":26.0,"ore":"kaolin","c":[[28.99601361,33.72933611],[29.03246667,33.75522583],[29.00903556,33.791995],[28.97459361,33.76327361],[28.99601361,33.72933611]],"pages":[4]},{"id":"ks11","area":23.0,"ore":"kaolin","c":[[28.97459361,33.76327361],[29.00903556,33.791995],[28.99033167,33.82132278],[28.95416528,33.79561444],[28.97459361,33.76327361]],"pages":[4]},{"id":"ks3","area":5.0,"ore":"kaolin","c":[[29.19012694,33.40102056],[29.17423889,33.38788556],[29.19023972,33.36107833],[29.19030722,33.37131139],[29.19026306,33.37351],[29.19012694,33.40102056]],"pages":[4]}];
+const PHOSPHATE_BLOCKS=[{"id":"PH37","area":9.0,"ore":"phosphate","c":[[26.08469444,34.16653889],[26.08458611,34.19631944],[26.05750556,34.19622222],[26.05761111,34.16643889],[26.08469444,34.16653889]],"pages":[1]},{"id":"PH34","area":9.0,"ore":"phosphate","c":[[26.11198056,34.13671111],[26.08474444,34.13645],[26.08503333,34.10645556],[26.11226667,34.10671389],[26.11198056,34.13671111]],"pages":[1]},{"id":"PH38","area":7.0,"ore":"phosphate","c":[[25.95346944,34.19808056],[25.95026111,34.19787778],[25.95003333,34.16790556],[25.97635556,34.16791111],[25.97631111,34.18093889],[25.95346944,34.19808056]],"pages":[1]},{"id":"PH32","area":9.0,"ore":"phosphate","c":[[26.15562222,34.12213056],[26.13925278,34.12196667],[26.13949167,34.09118611],[26.16543889,34.09159444],[26.16545,34.10918611],[26.15562222,34.12213056]],"pages":[1]},{"id":"PH31","area":9.0,"ore":"phosphate","c":[[26.191775,34.076575],[26.16626944,34.07717222],[26.16638611,34.047175],[26.19345833,34.04733333],[26.191775,34.076575]],"pages":[1]},{"id":"PH29","area":9.0,"ore":"phosphate","c":[[26.22076111,33.98758889],[26.19353611,33.98736389],[26.19378611,33.95736111],[26.22089167,33.95755833],[26.22076111,33.98758889]],"pages":[1]},{"id":"PH24","area":9.0,"ore":"phosphate","c":[[26.27508611,33.94395556],[26.248,33.94425],[26.24811389,33.91331667],[26.27519444,33.91381389],[26.27508611,33.94395556]],"pages":[1]},{"id":"PH27","area":7.0,"ore":"phosphate","c":[[26.22094722,33.94765556],[26.23973056,33.92777778],[26.24803611,33.92788611],[26.24795278,33.95771111],[26.22089167,33.95755833],[26.22094722,33.94765556]],"pages":[1,2]},{"id":"PH21","area":9.0,"ore":"phosphate","c":[[26.27519722,33.91319444],[26.27530833,33.88262778],[26.30238889,33.88316389],[26.30227778,33.91365],[26.27519722,33.91319444]],"pages":[2]},{"id":"PH14","area":9.0,"ore":"phosphate","c":[[26.36816944,33.87684167],[26.36816944,33.90818056],[26.34119167,33.90818056],[26.34119167,33.87684167],[26.36816944,33.87684167]],"pages":[2]},{"id":"PH4","area":6.0,"ore":"phosphate","c":[[26.51866944,33.90529167],[26.54570556,33.91599444],[26.54596389,33.930025],[26.51888333,33.92977778],[26.51866944,33.90529167]],"pages":[2]},{"id":"PH3","area":9.0,"ore":"phosphate","c":[[26.5727,34.0248],[26.54561667,34.02494167],[26.54583611,33.99496111],[26.57280833,33.99496111],[26.5727,34.0248]],"pages":[2]},{"id":"PH9","area":9.0,"ore":"phosphate","c":[[26.4917,33.95973889],[26.46461111,33.95952222],[26.46474167,33.92943056],[26.49183333,33.92964167],[26.4917,33.95973889]],"pages":[2]},{"id":"PH10","area":7.0,"ore":"phosphate","c":[[26.437925,33.94843611],[26.45988611,33.93041667],[26.46474167,33.92943056],[26.46461111,33.95952222],[26.43755,33.95930556],[26.437925,33.94843611]],"pages":[2]},{"id":"PH11","area":9.0,"ore":"phosphate","c":[[26.46438333,34.01971111],[26.46427778,34.0498],[26.43719722,34.04956389],[26.43730833,34.01948333],[26.46438333,34.01971111]],"pages":[2]},{"id":"PH12","area":9.0,"ore":"phosphate","c":[[26.43719722,34.04956389],[26.410125,34.049325],[26.410225,34.01924722],[26.43730833,34.01948333],[26.43719722,34.04956389]],"pages":[2]},{"id":"PH18","area":7.0,"ore":"phosphate","c":[[26.30163333,34.09288056],[26.32776389,34.07865556],[26.32876111,34.07866389],[26.32865278,34.108725],[26.30158056,34.108475],[26.30163333,34.09288056]],"pages":[2,3]},{"id":"PH22","area":9.0,"ore":"phosphate","c":[[26.30146111,34.138525],[26.27437778,34.13826667],[26.27448889,34.10822222],[26.30158056,34.108475],[26.30146111,34.138525]],"pages":[3]},{"id":"PH25","area":8.0,"ore":"phosphate","c":[[26.24735,34.12525],[26.25040556,34.12526389],[26.25030556,34.11686667],[26.26645,34.10814722],[26.27394167,34.10833889],[26.27396111,34.10821667],[26.27448889,34.10822222],[26.27437778,34.13826667],[26.24730833,34.13800556],[26.24735,34.12525]],"pages":[3]},{"id":"PH30","area":9.0,"ore":"phosphate","c":[[26.22010556,34.16767222],[26.21999444,34.19780833],[26.19291667,34.19753333],[26.19292222,34.16748889],[26.22010556,34.16767222]],"pages":[3]},{"id":"PH41","area":9.0,"ore":"phosphate","c":[[25.8402,34.37344722],[25.81337222,34.37335278],[25.81348056,34.34335],[25.84030833,34.34344444],[25.8402,34.37344722]],"pages":[3]},{"id":"PH39","area":9.0,"ore":"phosphate","c":[[25.86728333,34.37376111],[25.8402,34.37366389],[25.84030833,34.34344444],[25.86739167,34.34354167],[25.86728333,34.37376111]],"pages":[3]},{"id":"PH40","area":9.0,"ore":"phosphate","c":[[25.84041111,34.31412778],[25.84030833,34.34344444],[25.81348056,34.34335],[25.81358611,34.31403056],[25.84041111,34.31412778]],"pages":[3]},{"id":"PH36","area":9.0,"ore":"phosphate","c":[[26.08469444,34.16653889],[26.05766944,34.16649167],[26.05771944,34.13650833],[26.08474444,34.13655278],[26.08469444,34.16653889]],"pages":[3,4]},{"id":"PH35","area":9.0,"ore":"phosphate","c":[[26.11198056,34.13671111],[26.11180556,34.16669444],[26.08469444,34.16653889],[26.08486944,34.13655278],[26.11198056,34.13671111]],"pages":[4]},{"id":"PH33","area":9.0,"ore":"phosphate","c":[[26.13896944,34.13695556],[26.11197222,34.13670278],[26.11225833,34.10670833],[26.13906667,34.10695833],[26.13896944,34.13695556]],"pages":[4]},{"id":"PH15","area":6.0,"ore":"phosphate","c":[[26.329275,33.93776944],[26.32938333,33.90816389],[26.35646389,33.90826389],[26.35655833,33.91776111],[26.329275,33.93776944]],"pages":[4]},{"id":"PH19","area":9.0,"ore":"phosphate","c":[[26.32865278,34.108725],[26.32837222,34.138775],[26.30146111,34.138525],[26.30173889,34.108475],[26.32865278,34.108725]],"pages":[4]},{"id":"PH17","area":9.0,"ore":"phosphate","c":[[26.35567778,34.10897778],[26.35539722,34.13902778],[26.32837222,34.138775],[26.32865278,34.108725],[26.35567778,34.10897778]],"pages":[4]},{"id":"PH20","area":9.0,"ore":"phosphate","c":[[26.32837222,34.138775],[26.32843333,34.16881389],[26.30135278,34.16858889],[26.30146111,34.138525],[26.32837222,34.138775]],"pages":[4]},{"id":"PH23","area":9.0,"ore":"phosphate","c":[[26.27437778,34.13826667],[26.30127222,34.138525],[26.30111667,34.16850278],[26.27409444,34.16833333],[26.27437778,34.13826667]],"pages":[4]},{"id":"PH26","area":9.0,"ore":"phosphate","c":[[26.27437778,34.13826667],[26.27409444,34.16829722],[26.24718889,34.16804444],[26.247475,34.13801389],[26.27437778,34.13826667]],"pages":[4]},{"id":"PH28","area":9.0,"ore":"phosphate","c":[[26.24718889,34.16804444],[26.24677778,34.19817222],[26.21999444,34.19780833],[26.22013889,34.16767778],[26.24718889,34.16804444]],"pages":[4,5]},{"id":"PH16","area":9.0,"ore":"phosphate","c":[[26.35584167,34.07876111],[26.382925,34.07916111],[26.38281389,34.10931389],[26.35567778,34.10884167],[26.35584167,34.07876111]],"pages":[5]},{"id":"PH13","area":9.0,"ore":"phosphate","c":[[26.382925,34.07916111],[26.38337222,34.04893056],[26.410125,34.049325],[26.409675,34.07955833],[26.382925,34.07916111]],"pages":[5]},{"id":"PH8","area":9.0,"ore":"phosphate","c":[[26.51130833,33.93090556],[26.51139444,33.95208333],[26.492375,33.95220278],[26.49228889,33.931025],[26.51130833,33.93090556]],"pages":[5]},{"id":"PH7","area":9.0,"ore":"phosphate","c":[[26.50713889,33.90055833],[26.51859444,33.90505556],[26.51888333,33.92977778],[26.49456667,33.929275],[26.49498889,33.90168056],[26.50713889,33.90055833]],"pages":[5]},{"id":"PH5","area":9.0,"ore":"phosphate","c":[[26.51868333,33.98421389],[26.54591944,33.98445556],[26.54565556,34.01443611],[26.51841944,34.01419722],[26.51868333,33.98421389]],"pages":[5]},{"id":"PH6","area":9.0,"ore":"phosphate","c":[[26.54565556,34.01443611],[26.54539167,34.04439444],[26.51846389,34.04415833],[26.51872778,34.0142],[26.54565556,34.01443611]],"pages":[5]},{"id":"PH2","area":9.0,"ore":"phosphate","c":[[26.54583611,33.96476667],[26.57280833,33.96476667],[26.57280833,33.99496111],[26.54583611,33.99496111],[26.54583611,33.96476667]],"pages":[5]},{"id":"PH1","area":9.0,"ore":"phosphate","c":[[26.57258333,34.01561111],[26.57246944,33.98550833],[26.599925,33.98540556],[26.60003611,34.01550833],[26.57258333,34.01561111]],"pages":[5]}];
 
-const GOLD_STARS=[
-  [28.1,32.5],
-  [28.0,33.2],
-  [27.9,32.8],
-  [27.8,32.4],
-  [27.7,33.0],
-  [27.6,32.6],
-  [27.5,33.3],
-  [27.4,32.9],
-  [27.3,33.5],
-  [27.2,33.0],
-  [27.1,33.2],
-  [27.0,32.7],
-  [27.8,33.6],
-  [27.5,32.3],
-  [27.3,32.5],
-  [27.6,33.8],
-  [27.4,34.0],
-  [27.1,33.8],
-  [27.2,34.2],
-  [26.9,33.4],
-  [26.8,33.8],
-  [26.7,33.3],
-  [26.6,33.6],
-  [26.5,34.0],
-  [26.4,33.5],
-  [26.8,34.2],
-  [26.3,33.8],
-  [26.2,33.6],
-  [26.1,34.0],
-  [26.0,34.4],
-  [25.9,33.8],
-  [25.8,34.2],
-  [26.3,34.3],
-  [26.1,34.6],
-  [26.2,34.8],
-  [25.9,34.6],
-  [26.0,33.5],
-  [25.8,33.5],
-  [26.3,33.4],
-  [25.6,33.0],
-  [25.5,32.7],
-  [25.4,33.3],
-  [25.3,32.9],
-  [25.7,33.4],
-  [25.2,33.2],
-  [25.5,33.6],
-  [25.3,34.3],
-  [25.1,34.6],
-  [25.4,34.7],
-  [25.0,34.2],
-  [25.2,34.9],
-  [24.9,33.5],
-  [24.8,34.0],
-  [24.6,33.8],
-  [24.5,34.3],
-  [24.7,34.6],
-  [24.4,33.5],
-  [24.3,34.0],
-  [24.2,33.8],
-  [24.8,35.0],
-  [24.6,35.2],
-  [25.0,34.8],
-  [25.1,35.0],
-  [24.9,35.2],
-  [25.0,35.4],
-  [24.5,34.8],
-  [24.3,35.0],
-  [24.1,34.5],
-  [23.9,34.8],
-  [24.0,35.2],
-  [23.8,33.8],
-  [23.7,34.3],
-  [24.2,35.4],
-  [24.0,34.0],
-  [23.6,35.0],
-  [23.8,35.4],
-  [24.4,35.6],
-  [23.5,35.2],
-  [23.1,34.8],
-  [23.2,35.3],
-  [23.0,35.6],
-  [23.3,35.8],
-  [24.0,32.2],
-  [23.5,32.6],
-  [23.0,33.0],
-  [22.8,33.5],
-  [22.6,34.2],
-  [22.5,35.0],
-  [23.1,36.0],
-  [22.8,35.6],
-  [24.5,35.8],
-  [25.6,35.4],
-  [26.5,35.2],
-  [27.0,34.8]
-];
-
-const GOLD_ZONES=[
-  {p:'A',price:'4,000$',fill:'rgba(70,50,130,0.35)',stroke:'#4B3283',tc:'#2d1f6e',bounds:[[27.00,31.50],[28.25,34.50]]},
-  {p:'B',price:'3,500$',fill:'rgba(140,70,190,0.3)',stroke:'#8C46BE',tc:'#6b21a8',bounds:[[26.25,32.50],[27.00,34.50]]},
-  {p:'C',price:'5,000$',fill:'rgba(0,155,135,0.3)',stroke:'#009B87',tc:'#0f766e',bounds:[[25.50,33.00],[26.25,35.00]]},
-  {p:'D',price:'8,000$',fill:'rgba(145,105,45,0.35)',stroke:'#91692D',tc:'#78350f',bounds:[[25.00,32.50],[25.75,33.75]]},
-  {p:'E',price:'5,000$',fill:'rgba(105,65,175,0.3)',stroke:'#6941AF',tc:'#5b21b6',bounds:[[24.75,33.75],[25.50,35.00]]},
-  {p:'F',price:'5,500$',fill:'rgba(45,125,205,0.3)',stroke:'#2D7DCD',tc:'#1d4ed8',bounds:[[24.00,32.50],[25.25,35.50]]},
-  {p:'G',price:'6,000$',fill:'rgba(45,165,65,0.3)',stroke:'#2DA541',tc:'#15803d',bounds:[[24.75,34.50],[25.25,35.50]]},
-  {p:'H',price:'6,500$',fill:'rgba(205,65,105,0.3)',stroke:'#CD4169',tc:'#9f1239',bounds:[[23.25,32.75],[24.75,35.75]]},
-  {p:'I',price:'3,500$',fill:'rgba(0,145,125,0.3)',stroke:'#00917D',tc:'#0f766e',bounds:[[22.75,34.25],[23.25,36.00]]},
-];
-// Investment land plots (kaolin/gold prospecting parcels) - shown in green like EMRA's display
-const GOLD_PLOTS=[
-  {id:'kk1',c:[[24.117,32.8317],[24.117,32.8437],[24.125,32.8437],[24.125,32.8317],[24.117,32.8317]]},
-  {id:'kk2',c:[[24.1161,32.8143],[24.1161,32.8263],[24.1241,32.8263],[24.1241,32.8143],[24.1161,32.8143]]},
-  {id:'kk7',c:[[24.1065,32.8053],[24.1065,32.8173],[24.1145,32.8173],[24.1145,32.8053],[24.1065,32.8053]]},
-  {id:'kk6',c:[[24.1065,32.8119],[24.1065,32.8239],[24.1145,32.8239],[24.1145,32.8119],[24.1065,32.8119]]},
-  {id:'kk5',c:[[24.1074,32.8203],[24.1074,32.8323],[24.1154,32.8323],[24.1154,32.8203],[24.1074,32.8203]]},
-  {id:'kk4',c:[[24.1074,32.8314],[24.1074,32.8434],[24.1154,32.8434],[24.1154,32.8314],[24.1074,32.8314]]},
-  {id:'kk3',c:[[24.107,32.835],[24.107,32.847],[24.115,32.847],[24.115,32.835],[24.107,32.835]]},
-  {id:'k11',c:[[24.0885,32.8275],[24.0885,32.8395],[24.0965,32.8395],[24.0965,32.8275],[24.0885,32.8275]]},
-  {id:'kk10',c:[[24.0945,32.834],[24.0945,32.846],[24.1025,32.846],[24.1025,32.834],[24.0945,32.834]]},
-  {id:'kk9',c:[[24.0885,32.8413],[24.0885,32.8533],[24.0965,32.8533],[24.0965,32.8413],[24.0885,32.8413]]},
-  {id:'kk14',c:[[24.0789,32.8275],[24.0789,32.8395],[24.0869,32.8395],[24.0869,32.8275],[24.0789,32.8275]]},
-  {id:'kk13',c:[[24.0789,32.834],[24.0789,32.846],[24.0869,32.846],[24.0869,32.834],[24.0789,32.834]]},
-  {id:'kk12',c:[[24.0789,32.8398],[24.0789,32.8518],[24.0869,32.8518],[24.0869,32.8398],[24.0789,32.8398]]},
-  {id:'kk8',c:[[24.0885,32.8587],[24.0885,32.8707],[24.0965,32.8707],[24.0965,32.8587],[24.0885,32.8587]]},
-  {id:'kk15',c:[[24.033,32.8683],[24.033,32.8803],[24.041,32.8803],[24.041,32.8683],[24.033,32.8683]]},
-  {id:'kk16',c:[[24.021,32.8683],[24.021,32.8803],[24.029,32.8803],[24.029,32.8683],[24.021,32.8683]]},
-  {id:'ks1',c:[[29.02845,33.36848],[29.02845,33.38048],[29.03645,33.38048],[29.03645,33.36848],[29.02845,33.36848]]},
-  {id:'ks2',c:[[29.021,33.379],[29.021,33.391],[29.029,33.391],[29.029,33.379],[29.021,33.379]]},
-  {id:'ks3',c:[[28.986,33.379],[28.986,33.391],[28.994,33.391],[28.994,33.379],[28.986,33.379]]},
-  {id:'ks4',c:[[28.94308,33.54534],[28.94308,33.55734],[28.95108,33.55734],[28.95108,33.54534],[28.94308,33.54534]]},
-  {id:'ks5',c:[[28.941,33.559],[28.941,33.571],[28.949,33.571],[28.949,33.559],[28.941,33.559]]},
-  {id:'ks6',c:[[28.89854,33.35808],[28.89854,33.37008],[28.90654,33.37008],[28.90654,33.35808],[28.89854,33.35808]]},
-  {id:'ks7',c:[[28.896,33.372],[28.896,33.384],[28.904,33.384],[28.904,33.372],[28.896,33.372]]},
-  {id:'ks8',c:[[28.8837,33.62856],[28.8837,33.64056],[28.8917,33.64056],[28.8917,33.62856],[28.8837,33.62856]]},
-  {id:'ks9',c:[[28.876,33.654],[28.876,33.666],[28.884,33.666],[28.884,33.654],[28.876,33.654]]},
-  {id:'ks10',c:[[28.83173,33.69723],[28.83173,33.70923],[28.83973,33.70923],[28.83973,33.69723],[28.83173,33.69723]]},
-  {id:'ks11',c:[[28.821,33.719],[28.821,33.731],[28.829,33.731],[28.829,33.719],[28.821,33.719]]}
-];
 const MC={magnetite:'#059669',hematite:'#dc2626',limonite:'#d97706'};
 const MATNAMES={
   ar:{magnetite:'ماجنتيت',hematite:'هيماتيت',limonite:'ليمونيت'},
-  en:{magnetite:'Magnetite',hematite:'Hematite',limonite:'Limonite'}
+  en:{magnetite:'Magnetite',hematite:'Hematite',limonite:'Limonite'},
+  zh:{magnetite:'磁铁矿',hematite:'赤铁矿',limonite:'褐铁矿'}
 };
-const GC={A:{bg:'#ede9fe',tc:'#3b2080',sc:'#6450a0'},B:{bg:'#f5f3ff',tc:'#7c3aed',sc:'#9650c8'},C:{bg:'#ccfbf1',tc:'#0f766e',sc:'#00a08c'},D:{bg:'#fef3c7',tc:'#92400e',sc:'#966e32'},E:{bg:'#ede9fe',tc:'#6d28d9',sc:'#6e46b4'},F:{bg:'#dbeafe',tc:'#1e40af',sc:'#3282d2'},G:{bg:'#dcfce7',tc:'#166534',sc:'#32aa46'},H:{bg:'#ffe4e6',tc:'#9f1239',sc:'#d2466e'},I:{bg:'#ccfbf1',tc:'#115e59',sc:'#009682'}};
-const PRICES={A:'4,000$',B:'3,500$',C:'5,000$',D:'8,000$',E:'5,000$',F:'5,500$',G:'6,000$',H:'6,500$',I:'3,500$'};
+const GC={A:{bg:'#E8E8F4',tc:'#474A83',sc:'#7477AA'},B:{bg:'#F0EAFF',tc:'#6D55B8',sc:'#B39BEF'},C:{bg:'#DDF8F0',tc:'#167B6E',sc:'#75CDBB'},D:{bg:'#F3E7C1',tc:'#876A18',sc:'#C9B46E'},E:{bg:'#EFE8FF',tc:'#6F48C9',sc:'#9A7BE1'},F:{bg:'#E3F4FF',tc:'#2476A6',sc:'#6CAED7'},G:{bg:'#DDFEE4',tc:'#18762A',sc:'#57D46F'},H:{bg:'#FFE4EE',tc:'#A92859',sc:'#D76A95'},I:{bg:'#DFEFE6',tc:'#2E6F52',sc:'#679B82'}};
+const PRICES={A:'6,000$',B:'5,000$',C:'7,000$',D:'8,000$',E:'7,000$',F:'7,000$',G:'7,000$',H:'7,000$',I:'5,000$'};
 
 // Map
 const map=L.map('map',{center:[26.0,33.5],zoom:7,maxZoom:19});
+window.AIT_MAP = map;
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'Esri, Maxar, Earthstar Geographics',maxZoom:19,maxNativeZoom:19}).addTo(map);
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,maxNativeZoom:19,opacity:0.9}).addTo(map);
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,maxNativeZoom:13,opacity:0.9}).addTo(map);
 
 // Layers
-let blkL=null,goldL=null;
-const on={blocks:false,gold:false};
-
-// ── EMRA Blocks: render from real extracted coordinates ─────────────
-function makeBlocks() {
-  const g = L.layerGroup();
-  EMRA_BLOCKS.forEach(b=>{
-    const latlngs = b.c.map(p=>[p[0],p[1]]);
-    L.polygon(latlngs,{
-      color:'#2563eb',weight:0.8,opacity:0.9,fillColor:'#93c5fd',fillOpacity:0.18
-    }).bindPopup(
-      '<div style="direction:rtl"><b style="color:#1d4ed8;font-size:14px">'+b.id+'</b><br>'+
-      '<span style="font-size:11px;color:#666">Open Block — EMRA Official</span></div>',
-      {maxWidth:200}
-    ).addTo(g);
-    const lats=latlngs.map(p=>p[0]),lngs=latlngs.map(p=>p[1]);
-    const clat=(Math.min(...lats)+Math.max(...lats))/2;
-    const clng=(Math.min(...lngs)+Math.max(...lngs))/2;
-    L.marker([clat,clng],{
-      icon:L.divIcon({
-        html:'<span style="font-size:9px;font-weight:800;color:#1e3a8a;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;pointer-events:none">'+b.id+'</span>',
-        className:'',iconAnchor:[20,6]
-      }),interactive:false,zIndexOffset:200
-    }).addTo(g);
-  });
-  return g;
-}
-
-function pointInBounds(lat,lng,bounds){
-  return lat>=bounds[0][0] && lat<=bounds[1][0] && lng>=bounds[0][1] && lng<=bounds[1][1];
-}
+let oreLayerGroups={};
+let goldAreasLayer=null;
+const on={gold:false,goldareas:false,talc:false,kaolin:false,phosphate:false};
+const GOLD_STARS=[];
+const GOLD_AREA_META=[{"id":"A","bounds":[[26.875,32.625],[28.001,33.875]],"fill":"rgba(158,160,198,.48)","stroke":"#7477AA","text":"#474A83","price":"6,000$"},{"id":"B","bounds":[[26.625,33.0],[27.0,33.875]],"fill":"rgba(203,189,248,.46)","stroke":"#B39BEF","text":"#6D55B8","price":"5,000$"},{"id":"C","bounds":[[25.75,33.0],[26.625,34.25]],"fill":"rgba(197,240,228,.46)","stroke":"#75CDBB","text":"#167B6E","price":"7,000$"},{"id":"D","bounds":[[25.25,33.5],[25.75,34.0]],"fill":"rgba(232,216,168,.52)","stroke":"#C9B46E","text":"#876A18","price":"8,000$"},{"id":"E","bounds":[[25.125,34.125],[25.625,34.625]],"fill":"rgba(183,156,235,.46)","stroke":"#9A7BE1","text":"#6F48C9","price":"7,000$"},{"id":"F","bounds":[[24.875,33.0],[25.25,34.375]],"fill":"rgba(169,213,240,.50)","stroke":"#6CAED7","text":"#2476A6","price":"7,000$"},{"id":"G","bounds":[[24.625,33.625],[25.0,35.0]],"fill":"rgba(168,245,182,.46)","stroke":"#57D46F","text":"#18762A","price":"7,000$"},{"id":"H","bounds":[[23.875,33.625],[24.625,35.375]],"fill":"rgba(238,157,186,.46)","stroke":"#D76A95","text":"#A92859","price":"7,000$"},{"id":"I","bounds":[[23.0,34.25],[23.875,35.375]],"fill":"rgba(155,195,174,.52)","stroke":"#679B82","text":"#2E6F52","price":"5,000$"}];
+const BLOCK_LAYER_META={
+  gold:{title:'Gold Blocks',titleAr:'بلوكات الذهب',titleZh:'黄金区块',blocks:GOLD_BLOCKS,fill:'rgba(255,215,0,.22)',stroke:'#2563EB',text:'#111827',z:260},
+  talc:{title:'Talc Ore',titleAr:'بلوكات Talc Ore',titleZh:'滑石矿区块',blocks:TALC_BLOCKS,fill:'rgba(139,92,246,.30)',stroke:'#7C3AED',text:'#5b21b6',z:250},
+  kaolin:{title:'Kaolin_Kalabsha',titleAr:'بلوكات Kaolin_Kalabsha',titleZh:'高岭土区块',blocks:KAOLIN_BLOCKS,fill:'rgba(34,197,94,.28)',stroke:'#16A34A',text:'#166534',z:240},
+  phosphate:{title:'Phosphate Ore',titleAr:'بلوكات Phosphate Ore',titleZh:'磷酸盐矿区块',blocks:PHOSPHATE_BLOCKS,fill:'rgba(249,115,22,.28)',stroke:'#EA580C',text:'#9a3412',z:230}
+};
 function blockCentroid(c){
   const lats=c.map(p=>p[0]),lngs=c.map(p=>p[1]);
   return [(Math.min(...lats)+Math.max(...lats))/2,(Math.min(...lngs)+Math.max(...lngs))/2];
 }
-function makeGold(){
+function blockAreaLabel(b){
+  if(b.area===null || b.area===undefined || Number.isNaN(Number(b.area))) return '-';
+  const n=Number(b.area);
+  return Number.isInteger(n) ? String(n) : String(n);
+}
+function localizedLayerTitle(meta){
+  if(LANG==='ar') return meta.titleAr || meta.title;
+  if(LANG==='zh') return meta.titleZh || meta.title;
+  return meta.title;
+}
+function packageLabel(id){ return t('pkgPrefix')+' '+id+' - '+PRICES[id]; }
+function pointInBounds(lat,lng,bounds){
+  return lat>=bounds[0][0] && lat<=bounds[1][0] && lng>=bounds[0][1] && lng<=bounds[1][1];
+}
+function findAreaByCentroid(lat,lng){
+  // The gold package layer is rendered by coloring the official GOLD_BLOCKS polygons only.
+  // No package rectangle is drawn over the base map, so country/city labels remain visible.
+  // Southern/eastern areas are checked first to resolve controlled overlaps in the reference map.
+  for(let i=GOLD_AREA_META.length-1;i>=0;i--){
+    const a=GOLD_AREA_META[i];
+    if(pointInBounds(lat,lng,a.bounds)) return a;
+  }
+  return null;
+}
+function showBlockLabels(){ return map && map.getZoom && map.getZoom() >= 9; }
+function showAreaLabels(){ return map && map.getZoom && map.getZoom() >= 7; }
+function blockTextLabel(lat,lng,text,color,z){
+  return L.marker([lat,lng],{
+    icon:L.divIcon({
+      html:'<div style="font-size:10px;font-weight:800;color:'+color+';white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;pointer-events:none">'+text+'</div>',
+      className:'',iconAnchor:[18,8]
+    }),interactive:false,zIndexOffset:z||320
+  });
+}
+function makeOreLayer(layerKey){
+  const meta=BLOCK_LAYER_META[layerKey];
   const g=L.layerGroup();
-  // Render each EMRA block as an individual land-plot, shaded/labeled by its gold package
-  EMRA_BLOCKS.forEach(b=>{
-    const [clat,clng]=blockCentroid(b.c);
-    const zone = GOLD_ZONES.find(z=>pointInBounds(clat,clng,z.bounds));
-    if(!zone) return;
+  const drawLabels=showBlockLabels();
+  meta.blocks.forEach(b=>{
     const latlngs=b.c.map(p=>[p[0],p[1]]);
-    L.polygon(latlngs,{
-      color:zone.stroke,weight:1.2,opacity:0.9,fillColor:zone.fill.replace(/,[\d.]+\)$/,',0.45)'),fillOpacity:1
-    }).bindPopup(
-      '<div style="direction:rtl;min-width:160px">'+
-      '<div style="font-size:14px;font-weight:800;color:'+zone.tc+';margin-bottom:4px">'+b.id+'</div>'+
-      '<div class="prow"><span class="pkey">Package</span><span class="pval" style="color:'+zone.tc+'">'+zone.p+'</span></div>'+
-      '<div class="prow"><span class="pkey">السعر</span><span class="pval" style="color:'+zone.tc+'">'+zone.price+'</span></div>'+
-      '</div>'
+    const [clat,clng]=blockCentroid(b.c);
+    L.polygon(latlngs,{color:meta.stroke,weight:1.25,opacity:.95,fillColor:meta.fill,fillOpacity:1}).bindPopup(
+      '<div style="direction:'+textDir()+';min-width:180px">'+
+      '<div style="font-size:14px;font-weight:800;color:'+meta.text+';margin-bottom:5px">'+b.id+'</div>'+
+      '<div class="prow"><span class="pkey">Ore</span><span class="pval" style="color:'+meta.text+'">'+(b.ore||localizedLayerTitle(meta))+'</span></div>'+
+      '<div class="prow"><span class="pkey">Area</span><span class="pval">'+blockAreaLabel(b)+'</span></div>'+
+      '</div>',{maxWidth:240}
     ).addTo(g);
-    // Plot letter/code label
-    L.marker([clat,clng],{
-      icon:L.divIcon({
-        html:'<div style="font-size:10px;font-weight:800;color:'+zone.tc+';white-space:nowrap;background:rgba(255,255,255,.85);padding:1px 4px;border-radius:3px;border:1px solid '+zone.stroke+';pointer-events:none">'+b.id+'</div>',
-        className:'',iconAnchor:[18,8]
-      }),interactive:false,zIndexOffset:300
-    }).addTo(g);
-  });
-  // Package zone outline + big letter marker (kept for overview/navigation)
-  GOLD_ZONES.forEach(z=>{
-    L.rectangle(z.bounds,{color:z.stroke,weight:2,opacity:0.8,fill:false,dashArray:'6,4'}).addTo(g);
-    const cl=(z.bounds[0][0]+z.bounds[1][0])/2,cn=(z.bounds[0][1]+z.bounds[1][1])/2;
-    L.marker([cl,cn],{icon:L.divIcon({html:'<div style="width:38px;height:38px;background:white;border:3px solid '+z.stroke+';border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;color:'+z.tc+';box-shadow:0 2px 10px rgba(0,0,0,0.35);font-family:Arial">'+z.p+'</div>',className:'',iconAnchor:[19,19]}),zIndexOffset:600}
-    ).bindPopup('<div style="direction:rtl;min-width:180px"><div style="font-size:16px;font-weight:800;color:'+z.tc+';margin-bottom:6px">Package '+z.p+'</div><div class="prow"><span class="pkey">السعر</span><span class="pval" style="color:'+z.tc+'">'+z.price+'</span></div></div>').addTo(g);
-  });
-  // Gold occurrence stars
-  const sv='<svg width="16" height="16" viewBox="0 0 24 24"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" fill="#FFD700" stroke="#B8860B" stroke-width="1.8"/></svg>';
-  GOLD_STARS.forEach(([la,ln])=>{L.marker([la,ln],{icon:L.divIcon({html:sv,className:'',iconAnchor:[8,8]}),interactive:false,zIndexOffset:500}).addTo(g);});
-  // Investment land plots (kk/ks parcels) - green outlined per EMRA style
-  GOLD_PLOTS.forEach(p=>{
-    const latlngs=p.c.map(pt=>[pt[0],pt[1]]);
-    L.polygon(latlngs,{color:'#22c55e',weight:1.5,opacity:0.95,fillColor:'#86efac',fillOpacity:0.25}).bindPopup(
-      '<div style="direction:rtl"><b style="color:#15803d;font-size:14px">'+p.id+'</b><br>'+
-      '<span style="font-size:11px;color:#666">قطعة أرض استثمارية</span></div>',{maxWidth:200}
-    ).addTo(g);
-    const [clat,clng]=blockCentroid(p.c);
-    L.marker([clat,clng],{
-      icon:L.divIcon({
-        html:'<span style="font-size:10px;font-weight:800;color:#15803d;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;pointer-events:none">'+p.id+'</span>',
-        className:'',iconAnchor:[14,6]
-      }),interactive:false,zIndexOffset:300
-    }).addTo(g);
+    if(drawLabels) blockTextLabel(clat,clng,b.id,meta.text,meta.z).addTo(g);
   });
   return g;
 }
-
+function makeGoldAreasLayer(){
+  const g=L.layerGroup();
+  const included={};
+  const drawBlockLabels=showBlockLabels();
+  const drawAreaLabels=showAreaLabels();
+  GOLD_AREA_META.forEach(a=>included[a.id]=[]);
+  GOLD_BLOCKS.forEach(b=>{
+    const [clat,clng]=blockCentroid(b.c);
+    const a=findAreaByCentroid(clat,clng);
+    if(!a) return;
+    included[a.id].push([clat,clng]);
+    const latlngs=b.c.map(p=>[p[0],p[1]]);
+    L.polygon(latlngs,{color:a.stroke,weight:1.15,opacity:.96,fillColor:a.fill,fillOpacity:1}).bindPopup(
+      '<div style="direction:'+textDir()+';min-width:180px">'+
+      '<div style="font-size:15px;font-weight:900;color:'+a.text+';margin-bottom:5px">'+packageLabel(a.id)+'</div>'+
+      '<div class="prow"><span class="pkey">'+t('popupBlock')+'</span><span class="pval">'+b.id+'</span></div>'+
+      '<div class="prow"><span class="pkey">'+t('popupArea')+'</span><span class="pval" style="color:'+a.text+'">'+a.id+'</span></div>'+
+      '<div class="prow"><span class="pkey">'+t('popupPrice')+'</span><span class="pval" style="color:'+a.text+'">'+a.price+'</span></div>'+
+      '</div>',{maxWidth:240}
+    ).addTo(g);
+    if(drawBlockLabels) blockTextLabel(clat,clng,b.id,'#111827',320).addTo(g);
+  });
+  if(drawAreaLabels){
+    GOLD_AREA_META.forEach(a=>{
+      let pts=included[a.id];
+      let clat=(a.bounds[0][0]+a.bounds[1][0])/2, clng=(a.bounds[0][1]+a.bounds[1][1])/2;
+      if(pts.length){clat=pts.reduce((s,p)=>s+p[0],0)/pts.length;clng=pts.reduce((s,p)=>s+p[1],0)/pts.length;}
+      L.marker([clat,clng],{icon:L.divIcon({html:'<div style="width:34px;height:34px;background:rgba(255,255,255,.93);border:2.5px solid #111827;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:#111827;box-shadow:0 2px 8px rgba(0,0,0,.28);font-family:Arial;pointer-events:none">'+a.id+'</div>',className:'',iconAnchor:[17,17]}),interactive:false,zIndexOffset:560})
+       .addTo(g);
+    });
+  }
+  // No guessed Gold Occurrences are drawn. Official occurrence coordinates can be added here when supplied.
+  return g;
+}
 function toggleLayer(name){
+  if(name==='goldareas'){
+    on.goldareas=!on.goldareas;
+    const btn=document.getElementById('btn-goldareas'); if(btn) btn.classList.toggle('active',on.goldareas);
+    const leg=document.getElementById('leg-goldareas'); if(leg) leg.style.display=on.goldareas?'block':'none';
+    if(on.goldareas){ if(!goldAreasLayer) goldAreasLayer=makeGoldAreasLayer(); goldAreasLayer.addTo(map); }
+    else{ if(goldAreasLayer){ map.removeLayer(goldAreasLayer); goldAreasLayer=null; } }
+    return;
+  }
+  if(!BLOCK_LAYER_META[name]) return;
   on[name]=!on[name];
-  document.getElementById('btn-'+name).classList.toggle('on',on[name]);
-  document.getElementById('leg-'+name).style.display=on[name]?'block':'none';
-  if(name==='blocks'){
-    if(on.blocks){if(!blkL)blkL=makeBlocks();blkL.addTo(map);}
-    else{if(blkL){map.removeLayer(blkL);blkL=null;}}
+  const btn=document.getElementById('btn-'+name);
+  if(btn) btn.classList.toggle('active',on[name]);
+  const leg=document.getElementById('leg-'+name);
+  if(leg) leg.style.display=on[name]?'block':'none';
+  if(on[name]){
+    if(!oreLayerGroups[name]) oreLayerGroups[name]=makeOreLayer(name);
+    oreLayerGroups[name].addTo(map);
+  }else{
+    if(oreLayerGroups[name]){map.removeLayer(oreLayerGroups[name]);oreLayerGroups[name]=null;}
   }
-  if(name==='gold'){
-    if(on.gold){if(!goldL)goldL=makeGold();goldL.addTo(map);}
-    else{if(goldL){map.removeLayer(goldL);goldL=null;}}
+}
+function rebuildActiveLayers(){
+  Object.keys(oreLayerGroups).forEach(k=>{ if(oreLayerGroups[k]){map.removeLayer(oreLayerGroups[k]); oreLayerGroups[k]=null;} });
+  if(goldAreasLayer){map.removeLayer(goldAreasLayer); goldAreasLayer=null;}
+  Object.keys(on).forEach(k=>{
+    if(!on[k]) return;
+    if(k==='goldareas'){goldAreasLayer=makeGoldAreasLayer(); goldAreasLayer.addTo(map);}
+    else if(BLOCK_LAYER_META[k]){oreLayerGroups[k]=makeOreLayer(k); oreLayerGroups[k].addTo(map);}
+  });
+}
+function pointInPolygon(lat,lng,poly){
+  let inside=false;
+  for(let i=0,j=poly.length-1;i<poly.length;j=i++){
+    const yi=poly[i][0], xi=poly[i][1];
+    const yj=poly[j][0], xj=poly[j][1];
+    const intersect=((yi>lat)!=(yj>lat)) && (lng < (xj-xi)*(lat-yi)/(yj-yi+0.0)+xi);
+    if(intersect) inside=!inside;
   }
+  return inside;
+}
+function findContainingBlock(lat,lng){
+  const order=['gold','talc','kaolin','phosphate'];
+  for(const key of order){
+    const meta=BLOCK_LAYER_META[key];
+    for(const b of meta.blocks){
+      if(pointInPolygon(lat,lng,b.c)) return {id:b.id,ore:key,area:b.area};
+    }
+  }
+  return null;
+}
+function findContainingGoldArea(lat,lng){ return findAreaByCentroid(lat,lng); }
+function refreshMineBlocks(){
+  mines.forEach(m=>{
+    const lat=Number(m.lat), lng=Number(m.lng);
+    const hit=findContainingBlock(lat,lng);
+    if(hit){
+      m.block=hit.id;
+      m.blockEn=hit.id;
+      m.blockOre=hit.ore;
+    }else{
+      m.blockOre='';
+      if(!m.block || m.block==='—'){m.block=t('noBlock');m.blockEn='Outside Range';}
+    }
+    const a=findContainingGoldArea(lat,lng);
+    if(a){ m.goldArea=a.id; m.goldPrice=a.price; m.gp=a.id; }
+    else{ m.goldArea=''; m.goldPrice=''; }
+  });
 }
 
 function mkIcon(m){const c=MC[m.mat]||'#888',bd=m.status==='registered'?'#16a34a':'#dc2626',lbl=m.code.length>4?m.code.slice(0,4):m.code;return L.divIcon({html:'<svg xmlns="http://www.w3.org/2000/svg" width="46" height="56"><circle cx="23" cy="22" r="20" fill="'+c+'" stroke="'+bd+'" stroke-width="3"/><text x="23" y="27" text-anchor="middle" fill="white" font-size="10" font-weight="800" font-family="Arial">'+lbl+'</text><polygon points="23,47 16,34 30,34" fill="'+c+'"/></svg>',className:'',iconSize:[46,56],iconAnchor:[23,52],popupAnchor:[0,-52]});}
+function areaBadgeHtml(m,cls){
+  if(!m.goldArea) return '';
+  const gc=GC[m.goldArea]||GC[m.gp]||GC.A;
+  const label=(cls==='pblk'?packageLabel(m.goldArea):(m.goldArea+' - '+PRICES[m.goldArea]));
+  return '<span class="'+cls+'" style="background:'+gc.bg+';color:'+gc.tc+';border-color:'+gc.sc+'">'+label+'</span>';
+}
 function pH(m){
-  const c=MC[m.mat]||'#888',gc=GC[m.gp],gb=m.gp!=='—'?'<span class="pblk" style="background:'+gc.bg+';color:'+gc.tc+';border-color:'+gc.sc+'">Pkg '+m.gp+' · '+PRICES[m.gp]+'</span>':'';
-  const gov = LANG==='en' ? (m.govEn||m.gov) : m.gov;
-  const region = LANG==='en' ? (m.regionEn||m.region) : m.region;
-  const block = LANG==='en' ? (m.blockEn||m.block) : m.block;
-  const mat = MATNAMES[LANG][m.mat] || m.mat;
+  const c=MC[m.mat]||'#888';
+  const gov = LANG==='ar' ? (m.gov||m.govEn) : (m.govEn||m.gov);
+  const region = LANG==='ar' ? (m.region||m.regionEn) : (m.regionEn||m.region);
+  const block = LANG==='ar' ? (m.block||m.blockEn) : (m.blockEn||m.block);
+  const mat = (MATNAMES[LANG] && MATNAMES[LANG][m.mat]) || MATNAMES.en[m.mat] || m.mat;
   const statusTxt = m.status==='registered' ? t('statusRegistered') : t('statusNotRegistered');
-  return '<div style="direction:'+(LANG==='ar'?'rtl':'ltr')+'"><div class="ptitle" style="color:'+c+'">⛏️ '+m.name+'</div>'+
-    '<div class="prow"><span class="pkey">'+t('popupCode')+'</span><span class="pval">'+m.code+'</span></div>'+
-    '<div class="prow"><span class="pkey">'+t('popupLocation')+'</span><span class="pval">'+gov+' · '+region+'</span></div>'+
-    '<div class="prow"><span class="pkey">'+t('popupMaterial')+'</span><span class="pval" style="color:'+c+'">'+mat+'</span></div>'+
-    '<div class="prow"><span class="pkey">'+t('popupStatus')+'</span><span class="pval">'+statusTxt+'</span></div>'+
-    '<div class="prow"><span class="pkey">'+t('popupQty')+'</span><span class="pval">'+m.qty.toLocaleString()+'</span></div>'+
-    '<div class="prow"><span class="pkey">Fe</span><span class="pval">'+Math.round(m.fe*100)+'%</span></div>'+
-    '<div class="prow"><span class="pkey">'+t('popupOwner')+'</span><span class="pval">'+m.owner+'</span></div>'+
-    '<div class="pbadges"><span class="pblk">'+block+'</span>'+gb+'</div></div>';
+  const areaRow = m.goldArea ? '<div class="prow"><span class="pkey">'+t('popupArea')+'</span><span class="pval">'+packageLabel(m.goldArea)+'</span></div>' : '';
+  return '<div style="direction:'+textDir()+'"><div class="ptitle" style="color:'+c+'">⛏️ '+m.name+'</div>'+ 
+    '<div class="prow"><span class="pkey">'+t('popupCode')+'</span><span class="pval">'+m.code+'</span></div>'+ 
+    '<div class="prow"><span class="pkey">'+t('popupLocation')+'</span><span class="pval">'+gov+' · '+region+'</span></div>'+ 
+    '<div class="prow"><span class="pkey">'+t('popupMaterial')+'</span><span class="pval" style="color:'+c+'">'+mat+'</span></div>'+ 
+    '<div class="prow"><span class="pkey">'+t('popupStatus')+'</span><span class="pval">'+statusTxt+'</span></div>'+ 
+    '<div class="prow"><span class="pkey">'+t('popupQty')+'</span><span class="pval">'+m.qty.toLocaleString()+'</span></div>'+ 
+    '<div class="prow"><span class="pkey">Fe</span><span class="pval">'+Math.round(m.fe*100)+'%</span></div>'+ 
+    '<div class="prow"><span class="pkey">'+t('popupOwner')+'</span><span class="pval">'+m.owner+'</span></div>'+ 
+    '<div class="prow"><span class="pkey">'+t('popupBlock')+'</span><span class="pval">'+block+'</span></div>'+areaRow+
+    '<div class="pbadges"><span class="pblk">'+block+'</span>'+areaBadgeHtml(m,'pblk')+'</div></div>';
 }
 
 let markers=[],filtered=[...mines],selIdx=null;
-function drawMarkers(){markers.forEach(mk=>map.removeLayer(mk));markers=[];filtered.forEach(m=>{const mk=L.marker([m.lat,m.lng],{icon:mkIcon(m)}).addTo(map);mk.bindPopup(pH(m),{maxWidth:300});mk.on('click',()=>{selIdx=mines.indexOf(m);renderCards();});markers.push(mk);});}
+function drawMarkers(){refreshMineBlocks();markers.forEach(mk=>map.removeLayer(mk));markers=[];filtered.forEach(m=>{const mk=L.marker([m.lat,m.lng],{icon:mkIcon(m)}).addTo(map);mk.bindPopup(pH(m),{maxWidth:300});mk.on('click',()=>{selIdx=mines.indexOf(m);renderCards();});markers.push(mk);});}
 function renderStats(){
   const tot=filtered.length,r=filtered.filter(m=>m.status==='registered').length,q=filtered.reduce((s,m)=>s+(m.qty||0),0),gvs=new Set(filtered.map(m=>m.gov)).size;
   const fmt=n=>n>=1000?(n/1000).toFixed(0)+'K':n;
@@ -926,19 +844,19 @@ function renderStats(){
   if(!el) return;
   el.innerHTML=`
     <div style="background:#fff;border-radius:10px;padding:8px 14px;border-top:3px solid #2980B9;box-shadow:0 2px 8px rgba(0,0,0,.06);min-width:80px;text-align:center;transition:all .2s">
-      <div style="font-size:9px;font-weight:600;color:#8892a4;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Mines</div>
+      <div style="font-size:9px;font-weight:600;color:#8892a4;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">${t('statMines')}</div>
       <div style="font-size:20px;font-weight:800;color:#2980B9;line-height:1">${tot}</div>
     </div>
     <div style="background:#fff;border-radius:10px;padding:8px 14px;border-top:3px solid #059669;box-shadow:0 2px 8px rgba(0,0,0,.06);min-width:80px;text-align:center;transition:all .2s">
-      <div style="font-size:9px;font-weight:600;color:#8892a4;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Registered</div>
+      <div style="font-size:9px;font-weight:600;color:#8892a4;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">${t('statRegistered')}</div>
       <div style="font-size:20px;font-weight:800;color:#059669;line-height:1">${r}</div>
     </div>
     <div style="background:#fff;border-radius:10px;padding:8px 14px;border-top:3px solid #8E44AD;box-shadow:0 2px 8px rgba(0,0,0,.06);min-width:80px;text-align:center;transition:all .2s">
-      <div style="font-size:9px;font-weight:600;color:#8892a4;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Governorates</div>
+      <div style="font-size:9px;font-weight:600;color:#8892a4;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">${t('statGov')}</div>
       <div style="font-size:20px;font-weight:800;color:#8E44AD;line-height:1">${gvs}</div>
     </div>
     <div style="background:#fff;border-radius:10px;padding:8px 14px;border-top:3px solid #FF6B35;box-shadow:0 2px 8px rgba(0,0,0,.06);min-width:80px;text-align:center;transition:all .2s">
-      <div style="font-size:9px;font-weight:600;color:#8892a4;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Ton/Month</div>
+      <div style="font-size:9px;font-weight:600;color:#8892a4;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">${t('statQty')}</div>
       <div style="font-size:20px;font-weight:800;color:#FF6B35;line-height:1">${fmt(q)}</div>
     </div>
   `;
@@ -952,48 +870,67 @@ function clearMinesFilters(){
   applyFilters();
 }
 function renderCards(){
+  refreshMineBlocks();
   document.getElementById('mlist').innerHTML=filtered.map(m=>{
-    const idx=mines.indexOf(m),c=MC[m.mat]||'#888',gc=GC[m.gp];
-    const gb=m.gp!=='—'?'<span class="gbadge" style="background:'+gc.bg+';color:'+gc.tc+';border-color:'+gc.sc+'">'+m.gp+' · '+PRICES[m.gp]+'</span>':'';
-    const gov = LANG==='en' ? (m.govEn||m.gov) : m.gov;
-    const region = LANG==='en' ? (m.regionEn||m.region) : m.region;
-    const block = LANG==='en' ? (m.blockEn||m.block) : m.block;
-    const mat = MATNAMES[LANG][m.mat] || m.mat;
+    const idx=mines.indexOf(m),c=MC[m.mat]||'#888';
+    const gov = LANG==='ar' ? (m.gov||m.govEn) : (m.govEn||m.gov);
+    const region = LANG==='ar' ? (m.region||m.regionEn) : (m.regionEn||m.region);
+    const block = LANG==='ar' ? (m.block||m.blockEn) : (m.blockEn||m.block);
+    const mat = (MATNAMES[LANG] && MATNAMES[LANG][m.mat]) || MATNAMES.en[m.mat] || m.mat;
     const statusBadge = m.status==='registered' ? t('badgeRegistered') : t('badgeNotRegistered');
     const contractTxt = (I18N[LANG].contracts && I18N[LANG].contracts[m.contract]) || m.contract;
+    const gb=areaBadgeHtml(m,'gbadge');
     return '<div class="mcard'+(selIdx===idx?' active':'')+'" onclick="selMine('+idx+')">'+
-      '<div class="chead"><div class="avatar" style="background:'+c+'">'+m.code.slice(0,3)+'</div>'+
-      '<div><div class="cname">'+m.name+'</div><div class="csub">'+gov+' · '+region+'</div></div>'+
-      '<div class="cbadges"><span class="blkbadge">'+block+'</span>'+gb+'</div></div>'+
+      '<div class="chead"><div class="avatar" style="background:'+c+'">'+m.code.slice(0,3)+'</div>'+ 
+      '<div><div class="cname">'+m.name+'</div><div class="csub">'+gov+' · '+region+'</div></div>'+ 
+      '<div class="cbadges"><span class="blkbadge">'+block+'</span>'+gb+'</div></div>'+ 
       '<div class="cgrid">'+
-      '<div class="crow"><div class="key">'+t('cardMaterial')+'</div><div class="val" style="color:'+c+'">'+mat+'</div></div>'+
-      '<div class="crow"><div class="key">'+t('cardStatus')+'</div><div class="val"><span class="'+(m.status==='registered'?'breg':'bunreg')+'">'+statusBadge+'</span></div></div>'+
-      '<div class="crow"><div class="key">'+t('cardQty')+'</div><div class="val">'+m.qty.toLocaleString()+'</div></div>'+
-      '<div class="crow"><div class="key">Fe</div><div class="val">'+Math.round(m.fe*100)+'%</div></div>'+
-      '<div class="crow"><div class="key">'+t('cardOwner')+'</div><div class="val">'+m.owner+'</div></div>'+
-      '<div class="crow"><div class="key">'+t('cardContract')+'</div><div class="val">'+contractTxt+'</div></div>'+
+      '<div class="crow"><div class="key">'+t('cardMaterial')+'</div><div class="val" style="color:'+c+'">'+mat+'</div></div>'+ 
+      '<div class="crow"><div class="key">'+t('cardStatus')+'</div><div class="val"><span class="'+(m.status==='registered'?'breg':'bunreg')+'">'+statusBadge+'</span></div></div>'+ 
+      '<div class="crow"><div class="key">'+t('cardQty')+'</div><div class="val">'+m.qty.toLocaleString()+'</div></div>'+ 
+      '<div class="crow"><div class="key">Fe</div><div class="val">'+Math.round(m.fe*100)+'%</div></div>'+ 
+      '<div class="crow"><div class="key">'+t('cardOwner')+'</div><div class="val">'+m.owner+'</div></div>'+ 
+      '<div class="crow"><div class="key">'+t('cardContract')+'</div><div class="val">'+contractTxt+'</div></div>'+ 
+      '<div class="crow"><div class="key">'+t('cardBlock')+'</div><div class="val">'+block+'</div></div>'+ 
+      '<div class="crow"><div class="key">'+t('cardArea')+'</div><div class="val">'+(m.goldArea?packageLabel(m.goldArea):'-')+'</div></div>'+ 
       '</div></div>';
   }).join('');
 }
 function selMine(idx){selIdx=selIdx===idx?null:idx;renderCards();if(selIdx!==null){const m=mines[idx];map.setView([m.lat,m.lng],14,{animate:true});const fi=filtered.indexOf(m);if(fi>=0&&markers[fi])markers[fi].openPopup();}}
-function applyFilters(){const mat=document.getElementById('fmat').value,st=document.getElementById('fstatus').value,gov=document.getElementById('fgov').value,gld=document.getElementById('fgold').value;filtered=mines.filter(m=>(!mat||m.mat===mat)&&(!st||m.status===st)&&(!gov||m.gov===gov)&&(!gld||m.gp===gld));selIdx=null;renderStats();renderCards();drawMarkers();}
+function applyFilters(){const mat=document.getElementById('fmat').value,st=document.getElementById('fstatus').value,gov=document.getElementById('fgov').value,gld=document.getElementById('fgold').value;refreshMineBlocks();filtered=mines.filter(m=>(!mat||m.mat===mat)&&(!st||m.status===st)&&(!gov||m.gov===gov)&&(!gld||m.goldArea===gld||m.gp===gld));selIdx=null;renderStats();renderCards();drawMarkers();}
 function populateGovDropdown(){
   const gs=document.getElementById('fgov');
+  if(!gs) return;
   const cur=gs.value;
-  // remove all but first option
   while(gs.options.length>1) gs.remove(1);
   const seen=new Set();
   mines.forEach(m=>{
     if(seen.has(m.gov)) return;
     seen.add(m.gov);
     const o=document.createElement('option');
-    o.value=m.gov; // value stays Arabic (used for filtering)
-    o.textContent = LANG==='en' ? (m.govEn||m.gov) : m.gov;
+    o.value=m.gov;
+    o.textContent = LANG==='ar' ? (m.gov||m.govEn) : (m.govEn||m.gov);
     gs.appendChild(o);
   });
   gs.value=cur;
 }
+function populateGoldDropdown(){
+  const sel=document.getElementById('fgold');
+  if(!sel) return;
+  const cur=sel.value;
+  sel.innerHTML='';
+  const opt=document.createElement('option');
+  opt.value=''; opt.textContent=t('optAllGold'); sel.appendChild(opt);
+  Object.keys(PRICES).forEach(id=>{
+    const o=document.createElement('option');
+    o.value=id; o.textContent=packageLabel(id); sel.appendChild(o);
+  });
+  sel.value=cur;
+}
+applyI18n();
 populateGovDropdown();
+populateGoldDropdown();
+refreshMineBlocks();
 renderStats();renderCards();drawMarkers();
 
 // Set map height: 45% of viewport minus fixed bars
@@ -1006,6 +943,7 @@ function setMapHeight(){
 }
 window.addEventListener('resize', setMapHeight);
 setTimeout(setMapHeight, 100);
+map.on('zoomend', rebuildActiveLayers);
 
 // ================================================================
 // GOOGLE SHEETS LIVE CONNECTION (via Apps Script Web App — JSON)
@@ -1080,8 +1018,10 @@ async function loadMinesFromSheet(){
     if(fresh.length===0) return;
     mines.length=0;
     fresh.forEach(m=>mines.push(m));
+    refreshMineBlocks();
     filtered=mines.slice();
     populateGovDropdown();
+    populateGoldDropdown();
     renderStats();renderCards();drawMarkers();
   }catch(e){
     console.error('Mines API fetch error:',e);
