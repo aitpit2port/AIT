@@ -1,12 +1,24 @@
-AIT Gold Blocks Map integration
+Gold Map Access Fix
+===================
 
-Added page key: goldmap
-Dashboard menu title: Gold Blocks Map
-File: egypt_mines_map.html
+Modified files:
+1) Dashboard_Full.html
+2) egypt_mines_map.html
+3) README_MAP_ACCESS.txt
 
-Access control:
-- Add a column named goldmap in the auth_users sheet.
-- Set TRUE / 1 / yes for users allowed to see the Gold Blocks Map.
-- Leave empty / FALSE / 0 / no for users who must not see it.
+Gold map permission:
+- The dashboard now accepts either column name:
+  goldmap
+  or
+  page_goldmap
 
-The map is also protected when opened directly: it requires a valid dashboard token and goldmap permission.
+Recommended column name for consistency with the existing permissions sheet:
+  page_goldmap
+
+Allowed values:
+TRUE / 1 / yes / checked checkbox.
+
+After replacing the files:
+1) Refresh the browser with Ctrl+F5.
+2) Log out and log in again so the auth session reloads the latest permissions.
+3) Open Dashboard_Full.html#goldmap if you want to test the page directly.
