@@ -45,6 +45,7 @@ const PAGES={
   production:{file:'production.html',title:'Production / Lots & Equipment',sub:'Mine to crusher to port production flow with equipment hours and productivity',group:'Operations',code:'PR'},
   equipment:{file:'equipment.html',title:'Equipment',sub:'Daily equipment hours, production, zones and productivity',group:'Operations',code:'EQ'},
   mines:{file:'mines.html',title:'Mines Map',sub:'Mine shipments and mine-level tracking',group:'Operations',code:'MN'},
+  goldmap:{file:'egypt_mines_map.html',title:'Gold Blocks Map',sub:'Secure geological blocks and gold areas map',group:'Operations',code:'GM'},
   timeline:{file:'timeline.html',title:'Timeline',sub:'Project progress and schedule tracking',group:'Operations',code:'TL'},
   budget:{file:'budget.html',title:'Budget Overview',sub:'Budget model, CAPEX, OPEX and plan values',group:'Finance',code:'BG'},
   expenses:{file:'expenses.html',title:'Expenses',sub:'Actual expenses and payment tracking',group:'Finance',code:'EP'},
@@ -68,9 +69,20 @@ function renderNav(){const nav=document.getElementById('nav');const groups={};AL
 function getPageFromHash(){const h=(location.hash||'').replace('#','').trim().toLowerCase();if(PAGES[h]&&isAllowed(h))return h;return ALLOWED.find(p=>p!=='auth')||ALLOWED[0];}
 function loadPage(pageKey){if(!isAllowed(pageKey)){showNoAccess(pageKey);return;}noAccess.classList.remove('show');const p=PAGES[pageKey];document.querySelectorAll('.nav-link').forEach(a=>a.classList.toggle('active',a.dataset.page===pageKey));titleEl.textContent=p.title;subEl.textContent=p.sub;const pageUrl=p.file+'?token='+encodeURIComponent(SESSION.token)+'&api='+encodeURIComponent(API_URL)+'&v='+Date.now();openNew.href=pageUrl;loader.classList.remove('hidden');frame.src=pageUrl;localStorage.setItem('ait_shell_page',pageKey);toggleMenu(false)}
 function showNoAccess(pageKey){loader.classList.add('hidden');noAccess.classList.add('show');titleEl.textContent='No access';subEl.textContent='Page not allowed: '+pageKey;}
-frame.addEventListener('load',()=>{setTimeout(()=>{loader.classList.add('hidden');enforcePermissions();},240)});
+frame.addEventListener('load',()=>{setTimeout(()=>{loader.classList.add('hidden');enforcePermissions();syncEmbeddedFrame();},240)});
+function syncEmbeddedFrame(){
+  try{
+    const key=getPageFromHash();
+    if(key==='goldmap' && frame && frame.contentWindow){
+      const theme=document.documentElement.getAttribute('data-theme')||'dark';
+      frame.contentWindow.postMessage({cmd:'setEmbedded',value:true},'*');
+      frame.contentWindow.postMessage({cmd:'setTheme',value:theme},'*');
+      frame.contentWindow.postMessage({cmd:'setLang',value:'en'},'*');
+    }
+  }catch(e){}
+}
 window.addEventListener('hashchange',()=>loadPage(getPageFromHash()));
-function enforcePermissions(){try{const doc=frame.contentDocument||frame.contentWindow.document;if(!doc||!SESSION||!SESSION.user)return;const u=SESSION.user;const disableFilters=!!u.view_only||!u.can_filter;const disableExport=!!u.view_only||!u.can_export;if(disableFilters){doc.querySelectorAll('select,input[type="date"],input[type="search"],.filterbar input,.filterbar select').forEach(el=>{el.disabled=true;el.title='Filters disabled by permission';});doc.querySelectorAll('button').forEach(btn=>{const t=(btn.textContent||'').toLowerCase();if(t.includes('clear')||t.includes('filter')||t.includes('refresh')){btn.disabled=true;btn.style.opacity=.45;btn.title='Disabled by permission';}});}if(disableExport){doc.querySelectorAll('button,a').forEach(el=>{const t=(el.textContent||'').toLowerCase();if(t.includes('export')||t.includes('excel')||t.includes('download')){el.style.display='none';}});}if(u.view_only){doc.querySelectorAll('input,textarea,button').forEach(el=>{const t=(el.textContent||'').toLowerCase();if(!t.includes('en')&&!t.includes('عربي')&&!t.includes('中文'))el.disabled=true;});}}catch(e){console.warn('Permission enforcement skipped:',e)}}
+function enforcePermissions(){try{const doc=frame.contentDocument||frame.contentWindow.document;if(!doc||!SESSION||!SESSION.user)return;if(getPageFromHash()==='goldmap')return;const u=SESSION.user;const disableFilters=!!u.view_only||!u.can_filter;const disableExport=!!u.view_only||!u.can_export;if(disableFilters){doc.querySelectorAll('select,input[type="date"],input[type="search"],.filterbar input,.filterbar select').forEach(el=>{el.disabled=true;el.title='Filters disabled by permission';});doc.querySelectorAll('button').forEach(btn=>{const t=(btn.textContent||'').toLowerCase();if(t.includes('clear')||t.includes('filter')||t.includes('refresh')){btn.disabled=true;btn.style.opacity=.45;btn.title='Disabled by permission';}});}if(disableExport){doc.querySelectorAll('button,a').forEach(el=>{const t=(el.textContent||'').toLowerCase();if(t.includes('export')||t.includes('excel')||t.includes('download')){el.style.display='none';}});}if(u.view_only){doc.querySelectorAll('input,textarea,button').forEach(el=>{const t=(el.textContent||'').toLowerCase();if(!t.includes('en')&&!t.includes('عربي')&&!t.includes('中文'))el.disabled=true;});}}catch(e){console.warn('Permission enforcement skipped:',e)}}
 function reloadPage(){loadPage(getPageFromHash())}
 async function logout(){try{const cb='ait_logout_'+Date.now();const s=document.createElement('script');window[cb]=()=>{delete window[cb];if(s.parentNode)s.parentNode.removeChild(s)};s.src='https://script.google.com/macros/s/AKfycbxFJroZzKQT1N0c70ktzFISQkWIkT7w_pyi7eAFxuDPx88icN-WvT2IGkrJ8W-Lt1uz/exec?module=auth&action=logout&token='+encodeURIComponent(SESSION&&SESSION.token||'')+'&callback='+cb+'&t='+Date.now();document.body.appendChild(s)}catch(e){}localStorage.removeItem('ait_auth_session');location.href='auth.html'}
 function toggleTheme(){const root=document.documentElement;const next=root.getAttribute('data-theme')==='dark'?'light':'dark';root.setAttribute('data-theme',next);localStorage.setItem('ait_shell_theme',next);document.getElementById('themeBtn').textContent=next==='dark'?'Dark':'Light'}
