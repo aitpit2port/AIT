@@ -42,7 +42,10 @@
 <div class="statusbar"><span class="dot" id="sDot"></span><span id="sText">Connecting...</span><span style="margin-left:auto" id="sCount"></span></div>
 <script>
 if (window.ChartDataLabels) Chart.register(ChartDataLabels);
-const API_URL='https://script.google.com/macros/s/AKfycbxFJroZzKQT1N0c70ktzFISQkWIkT7w_pyi7eAFxuDPx88icN-WvT2IGkrJ8W-Lt1uz/exec';
+const DEFAULT_API_URL='https://script.google.com/macros/s/AKfycbxFJroZzKQT1N0c70ktzFISQkWIkT7w_pyi7eAFxuDPx88icN-WvT2IGkrJ8W-Lt1uz/exec';
+const __apiQs=new URLSearchParams(location.search);
+const API_URL=__apiQs.get('api')||localStorage.getItem('ait_api_url')||DEFAULT_API_URL;
+if(__apiQs.get('api')) localStorage.setItem('ait_api_url',__apiQs.get('api'));
 const PAGE={"title": {"en": "Cost Analysis", "ar": "تحليل التكلفة", "zh": "成本分析"}, "sub": {"en": "Cost per ton, mine cost, logistics and processing cost", "ar": "تكلفة الطن وتكلفة المنجم والنقل والمعالجة", "zh": "吨成本、矿区成本、物流和加工成本"}, "module": "cost", "kpis": ["TOTAL COST", "COST / TON", "MINING COST", "CRUSHING COST", "TRANSPORT", "PORT COST", "VARIANCE", "LAST UPDATE"], "charts": ["Cost per Ton by Mine", "Cost Breakdown", "Cost Trend"], "table": "Cost Items"};
 const I18N={en:{refresh:'Refresh',exportExcel:'Export Excel',all:'All',dateRange:'Date',category:'Category',mine:'Mine',clear:'Clear',loading:'Loading data...',syncing:'Syncing latest data...',noData:'No data available yet',apiNotReady:'API module is not ready yet',rows:'rows',live:'Live data',search:'Search',auth:'Please login again'},ar:{refresh:'تحديث',exportExcel:'تصدير Excel',all:'الكل',dateRange:'التاريخ',category:'التصنيف',mine:'المنجم',clear:'مسح',loading:'جاري تحميل البيانات...',syncing:'جاري مزامنة آخر البيانات...',noData:'لا توجد بيانات متاحة حاليًا',apiNotReady:'واجهة البيانات لهذه الصفحة لم تجهز بعد',rows:'صفوف',live:'بيانات مباشرة',search:'بحث',auth:'برجاء تسجيل الدخول مرة أخرى'},zh:{refresh:'刷新',exportExcel:'导出 Excel',all:'全部',dateRange:'日期',category:'分类',mine:'矿区',clear:'清除',loading:'正在加载数据...',syncing:'正在同步最新数据...',noData:'暂无可用数据',apiNotReady:'此页面的数据接口尚未准备好',rows:'行',live:'实时数据',search:'搜索',auth:'请重新登录'}};
 let LANG=localStorage.getItem('ait_lang')||'en',THEME=localStorage.getItem('ait_theme')||'dark',RAW=null,ROWS=[],FILTERED=[],CHARTS={};
