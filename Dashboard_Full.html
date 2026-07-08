@@ -57,7 +57,10 @@ const PAGES={
   risks:{file:'risks.html',title:'Risks & Alerts',sub:'Risk log, alerts and exceptions',group:'Administration',code:'RK'},
   auth:{file:'auth.html',title:'Login / Permissions',sub:'Access and permissions page',group:'Administration',code:'AU'}
 };
-const API_URL='https://script.google.com/macros/s/AKfycbxFJroZzKQT1N0c70ktzFISQkWIkT7w_pyi7eAFxuDPx88icN-WvT2IGkrJ8W-Lt1uz/exec';
+const DEFAULT_API_URL='https://script.google.com/macros/s/AKfycbxFJroZzKQT1N0c70ktzFISQkWIkT7w_pyi7eAFxuDPx88icN-WvT2IGkrJ8W-Lt1uz/exec';
+const __apiQs=new URLSearchParams(location.search);
+const API_URL=__apiQs.get('api')||localStorage.getItem('ait_api_url')||DEFAULT_API_URL;
+if(__apiQs.get('api')) localStorage.setItem('ait_api_url',__apiQs.get('api'));
 let SESSION=null;
 let ALLOWED=[];
 const frame=document.getElementById('pageFrame'),loader=document.getElementById('loader'),titleEl=document.getElementById('pageTitle'),subEl=document.getElementById('pageSub'),openNew=document.getElementById('openNew'),noAccess=document.getElementById('noAccess');
@@ -74,6 +77,8 @@ function isAllowed(page){
   const allowed=Array.isArray(u.allowed_pages)?u.allowed_pages:[];
   if(page==='goldmap'){
     return !!(
+      truthyPerm(pages.mines) ||
+      allowed.includes('mines') ||
       truthyPerm(pages.goldmap) ||
       truthyPerm(pages.page_goldmap) ||
       truthyPerm(u.goldmap) ||
@@ -104,7 +109,7 @@ function syncEmbeddedFrame(){
 window.addEventListener('hashchange',()=>loadPage(getPageFromHash()));
 function enforcePermissions(){try{const doc=frame.contentDocument||frame.contentWindow.document;if(!doc||!SESSION||!SESSION.user)return;if(getPageFromHash()==='goldmap')return;const u=SESSION.user;const disableFilters=!!u.view_only||!u.can_filter;const disableExport=!!u.view_only||!u.can_export;if(disableFilters){doc.querySelectorAll('select,input[type="date"],input[type="search"],.filterbar input,.filterbar select').forEach(el=>{el.disabled=true;el.title='Filters disabled by permission';});doc.querySelectorAll('button').forEach(btn=>{const t=(btn.textContent||'').toLowerCase();if(t.includes('clear')||t.includes('filter')||t.includes('refresh')){btn.disabled=true;btn.style.opacity=.45;btn.title='Disabled by permission';}});}if(disableExport){doc.querySelectorAll('button,a').forEach(el=>{const t=(el.textContent||'').toLowerCase();if(t.includes('export')||t.includes('excel')||t.includes('download')){el.style.display='none';}});}if(u.view_only){doc.querySelectorAll('input,textarea,button').forEach(el=>{const t=(el.textContent||'').toLowerCase();if(!t.includes('en')&&!t.includes('عربي')&&!t.includes('中文'))el.disabled=true;});}}catch(e){console.warn('Permission enforcement skipped:',e)}}
 function reloadPage(){loadPage(getPageFromHash())}
-async function logout(){try{const cb='ait_logout_'+Date.now();const s=document.createElement('script');window[cb]=()=>{delete window[cb];if(s.parentNode)s.parentNode.removeChild(s)};s.src='https://script.google.com/macros/s/AKfycbxFJroZzKQT1N0c70ktzFISQkWIkT7w_pyi7eAFxuDPx88icN-WvT2IGkrJ8W-Lt1uz/exec?module=auth&action=logout&token='+encodeURIComponent(SESSION&&SESSION.token||'')+'&callback='+cb+'&t='+Date.now();document.body.appendChild(s)}catch(e){}localStorage.removeItem('ait_auth_session');location.href='auth.html'}
+async function logout(){try{const cb='ait_logout_'+Date.now();const s=document.createElement('script');window[cb]=()=>{delete window[cb];if(s.parentNode)s.parentNode.removeChild(s)};s.src=API_URL+'?module=auth&action=logout&token='+encodeURIComponent(SESSION&&SESSION.token||'')+'&callback='+cb+'&t='+Date.now();document.body.appendChild(s)}catch(e){}localStorage.removeItem('ait_auth_session');location.href='auth.html'}
 function toggleTheme(){const root=document.documentElement;const next=root.getAttribute('data-theme')==='dark'?'light':'dark';root.setAttribute('data-theme',next);localStorage.setItem('ait_shell_theme',next);document.getElementById('themeBtn').textContent=next==='dark'?'Dark':'Light'}
 function toggleMenu(show){document.getElementById('sidebar').classList.toggle('open',!!show);document.getElementById('overlay').classList.toggle('show',!!show)}
 function filterNav(q){q=String(q||'').toLowerCase().trim();document.querySelectorAll('.nav-link').forEach(a=>{a.style.display=a.textContent.toLowerCase().includes(q)?'':'none'});}
