@@ -276,9 +276,26 @@ function mapAuthJsonp(params){
     document.body.appendChild(scr);
   });
 }
+function truthyPerm(v){
+  if(v===true || v===1) return true;
+  const s=String(v||'').trim().toLowerCase();
+  return ['true','1','yes','y','ok','✓','checked'].includes(s);
+}
 function mapUserHasGoldAccess(user){
-  const pages=(user&&user.pages)||{};
-  return !!(pages[MAP_PAGE_KEY] || pages.gold_map || pages.goldareas);
+  const u=user||{};
+  const pages=u.pages||{};
+  const allowed=Array.isArray(u.allowed_pages)?u.allowed_pages:[];
+  return !!(
+    truthyPerm(pages[MAP_PAGE_KEY]) ||
+    truthyPerm(pages.goldmap) ||
+    truthyPerm(pages.page_goldmap) ||
+    truthyPerm(pages.gold_map) ||
+    truthyPerm(pages.goldareas) ||
+    truthyPerm(u.goldmap) ||
+    truthyPerm(u.page_goldmap) ||
+    allowed.includes('goldmap') ||
+    allowed.includes('page_goldmap')
+  );
 }
 function unlockSecureMap(){
   MAP_ACCESS_GRANTED=true;
@@ -296,7 +313,7 @@ async function requireMapAccess(){
     const res=await mapAuthJsonp({module:'auth',action:'verify',token:MAP_TOKEN});
     if(!res || res.ok===false || !res.user) throw new Error((res&&res.message)||'Session expired');
     if(!mapUserHasGoldAccess(res.user)){
-      mapAccessSet('No access','Your account is not allowed to open the Gold Map. Ask the administrator to enable goldmap in auth_users.',false);
+      mapAccessSet('No access','Your account is not allowed to open the Gold Map. Ask the administrator to enable goldmap or page_goldmap in auth_users.',false);
       return;
     }
     unlockSecureMap();
