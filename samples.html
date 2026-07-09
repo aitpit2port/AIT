@@ -264,7 +264,7 @@ tbody tr:hover td{background:var(--card2)}
     <div class="tbl-wrap">
       <table>
         <thead><tr>
-          <th>Date</th><th>Mine</th><th>Zone</th><th>Batch</th>
+          <th>Date</th><th>Mine</th><th>Zone</th><th>Batch</th><th>Stage</th><th class="td-r">Qty Ton</th><th class="td-r">Day Share%</th>
           <th class="td-r">Fe%</th><th class="td-r">LE</th>
           <th class="td-r">Ca</th><th class="td-r">Mn</th>
           <th class="td-r">Sr</th><th class="td-r">Zn</th>
@@ -288,7 +288,7 @@ tbody tr:hover td{background:var(--card2)}
 <script>
 Chart.register(ChartDataLabels);
 
-const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbxFJroZzKQT1N0c70ktzFISQkWIkT7w_pyi7eAFxuDPx88icN-WvT2IGkrJ8W-Lt1uz/exec';
+const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbxfl8DMsgy__jtquMmQX0-RByrW2qIL45nzH8imv-slUdUkJm8XwTJjsz6gphtua-LJiw/exec';
 const __apiQs = new URLSearchParams(location.search);
 const API_URL = __apiQs.get('api') || localStorage.getItem('ait_api_url') || DEFAULT_API_URL;
 if (__apiQs.get('api')) localStorage.setItem('ait_api_url', __apiQs.get('api'));
@@ -523,16 +523,16 @@ function renderCharts() {
 }
 function renderTable() {
   const body=document.getElementById('tBody');
-  if(!FILTERED.length){body.innerHTML=`<tr><td colspan="14" style="text-align:center;color:var(--text2);padding:24px">${t('noMatch')}</td></tr>`;return;}
+  if(!FILTERED.length){body.innerHTML=`<tr><td colspan="17" style="text-align:center;color:var(--text2);padding:24px">${t('noMatch')}</td></tr>`;return;}
   const fv=v=>v&&+v>0?(+v).toFixed(2):'—';
   const feColor=fe=>+fe>=55?'var(--green)':+fe>=37?'var(--accent)':'var(--red)';
-  body.innerHTML=FILTERED.map(r=>`<tr><td class="td-s">${dateOnly(r.date)||'—'}</td><td><strong>${r.mine||'—'}</strong></td><td class="td-s">${r.zone||'—'}</td><td>${r.batch||'—'}</td><td class="td-r td-b" style="color:${feColor(r.Fe)}">${fv(r.Fe)}</td><td class="td-r">${fv(r.LE)}</td><td class="td-r">${fv(r.Ca)}</td><td class="td-r">${fv(r.Mn)}</td><td class="td-r">${fv(r.Sr)}</td><td class="td-r">${fv(r.Zn)}</td><td class="td-r">${fv(r.Zr)}</td><td class="td-r">${fv(r.Pb)}</td><td><span class="badge ${r.material_type==='Magnetite'?'blue':r.material_type==='Limonite'?'yellow':'med'}">${r.material_type||'—'}</span></td><td><span class="badge ${r.pass_fail==='Pass'?'pass':'fail'}">${categoryText(r.pass_fail)}</span></td></tr>`).join('');
+  body.innerHTML=FILTERED.map(r=>`<tr><td class="td-s">${dateOnly(r.date)||'—'}</td><td><strong>${r.mine||'—'}</strong></td><td class="td-s">${r.zone||'—'}</td><td>${r.batch||'—'}</td><td>${r.sample_stage||r.stage||'—'}</td><td class="td-r">${fv(r.quantity_ton)}</td><td class="td-r">${fv(r.share_pct_day_lot_zone)}</td><td class="td-r td-b" style="color:${feColor(r.Fe)}">${fv(r.Fe)}</td><td class="td-r">${fv(r.LE)}</td><td class="td-r">${fv(r.Ca)}</td><td class="td-r">${fv(r.Mn)}</td><td class="td-r">${fv(r.Sr)}</td><td class="td-r">${fv(r.Zn)}</td><td class="td-r">${fv(r.Zr)}</td><td class="td-r">${fv(r.Pb)}</td><td><span class="badge ${r.material_type==='Magnetite'?'blue':r.material_type==='Limonite'?'yellow':'med'}">${r.material_type||'—'}</span></td><td><span class="badge ${r.pass_fail==='Pass'?'pass':'fail'}">${categoryText(r.pass_fail)}</span></td></tr>`).join('');
 }
 function exportExcel(){
   if(!FILTERED.length){alert(t('noMatch'));return;}
   const exportElements = AVAILABLE_ELEMENTS.length ? AVAILABLE_ELEMENTS : ['Fe','LE','Ca','Mn','Sr','Zn','Zr','Pb'];
   const data=FILTERED.map(r=>{
-    const o={'Date':dateOnly(r.date),'Mine':r.mine||'','Zone':r.zone||'','Batch':r.batch||''};
+    const o={'Date':dateOnly(r.date),'Mine':r.mine||'','Zone':r.zone||'','Batch':r.batch||'','Stage':r.sample_stage||r.stage||'','Qty Ton':r.quantity_ton||'','Day Share %':r.share_pct_day_lot_zone||''};
     exportElements.forEach(e=>{ const v=parseFloat(r[e]||0); o[e]=isNaN(v)?'':v; });
     o['Material']=r.material_type||'';
     o['Sample Category']=categoryText(r.pass_fail);
