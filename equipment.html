@@ -58,7 +58,7 @@ html[dir="rtl"] body{font-family:Tajawal,Cairo,Segoe UI,Arial,sans-serif}.topbar
 <div class="status"><span class="dot" id="statusDot"></span><span id="statusText">Ready</span></div>
 
 <script>
-const DEFAULT_API_URL='https://script.google.com/macros/s/AKfycbxFJroZzKQT1N0c70ktzFISQkWIkT7w_pyi7eAFxuDPx88icN-WvT2IGkrJ8W-Lt1uz/exec';
+const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbxfl8DMsgy__jtquMmQX0-RByrW2qIL45nzH8imv-slUdUkJm8XwTJjsz6gphtua-LJiw/exec';
 const qs=new URLSearchParams(location.search);
 const API_URL=qs.get('api')||localStorage.getItem('ait_api_url')||DEFAULT_API_URL;
 if(qs.get('api')) localStorage.setItem('ait_api_url', qs.get('api'));
