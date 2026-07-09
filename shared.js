@@ -5,7 +5,7 @@
 // TO EDIT: only change this file for cross-page fixes.
 // ============================================================
 
-const DEFAULT_API_URL='https://script.google.com/macros/s/AKfycbxFJroZzKQT1N0c70ktzFISQkWIkT7w_pyi7eAFxuDPx88icN-WvT2IGkrJ8W-Lt1uz/exec';
+const DEFAULT_API_URL='https://script.google.com/macros/s/AKfycbxfl8DMsgy__jtquMmQX0-RByrW2qIL45nzH8imv-slUdUkJm8XwTJjsz6gphtua-LJiw/exec';
 const __apiQs=new URLSearchParams(location.search);
 const API_URL=__apiQs.get('api')||localStorage.getItem('ait_api_url')||DEFAULT_API_URL;
 if(__apiQs.get('api')) localStorage.setItem('ait_api_url',__apiQs.get('api'));
