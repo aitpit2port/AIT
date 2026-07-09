@@ -45,7 +45,7 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;color:var(--text);background
 .mapwrap{height:65vh;min-height:350px;position:relative;overflow:hidden;flex-shrink:0}
 #map{width:100%;height:100%}
 #map .leaflet-tile-pane{transition:filter .25s}
-[data-theme="dark"] #map .leaflet-tile-pane{filter:var(--map-tile-filter)}
+[data-theme="dark"] .base-map-layer{filter:var(--map-tile-filter)}
 
 /* ── MINE CARDS GRID ── */
 .mines-grid-wrap{background:var(--bg);padding:12px 14px;flex-shrink:0}
@@ -96,29 +96,25 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;color:var(--text);background
 @media(max-width:600px){.mines-grid{grid-template-columns:repeat(2,1fr)}.mines-grid-wrap{padding:8px}.mapwrap{height:50vh}}
 @media(max-width:400px){.mines-grid{grid-template-columns:1fr}}
 
-/* ── SECURE MAP ACCESS GUARD ── */
 body.map-locked > *:not(#mapAccessOverlay){display:none!important}
 #mapAccessOverlay{position:fixed;inset:0;z-index:999999;background:linear-gradient(135deg,#0b1118,#111827);color:#e8ecf2;display:flex;align-items:center;justify-content:center;font-family:'Segoe UI',Arial,sans-serif;padding:20px;text-align:center}
-#mapAccessOverlay.hidden{display:none!important}
-.access-card{width:min(92vw,440px);background:#111827;border:1px solid #243244;border-radius:18px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.38)}
-.access-logo{width:54px;height:54px;border-radius:14px;margin:0 auto 14px;background:#FF6B35;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900}
-.access-title{font-size:18px;font-weight:900;margin-bottom:8px}.access-msg{font-size:13px;color:#93a0b5;line-height:1.7}.access-spin{width:34px;height:34px;border-radius:50%;border:3px solid #243244;border-top-color:#FF6B35;animation:accessSpin .8s linear infinite;margin:12px auto 0}@keyframes accessSpin{to{transform:rotate(360deg)}}
+#mapAccessOverlay.hidden{display:none!important}.access-card{width:min(92vw,440px);background:#111827;border:1px solid #243244;border-radius:18px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.38)}.access-logo{width:54px;height:54px;border-radius:14px;margin:0 auto 14px;background:#FF6B35;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900}.access-title{font-size:18px;font-weight:900;margin-bottom:8px}.access-msg{font-size:13px;color:#93a0b5;line-height:1.7}.access-spin{width:34px;height:34px;border-radius:50%;border:3px solid #243244;border-top-color:#FF6B35;animation:accessSpin .8s linear infinite;margin:12px auto 0}@keyframes accessSpin{to{transform:rotate(360deg)}}
+
 </style>
 </head>
 <body class="map-locked">
 <div id="mapAccessOverlay"><div class="access-card"><div class="access-logo">AIT</div><div class="access-title" id="accessTitle">Checking map access...</div><div class="access-msg" id="accessMsg">Please wait while your permissions are verified.</div><div class="access-spin" id="accessSpin"></div></div></div>
 
-
 <!-- HEADER: Title + Refresh -->
 <div id="map-header" style="background:var(--tb-bg);border-bottom:1px solid var(--card-border);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:12px">
   <div style="display:flex;align-items:center;gap:10px;min-width:0">
-    <div style="width:36px;height:36px;background:var(--org);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:13px;flex-shrink:0">AIT</div>
+    <div style="width:36px;height:36px;background:var(--org);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:13px;flex-shrink:0" role="img" aria-label="AIT Logo">AIT</div>
     <div style="min-width:0">
       <div style="font-size:15px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span data-i18n="headerTitle">AIT Projects Portfolio - Mines Map</span></div>
       <div style="font-size:10px;color:var(--text-sec)" data-i18n="headerSubtitle">Interactive map of mining sites, zones, blocks, and samples</div>
     </div>
   </div>
-  <button onclick="loadMinesFromSheet()" style="display:flex;align-items:center;gap:6px;background:var(--org);color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;flex-shrink:0;white-space:nowrap">
+  <button onclick="loadMinesFromSheet()" aria-label="Refresh data from Google Sheets" style="display:flex;align-items:center;gap:6px;background:var(--org);color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;flex-shrink:0;white-space:nowrap">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
     <span data-i18n="refreshBtn">Refresh Data</span>
   </button>
@@ -175,7 +171,7 @@ body.map-locked > *:not(#mapAccessOverlay){display:none!important}
 
     <!-- Layer Buttons -->
     <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;flex-wrap:wrap">
-      <button class="layer-btn" id="btn-gold" onclick="toggleLayer('gold')">
+      <button class="layer-btn" id="btn-gold" onclick="toggleLayer('gold')" aria-pressed="false" aria-label="Toggle gold blocks layer">
         <span style="width:10px;height:10px;border-radius:50%;background:#FFD700;border:1.5px solid #B8860B;flex-shrink:0"></span>
         <span data-i18n="btnGold">بلوكات الذهب</span>
       </button>
@@ -249,79 +245,20 @@ body.map-locked > *:not(#mapAccessOverlay){display:none!important}
   <div class="mines-grid" id="mlist"></div>
 </div>
 <script>
+
 // ================================================================
-// SECURE DASHBOARD ACCESS GUARD
-// This page is visible only when loaded from Dashboard_Full.html with
-// a valid auth token and the dedicated permission key: goldmap.
-// Add column "goldmap" in auth_users and set TRUE/1/yes for allowed users.
+// SECURE DASHBOARD ACCESS GUARD - dedicated goldmap permission
 // ================================================================
 const MAP_PAGE_KEY = 'goldmap';
-const MAP_AUTH_API_URL = new URLSearchParams(location.search).get('api') || 'https://script.google.com/macros/s/AKfycbxFJroZzKQT1N0c70ktzFISQkWIkT7w_pyi7eAFxuDPx88icN-WvT2IGkrJ8W-Lt1uz/exec';
+const MAP_AUTH_API_URL = new URLSearchParams(location.search).get('api') || 'https://script.google.com/macros/s/AKfycbxfl8DMsgy__jtquMmQX0-RByrW2qIL45nzH8imv-slUdUkJm8XwTJjsz6gphtua-LJiw/exec';
 const MAP_TOKEN = new URLSearchParams(location.search).get('token') || '';
 let MAP_ACCESS_GRANTED = false;
-function mapAccessSet(title,msg,spin){
-  const t=document.getElementById('accessTitle'),m=document.getElementById('accessMsg'),s=document.getElementById('accessSpin');
-  if(t)t.textContent=title||''; if(m)m.textContent=msg||''; if(s)s.style.display=spin?'block':'none';
-}
-function mapAuthJsonp(params){
-  return new Promise((resolve,reject)=>{
-    const cb='ait_map_auth_'+Date.now()+'_'+Math.random().toString(36).slice(2);
-    const scr=document.createElement('script'); let done=false;
-    const cleanup=()=>{done=true;delete window[cb];if(scr.parentNode)scr.parentNode.removeChild(scr);};
-    window[cb]=data=>{cleanup();resolve(data);};
-    scr.onerror=()=>{if(!done){cleanup();reject(new Error('Connection failed'));}};
-    setTimeout(()=>{if(!done){cleanup();reject(new Error('Timeout'));}},25000);
-    const q=new URLSearchParams({...params,callback:cb,t:Date.now()});
-    scr.src=MAP_AUTH_API_URL+'?'+q.toString();
-    document.body.appendChild(scr);
-  });
-}
-function truthyPerm(v){
-  if(v===true || v===1) return true;
-  const s=String(v||'').trim().toLowerCase();
-  return ['true','1','yes','y','ok','✓','checked'].includes(s);
-}
-function mapUserHasGoldAccess(user){
-  const u=user||{};
-  const pages=u.pages||{};
-  const allowed=Array.isArray(u.allowed_pages)?u.allowed_pages:[];
-  return !!(
-    truthyPerm(pages[MAP_PAGE_KEY]) ||
-    truthyPerm(pages.goldmap) ||
-    truthyPerm(pages.page_goldmap) ||
-    truthyPerm(pages.gold_map) ||
-    truthyPerm(pages.goldareas) ||
-    truthyPerm(u.goldmap) ||
-    truthyPerm(u.page_goldmap) ||
-    allowed.includes('goldmap') ||
-    allowed.includes('page_goldmap')
-  );
-}
-function unlockSecureMap(){
-  MAP_ACCESS_GRANTED=true;
-  document.body.classList.remove('map-locked');
-  const ov=document.getElementById('mapAccessOverlay'); if(ov)ov.classList.add('hidden');
-  setTimeout(()=>{try{if(window.AIT_MAP)window.AIT_MAP.invalidateSize();}catch(e){}},250);
-}
-async function requireMapAccess(){
-  if(!MAP_TOKEN){
-    mapAccessSet('Access required','Open this map from the secure dashboard using an account with Gold Map permission.',false);
-    setTimeout(()=>{try{location.href='auth.html?reason=no_access';}catch(e){}},900);
-    return;
-  }
-  try{
-    const res=await mapAuthJsonp({module:'auth',action:'verify',token:MAP_TOKEN});
-    if(!res || res.ok===false || !res.user) throw new Error((res&&res.message)||'Session expired');
-    if(!mapUserHasGoldAccess(res.user)){
-      mapAccessSet('No access','Your account is not allowed to open the Gold Map. Ask the administrator to enable goldmap or page_goldmap in auth_users.',false);
-      return;
-    }
-    unlockSecureMap();
-  }catch(e){
-    mapAccessSet('Access check failed',e.message||String(e),false);
-    setTimeout(()=>{try{location.href='auth.html?reason=expired';}catch(err){}},1200);
-  }
-}
+function mapAccessSet(title,msg,spin){const t=document.getElementById('accessTitle'),m=document.getElementById('accessMsg'),s=document.getElementById('accessSpin');if(t)t.textContent=title||'';if(m)m.textContent=msg||'';if(s)s.style.display=spin?'block':'none';}
+function mapAuthJsonp(params){return new Promise((resolve,reject)=>{const cb='ait_map_auth_'+Date.now()+'_'+Math.random().toString(36).slice(2);const scr=document.createElement('script');let done=false;const cleanup=()=>{done=true;delete window[cb];if(scr.parentNode)scr.parentNode.removeChild(scr);};window[cb]=data=>{cleanup();resolve(data);};scr.onerror=()=>{if(!done){cleanup();reject(new Error('Connection failed'));}};setTimeout(()=>{if(!done){cleanup();reject(new Error('Timeout'));}},25000);const q=new URLSearchParams({...params,callback:cb,t:Date.now()});scr.src=MAP_AUTH_API_URL+'?'+q.toString();document.body.appendChild(scr);});}
+function truthyPerm(v){if(v===true||v===1)return true;const s=String(v||'').trim().toLowerCase();return ['true','1','yes','y','ok','✓','checked','مفعل','نعم','صح'].includes(s);}
+function mapUserHasGoldAccess(user){const u=user||{};const pages=u.pages||{};const allowed=Array.isArray(u.allowed_pages)?u.allowed_pages:[];return !!(truthyPerm(pages.goldmap)||truthyPerm(pages.page_goldmap)||truthyPerm(u.goldmap)||truthyPerm(u.page_goldmap)||allowed.includes('goldmap')||allowed.includes('page_goldmap'));}
+function unlockSecureMap(){MAP_ACCESS_GRANTED=true;document.body.classList.remove('map-locked');const ov=document.getElementById('mapAccessOverlay');if(ov)ov.classList.add('hidden');setTimeout(()=>{try{map.invalidateSize();}catch(e){}},250);}
+async function requireMapAccess(){if(!MAP_TOKEN){mapAccessSet('Access required','Open this map from the secure dashboard using an account with Gold Map permission.',false);setTimeout(()=>{try{location.href='auth.html?reason=no_access';}catch(e){}},900);return;}try{const res=await mapAuthJsonp({module:'auth',action:'verify',token:MAP_TOKEN});if(!res||res.ok===false||!res.user)throw new Error((res&&res.message)||'Session expired');if(!mapUserHasGoldAccess(res.user)){mapAccessSet('No access','Your account is not allowed to open the Gold Map. Ask the administrator to enable page_goldmap in auth_users.',false);return;}unlockSecureMap();}catch(e){mapAccessSet('Access check failed',e.message||String(e),false);setTimeout(()=>{try{location.href='auth.html?reason=expired';}catch(err){}},1200);}}
 requireMapAccess();
 
 const mines=[
@@ -578,6 +515,13 @@ const I18N = {
 let LANG = 'en';
 let THEME = 'light';
 function t(key){ return (I18N[LANG] && I18N[LANG][key]) || I18N.en[key] || key; }
+// ── SECURITY: Sanitize user input to prevent XSS ──
+function sanitize(str) {
+  if (str === null || str === undefined) return '';
+  const div = document.createElement('div');
+  div.textContent = String(str);
+  return div.innerHTML;
+}
 function textDir(){ return LANG === 'ar' ? 'rtl' : 'ltr'; }
 function nonArabicValue(enValue, arValue){ return LANG === 'ar' ? (arValue||enValue) : (enValue||arValue); }
 function applyI18n(){
@@ -648,8 +592,7 @@ const PRICES={A:'6,000$',B:'5,000$',C:'7,000$',D:'8,000$',E:'7,000$',F:'7,000$',
 
 // Map
 const map=L.map('map',{center:[26.0,33.5],zoom:7,maxZoom:19});
-window.AIT_MAP = map;
-L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'Esri, Maxar, Earthstar Geographics',maxZoom:19,maxNativeZoom:19}).addTo(map);
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'Esri, Maxar, Earthstar Geographics',maxZoom:19,maxNativeZoom:19,className:'base-map-layer'}).addTo(map);
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,maxNativeZoom:19,opacity:0.9}).addTo(map);
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,maxNativeZoom:13,opacity:0.9}).addTo(map);
 
@@ -755,9 +698,15 @@ function makeGoldAreasLayer(){
   // No guessed Gold Occurrences are drawn. Official occurrence coordinates can be added here when supplied.
   return g;
 }
+function updateAriaPressed(name, isActive) {
+  const btn = document.getElementById('btn-' + name);
+  if (btn) btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+}
+
 function toggleLayer(name){
   if(name==='goldareas'){
     on.goldareas=!on.goldareas;
+    updateAriaPressed('goldareas', on.goldareas);
     const btn=document.getElementById('btn-goldareas'); if(btn) btn.classList.toggle('active',on.goldareas);
     const leg=document.getElementById('leg-goldareas'); if(leg) leg.style.display=on.goldareas?'block':'none';
     if(on.goldareas){ if(!goldAreasLayer) goldAreasLayer=makeGoldAreasLayer(); goldAreasLayer.addTo(map); }
@@ -966,7 +915,8 @@ map.on('zoomend', rebuildActiveLayers);
 // GOOGLE SHEETS LIVE CONNECTION (via Apps Script Web App — JSON)
 // نفس رابط الـ API المستخدم في Dashboard_Full.html (repo: aitpit2port-coder/AIT)
 // ================================================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbw17eoQz22-WWCbRQOowlSr0zadA2uIORnuX3W3B7WPlK4MmQw0hmsyXj8THQirsphp9Q/exec';
+// API URL can be overridden via window.AIT_API_URL before loading this script
+const API_URL = window.AIT_API_URL || (new URLSearchParams(location.search).get('api') || 'https://script.google.com/macros/s/AKfycbxfl8DMsgy__jtquMmQX0-RByrW2qIL45nzH8imv-slUdUkJm8XwTJjsz6gphtua-LJiw/exec');
 
 // normalize free-text values from the sheet to the codes the map expects
 function normMat(v){
@@ -995,15 +945,34 @@ function normGp(v){
   return /^[A-I]$/.test(v) ? v : '—';
 }
 
+// ── LOADING STATE MANAGEMENT ──
+function setLoading(isLoading) {
+  const btn = document.querySelector('#map-header button');
+  if (!btn) return;
+  if (isLoading) {
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+    btn.dataset.originalText = btn.innerHTML;
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin 1s linear infinite"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg> <span>Loading...</span>';
+  } else {
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    if (btn.dataset.originalText) btn.innerHTML = btn.dataset.originalText;
+  }
+}
+
 async function loadMinesFromSheet(){
+  setLoading(true);
   if (!API_URL || API_URL.indexOf('PASTE_') === 0) {
-    console.warn('API_URL not configured — using built-in sample mines');
+    // console.warn('API_URL not configured — using built-in sample mines');
     return;
   }
   try{
-    const res = await fetch(API_URL);
+    const q = new URLSearchParams({module:'mines', action:'data', t:Date.now()});
+    if (MAP_TOKEN) q.set('token', MAP_TOKEN);
+    const res = await fetch(API_URL + '?' + q.toString());
     const data = await res.json();
-    const rows = Array.isArray(data.mines) ? data.mines : [];
+    const rows = Array.isArray(data.mines) ? data.mines : (Array.isArray(data.rows) ? data.rows : []);
     if(rows.length===0) return; // no fact_mines data — keep built-in sample mines
 
     const fresh = rows.map(r=>{
@@ -1041,11 +1010,15 @@ async function loadMinesFromSheet(){
     populateGoldDropdown();
     renderStats();renderCards();drawMarkers();
   }catch(e){
-    console.error('Mines API fetch error:',e);
+    // console.error('Mines API fetch error:',e);
+  } finally {
+    setLoading(false);
   }
 }
 loadMinesFromSheet();
-setInterval(loadMinesFromSheet, 60000);
+const REFRESH_INTERVAL = 300000; // 5 minutes instead of 1 minute
+const minesRefreshInterval = setInterval(loadMinesFromSheet, REFRESH_INTERVAL);
+window.addEventListener('beforeunload', () => clearInterval(minesRefreshInterval));
 
 </script>
 </body>
