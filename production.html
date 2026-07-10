@@ -43,6 +43,254 @@ th{top:0}tbody tr:hover{background:rgba(255,255,255,.035)}
 @media (max-width:760px){body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}.wrap{padding:8px}.topbar{position:relative;top:auto;display:block;border-radius:16px;margin-bottom:10px}.brand{margin-bottom:10px}.logo{width:38px;height:38px;border-radius:12px}.title h1{font-size:18px;white-space:normal}.title p{font-size:12px;white-space:normal}.top-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.top-actions .select,.top-actions .btn{width:100%;justify-content:center;padding:10px 8px;font-size:12px}.filters{position:relative;top:auto;grid-template-columns:1fr;border-radius:16px;padding:10px}.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.kpi{min-height:96px;border-radius:15px;padding:11px}.kpi .lbl{font-size:10px}.kpi .val{font-size:20px}.kpi .note{font-size:11px}.stage-strip{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.stage-box{border-radius:14px;padding:9px}.stage-box b{font-size:11px}.stage-box .qty{font-size:15px}.grid{gap:10px}.card{min-height:310px;border-radius:16px;padding:10px}.card-head{display:block}.card h3{font-size:14px}.card span{display:block;margin-top:3px}.chart{height:250px;min-height:230px}.table-card{border-radius:16px;padding:10px}.table-card .card-head{display:block}.table-wrap{max-height:65vh;border-radius:12px}table{min-width:1180px}table.summary{min-width:1060px}table.equipment{min-width:1500px}th,td{padding:9px 8px;font-size:11px}.statusbar{font-size:11px;gap:7px;align-items:flex-start;flex-wrap:wrap}.statusbar span:last-child{margin-inline-start:0!important;width:100%}}
 @media (max-width:420px){.top-actions{grid-template-columns:1fr}.kpi-grid{grid-template-columns:1fr}.stage-strip{grid-template-columns:1fr}.chart{height:230px}.card{min-height:292px}.btn,.select,.input{font-size:12px;min-height:40px}.load-card{width:min(92vw,330px)}}
 
+
+/* ==========================================================
+   PRODUCTION PAGE PROFESSIONAL LAYOUT + SCROLL FIX
+   The document owns vertical scrolling. Tables only scroll horizontally.
+   ========================================================== */
+html,body{
+  height:auto!important;
+  min-height:100%!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  overscroll-behavior:auto!important;
+  scroll-behavior:smooth;
+}
+body{
+  position:static!important;
+  width:100%!important;
+  max-width:none!important;
+  touch-action:pan-y;
+  padding-bottom:calc(68px + env(safe-area-inset-bottom,0px))!important;
+}
+.wrap{
+  width:min(100%,1880px)!important;
+  max-width:1880px!important;
+  overflow:visible!important;
+  padding:18px clamp(10px,1.5vw,24px) 30px!important;
+}
+.topbar{
+  position:relative!important;
+  top:auto!important;
+  overflow:hidden;
+  padding:18px!important;
+  margin-bottom:12px!important;
+  background:
+    radial-gradient(circle at 10% 0%,rgba(253,72,14,.14),transparent 34%),
+    linear-gradient(145deg,color-mix(in srgb,var(--panel) 96%,transparent),color-mix(in srgb,var(--panel2) 92%,transparent))!important;
+}
+.topbar:after{
+  content:"";
+  position:absolute;
+  inset:auto -70px -100px auto;
+  width:240px;
+  height:240px;
+  border-radius:50%;
+  background:rgba(253,72,14,.08);
+  pointer-events:none;
+}
+.brand,.top-actions{position:relative;z-index:1}
+.logo{width:48px;height:48px;border-radius:15px;flex:0 0 auto}
+.title h1{font-size:clamp(20px,2vw,28px);letter-spacing:-.02em}
+.title p{font-size:13px;line-height:1.6;max-width:760px}
+.live-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  margin-top:9px;
+  padding:6px 10px;
+  border-radius:999px;
+  color:var(--green);
+  background:rgba(34,197,94,.10);
+  border:1px solid rgba(34,197,94,.22);
+  font-size:11px;
+  font-weight:900;
+}
+.live-pill:before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 10px currentColor}
+.section-nav{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:0 0 12px;
+  padding:10px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:color-mix(in srgb,var(--panel) 94%,transparent);
+}
+.nav-chip{
+  appearance:none;
+  border:1px solid var(--line);
+  background:var(--card2);
+  color:var(--text2);
+  border-radius:10px;
+  padding:9px 12px;
+  font-size:12px;
+  font-weight:850;
+  cursor:pointer;
+  transition:.18s ease;
+}
+.nav-chip:hover,.nav-chip.active{border-color:rgba(253,72,14,.55);color:var(--accent);background:rgba(253,72,14,.09);transform:translateY(-1px)}
+.filter-panel{
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:linear-gradient(180deg,var(--panel),var(--panel2));
+  margin-bottom:14px;
+  overflow:hidden;
+}
+.filter-panel-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:13px 14px;
+  border-bottom:1px solid var(--line);
+}
+.filter-panel-head h2{font-size:14px;margin:0}
+.filter-panel-head p{font-size:11px;color:var(--text2);margin:3px 0 0}
+.filter-panel.collapsed .filter-panel-head{border-bottom:0}
+.filter-panel.collapsed .filters-body{display:none}
+.filters-body{padding:12px}
+.filters{
+  position:relative!important;
+  top:auto!important;
+  z-index:auto!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  backdrop-filter:none!important;
+  box-shadow:none!important;
+}
+.data-notice{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:12px;
+  align-items:flex-start;
+  margin-bottom:14px;
+  padding:13px 14px;
+  border-radius:14px;
+  border:1px solid rgba(56,189,248,.24);
+  background:rgba(56,189,248,.07);
+}
+.data-notice.warning{border-color:rgba(245,158,11,.30);background:rgba(245,158,11,.08)}
+.data-notice.error{border-color:rgba(239,68,68,.30);background:rgba(239,68,68,.08)}
+.notice-icon{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:rgba(56,189,248,.13);font-size:17px}
+.data-notice.warning .notice-icon{background:rgba(245,158,11,.15)}
+.data-notice.error .notice-icon{background:rgba(239,68,68,.15)}
+.notice-title{font-size:13px;font-weight:900;margin-bottom:4px}
+.notice-body{font-size:12px;line-height:1.65;color:var(--text2)}
+.section-block{
+  scroll-margin-top:16px;
+  margin-top:14px;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:20px;
+  background:color-mix(in srgb,var(--panel) 72%,transparent);
+}
+.section-heading{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:14px;
+  margin:0 0 13px;
+  padding:2px 2px 12px;
+  border-bottom:1px solid var(--line);
+}
+.section-heading h2{margin:0;font-size:18px;line-height:1.35}
+.section-heading p{margin:4px 0 0;color:var(--text2);font-size:12px;line-height:1.6}
+.section-tag{padding:7px 10px;border-radius:999px;background:rgba(253,72,14,.10);color:var(--accent);font-size:11px;font-weight:900;white-space:nowrap}
+.kpi-grid{margin-bottom:12px!important}
+.kpi{min-height:118px!important;transition:transform .18s ease,border-color .18s ease}
+.kpi:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))!important}
+.kpi .val{font-size:clamp(22px,2.1vw,30px)!important}
+.stage-strip{margin:0 0 14px!important}
+.stage-box{position:relative;overflow:hidden;min-height:88px;transition:.18s ease}
+.stage-box:hover{transform:translateY(-2px);border-color:rgba(253,72,14,.38)!important}
+.stage-box:after{content:"";position:absolute;inset:auto 0 0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.grid{gap:12px!important}
+.card{min-height:340px!important;padding:15px!important;transition:border-color .18s ease,transform .18s ease}
+.card:hover{border-color:color-mix(in srgb,var(--accent) 28%,var(--line))!important}
+.card-head{padding-bottom:9px;border-bottom:1px solid var(--line);margin-bottom:10px!important}
+.card h3{font-size:15px!important}
+.card span{line-height:1.5}
+.chart{height:300px!important;min-height:260px!important;touch-action:pan-y!important}
+.chart canvas{touch-action:pan-y!important}
+.table-card{margin-top:12px!important;padding:15px!important;overflow:visible!important}
+.table-wrap{
+  width:100%;
+  max-width:100%;
+  max-height:none!important;
+  height:auto!important;
+  overflow-x:auto!important;
+  overflow-y:visible!important;
+  overscroll-behavior:auto!important;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;
+  scrollbar-color:var(--accent) var(--panel2);
+}
+.table-wrap::-webkit-scrollbar{height:10px}
+.table-wrap::-webkit-scrollbar-track{background:var(--panel2);border-radius:999px}
+.table-wrap::-webkit-scrollbar-thumb{background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:999px}
+table{background:var(--card);border-radius:12px;overflow:hidden}
+th{position:sticky;top:0;z-index:3}
+tbody tr{transition:background .14s ease}
+tbody tr:nth-child(even){background:rgba(255,255,255,.018)}
+tbody tr:hover{background:rgba(253,72,14,.055)!important}
+.statusbar{z-index:50}
+.scroll-top{
+  position:fixed;
+  right:18px;
+  bottom:68px;
+  width:42px;
+  height:42px;
+  border-radius:13px;
+  border:1px solid rgba(253,72,14,.42);
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;
+  display:grid;
+  place-items:center;
+  font-size:18px;
+  cursor:pointer;
+  box-shadow:var(--shadow);
+  z-index:55;
+  opacity:0;
+  pointer-events:none;
+  transform:translateY(10px);
+  transition:.18s ease;
+}
+.scroll-top.show{opacity:1;pointer-events:auto;transform:none}
+body[dir="rtl"] .scroll-top{right:auto;left:18px}
+.loader{position:fixed!important}
+@media(max-width:1180px){
+  .topbar{display:flex!important;flex-direction:column;align-items:stretch!important}
+  .top-actions{width:100%;margin:0!important}
+  .section-block{padding:12px}
+  .filters{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:760px){
+  .wrap{padding:8px 8px 24px!important}
+  .topbar{padding:13px!important}
+  .section-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));padding:8px}
+  .nav-chip{padding:8px 6px;font-size:11px}
+  .filter-panel-head,.section-heading{align-items:flex-start}
+  .section-heading{display:block}
+  .section-tag{display:inline-flex;margin-top:8px}
+  .filters{grid-template-columns:1fr!important}
+  .section-block{border-radius:16px;padding:9px}
+  .data-notice{grid-template-columns:auto 1fr;padding:11px}
+  .chart{height:250px!important;min-height:230px!important}
+  .table-card{padding:10px!important}
+  .scroll-top{right:10px;bottom:76px}
+  body[dir="rtl"] .scroll-top{right:auto;left:10px}
+}
+@media(max-width:430px){
+  .section-nav{grid-template-columns:1fr}
+  .top-actions{grid-template-columns:1fr!important}
+  .kpi-grid,.stage-strip{grid-template-columns:1fr!important}
+}
+
 </style>
 <script src="dashboard-common.js"></script>
 <link rel="stylesheet" href="ait-dashboard-theme.css">
@@ -50,70 +298,112 @@ th{top:0}tbody tr:hover{background:rgba(255,255,255,.035)}
 <body>
 <div class="loader" id="pageLoad"><div class="load-card"><div class="spinner"></div><div id="ldMsg">جار تحميل بيانات الإنتاج...</div></div></div>
 <div class="wrap">
-  <div class="topbar">
-    <div class="brand"><div class="logo">AIT</div><div class="title"><h1 data-i18n="pageTitle">الإنتاج / اللوتات والمعدات</h1><p data-i18n="pageSub">إنتاج اليوم، إنتاج كل معدة، وساعات تشغيل كل معدة</p></div></div>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">AIT</div>
+      <div class="title">
+        <h1 data-i18n="pageTitle">الإنتاج / اللوتات والمعدات</h1>
+        <p data-i18n="pageSub">متابعة تدفق الإنتاج من المنجم إلى الميناء مع تشغيل المعدات والإنتاجية</p>
+        <div class="live-pill" data-i18n="liveDashboard">لوحة تشغيل مباشرة</div>
+      </div>
+    </div>
     <div class="top-actions">
       <select class="select" id="langSel" onchange="setLang(this.value)"><option value="ar">AR</option><option value="en">EN</option></select>
-      <button class="btn" id="themeBtn" onclick="toggleTheme()">🌙</button>
+      <button class="btn" id="themeBtn" onclick="toggleTheme()" aria-label="Theme">🌙</button>
       <button class="btn" onclick="loadData('data')" data-i18n="load">تحميل</button>
       <button class="btn primary" id="btnRefresh" onclick="refreshData()" data-i18n="refresh">مزامنة / تحديث</button>
       <button class="btn" onclick="exportExcel()" data-i18n="exportExcel">تصدير Excel</button>
     </div>
-  </div>
+  </header>
 
-  <div class="filters">
-    <select class="select" id="fMine" onchange="applyFilters()"><option value="all">كل المناجم</option></select>
-    <select class="select" id="fZone" onchange="applyFilters()"><option value="all">كل المواقع / الزونات</option></select>
-    <select class="select" id="fStage" onchange="applyFilters()"><option value="all">كل مراحل اللوتات</option></select>
-    <select class="select" id="fEquipment" onchange="applyFilters()"><option value="all">كل المعدات</option></select>
-    <input class="input" id="fFrom" type="date" onchange="applyFilters()">
-    <input class="input" id="fTo" type="date" onchange="applyFilters()">
-    <input class="input" id="fSearch" data-i18n-ph="search" placeholder="بحث في اللوت / المعدة / المقاول" oninput="applyFilters()">
-    <button class="btn" onclick="clearFilters()" data-i18n="clearFilters">مسح</button>
-  </div>
+  <nav class="section-nav" aria-label="Page sections">
+    <button class="nav-chip active" data-section="overviewSection" onclick="scrollToSection('overviewSection')" data-i18n="navOverview">نظرة عامة</button>
+    <button class="nav-chip" data-section="equipmentSection" onclick="scrollToSection('equipmentSection')" data-i18n="navEquipment">تشغيل المعدات</button>
+    <button class="nav-chip" data-section="lotsSection" onclick="scrollToSection('lotsSection')" data-i18n="navLots">اللوتات والمراحل</button>
+  </nav>
 
-  <div class="kpi-grid" id="kpiGrid"></div>
-  <div class="stage-strip" id="stageStrip"></div>
-
-  <div class="grid">
-    <div class="card wide">
-      <div class="card-head"><div><h3 data-i18n="stageFlow">مسار اللوتات الكامل</h3><span id="hFlow">كل المراحل</span></div><span id="lastUpdate">—</span></div>
-      <div class="chart"><canvas id="cFlow"></canvas></div>
+  <section class="filter-panel" id="filterPanel">
+    <div class="filter-panel-head">
+      <div><h2 data-i18n="filtersTitle">الفلاتر والتحليل</h2><p data-i18n="filtersSub">طبّق الفلاتر على بيانات اللوتات والمعدات في جميع المؤشرات</p></div>
+      <button class="btn" id="filterToggleBtn" onclick="toggleFilters()" data-i18n="hideFilters">إخفاء الفلاتر</button>
     </div>
-    <div class="card"><div class="card-head"><div><h3 data-i18n="dailyTons">إنتاج كل يوم بالطن</h3><span id="hDailyTons">—</span></div></div><div class="chart"><canvas id="cDailyTons"></canvas></div></div>
-    <div class="card"><div class="card-head"><div><h3 data-i18n="dailyM3">إنتاج كل يوم بالمتر المكعب</h3><span id="hDailyM3">—</span></div></div><div class="chart"><canvas id="cDailyM3"></canvas></div></div>
-    <div class="card"><div class="card-head"><div><h3 data-i18n="excavatorProduction">إنتاج كل حفار</h3><span id="hExcavatorProduction">—</span></div></div><div class="chart"><canvas id="cExcavatorProduction"></canvas></div></div>
-    <div class="card wide daily-hours-card"><div class="card-head"><div><h3 data-i18n="dailyHours">عدد الساعات اليومية</h3><span id="hDailyHours">—</span></div></div><div class="chart"><canvas id="cDailyHours"></canvas></div></div>
-    <div class="card"><div class="card-head"><div><h3 data-i18n="loaderProduction">إنتاج اللوادر</h3><span id="hLoaderProduction">—</span></div></div><div class="chart"><canvas id="cLoaderProduction"></canvas></div></div>
-    <div class="card"><div class="card-head"><div><h3 data-i18n="equipmentProduction">إنتاج كل معدة</h3><span id="hEquipmentProduction">—</span></div></div><div class="chart"><canvas id="cEquipmentProduction"></canvas></div></div>
-    <div class="card"><div class="card-head"><div><h3 data-i18n="productivityByEquipment">إنتاجية كل معدة</h3><span id="hEqProd">طن / ساعة</span></div></div><div class="chart"><canvas id="cEqProductivity"></canvas></div></div>
-    <div class="card"><div class="card-head"><div><h3 data-i18n="stageDistribution">توزيع مراحل اللوتات الحالية</h3><span id="hStage">—</span></div></div><div class="chart"><canvas id="cStage"></canvas></div></div>
-    <div class="card"><div class="card-head"><div><h3 data-i18n="tonByMine">المخزون الحالي لكل منجم</h3><span id="hMine">—</span></div></div><div class="chart"><canvas id="cMine"></canvas></div></div>
-    <div class="card"><div class="card-head"><div><h3 data-i18n="feByMine">متوسط Fe% المرجح لكل منجم</h3><span id="hFe">—</span></div></div><div class="chart"><canvas id="cFe"></canvas></div></div>
-    <div class="card"><div class="card-head"><div><h3 data-i18n="losses">الفروقات / الفاقد بين المراحل</h3><span id="hLoss">—</span></div></div><div class="chart"><canvas id="cLoss"></canvas></div></div>
-  </div>
-
-  <div class="table-card">
-    <div class="card-head"><div><h3 data-i18n="equipmentSummary">ملخص كل معدة</h3><span id="hEqSummary">0 معدات</span></div></div>
-    <div class="table-wrap"><table class="summary"><thead><tr id="eqSummaryHead"></tr></thead><tbody id="eqSummaryBody"></tbody></table></div>
-  </div>
-
-  <div class="table-card">
-    <div class="card-head"><div><h3 data-i18n="equipmentLog">سجل إنتاج وساعات المعدات</h3><span id="hEqTable">0 صفوف</span></div><span id="equipmentMsg"></span></div>
-    <div class="table-wrap"><table class="equipment"><thead><tr id="eqHead"></tr></thead><tbody id="eqBody"></tbody></table></div>
-  </div>
-
-  <div class="table-card">
-    <div class="card-head"><div><h3 data-i18n="lotsLog">سجل تفصيلي للوطات الإنتاج</h3><span id="hTable">0 لوت</span></div><span id="apiMsg"></span></div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr id="lotHead"></tr></thead>
-        <tbody id="tBody"></tbody>
-      </table>
+    <div class="filters-body">
+      <div class="filters">
+        <select class="select" id="fMine" onchange="applyFilters()"><option value="all">كل المناجم</option></select>
+        <select class="select" id="fZone" onchange="applyFilters()"><option value="all">كل المواقع / الزونات</option></select>
+        <select class="select" id="fStage" onchange="applyFilters()"><option value="all">كل مراحل اللوتات</option></select>
+        <select class="select" id="fEquipment" onchange="applyFilters()"><option value="all">كل المعدات</option></select>
+        <input class="input" id="fFrom" type="date" onchange="applyFilters()">
+        <input class="input" id="fTo" type="date" onchange="applyFilters()">
+        <input class="input" id="fSearch" data-i18n-ph="search" placeholder="بحث في اللوت / المعدة / المقاول" oninput="applyFilters()">
+        <button class="btn" onclick="clearFilters()" data-i18n="clearFilters">مسح</button>
+      </div>
     </div>
+  </section>
+
+  <div class="data-notice" id="dataNotice">
+    <div class="notice-icon" id="dataNoticeIcon">ℹ️</div>
+    <div><div class="notice-title" id="dataNoticeTitle">حالة البيانات</div><div class="notice-body" id="dataNoticeBody">جار تحليل اكتمال بيانات الإنتاج والمعدات...</div></div>
   </div>
+
+  <section class="section-block" id="overviewSection">
+    <div class="section-heading">
+      <div><h2 data-i18n="overviewTitle">الملخص التنفيذي</h2><p data-i18n="overviewSub">المؤشرات الأساسية وحركة الكميات عبر مراحل الإنتاج</p></div>
+      <span class="section-tag" id="lastUpdate">—</span>
+    </div>
+    <div class="kpi-grid" id="kpiGrid"></div>
+    <div class="stage-strip" id="stageStrip"></div>
+    <div class="grid">
+      <div class="card wide">
+        <div class="card-head"><div><h3 data-i18n="stageFlow">مسار اللوتات الكامل</h3><span id="hFlow">كل المراحل</span></div></div>
+        <div class="chart"><canvas id="cFlow"></canvas></div>
+      </div>
+      <div class="card"><div class="card-head"><div><h3 data-i18n="dailyTons">إنتاج كل يوم بالطن</h3><span id="hDailyTons">—</span></div></div><div class="chart"><canvas id="cDailyTons"></canvas></div></div>
+      <div class="card"><div class="card-head"><div><h3 data-i18n="dailyM3">إنتاج كل يوم بالمتر المكعب</h3><span id="hDailyM3">—</span></div></div><div class="chart"><canvas id="cDailyM3"></canvas></div></div>
+    </div>
+  </section>
+
+  <section class="section-block" id="equipmentSection">
+    <div class="section-heading">
+      <div><h2 data-i18n="equipmentTitle">تشغيل المعدات والإنتاجية</h2><p data-i18n="equipmentSub">ساعات التشغيل والإنتاج المحسوب للحفارات واللوادر وباقي المعدات</p></div>
+      <span class="section-tag" id="equipmentSectionTag" data-i18n="equipmentTag">تشغيل المعدات</span>
+    </div>
+    <div class="grid">
+      <div class="card wide daily-hours-card"><div class="card-head"><div><h3 data-i18n="dailyHours">عدد الساعات اليومية</h3><span id="hDailyHours">—</span></div></div><div class="chart"><canvas id="cDailyHours"></canvas></div></div>
+      <div class="card"><div class="card-head"><div><h3 data-i18n="excavatorProduction">إنتاج كل حفار</h3><span id="hExcavatorProduction">—</span></div></div><div class="chart"><canvas id="cExcavatorProduction"></canvas></div></div>
+      <div class="card"><div class="card-head"><div><h3 data-i18n="loaderProduction">إنتاج اللوادر</h3><span id="hLoaderProduction">—</span></div></div><div class="chart"><canvas id="cLoaderProduction"></canvas></div></div>
+      <div class="card"><div class="card-head"><div><h3 data-i18n="equipmentProduction">إنتاج كل معدة</h3><span id="hEquipmentProduction">—</span></div></div><div class="chart"><canvas id="cEquipmentProduction"></canvas></div></div>
+      <div class="card"><div class="card-head"><div><h3 data-i18n="productivityByEquipment">إنتاجية كل معدة</h3><span id="hEqProd">طن / ساعة</span></div></div><div class="chart"><canvas id="cEqProductivity"></canvas></div></div>
+    </div>
+    <div class="table-card">
+      <div class="card-head"><div><h3 data-i18n="equipmentSummary">ملخص كل معدة</h3><span id="hEqSummary">0 معدات</span></div></div>
+      <div class="table-wrap"><table class="summary"><thead><tr id="eqSummaryHead"></tr></thead><tbody id="eqSummaryBody"></tbody></table></div>
+    </div>
+    <div class="table-card">
+      <div class="card-head"><div><h3 data-i18n="equipmentLog">سجل إنتاج وساعات المعدات</h3><span id="hEqTable">0 صفوف</span></div><span id="equipmentMsg"></span></div>
+      <div class="table-wrap"><table class="equipment"><thead><tr id="eqHead"></tr></thead><tbody id="eqBody"></tbody></table></div>
+    </div>
+  </section>
+
+  <section class="section-block" id="lotsSection">
+    <div class="section-heading">
+      <div><h2 data-i18n="lotsTitle">اللوتات ومراحل سلسلة الإنتاج</h2><p data-i18n="lotsSub">توزيع المراحل والمخزون والجودة والفروقات حتى تشوين الميناء</p></div>
+      <span class="section-tag" id="lotsSectionTag" data-i18n="lotsTag">لوتات الإنتاج</span>
+    </div>
+    <div class="grid">
+      <div class="card"><div class="card-head"><div><h3 data-i18n="stageDistribution">توزيع مراحل اللوتات الحالية</h3><span id="hStage">—</span></div></div><div class="chart"><canvas id="cStage"></canvas></div></div>
+      <div class="card"><div class="card-head"><div><h3 data-i18n="tonByMine">المخزون الحالي لكل منجم</h3><span id="hMine">—</span></div></div><div class="chart"><canvas id="cMine"></canvas></div></div>
+      <div class="card"><div class="card-head"><div><h3 data-i18n="feByMine">متوسط Fe% المرجح لكل منجم</h3><span id="hFe">—</span></div></div><div class="chart"><canvas id="cFe"></canvas></div></div>
+      <div class="card"><div class="card-head"><div><h3 data-i18n="losses">الفروقات / الفاقد بين المراحل</h3><span id="hLoss">—</span></div></div><div class="chart"><canvas id="cLoss"></canvas></div></div>
+    </div>
+    <div class="table-card">
+      <div class="card-head"><div><h3 data-i18n="lotsLog">سجل تفصيلي للوطات الإنتاج</h3><span id="hTable">0 لوت</span></div><span id="apiMsg"></span></div>
+      <div class="table-wrap"><table><thead><tr id="lotHead"></tr></thead><tbody id="tBody"></tbody></table></div>
+    </div>
+  </section>
 </div>
 <div class="statusbar"><div class="s-dot yellow" id="sDot"></div><span id="sText">جار الاتصال...</span><span style="margin-left:auto" id="sCount"></span></div>
+<button class="scroll-top" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">↑</button>
 
 <script>
 if (window.ChartDataLabels) Chart.register(ChartDataLabels);
@@ -150,8 +440,8 @@ const DEFAULT_API_URL='https://script.google.com/macros/s/AKfycbxfl8DMsgy__jtquM
 const API_URL=qs.get('api')||localStorage.getItem('ait_api_url')||DEFAULT_API_URL;
 if(qs.get('api')) localStorage.setItem('ait_api_url',qs.get('api'));
 const I18N={
-  en:{pageTitle:'Production / Lots & Equipment',pageSub:'Daily tons, daily cubic meters, excavators, loaders, and operating hours',load:'Load',refresh:'Sync / Refresh',exportExcel:'Export Excel',clearFilters:'Clear',search:'Search lot / equipment / contractor',stageFlow:'Full Stage Flow',dailyTons:'Daily Production - Tons',dailyM3:'Daily Production - m³',excavatorProduction:'Excavator Production',dailyHours:'Daily Operating Hours',loaderProduction:'Loader Production',equipmentProduction:'Production by Equipment',productivityByEquipment:'Productivity by Equipment',stageDistribution:'Current Lot Stage Distribution',tonByMine:'Current Stock by Mine',feByMine:'Weighted Fe% by Mine',losses:'Transition Variance / Loss',equipmentSummary:'Equipment Summary',equipmentLog:'Equipment Production & Hours Log',lotsLog:'Production Lots Detailed Log'},
-  ar:{pageTitle:'الإنتاج / اللوتات والمعدات',pageSub:'إنتاج يومي بالطن والمتر المكعب، إنتاج الحفارات واللوادر، وساعات التشغيل',load:'تحميل',refresh:'مزامنة / تحديث',exportExcel:'تصدير Excel',clearFilters:'مسح',search:'بحث في اللوت / المعدة / المقاول',stageFlow:'مسار اللوطات الكامل',dailyTons:'إنتاج كل يوم بالطن',dailyM3:'إنتاج كل يوم بالمتر المكعب',excavatorProduction:'إنتاج كل حفار',dailyHours:'عدد الساعات اليومية',loaderProduction:'إنتاج اللوادر',equipmentProduction:'إنتاج كل معدة',productivityByEquipment:'إنتاجية كل معدة',stageDistribution:'توزيع مراحل اللوتات الحالية',tonByMine:'المخزون الحالي لكل منجم',feByMine:'متوسط Fe% المرجح لكل منجم',losses:'الفروقات / الفاقد بين المراحل',equipmentSummary:'ملخص كل معدة',equipmentLog:'سجل إنتاج وساعات المعدات',lotsLog:'سجل تفصيلي للوطات الإنتاج'}
+  en:{pageTitle:'Production / Lots & Equipment',pageSub:'End-to-end production flow from mine to port with equipment operations and productivity',liveDashboard:'Live operations dashboard',navOverview:'Overview',navEquipment:'Equipment Operations',navLots:'Lots & Stages',filtersTitle:'Filters & Analysis',filtersSub:'Apply filters to lot and equipment data across all indicators',hideFilters:'Hide Filters',showFilters:'Show Filters',overviewTitle:'Executive Overview',overviewSub:'Core KPIs and quantity movement across production stages',equipmentTitle:'Equipment Operations & Productivity',equipmentSub:'Operating hours and calculated production for excavators, loaders, and other equipment',equipmentTag:'Equipment Operations',lotsTitle:'Lots & Production Chain',lotsSub:'Stage distribution, stock, quality, and variances through port stockpiling',lotsTag:'Production Lots',load:'Load',refresh:'Sync / Refresh',exportExcel:'Export Excel',clearFilters:'Clear',search:'Search lot / equipment / contractor',stageFlow:'Full Stage Flow',dailyTons:'Daily Production - Tons',dailyM3:'Daily Production - m³',excavatorProduction:'Excavator Production',dailyHours:'Daily Operating Hours',loaderProduction:'Loader Production',equipmentProduction:'Production by Equipment',productivityByEquipment:'Productivity by Equipment',stageDistribution:'Current Lot Stage Distribution',tonByMine:'Current Stock by Mine',feByMine:'Weighted Fe% by Mine',losses:'Transition Variance / Loss',equipmentSummary:'Equipment Summary',equipmentLog:'Equipment Production & Hours Log',lotsLog:'Production Lots Detailed Log'},
+  ar:{pageTitle:'الإنتاج / اللوتات والمعدات',pageSub:'متابعة تدفق الإنتاج من المنجم إلى الميناء مع تشغيل المعدات والإنتاجية',liveDashboard:'لوحة تشغيل مباشرة',navOverview:'نظرة عامة',navEquipment:'تشغيل المعدات',navLots:'اللوتات والمراحل',filtersTitle:'الفلاتر والتحليل',filtersSub:'طبّق الفلاتر على بيانات اللوتات والمعدات في جميع المؤشرات',hideFilters:'إخفاء الفلاتر',showFilters:'إظهار الفلاتر',overviewTitle:'الملخص التنفيذي',overviewSub:'المؤشرات الأساسية وحركة الكميات عبر مراحل الإنتاج',equipmentTitle:'تشغيل المعدات والإنتاجية',equipmentSub:'ساعات التشغيل والإنتاج المحسوب للحفارات واللوادر وباقي المعدات',equipmentTag:'تشغيل المعدات',lotsTitle:'اللوتات ومراحل سلسلة الإنتاج',lotsSub:'توزيع المراحل والمخزون والجودة والفروقات حتى تشوين الميناء',lotsTag:'لوتات الإنتاج',load:'تحميل',refresh:'مزامنة / تحديث',exportExcel:'تصدير Excel',clearFilters:'مسح',search:'بحث في اللوت / المعدة / المقاول',stageFlow:'مسار اللوطات الكامل',dailyTons:'إنتاج كل يوم بالطن',dailyM3:'إنتاج كل يوم بالمتر المكعب',excavatorProduction:'إنتاج كل حفار',dailyHours:'عدد الساعات اليومية',loaderProduction:'إنتاج اللوادر',equipmentProduction:'إنتاج كل معدة',productivityByEquipment:'إنتاجية كل معدة',stageDistribution:'توزيع مراحل اللوتات الحالية',tonByMine:'المخزون الحالي لكل منجم',feByMine:'متوسط Fe% المرجح لكل منجم',losses:'الفروقات / الفاقد بين المراحل',equipmentSummary:'ملخص كل معدة',equipmentLog:'سجل إنتاج وساعات المعدات',lotsLog:'سجل تفصيلي للوطات الإنتاج'}
 };
 const LOT_COLUMNS=[['date','Date','التاريخ'],['mine','Mine','المنجم'],['zone','Zone','الزون'],['batch','Batch','اللوت'],['lot_before_crusher_ton','Before Crusher','قبل الكسارة'],['lot_after_crusher_ton','After Crusher','بعد الكسارة'],['lot_mine_store_ton','Mine Store','مخزن المنجم'],['lot_general_store_ton','General Store','المخزن العام'],['lot_factory_ton','Factory','المصنع'],['lot_factory_store_ton','Factory Store','مخزن المصنع'],['lot_port_stockpile_ton','Port Stockpile','تشوين الميناء'],['stage','Current Stage','المرحلة الحالية'],['current_qty_ton','Current Qty','الكمية الحالية'],['avg_fe_pct','Avg Fe%','متوسط Fe%'],['loss_total_ton','Total Loss','إجمالي الفاقد'],['loss_pct','Loss%','نسبة الفاقد']];
 const EQ_COLUMNS=[['date','Date','التاريخ'],['mine','Mine','المنجم'],['zone','Zone','الموقع'],['batch','Batch','اللوت'],['shift','Shift','الوردية'],['equipment_id','Equipment ID','كود المعدة'],['equipment_name','Equipment Name','اسم المعدة'],['equipment_type','Type','نوع المعدة'],['equipment_class','Class','تصنيف المعدة'],['operation_area','Operation Area','منطقة العمل'],['contractor_name','Contractor','المقاول'],['operator_name','Operator','المشغل'],['operating_hours','Operating Hours','ساعات التشغيل'],['net_operating_hours','Net Hours','صافي الساعات'],['downtime_hours','Downtime','ساعات التوقف'],['breakdown_hours','Breakdown','ساعات الأعطال'],['source_production_ton','Source Ton','إنتاج مدخل'],['calculated_production_ton','Calculated Ton','إنتاج محسوب'],['calculated_volume_m3','Calculated m³','متر مكعب محسوب'],['production_ton','Production Ton','الإنتاج طن'],['productivity_ton_per_hour','Ton / Hour','طن / ساعة'],['production_basis','Production Basis','طريقة الحساب'],['fuel_consumption_liter','Fuel Liter','وقود لتر'],['operating_cost','Operating Cost','قيمة التشغيل'],['net_operating_cost','Net Cost','صافي التكلفة'],['approval_status','Approval','حالة الاعتماد'],['notes','Notes','ملاحظات']];
@@ -162,7 +452,7 @@ let THEME=localStorage.getItem('ait_theme')||'dark';
 let ALL=[],FILTERED=[],EQUIP_ALL=[],EQUIP_FILTERED=[],STAGES=[],PAYLOAD=null,CHARTS={};
 function t(k){return (I18N[LANG]&&I18N[LANG][k])||I18N.en[k]||k;}
 function tr(col){return LANG==='ar'?col[2]:col[1];}
-function applyI18n(){document.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent=t(el.getAttribute('data-i18n'));});document.querySelectorAll('[data-i18n-ph]').forEach(el=>{el.placeholder=t(el.getAttribute('data-i18n-ph'));});document.documentElement.lang=LANG;document.body.dir=LANG==='ar'?'rtl':'ltr';renderHeads();}
+function applyI18n(){document.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent=t(el.getAttribute('data-i18n'));});document.querySelectorAll('[data-i18n-ph]').forEach(el=>{el.placeholder=t(el.getAttribute('data-i18n-ph'));});document.documentElement.lang=LANG;document.body.dir=LANG==='ar'?'rtl':'ltr';const fp=document.getElementById('filterPanel');const fb=document.getElementById('filterToggleBtn');if(fp&&fb)fb.textContent=fp.classList.contains('collapsed')?t('showFilters'):t('hideFilters');renderHeads();}
 function setLang(l){LANG=l;localStorage.setItem('ait_lang',l);document.getElementById('langSel').value=l;applyI18n();render();}
 function toggleTheme(){THEME=THEME==='dark'?'light':'dark';localStorage.setItem('ait_theme',THEME);document.documentElement.setAttribute('data-theme',THEME);document.getElementById('themeBtn').textContent=THEME==='dark'?'🌙':'☀️';renderCharts();}
 function num(v){const n=parseFloat(String(v||0).replace(/,/g,'').replace(/%/g,''));return isNaN(n)?0:n;}
@@ -176,6 +466,52 @@ function getAuthToken(){try{const q=new URLSearchParams(location.search);const f
 function apiCall(action){return new Promise((resolve,reject)=>{const cb='ait_'+Date.now()+'_'+Math.random().toString(36).slice(2);const s=document.createElement('script');let done=false;const cleanup=()=>{done=true;delete window[cb];if(s.parentNode)s.parentNode.removeChild(s);};window[cb]=data=>{cleanup();resolve(data);};s.onerror=()=>{if(!done){cleanup();reject(new Error('Connection failed'));}};setTimeout(()=>{if(!done){cleanup();reject(new Error('Timeout'));}},60000);const token=getAuthToken();s.src=API_URL+'?module=production&action='+encodeURIComponent(action)+'&callback='+encodeURIComponent(cb)+'&t='+Date.now()+(token?'&token='+encodeURIComponent(token):'');document.body.appendChild(s);});}
 async function loadData(action='data'){setStatus('yellow',action==='sync'?(LANG==='ar'?'جار المزامنة...':'Syncing...'):(LANG==='ar'?'جار تحميل البيانات...':'Loading data...'));document.getElementById('ldMsg').textContent=action==='sync'?(LANG==='ar'?'جار مزامنة بيانات الإنتاج...':'Syncing production data...'):(LANG==='ar'?'جار تحميل بيانات الإنتاج...':'Loading production data...');document.getElementById('pageLoad').classList.remove('hidden');try{const res=await apiCall(action);if(res.error||res.ok===false)throw new Error(res.message||'API error');PAYLOAD=res.production||{};ALL=PAYLOAD.lots||PAYLOAD.rows||[];STAGES=PAYLOAD.stage_types||defaultStages();EQUIP_ALL=(PAYLOAD.equipment&&(PAYLOAD.equipment.daily_rows||PAYLOAD.equipment.rows))||PAYLOAD.equipment_daily||[];populateFilters();applyFilters(false);document.getElementById('lastUpdate').textContent='🕐 '+(res.lastUpdated||'—');document.getElementById('apiMsg').textContent=PAYLOAD.message||'';document.getElementById('equipmentMsg').textContent=EQUIP_ALL.length?'':(PAYLOAD.message||'');setStatus('ok',(LANG==='ar'?'متصل — ':'Live — ')+ALL.length+' lots / '+EQUIP_ALL.length+' equipment rows');}catch(e){console.error(e);PAYLOAD={};ALL=[];EQUIP_ALL=[];FILTERED=[];EQUIP_FILTERED=[];render();setStatus('error','Error: '+e.message);}finally{document.getElementById('pageLoad').classList.add('hidden');}}
 async function refreshData(){const b=document.getElementById('btnRefresh');b.disabled=true;await loadData('sync');b.disabled=false;}
+
+function toggleFilters(){
+  const panel=document.getElementById('filterPanel');
+  panel.classList.toggle('collapsed');
+  const collapsed=panel.classList.contains('collapsed');
+  document.getElementById('filterToggleBtn').textContent=collapsed?t('showFilters'):t('hideFilters');
+}
+function scrollToSection(id){
+  const el=document.getElementById(id);
+  if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function updateDataNotice(){
+  const box=document.getElementById('dataNotice');
+  if(!box)return;
+  const title=document.getElementById('dataNoticeTitle');
+  const body=document.getElementById('dataNoticeBody');
+  const icon=document.getElementById('dataNoticeIcon');
+  const eq=equipmentTotals(EQUIP_FILTERED);
+  const lot=totals(FILTERED);
+  const hasRows=FILTERED.length>0||EQUIP_FILTERED.length>0;
+  const hasProduction=Math.abs(eq.production_ton)>0.000001||Math.abs(eq.calculated_volume_m3)>0.000001||Math.abs(lot.current_stock_ton)>0.000001;
+  box.className='data-notice';
+  if(!hasRows){
+    box.classList.add('error'); icon.textContent='⛔';
+    title.textContent=LANG==='ar'?'لا توجد بيانات مطابقة':'No matching data';
+    body.textContent=LANG==='ar'?'لم يتم العثور على لوتات أو سجلات معدات ضمن الفلاتر الحالية. امسح الفلاتر أو شغّل المزامنة.':'No production lots or equipment rows match the current filters. Clear filters or run sync.';
+  }else if(!hasProduction){
+    box.classList.add('warning'); icon.textContent='⚠️';
+    title.textContent=LANG==='ar'?'بيانات التشغيل موجودة والإنتاج غير مربوط بالكامل':'Operations available; production linkage incomplete';
+    body.textContent=LANG==='ar'?`تم تحميل ${EQUIP_FILTERED.length} سجل تشغيل و${FILTERED.length} لوت، لكن قيم الإنتاج بالطن والمتر المكعب ما زالت صفرًا أو غير مرتبطة باللوتات.`:`Loaded ${EQUIP_FILTERED.length} operation rows and ${FILTERED.length} lots, but ton and cubic-meter production values are still zero or not linked to lots.`;
+  }else{
+    icon.textContent='✓';
+    title.textContent=LANG==='ar'?'بيانات الإنتاج جاهزة للتحليل':'Production data ready';
+    body.textContent=LANG==='ar'?`يتم عرض ${FILTERED.length} لوت و${EQUIP_FILTERED.length} سجل تشغيل وفق الفلاتر الحالية.`:`Showing ${FILTERED.length} lots and ${EQUIP_FILTERED.length} operation rows under the current filters.`;
+  }
+}
+function updateSectionNavigation(){
+  const sections=['overviewSection','equipmentSection','lotsSection'];
+  let active=sections[0];
+  const y=window.scrollY+Math.min(220,window.innerHeight*.32);
+  sections.forEach(id=>{const el=document.getElementById(id);if(el&&el.offsetTop<=y)active=id;});
+  document.querySelectorAll('.nav-chip').forEach(btn=>btn.classList.toggle('active',btn.dataset.section===active));
+  const topBtn=document.getElementById('scrollTopBtn');
+  if(topBtn)topBtn.classList.toggle('show',window.scrollY>500);
+}
+
 function defaultStages(){return[{key:'lot_before_crusher_ton',label:'Before Crusher / Zone',ar:'قبل الكسارة من الزون'},{key:'lot_after_crusher_ton',label:'After Crusher',ar:'بعد الكسارة'},{key:'lot_mine_store_ton',label:'Mine Store',ar:'مخزن المنجم'},{key:'lot_general_store_ton',label:'General Store',ar:'المخزن العام'},{key:'lot_factory_ton',label:'Factory',ar:'المصنع'},{key:'lot_factory_store_ton',label:'Factory Store',ar:'مخزن المصنع'},{key:'lot_port_stockpile_ton',label:'Port Stockpile',ar:'تشوين الميناء'}];}
 function unique(arr){return [...new Set((arr||[]).filter(Boolean).map(x=>String(x).trim()).filter(Boolean))].sort();}
 function optionHtml(value,label){return `<option value="${esc(value)}">${esc(label)}</option>`;}
@@ -247,10 +583,11 @@ function cellVal(r,k){const v=r[k];if(['operating_hours','net_operating_hours','
 function renderEquipmentSummary(){const body=document.getElementById('eqSummaryBody');const rows=groupEquipment(EQUIP_FILTERED);document.getElementById('hEqSummary').textContent=rows.length+' '+(LANG==='ar'?'معدات':'equipment');if(!rows.length){body.innerHTML=`<tr><td colspan="${EQ_SUM_COLUMNS.length}" style="text-align:center;color:var(--text2);padding:26px">${LANG==='ar'?'لا توجد بيانات معدات مطابقة للفلاتر':'No equipment rows match current filters'}</td></tr>`;return;}body.innerHTML=rows.slice(0,400).map(r=>`<tr>${EQ_SUM_COLUMNS.map(c=>`<td class="${typeof r[c[0]]==='number'?'num':''}">${cellVal(r,c[0])}</td>`).join('')}</tr>`).join('');}
 function renderEquipmentTable(){const body=document.getElementById('eqBody');document.getElementById('hEqTable').textContent=EQUIP_FILTERED.length+' / '+EQUIP_ALL.length+' '+(LANG==='ar'?'صفوف':'rows');if(!EQUIP_FILTERED.length){body.innerHTML=`<tr><td colspan="${EQ_COLUMNS.length}" style="text-align:center;color:var(--text2);padding:26px">${LANG==='ar'?'لا توجد بيانات معدات. املأ شيت Daily_Operation ثم اضغط مزامنة / تحديث.':'No equipment data. Fill Daily_Operation then press Sync / Refresh.'}</td></tr>`;return;}body.innerHTML=EQUIP_FILTERED.slice(0,700).map(r=>`<tr>${EQ_COLUMNS.map(c=>`<td class="${typeof r[c[0]]==='number'?'num':''}">${cellVal(r,c[0])}</td>`).join('')}</tr>`).join('')+(EQUIP_FILTERED.length>700?`<tr><td colspan="${EQ_COLUMNS.length}" style="text-align:center;color:var(--text2);padding:14px">Showing first 700 rows only. Use Excel export for all ${EQUIP_FILTERED.length} rows.</td></tr>`:'');}
 function renderTable(){const body=document.getElementById('tBody');document.getElementById('hTable').textContent=FILTERED.length+' / '+ALL.length+' lots';document.getElementById('sCount').textContent=FILTERED.length+' lots / '+EQUIP_FILTERED.length+' equipment rows';if(!FILTERED.length){body.innerHTML=`<tr><td colspan="${LOT_COLUMNS.length}" style="text-align:center;color:var(--text2);padding:26px">${LANG==='ar'?'لا توجد لوتات مطابقة للفلاتر':'No lots match current filters'}</td></tr>`;return;}body.innerHTML=FILTERED.slice(0,700).map(r=>`<tr><td>${esc(date10(r.date)||'—')}</td><td><b>${esc(r.mine||'—')}</b></td><td>${esc(r.zone||'—')}</td><td><b>${esc(r.batch||'—')}</b></td><td class="num">${fmt(r.lot_before_crusher_ton)}</td><td class="num">${fmt(r.lot_after_crusher_ton)}</td><td class="num">${fmt(r.lot_mine_store_ton)}</td><td class="num">${fmt(r.lot_general_store_ton)}</td><td class="num">${fmt(r.lot_factory_ton)}</td><td class="num">${fmt(r.lot_factory_store_ton)}</td><td class="num">${fmt(r.lot_port_stockpile_ton)}</td><td><span class="badge ${badgeClass(r)}">${esc(r.stage||r.current_stage||'—')}</span></td><td class="num"><b>${fmt(r.current_qty_ton)}</b></td><td class="num">${num(r.avg_fe_pct)?fmt(r.avg_fe_pct,1)+'%':'—'}</td><td class="num">${fmt(r.loss_total_ton)}</td><td class="num">${fmt(r.loss_pct,1)}%</td></tr>`).join('')+(FILTERED.length>700?`<tr><td colspan="${LOT_COLUMNS.length}" style="text-align:center;color:var(--text2);padding:14px">Showing first 700 rows only. Use Excel export for all ${FILTERED.length} rows.</td></tr>`:'');}
-function render(){renderHeads();renderKPIs();renderStageStrip();renderCharts();renderEquipmentSummary();renderEquipmentTable();renderTable();}
+function render(){renderHeads();renderKPIs();renderStageStrip();renderCharts();renderEquipmentSummary();renderEquipmentTable();renderTable();updateDataNotice();}
 function exportExcel(){if(!FILTERED.length&&!EQUIP_FILTERED.length){alert(LANG==='ar'?'لا توجد بيانات للتصدير':'No data to export');return;}const wb=XLSX.utils.book_new();if(FILTERED.length){const lotData=FILTERED.map(r=>Object.fromEntries(LOT_COLUMNS.map(c=>[tr(c),r[c[0]]||''])));const ws=XLSX.utils.json_to_sheet(lotData);ws['!cols']=LOT_COLUMNS.map(()=>({wch:18}));XLSX.utils.book_append_sheet(wb,ws,'Production Lots');}if(EQUIP_FILTERED.length){const eqData=EQUIP_FILTERED.map(r=>Object.fromEntries(EQ_COLUMNS.map(c=>[tr(c),r[c[0]]||''])));const ws2=XLSX.utils.json_to_sheet(eqData);ws2['!cols']=EQ_COLUMNS.map(()=>({wch:18}));XLSX.utils.book_append_sheet(wb,ws2,'Equipment Daily');const summary=groupEquipment(EQUIP_FILTERED).map(r=>Object.fromEntries(EQ_SUM_COLUMNS.map(c=>[tr(c),r[c[0]]||''])));const ws3=XLSX.utils.json_to_sheet(summary);ws3['!cols']=EQ_SUM_COLUMNS.map(()=>({wch:18}));XLSX.utils.book_append_sheet(wb,ws3,'Equipment Summary');}XLSX.writeFile(wb,'AIT_Production_Lots_Equipment_'+new Date().toISOString().slice(0,10)+'.xlsx');}
 function setStatus(type,msg){const dot=document.getElementById('sDot');dot.className='s-dot '+(type==='error'?'red':type==='yellow'?'yellow':'');document.getElementById('sText').textContent=msg;}
-window.addEventListener('DOMContentLoaded',()=>{document.documentElement.setAttribute('data-theme',THEME);document.getElementById('themeBtn').textContent=THEME==='dark'?'🌙':'☀️';document.getElementById('langSel').value=LANG;applyI18n();loadData('data');});
+window.addEventListener('DOMContentLoaded',()=>{document.documentElement.setAttribute('data-theme',THEME);document.getElementById('themeBtn').textContent=THEME==='dark'?'🌙':'☀️';document.getElementById('langSel').value=LANG;applyI18n();document.getElementById('filterToggleBtn').textContent=t('hideFilters');loadData('data');updateSectionNavigation();});
+window.addEventListener('scroll',updateSectionNavigation,{passive:true});
 let __resizeTimer=null;window.addEventListener('resize',()=>{clearTimeout(__resizeTimer);__resizeTimer=setTimeout(()=>{try{renderCharts();}catch(e){}},220);});window.addEventListener('orientationchange',()=>setTimeout(()=>{try{renderCharts();}catch(e){}},350));
 setInterval(()=>loadData('data'),30*60*1000);
 </script>
