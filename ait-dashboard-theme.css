@@ -1,0 +1,30 @@
+
+/* AIT unified dashboard visual system. Mines Map intentionally does not load this file. */
+:root{
+  --bg:#0b1118!important;--panel:#111827!important;--panel2:#172235!important;--card:#111827!important;--card2:#0f1724!important;
+  --card3:#0f1724!important;--border:#233246!important;--line:#233246!important;--text:#e8ecf2!important;--text2:#93a0b5!important;--text3:#607086!important;
+  --accent:#fd480e!important;--accent2:#ff6b35!important;--green:#22c55e!important;--red:#ef4444!important;--blue:#38bdf8!important;--yellow:#f59e0b!important;--purple:#a78bfa!important;
+  --shadow:0 16px 44px rgba(0,0,0,.30)!important;--radius:14px!important;--chart-grid:rgba(255,255,255,.055)!important;--chart-txt:#93a0b5!important;
+}
+:root[data-theme="light"]{
+  --bg:#eef2f7!important;--panel:#fff!important;--panel2:#f7f9fc!important;--card:#fff!important;--card2:#f2f5f9!important;--card3:#f2f5f9!important;
+  --border:#dbe3ee!important;--line:#dbe3ee!important;--text:#172033!important;--text2:#5e6a7d!important;--text3:#8b96a6!important;--shadow:0 10px 28px rgba(15,23,42,.10)!important;
+}
+html,body{background:var(--bg)!important;color:var(--text)!important;font-family:"Segoe UI",Arial,sans-serif!important}
+body{background-image:none!important}
+.topbar,.header,.page-header{background:color-mix(in srgb,var(--panel) 94%,transparent)!important;border:1px solid var(--border)!important;border-radius:14px!important;box-shadow:var(--shadow)!important;backdrop-filter:blur(14px)!important}
+.filterbar,.filters,.toolbar,.filter-panel{background:var(--panel)!important;border:1px solid var(--border)!important;border-radius:14px!important;box-shadow:none!important}
+.card,.table-card,.panel,.chart-card,.kpi,.kc,.kpi-card,.stat-card,.stage-box,.insight{background:linear-gradient(180deg,var(--card),var(--card2))!important;border:1px solid var(--border)!important;border-radius:var(--radius)!important;box-shadow:var(--shadow)!important}
+.btn,.tb-btn,.select,.input,.fs,.searchbox,button,select,input{border-color:var(--border)!important}
+.btn.primary,.tb-btn.primary,.login-btn,.btn-sync{background:linear-gradient(135deg,var(--accent),var(--accent2))!important;color:#fff!important;border-color:transparent!important}
+th,.data-table th{background:var(--panel2)!important;color:var(--accent)!important;border-color:var(--border)!important}
+td,.data-table td{border-color:var(--border)!important}
+.statusbar,.status{background:color-mix(in srgb,var(--panel) 94%,transparent)!important;border-color:var(--border)!important;backdrop-filter:blur(12px)!important}
+.loader,.load,.page-loading{background:rgba(11,17,24,.86)!important}
+.logo,.brand-mark,.app-logo{background:linear-gradient(135deg,var(--accent),var(--accent2))!important}
+.kpi:before{display:none!important}
+.kpi,.kc,.kpi-card{border-top:3px solid var(--accent)!important}
+.kpi:nth-child(2n),.kc:nth-child(2n),.kpi-card:nth-child(2n){border-top-color:var(--blue)!important}
+.kpi:nth-child(3n),.kc:nth-child(3n),.kpi-card:nth-child(3n){border-top-color:var(--green)!important}
+.wrap,.content,.container{max-width:1800px!important;margin-inline:auto!important}
+@media(max-width:760px){.topbar,.header,.page-header{border-radius:12px!important}.card,.table-card,.panel,.kpi,.kc,.kpi-card{border-radius:12px!important}}
