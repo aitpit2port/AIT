@@ -111,7 +111,7 @@ function apiCall(params){
     const cleanup=()=>{done=true;delete window[cb];if(s.parentNode)s.parentNode.removeChild(s);};
     window[cb]=data=>{cleanup();resolve(data);};
     s.onerror=()=>{if(!done){cleanup();reject(new Error('Connection failed'));}};
-    setTimeout(()=>{if(!done){cleanup();reject(new Error('Timeout. Try again.'));}},25000);
+    setTimeout(()=>{if(!done){cleanup();reject(new Error('Timeout. Apps Script is taking too long. Replace 40_AuthPage.gs with the latest fast version and redeploy.'));}},70000);
     const q=new URLSearchParams({...params,callback:cb,t:Date.now()});
     s.src=API_URL+'?'+q.toString();
     document.body.appendChild(s);
@@ -139,6 +139,8 @@ document.getElementById('loginForm').addEventListener('submit',async e=>{
     if(!res||res.error||res.ok===false) throw new Error(res?.message||'Login failed');
     const session={token:res.token || '',user:res.user || {},loginAt:new Date().toISOString()};
     localStorage.setItem('ait_auth_session',JSON.stringify(session));
+    localStorage.setItem('AIT_TOKEN', session.token);
+    localStorage.setItem('AIT_USER', JSON.stringify(session.user || {}));
     setMsg('Login successful. Opening dashboard...','ok');
     redirectAfterLogin(session);
     setTimeout(()=>{
@@ -169,11 +171,15 @@ document.getElementById('loginForm').addEventListener('submit',async e=>{
         setTimeout(()=>redirectAfterLogin(session),250);
       }else{
         localStorage.removeItem('ait_auth_session');
+        localStorage.removeItem('AIT_TOKEN');
+        localStorage.removeItem('AIT_USER');
         setMsg(verified&&verified.message?verified.message:'Please sign in again.','error');
       }
     }
   }catch(e){
     localStorage.removeItem('ait_auth_session');
+    localStorage.removeItem('AIT_TOKEN');
+    localStorage.removeItem('AIT_USER');
     if(!document.getElementById('msg').textContent) setMsg('Please sign in again.','');
   }
 })();
