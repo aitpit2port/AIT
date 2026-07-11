@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AIT Login</title>
+<style>
+:root{
+  --bg:#070b12;--panel:#ffffff;--panel2:rgba(255,255,255,.92);--text:#202938;--muted:#687386;
+  --accent:#ff471e;--accent2:#ff7a3d;--border:#d8deea;--input:#f5f7fb;--danger:#ef4444;--green:#22c55e;
+  --shadow:0 30px 90px rgba(0,0,0,.48);--navy:#0d1522;--line:rgba(255,255,255,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);overflow:hidden;color:var(--text)}
+body{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:22px}
+
+/* Professional animated mining / logistics background */
+.pro-bg{position:fixed;inset:0;overflow:hidden;background:
+  radial-gradient(circle at 18% 18%,rgba(255,71,30,.22),transparent 28%),
+  radial-gradient(circle at 82% 26%,rgba(56,189,248,.12),transparent 31%),
+  linear-gradient(135deg,#060911 0%,#0c1421 48%,#15100c 100%)}
+.pro-bg:before{content:"";position:absolute;inset:-20%;background:
+  linear-gradient(115deg,transparent 0 42%,rgba(255,255,255,.045) 48%,transparent 55% 100%);
+  animation:lightSweep 9s ease-in-out infinite;opacity:.8}
+@keyframes lightSweep{0%,100%{transform:translateX(-18%) rotate(0deg)}50%{transform:translateX(18%) rotate(2deg)}}
+
+.mesh{position:absolute;inset:0;background-image:
+  linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+  background-size:64px 64px;mask-image:linear-gradient(to bottom,rgba(0,0,0,.85),rgba(0,0,0,.35) 55%,rgba(0,0,0,.08));animation:gridDrift 28s linear infinite}
+@keyframes gridDrift{to{background-position:64px 64px}}
+
+.contours{position:absolute;inset:0;opacity:.42;background:
+  repeating-radial-gradient(ellipse at 22% 68%,transparent 0 34px,rgba(255,255,255,.08) 35px 36px,transparent 37px 72px),
+  repeating-radial-gradient(ellipse at 78% 74%,transparent 0 42px,rgba(255,122,61,.08) 43px 44px,transparent 45px 88px);
+  filter:blur(.1px);animation:contoursMove 18s ease-in-out infinite alternate}
+@keyframes contoursMove{from{transform:translateY(0)}to{transform:translateY(-18px)}}
+
+.ore-particles span{position:absolute;width:3px;height:3px;border-radius:50%;background:rgba(255,151,79,.65);box-shadow:0 0 14px rgba(255,104,49,.65);animation:floatOre 8s linear infinite}
+.ore-particles span:nth-child(1){left:8%;top:72%;animation-delay:0s}.ore-particles span:nth-child(2){left:18%;top:38%;animation-delay:1.1s}.ore-particles span:nth-child(3){left:31%;top:82%;animation-delay:2.2s}.ore-particles span:nth-child(4){left:45%;top:27%;animation-delay:3.1s}.ore-particles span:nth-child(5){left:62%;top:78%;animation-delay:1.7s}.ore-particles span:nth-child(6){left:78%;top:34%;animation-delay:2.8s}.ore-particles span:nth-child(7){left:91%;top:68%;animation-delay:4.1s}.ore-particles span:nth-child(8){left:54%;top:55%;animation-delay:.6s}
+@keyframes floatOre{0%{opacity:0;transform:translateY(45px) scale(.65)}18%{opacity:1}100%{opacity:0;transform:translateY(-130px) scale(1.25)}}
+
+.horizon{position:absolute;left:0;right:0;bottom:0;height:42%;background:linear-gradient(180deg,transparent,#05080d 82%)}
+.mountain-back{position:absolute;left:-4%;right:-4%;bottom:6%;height:62%;background:linear-gradient(160deg,#162033,#0b111c);clip-path:polygon(0 78%,8% 54%,16% 69%,25% 37%,35% 74%,47% 30%,58% 72%,69% 43%,80% 68%,90% 33%,100% 75%,100% 100%,0 100%);opacity:.92}
+.mountain-front{position:absolute;left:-4%;right:-4%;bottom:-4%;height:58%;background:linear-gradient(160deg,#080d16,#05070c);clip-path:polygon(0 70%,12% 56%,22% 72%,32% 48%,44% 80%,55% 51%,66% 75%,78% 47%,88% 67%,100% 52%,100% 100%,0 100%)}
+.operation-line{position:absolute;left:4%;right:4%;bottom:12%;height:76px;border-top:1px solid rgba(255,255,255,.08);opacity:.95}
+.conveyor-pro{position:absolute;left:49%;bottom:35px;width:240px;height:6px;background:#38465f;border-radius:99px;transform:rotate(-10deg);overflow:hidden;box-shadow:0 0 0 1px rgba(255,255,255,.08)}
+.conveyor-pro:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,#718096 0 10px,#2d3748 10px 20px);animation:beltMove .65s linear infinite}
+@keyframes beltMove{to{transform:translateX(20px)}}
+.plant{position:absolute;left:67%;bottom:29px;width:82px;height:70px;border:1px solid rgba(255,255,255,.14);background:rgba(30,41,59,.7);clip-path:polygon(0 100%,0 28%,18% 28%,18% 10%,50% 10%,50% 0,70% 0,70% 38%,100% 38%,100% 100%);box-shadow:0 18px 45px rgba(0,0,0,.35)}
+.plant:after{content:"";position:absolute;inset:12px;background:linear-gradient(90deg,rgba(255,122,61,.45),transparent);opacity:.6;animation:plantPulse 1.8s ease-in-out infinite alternate}
+@keyframes plantPulse{to{opacity:.18}}
+.haul-truck{position:absolute;left:-130px;bottom:7px;width:108px;height:38px;animation:haul 12s linear infinite;opacity:.72;filter:drop-shadow(0 12px 18px rgba(0,0,0,.5))}
+.haul-truck.t2{animation-delay:5.7s;bottom:24px;transform:scale(.72);opacity:.48}.haul-body{position:absolute;left:15px;bottom:12px;width:60px;height:24px;background:#334155;border:1px solid rgba(255,255,255,.12);clip-path:polygon(0 18%,88% 0,100% 100%,0 100%)}.haul-cab{position:absolute;left:73px;bottom:12px;width:27px;height:25px;background:#475569;border-radius:3px}.haul-cab:after{content:"";position:absolute;left:5px;top:5px;width:12px;height:8px;background:#0b1120;border-radius:2px}.hw{position:absolute;bottom:0;width:16px;height:16px;border-radius:50%;background:#0f172a;border:3px solid #64748b}.hw1{left:25px}.hw2{left:78px}
+@keyframes haul{0%{left:-140px}100%{left:112%}}
+.drill-rig{position:absolute;left:20%;bottom:18px;width:78px;height:78px;opacity:.58}.drill-rig:before{content:"";position:absolute;left:22px;bottom:0;width:8px;height:76px;background:#475569;transform:skewX(-14deg)}.drill-rig:after{content:"";position:absolute;left:0;bottom:0;width:66px;height:10px;background:#334155;border-radius:10px}.drill-line{position:absolute;left:46px;bottom:8px;width:2px;height:61px;background:rgba(255,122,61,.45);animation:drill .9s ease-in-out infinite alternate}@keyframes drill{to{height:52px;opacity:.35}}
+
+.brand-chip{position:fixed;left:26px;top:24px;z-index:2;display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.78);font-weight:800;letter-spacing:.4px}.brand-dot{width:14px;height:14px;border-radius:50%;background:var(--accent);box-shadow:0 0 18px rgba(255,71,30,.9)}
+
+.card{position:relative;z-index:3;width:min(94vw,520px);background:var(--panel2);border:1px solid rgba(255,255,255,.62);border-radius:22px;box-shadow:var(--shadow);padding:44px 48px 40px;backdrop-filter:blur(20px);animation:cardIn .55s ease-out}
+.card:before{content:"";position:absolute;inset:0;border-radius:22px;padding:1px;background:linear-gradient(135deg,rgba(255,255,255,.7),rgba(255,71,30,.20),rgba(56,189,248,.16));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+@keyframes cardIn{from{opacity:0;transform:translateY(26px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+.logo{width:82px;height:82px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 22px;box-shadow:0 18px 48px rgba(255,71,30,.38)}.logo img{width:100%;height:100%;display:block}
+h1{text-align:center;font-size:26px;margin-bottom:8px;letter-spacing:-.3px}.sub{text-align:center;color:var(--muted);font-size:15px;margin-bottom:32px}.form-group{margin-bottom:18px}.label{display:block;font-size:12px;font-weight:900;letter-spacing:.8px;color:#687386;text-transform:uppercase;margin-bottom:9px}.input-wrap{position:relative}.input{width:100%;height:52px;background:var(--input);border:1.5px solid var(--border);border-radius:12px;padding:0 15px;font-size:15px;color:var(--text);outline:none;transition:.18s}.input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(255,71,30,.13);background:#fff}.show-pass{position:absolute;right:8px;top:8px;height:36px;border:0;background:#eef2f8;border-radius:9px;padding:0 12px;font-weight:900;color:#455167;cursor:pointer}.show-pass:hover{color:var(--accent)}.login-btn{width:100%;height:52px;border:0;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;font-size:16px;font-weight:900;cursor:pointer;margin-top:8px;box-shadow:0 18px 30px rgba(255,71,30,.24);transition:.15s}.login-btn:hover{transform:translateY(-1px)}.login-btn:disabled{opacity:.72;cursor:not-allowed;transform:none}.login-btn.loading:before{content:"";display:inline-block;width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.55);border-top-color:#fff;vertical-align:-3px;margin-right:8px;animation:spin .75s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.msg{min-height:22px;margin-top:16px;text-align:center;font-size:13px;font-weight:800}.msg.error{color:var(--danger)}.msg.ok{color:var(--green)}.footer-note{text-align:center;color:#7a8496;font-size:12px;margin-top:22px;line-height:1.5}.footer-note code{background:#eef2f8;border-radius:5px;padding:2px 5px}
+@media(max-width:560px){body{padding:16px}.card{padding:34px 24px;border-radius:18px}.logo{width:70px;height:70px;font-size:25px}h1{font-size:22px}.sub{font-size:14px}.brand-chip{display:none}.operation-line{opacity:.65}}
+</style>
+<script src="dashboard-common.js"></script>
+<link rel="stylesheet" href="ait-dashboard-theme.css">
+</head>
+<body>
+<div class="pro-bg" aria-hidden="true">
+  <div class="mesh"></div>
+  <div class="contours"></div>
+  <div class="ore-particles"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+  <div class="horizon"><div class="mountain-back"></div><div class="mountain-front"></div><div class="operation-line"><div class="drill-rig"><div class="drill-line"></div></div><div class="conveyor-pro"></div><div class="plant"></div><div class="haul-truck"><div class="haul-body"></div><div class="haul-cab"></div><div class="hw hw1"></div><div class="hw hw2"></div></div><div class="haul-truck t2"><div class="haul-body"></div><div class="haul-cab"></div><div class="hw hw1"></div><div class="hw hw2"></div></div></div></div>
+</div>
+<div class="brand-chip"><span class="brand-dot"></span><span>AIT Pit 2 Port</span></div>
+
+<form class="card" id="loginForm" autocomplete="on">
+  <div class="logo"><img src="ait-logo.svg" alt="AIT"></div>
+  <h1>AIT Projects Dashboard</h1>
+  <p class="sub">Sign in to access your dashboard</p>
+
+  <div class="form-group">
+    <label class="label" for="identifier">Email address or username</label>
+    <input class="input" id="identifier" name="identifier" placeholder="your@email.com or username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+  </div>
+
+  <div class="form-group">
+    <label class="label" for="password">Password</label>
+    <div class="input-wrap">
+      <input class="input" id="password" name="password" type="password" placeholder="Enter password" autocomplete="current-password" autocapitalize="none" spellcheck="false" required style="padding-right:84px">
+      <button class="show-pass" type="button" onclick="togglePassword()" id="showBtn">Show</button>
+    </div>
+  </div>
+
+  <button class="login-btn" id="loginBtn" type="submit">Sign In</button>
+  <div class="msg" id="msg"></div>
+  <div class="footer-note">Permissions are controlled from the <code>auth_users</code> sheet.</div>
+</form>
+
+<script>
+const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbxfl8DMsgy__jtquMmQX0-RByrW2qIL45nzH8imv-slUdUkJm8XwTJjsz6gphtua-LJiw/exec';
+const __apiQs = new URLSearchParams(location.search);
+const API_URL = __apiQs.get('api') || localStorage.getItem('ait_api_url') || DEFAULT_API_URL;
+if (__apiQs.get('api')) localStorage.setItem('ait_api_url', __apiQs.get('api'));
+
+function apiCall(params){
+  return new Promise((resolve,reject)=>{
+    const cb='ait_auth_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+    const s=document.createElement('script');
+    let done=false;
+    const cleanup=()=>{done=true;delete window[cb];if(s.parentNode)s.parentNode.removeChild(s);};
+    window[cb]=data=>{cleanup();resolve(data);};
+    s.onerror=()=>{if(!done){cleanup();reject(new Error('Connection failed'));}};
+    setTimeout(()=>{if(!done){cleanup();reject(new Error('Timeout. Try again.'));}},25000);
+    const q=new URLSearchParams({...params,callback:cb,t:Date.now()});
+    s.src=API_URL+'?'+q.toString();
+    document.body.appendChild(s);
+  });
+}
+function togglePassword(){const p=document.getElementById('password');const b=document.getElementById('showBtn');const show=p.type==='password';p.type=show?'text':'password';b.textContent=show?'Hide':'Show';}
+function setMsg(text,type){const m=document.getElementById('msg');m.textContent=text||'';m.className='msg '+(type||'');}
+function redirectAfterLogin(session){
+  const user = session && session.user ? session.user : {};
+  const pages = Array.isArray(user.allowed_pages) ? user.allowed_pages : [];
+  const first = pages.find(p => p && p !== 'auth') || 'exec';
+  const target = 'Dashboard_Full.html#' + encodeURIComponent(first); 
+  window.location.replace(target);
+  setTimeout(() => { window.location.href = target; }, 600);
+}
+document.getElementById('loginForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const btn=document.getElementById('loginBtn');
+  const identifier=document.getElementById('identifier').value.trim();
+  const password=document.getElementById('password').value;
+  if(!identifier||!password){setMsg('Please enter email/username and password.','error');return;}
+  btn.disabled=true;btn.classList.add('loading');btn.textContent='Signing in...';setMsg('Checking permissions...','');
+  try{
+    const res=await apiCall({module:'auth',action:'login',identifier,password});
+    if(!res||res.error||res.ok===false) throw new Error(res?.message||'Login failed');
+    const session={token:res.token || '',user:res.user || {},loginAt:new Date().toISOString()};
+    window.AITSession ? AITSession.set(session) : localStorage.setItem('ait_auth_session',JSON.stringify(session));
+    setMsg('Login successful. Opening dashboard...','ok');
+    redirectAfterLogin(session);
+    setTimeout(()=>{
+      btn.disabled=false;
+      btn.classList.remove('loading');
+      btn.innerHTML='Open Dashboard';
+      btn.onclick=()=>{ window.location.href='Dashboard_Full.html#exec'; };
+    },2500);
+  }catch(err){
+    setMsg(err.message||String(err),'error');
+    btn.disabled=false;btn.classList.remove('loading');btn.textContent='Sign In';
+  }
+});
+
+(async function bootAuth(){
+  try{
+    const reason=new URLSearchParams(location.search).get('reason');
+    if(reason==='expired') setMsg('Session expired. Please sign in again.','error');
+    if(reason==='no_access') setMsg('This account has no page permissions. Ask the administrator to update auth_users.','error');
+    const existing=window.AITSession ? AITSession.get() : JSON.parse(localStorage.getItem('ait_auth_session')||'null');
+    if(existing&&existing.token&&existing.user&&!reason){
+      setMsg('Checking active session...','');
+      const verified=await apiCall({module:'auth',action:'verify',token:existing.token});
+      if(verified&&verified.ok!==false&&verified.user){
+        const session={token:existing.token,user:verified.user,loginAt:existing.loginAt||new Date().toISOString()};
+        window.AITSession ? AITSession.set(session) : localStorage.setItem('ait_auth_session',JSON.stringify(session));
+        setMsg('Active session found. Opening dashboard...','ok');
+        setTimeout(()=>redirectAfterLogin(session),250);
+      }else{
+        window.AITSession ? AITSession.clear() : localStorage.removeItem('ait_auth_session');
+        setMsg(verified&&verified.message?verified.message:'Please sign in again.','error');
+      }
+    }
+  }catch(e){
+    window.AITSession ? AITSession.clear() : localStorage.removeItem('ait_auth_session');
+    if(!document.getElementById('msg').textContent) setMsg('Please sign in again.','');
+  }
+})();
+
+</script>
+</body>
+</html>
