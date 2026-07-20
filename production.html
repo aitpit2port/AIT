@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07111f">
+  <title>AIT — Production / Lots & Equipment</title>
+  <link rel="icon" type="image/svg+xml" href="ait-logo.svg">
+  <link rel="stylesheet" href="ait-dashboard-theme.css">
+  <link rel="stylesheet" href="production.css">
+  <script src="dashboard-common.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script defer src="production.js"></script>
+</head>
+<body>
+  <div class="page-loading" id="pageLoading" role="status" aria-live="polite">
+    <div class="loading-card">
+      <div class="spinner" aria-hidden="true"></div>
+      <strong data-i18n="loadingTitle">جار تحميل بيانات الإنتاج</strong>
+      <span id="loadingMessage" data-i18n="loadingHint">يتم الاتصال بمصدر البيانات والتحقق من السجلات…</span>
+    </div>
+  </div>
+
+  <main class="production-shell" id="productionApp">
+    <header class="page-header">
+      <div class="page-identity">
+        <img class="page-logo" src="ait-logo.svg" alt="AIT">
+        <div>
+          <h1 data-i18n="pageTitle">الإنتاج واللوطات والمعدات</h1>
+          <p data-i18n="pageSubtitle">متابعة الإنتاج اليومي، حركة اللوطات، وكفاءة تشغيل المعدات من شاشة واحدة</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="sync-meta" aria-live="polite">
+          <span class="status-dot status-pending" id="connectionDot"></span>
+          <div>
+            <b id="connectionText" data-i18n="connecting">جار الاتصال…</b>
+            <small id="lastUpdated">—</small>
+          </div>
+        </div>
+        <button class="icon-button" id="languageButton" type="button" aria-label="Change language">EN</button>
+        <button class="icon-button" id="themeButton" type="button" aria-label="Change theme">☾</button>
+        <button class="button secondary" id="exportButton" type="button">
+          <span aria-hidden="true">⇩</span><span data-i18n="exportExcel">تصدير Excel</span>
+        </button>
+        <button class="button primary" id="refreshButton" type="button">
+          <span class="button-icon" aria-hidden="true">↻</span><span data-i18n="refresh">مزامنة وتحديث</span>
+        </button>
+      </div>
+    </header>
+
+    <section class="filter-panel" aria-label="Production filters">
+      <div class="filter-panel-head">
+        <div>
+          <h2 data-i18n="filtersTitle">فلاتر العرض</h2>
+          <p id="scopeSummary">—</p>
+        </div>
+        <button class="filter-toggle" id="filterToggle" type="button" aria-expanded="true" aria-controls="filterFields">
+          <span data-i18n="filtersToggle">إظهار / إخفاء الفلاتر</span><span aria-hidden="true">⌄</span>
+        </button>
+      </div>
+      <div class="filter-fields" id="filterFields">
+        <label class="field">
+          <span data-i18n="mine">المنجم</span>
+          <select id="mineFilter"><option value="all">كل المناجم</option></select>
+        </label>
+        <label class="field">
+          <span data-i18n="zone">الموقع / الزون</span>
+          <select id="zoneFilter"><option value="all">كل المواقع</option></select>
+        </label>
+        <label class="field">
+          <span data-i18n="stage">مرحلة اللوط</span>
+          <select id="stageFilter"><option value="all">كل المراحل</option></select>
+        </label>
+        <label class="field">
+          <span data-i18n="equipment">المعدة</span>
+          <select id="equipmentFilter"><option value="all">كل المعدات</option></select>
+        </label>
+        <label class="field">
+          <span data-i18n="equipmentClass">تصنيف المعدة</span>
+          <select id="classFilter"><option value="all">كل التصنيفات</option></select>
+        </label>
+        <label class="field">
+          <span data-i18n="fromDate">من تاريخ</span>
+          <input id="fromFilter" type="date">
+        </label>
+        <label class="field">
+          <span data-i18n="toDate">إلى تاريخ</span>
+          <input id="toFilter" type="date">
+        </label>
+        <label class="field search-field">
+          <span data-i18n="searchLabel">بحث</span>
+          <div class="search-box"><span aria-hidden="true">⌕</span><input id="searchFilter" type="search" autocomplete="off" data-i18n-placeholder="searchPlaceholder" placeholder="ابحث باسم اللوط أو المعدة أو المقاول"></div>
+        </label>
+        <button class="button ghost reset-button" id="resetFiltersButton" type="button"><span aria-hidden="true">×</span><span data-i18n="resetFilters">مسح الفلاتر</span></button>
+      </div>
+      <div class="filter-chips" id="activeFilterChips" aria-live="polite"></div>
+    </section>
+
+    <section class="alert-banner hidden" id="alertBanner" role="alert">
+      <span class="alert-icon" aria-hidden="true">!</span>
+      <div><strong id="alertTitle"></strong><p id="alertMessage"></p></div>
+      <button type="button" id="dismissAlert" aria-label="Dismiss">×</button>
+    </section>
+
+    <section class="kpi-grid" id="kpiGrid" aria-label="Production key performance indicators"></section>
+
+    <nav class="section-tabs" aria-label="Production sections">
+      <button type="button" class="section-tab active" data-tab="overview" aria-selected="true"><span aria-hidden="true">◫</span><span data-i18n="tabOverview">نظرة عامة</span></button>
+      <button type="button" class="section-tab" data-tab="equipment" aria-selected="false"><span aria-hidden="true">⚙</span><span data-i18n="tabEquipment">المعدات</span></button>
+      <button type="button" class="section-tab" data-tab="lots" aria-selected="false"><span aria-hidden="true">▦</span><span data-i18n="tabLots">اللوطات</span></button>
+    </nav>
+
+    <section class="tab-panel active" id="panel-overview" data-panel="overview">
+      <div class="dashboard-grid overview-grid">
+        <article class="panel span-2">
+          <div class="panel-head">
+            <div><span class="eyebrow" data-i18n="selectedPeriod">الفترة المختارة</span><h3 data-i18n="productionTrend">اتجاه الإنتاج وساعات التشغيل</h3><p data-i18n="productionTrendHint">الطن والمتر المكعب وصافي ساعات التشغيل يومًا بيوم</p></div>
+            <div class="panel-metric" id="trendMetric">—</div>
+          </div>
+          <div class="chart-box chart-lg"><canvas id="productionTrendChart"></canvas></div>
+        </article>
+
+        <article class="panel decision-panel">
+          <div class="panel-head"><div><span class="eyebrow" data-i18n="managementView">ملخص إداري</span><h3 data-i18n="decisionSummary">مؤشرات تحتاج متابعة</h3></div></div>
+          <div class="decision-list" id="decisionList"></div>
+        </article>
+
+        <article class="panel span-2">
+          <div class="panel-head"><div><span class="eyebrow" data-i18n="lotMovement">حركة اللوطات</span><h3 data-i18n="stageFlow">الكميات عبر مراحل الإنتاج</h3><p data-i18n="stageFlowHint">إجمالي الكمية المسجلة في كل مرحلة مع عدد اللوطات الموجودة حاليًا</p></div></div>
+          <div class="stage-flow" id="stageFlow"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head"><div><span class="eyebrow" data-i18n="equipmentHealth">تشغيل المعدات</span><h3 data-i18n="hoursComposition">صافي التشغيل والتوقف اليومي</h3></div></div>
+          <div class="chart-box"><canvas id="hoursCompositionChart"></canvas></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head"><div><span class="eyebrow" data-i18n="minePerformance">أداء المناجم</span><h3 data-i18n="stockByMine">المخزون الحالي حسب المنجم</h3></div></div>
+          <div class="chart-box"><canvas id="stockByMineChart"></canvas></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head"><div><span class="eyebrow" data-i18n="qualityIndicator">مؤشر الجودة</span><h3 data-i18n="feByMine">متوسط Fe% المرجح حسب المنجم</h3></div></div>
+          <div class="chart-box"><canvas id="feByMineChart"></canvas></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="panel-equipment" data-panel="equipment" hidden>
+      <div class="dashboard-grid equipment-grid">
+        <article class="panel span-2">
+          <div class="panel-head"><div><span class="eyebrow" data-i18n="excavators">الحفارات</span><h3 data-i18n="excavatorDailyTons">إنتاج كل حفار يوميًا بالطن</h3><p data-i18n="oneLinePerEquipment">كل خط يمثل معدة مستقلة ويتأثر بجميع الفلاتر</p></div><div class="panel-metric" id="excavatorTonMetric">—</div></div>
+          <div class="chart-box chart-lg"><canvas id="excavatorTonsChart"></canvas></div>
+        </article>
+        <article class="panel span-2">
+          <div class="panel-head"><div><span class="eyebrow" data-i18n="excavators">الحفارات</span><h3 data-i18n="excavatorDailyM3">إنتاج كل حفار يوميًا بالمتر المكعب</h3><p data-i18n="oneLinePerEquipment">كل خط يمثل معدة مستقلة ويتأثر بجميع الفلاتر</p></div><div class="panel-metric" id="excavatorM3Metric">—</div></div>
+          <div class="chart-box chart-lg"><canvas id="excavatorM3Chart"></canvas></div>
+        </article>
+        <article class="panel span-2">
+          <div class="panel-head"><div><span class="eyebrow" data-i18n="excavators">الحفارات</span><h3 data-i18n="excavatorDailyHours">عدد ساعات تشغيل كل حفار يوميًا</h3><p data-i18n="netHoursFallback">يستخدم صافي الساعات، وإن لم تتوفر يستخدم إجمالي ساعات التشغيل</p></div><div class="panel-metric" id="excavatorHoursMetric">—</div></div>
+          <div class="chart-box chart-lg"><canvas id="excavatorHoursChart"></canvas></div>
+        </article>
+        <article class="panel">
+          <div class="panel-head"><div><span class="eyebrow" data-i18n="efficiency">الكفاءة</span><h3 data-i18n="productivityByEquipment">إنتاجية المعدات طن / ساعة</h3></div></div>
+          <div class="chart-box"><canvas id="equipmentProductivityChart"></canvas></div>
+        </article>
+        <article class="panel">
+          <div class="panel-head"><div><span class="eyebrow" data-i18n="productionMix">مزيج الإنتاج</span><h3 data-i18n="productionByClass">الإنتاج حسب نوع المعدة</h3></div></div>
+          <div class="chart-box"><canvas id="productionByClassChart"></canvas></div>
+        </article>
+      </div>
+
+      <article class="data-panel">
+        <div class="data-panel-head">
+          <div><span class="eyebrow" data-i18n="equipmentSummaryEyebrow">ملخص المعدات</span><h3 data-i18n="equipmentOutputTitle">الإنتاج حسب ساعات التشغيل</h3><p data-i18n="equipmentOutputHint">معدل الساعة = إجمالي الإنتاج ÷ ساعات التشغيل الفعلية</p></div>
+          <div class="table-actions"><span class="result-badge" id="equipmentOutputCount">0</span></div>
+        </div>
+        <div class="table-scroll"><table class="data-table compact-table"><thead id="equipmentOutputHead"></thead><tbody id="equipmentOutputBody"></tbody><tfoot id="equipmentOutputFoot"></tfoot></table></div>
+      </article>
+
+      <article class="data-panel">
+        <div class="data-panel-head">
+          <div><span class="eyebrow" data-i18n="dailyLog">السجل اليومي</span><h3 data-i18n="equipmentLogTitle">تفاصيل تشغيل وإنتاج المعدات</h3></div>
+          <div class="table-actions">
+            <label><span data-i18n="rowsPerPage">صفوف الصفحة</span><select id="equipmentPageSize"><option>25</option><option selected>50</option><option>100</option></select></label>
+            <span class="result-badge" id="equipmentRowsCount">0</span>
+          </div>
+        </div>
+        <div class="table-scroll"><table class="data-table wide-table"><thead id="equipmentLogHead"></thead><tbody id="equipmentLogBody"></tbody></table></div>
+        <div class="pagination" id="equipmentPagination"></div>
+      </article>
+    </section>
+
+    <section class="tab-panel" id="panel-lots" data-panel="lots" hidden>
+      <div class="dashboard-grid lots-grid">
+        <article class="panel span-2">
+          <div class="panel-head"><div><span class="eyebrow" data-i18n="lotMovement">حركة اللوطات</span><h3 data-i18n="fullStageChart">مقارنة كميات مراحل الإنتاج</h3></div><div class="panel-metric" id="lotStageMetric">—</div></div>
+          <div class="chart-box chart-lg"><canvas id="stageQuantityChart"></canvas></div>
+        </article>
+        <article class="panel">
+          <div class="panel-head"><div><span class="eyebrow" data-i18n="currentPosition">الوضع الحالي</span><h3 data-i18n="stageDistribution">توزيع اللوطات حسب المرحلة الحالية</h3></div></div>
+          <div class="chart-box"><canvas id="stageDistributionChart"></canvas></div>
+        </article>
+        <article class="panel">
+          <div class="panel-head"><div><span class="eyebrow" data-i18n="variance">الفروقات</span><h3 data-i18n="lossByTransition">الفاقد بين مراحل الإنتاج</h3></div></div>
+          <div class="chart-box"><canvas id="lossTransitionChart"></canvas></div>
+        </article>
+      </div>
+
+      <article class="data-panel">
+        <div class="data-panel-head">
+          <div><span class="eyebrow" data-i18n="lotLog">سجل اللوطات</span><h3 data-i18n="lotsTableTitle">تفاصيل اللوطات ومراحلها الحالية</h3></div>
+          <div class="table-actions">
+            <label><span data-i18n="rowsPerPage">صفوف الصفحة</span><select id="lotsPageSize"><option>25</option><option selected>50</option><option>100</option></select></label>
+            <span class="result-badge" id="lotsRowsCount">0</span>
+          </div>
+        </div>
+        <div class="table-scroll"><table class="data-table wide-table"><thead id="lotsLogHead"></thead><tbody id="lotsLogBody"></tbody></table></div>
+        <div class="pagination" id="lotsPagination"></div>
+      </article>
+    </section>
+
+    <footer class="page-footer" aria-live="polite">
+      <div><span class="status-dot" id="footerDot"></span><span id="footerStatus">—</span></div>
+      <div id="footerCount">—</div>
+    </footer>
+  </main>
+
+  <div class="toast-region" id="toastRegion" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>
