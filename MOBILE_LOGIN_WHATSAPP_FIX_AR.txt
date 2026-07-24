@@ -1,0 +1,24 @@
+إصلاح دخول الموبايل ومعاينة واتساب
+=====================================
+
+الملفات المطلوب رفعها إلى GitHub Pages:
+- auth.html
+- Dashboard_Full.html
+- index.html
+- ait_pit2port_social.jpg
+
+مهم: رسالة تعذر الوصول إلى Apps Script لا تُحل من ملفات الواجهة وحدها.
+من Google Apps Script نفّذ:
+1) Deploy > Manage deployments.
+2) Edit أو New deployment > Web app.
+3) Execute as: Me.
+4) Who has access: Anyone.
+5) Deploy وانسخ رابط /exec.
+6) لو رابط /exec تغير، افتح صفحة الدخول مرة بهذا الشكل:
+   auth.html?api=ضع_رابط_exec_هنا
+سيتم حفظ الرابط الصحيح على الجهاز تلقائيًا.
+
+معاينة واتساب:
+- ارفع صورة ait_pit2port_social.jpg في جذر المشروع.
+- شارك الرابط الرئيسي: https://aitpit2port.github.io/AIT/?v=20260725
+- واتساب يخزن المعاينات القديمة؛ غيّر رقم v عند التجربة مرة أخرى.
