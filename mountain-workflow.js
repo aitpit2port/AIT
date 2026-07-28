@@ -3,7 +3,7 @@
 const JOBS=['مدير مشروع','مدير الجودة','مدير الصيانة','مدير الموقع','مدير إنتاج','مسؤول الحسابات','مدير تشغيل','مشرف صيانة','فني صيانة','فني تشغيل كسارة','فني لحام','علاقات عامة','غفير','أمن','متابعة إنتاج المعدات وساعات التشغيل','مندوب مشتريات','سائق'];
 const RESIDENCES=['الموقع','شقة 1','شقة 2','شقة 3','القصير'];
 const ACTIONS=[['','اختر الحالة'],['on_site','ذهاب إلى الموقع'],['work_from_camp','يعمل من السكن'],['leave','إجازة'],['mission','مأمورية'],['camp_no_work','سكن فقط']];
-let WDATA={employees:[],vehicles:[],tasks:[],plans:[],vehicle_plans:[],leaves:[],departments:[],route_points:[]};
+let WDATA={employees:[],vehicles:[],tasks:[],plans:[],vehicle_plans:[],leaves:[],missions:[],departments:[],route_points:[]};
 let workflowLoadedAt=0,workflowRequest=null;
 const WORKFLOW_CACHE_MS=60000;
 const USER_VEHICLE_MARKER='[AIT_USER_VEHICLE]';
@@ -19,6 +19,7 @@ function normalizeWorkflow(source){
     plans:Array.isArray(value.plans)?value.plans:[],
     vehicle_plans:Array.isArray(value.vehicle_plans)?value.vehicle_plans:[],
     leaves:Array.isArray(value.leaves)?value.leaves:[],
+    missions:Array.isArray(value.missions)?value.missions:[],
     departments:Array.isArray(value.departments)?value.departments:[],
     route_points:Array.isArray(value.route_points)?value.route_points:splitList(value.settings&&value.settings.vehicle_route_point_options),
     settings:value.settings||{},lastUpdated:value.lastUpdated||''
@@ -38,7 +39,7 @@ function open(initialPane='people',afterLoad){
   modal.classList.add('workflow-modal','show');
   $('modalTitle').textContent='الإدخال والتشغيل اليومي';
   $('modalActions').innerHTML='<div id="workflowSaveFeedback" class="save-feedback"></div><button class="btn ghost" id="workflowClose">إغلاق</button>';
-  $('modalBody').innerHTML='<div class="workflow-shell"><div class="workflow-tabs"><button class="workflow-tab active" data-wtab="people">الأفراد والمهام</button><button class="workflow-tab" data-wtab="vehicles">السيارات المتاحة</button><button class="workflow-tab" data-wtab="leaves">الإجازات</button><button class="workflow-tab task-close-tab" data-wtab="tasks">إغلاق مهام الخروج</button></div><section class="workflow-pane active" id="w-pane-people"></section><section class="workflow-pane" id="w-pane-vehicles"></section><section class="workflow-pane" id="w-pane-leaves"></section><section class="workflow-pane" id="w-pane-tasks"></section></div>';
+  $('modalBody').innerHTML='<div class="workflow-shell"><div class="workflow-tabs"><button class="workflow-tab active" data-wtab="people">الأفراد والمهام</button><button class="workflow-tab" data-wtab="vehicles">السيارات المتاحة</button><button class="workflow-tab" data-wtab="leaves">الإجازات والمأموريات</button><button class="workflow-tab task-close-tab" data-wtab="tasks">إغلاق مهام الخروج</button></div><section class="workflow-pane active" id="w-pane-people"></section><section class="workflow-pane" id="w-pane-vehicles"></section><section class="workflow-pane" id="w-pane-leaves"></section><section class="workflow-pane" id="w-pane-tasks"></section></div>';
   $('workflowClose').onclick=()=>{modal.classList.remove('show','workflow-modal')};
   document.querySelectorAll('[data-wtab]').forEach(b=>b.onclick=()=>switchPane(b.dataset.wtab));
   const snapshot=dashboardWorkflow();
@@ -574,20 +575,87 @@ function openRoutePointsModal(onSaved){
 
 function renderLeaves(){
   const emps=(WDATA.employees||[]).slice().sort((a,b)=>String(a.department||'').localeCompare(String(b.department||''),'ar'));
-  $('w-pane-leaves').innerHTML='<div class="workflow-topline"><div><h3>إدارة الإجازات والعودة</h3><p>كل الموظفين المسجلين يظهرون هنا، ويمكن تعديل بيانات الموظف أو تسجيل إجازته.</p></div></div><div class="leave-workflow-list">'+(emps.length?emps.map(e=>{
-    const leave=(WDATA.leaves||[]).find(l=>String(l.employee_id)===String(e.employee_id)&&!l.actual_return_date&&!['cancelled','rejected','completed'].includes(String(l.status||'').toLowerCase()));
+  const vehicleOptions=registeredVehicles().map(v=>'<option value="'+esc(v.vehicle_id)+'">'+esc(vehicleLabel(v))+'</option>').join('');
+  const today=MountainCore.today();
+  $('w-pane-leaves').innerHTML='<div class="workflow-topline"><div><h3>إدارة الإجازات والمأموريات والعودة</h3><p>اختر نوع الحالة أولًا، ثم سجّل المدة والبيانات المناسبة. الإجازة تظهر بالأخضر والمأمورية بالبنفسجي.</p></div></div><div class="leave-workflow-list">'+(emps.length?emps.map(e=>{
+    const leave=(WDATA.leaves||[]).find(l=>String(l.employee_id)===String(e.employee_id)&&!l.actual_return_date&&!['cancelled','canceled','rejected','completed'].includes(String(l.status||'').toLowerCase()));
+    const mission=(WDATA.missions||[]).find(m=>String(m.employee_id)===String(e.employee_id)&&!['cancelled','canceled','rejected','completed'].includes(String(m.status||'approved').toLowerCase())&&(!m.end_date||String(m.end_date)>=today));
+    const active=leave||mission;
+    const activeType=leave?'leave':(mission?'mission':'');
     const days=e.current_cycle_start?Math.max(0,Math.floor((new Date()-new Date(e.current_cycle_start))/86400000)):0;
-    return '<div class="leave-person-card" data-leave-emp="'+esc(e.employee_id)+'"><div class="workflow-topline"><div><b>'+esc(e.employee_name)+'</b><div>'+esc(e.department||'—')+' · '+esc(e.job_title||'—')+'</div></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span>'+(leave?'إجازة من '+esc(leave.start_date)+' إلى '+esc(leave.end_date):'في العمل منذ '+days+' يوم')+'</span><button type="button" class="btn ghost compact edit-employee-from-leaves" data-employee-id="'+esc(e.employee_id)+'">تعديل بيانات الموظف</button></div></div><div class="inline-fields">'+(leave?'<div class="field"><label>تعديل تاريخ العودة</label><input class="input leave-return" type="date" value="'+esc(leave.return_date||leave.expected_return_date||leave.end_date)+'"></div><div class="field"><label>تأكيد الحضور</label><button class="btn primary confirm-return" data-leave-id="'+esc(leave.leave_id)+'">تأكيد العودة</button></div>':'<div class="field"><label>تاريخ الذهاب</label><input class="input leave-start" type="date"></div><div class="field"><label>تاريخ العودة</label><input class="input leave-end" type="date"></div><div class="field"><label>البديل أثناء الإجازة</label><select class="select leave-cover"><option value="">اختر البديل</option>'+WDATA.employees.filter(x=>x.employee_id!==e.employee_id).map(x=>'<option value="'+esc(x.employee_id)+'">'+esc(x.employee_name)+'</option>').join('')+'</select></div><div class="field"><label>مكان السكن عند العودة</label><select class="select leave-residence">'+RESIDENCES.map(x=>'<option>'+x+'</option>').join('')+'</select></div><button class="btn primary save-leave">إضافة الإجازة</button>')+'</div></div>';
+    const activeText=leave?'<span style="color:#22c55e;font-weight:800">إجازة من '+esc(leave.start_date)+' إلى '+esc(leave.end_date)+'</span>':mission?'<span style="color:#a78bfa;font-weight:800">مأمورية من '+esc(mission.start_date)+' إلى '+esc(mission.end_date)+(mission.destination?' — '+esc(mission.destination):'')+'</span>':'في العمل منذ '+days+' يوم';
+    const activeFields=activeType==='leave'
+      ?'<div class="field"><label>تاريخ الحضور الفعلي</label><input class="input leave-return" type="date" value="'+esc(leave.return_date||leave.expected_return_date||leave.end_date)+'"></div><div class="field"><label>تأكيد الحضور</label><button class="btn primary confirm-return" style="background:#16a34a;border-color:#16a34a" data-leave-id="'+esc(leave.leave_id)+'">تأكيد العودة من الإجازة</button></div>'
+      :activeType==='mission'
+        ?'<div class="field"><label>تاريخ انتهاء المأمورية الفعلي</label><input class="input mission-return" type="date" value="'+esc(mission.end_date||today)+'"></div><div class="field"><label>تأكيد انتهاء المأمورية</label><button class="btn primary confirm-mission-return" style="background:#7c3aed;border-color:#7c3aed" data-mission-id="'+esc(mission.mission_id)+'">تأكيد العودة من المأمورية</button></div>'
+        :'<div class="field"><label>نوع الحالة</label><select class="select absence-type"><option value="leave">إجازة</option><option value="mission">مأمورية</option></select></div><div class="field"><label>تاريخ البداية</label><input class="input absence-start" type="date" value="'+today+'"></div><div class="field"><label>تاريخ العودة</label><input class="input absence-end" type="date" value="'+today+'"></div><div class="field leave-only"><label>البديل أثناء الإجازة</label><select class="select leave-cover"><option value="">اختر البديل</option>'+WDATA.employees.filter(x=>x.employee_id!==e.employee_id).map(x=>'<option value="'+esc(x.employee_id)+'">'+esc(x.employee_name)+'</option>').join('')+'</select></div><div class="field leave-only"><label>مكان السكن عند العودة</label><select class="select leave-residence">'+RESIDENCES.map(x=>'<option>'+x+'</option>').join('')+'</select></div><div class="field mission-only hidden"><label>جهة أو مكان المأمورية</label><input class="input mission-destination" placeholder="مثال: القصير، الغردقة، مورد معدات"></div><div class="field mission-only hidden"><label>المسؤول أو الجهة المتابع معها</label><input class="input mission-responsible" placeholder="اختياري"></div><div class="field mission-only hidden"><label>تفاصيل المأمورية والمطلوب</label><textarea class="textarea mission-notes" placeholder="اكتب سبب المأمورية والأعمال المطلوبة"></textarea></div><div class="field mission-only hidden"><label>السيارة المستخدمة</label><select class="select mission-vehicle"><option value="">بدون سيارة محددة</option>'+vehicleOptions+'</select></div><button class="btn primary save-absence" style="background:#16a34a;border-color:#16a34a">تسجيل الإجازة</button>';
+    return '<div class="leave-person-card" data-leave-emp="'+esc(e.employee_id)+'"><div class="workflow-topline"><div><b>'+esc(e.employee_name)+'</b><div>'+esc(e.department||'—')+' · '+esc(e.job_title||'—')+'</div></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span>'+activeText+'</span><button type="button" class="btn ghost compact edit-employee-from-leaves" data-employee-id="'+esc(e.employee_id)+'">تعديل بيانات الموظف</button></div></div><div class="inline-fields">'+activeFields+'</div></div>';
   }).join(''):'<div class="empty">لا يوجد موظفون مسجلون حاليًا.</div>')+'</div>';
-  document.querySelectorAll('.save-leave').forEach(b=>b.onclick=()=>saveLeave(b.closest('[data-leave-emp]')));
-  document.querySelectorAll('.confirm-return').forEach(b=>b.onclick=()=>confirmReturn(b));
+  document.querySelectorAll('.absence-type').forEach(select=>{select.onchange=()=>syncAbsenceType(select.closest('[data-leave-emp]'));syncAbsenceType(select.closest('[data-leave-emp]'))});
+  document.querySelectorAll('.absence-start').forEach(input=>input.onchange=()=>{const end=input.closest('[data-leave-emp]').querySelector('.absence-end');if(!end.value||end.value<input.value)end.value=input.value});
+  document.querySelectorAll('.save-absence').forEach(button=>button.onclick=()=>saveAbsence(button.closest('[data-leave-emp]')));
+  document.querySelectorAll('.confirm-return').forEach(button=>button.onclick=()=>confirmReturn(button));
+  document.querySelectorAll('.confirm-mission-return').forEach(button=>button.onclick=()=>confirmMissionReturn(button));
   document.querySelectorAll('.edit-employee-from-leaves').forEach(button=>button.onclick=()=>{
     const employee=(WDATA.employees||[]).find(item=>String(item.employee_id||item.id)===String(button.dataset.employeeId));
     if(employee)openEmployeeModal(employee);
   });
 }
-async function saveLeave(card){try{const emp=card.dataset.leaveEmp,start=card.querySelector('.leave-start').value,end=card.querySelector('.leave-end').value;if(!start||!end)throw new Error('حدد تاريخ الذهاب والعودة.');const result=await call('saveleave',{employee_id:emp,leave_type:'annual',type:'annual',work_period_from:'',work_period_to:'',start_date:start,end_date:end,return_date:end,expected_return_date:end,status:'approved',reason:'إجازة',coverage_employee_id:card.querySelector('.leave-cover').value,return_residence:card.querySelector('.leave-residence').value});const saved=Object.assign({employee_id:emp,start_date:start,end_date:end,return_date:end,status:'approved'},(result&&result.leave)||{});WDATA.leaves=[saved].concat((WDATA.leaves||[]).filter(item=>String(item.leave_id||'')!==String(saved.leave_id||'')&&String(item.employee_id)!==String(emp)));WDATA.employees=(WDATA.employees||[]).map(item=>String(item.employee_id)===String(emp)?Object.assign({},item,{current_status:'leave',status:'leave'}):item);feedback('تم حفظ الإجازة والبديل، وتحديث حالة الموظف مباشرة.',true);renderLeaves();renderPeople();Promise.allSettled([loadWorkflow(true),MountainCore.loadData(true)]).then(()=>{if($('w-pane-leaves'))renderLeaves();if($('w-pane-people'))renderPeople()})}catch(e){feedback(e.message,false)}}
-async function confirmReturn(btn){try{const card=btn.closest('[data-leave-emp]');await call('confirmleavereturn',{leave_id:btn.dataset.leaveId,employee_id:card.dataset.leaveEmp,actual_return_date:card.querySelector('.leave-return').value||MountainCore.today()});feedback('تم تأكيد عودة الموظف وظهوره في صفحة المهام.',true);await loadWorkflow(true);renderLeaves()}catch(e){feedback(e.message,false)}}
+function syncAbsenceType(card){
+  if(!card)return;
+  const select=card.querySelector('.absence-type');if(!select)return;
+  const mission=select.value==='mission';
+  card.querySelectorAll('.leave-only').forEach(el=>el.classList.toggle('hidden',mission));
+  card.querySelectorAll('.mission-only').forEach(el=>el.classList.toggle('hidden',!mission));
+  const button=card.querySelector('.save-absence');
+  if(button){button.textContent=mission?'تسجيل المأمورية':'تسجيل الإجازة';button.style.background=mission?'#7c3aed':'#16a34a';button.style.borderColor=mission?'#7c3aed':'#16a34a'}
+  select.style.borderColor=mission?'#7c3aed':'#16a34a';
+}
+async function saveAbsence(card){
+  const button=card.querySelector('.save-absence');
+  try{
+    const emp=card.dataset.leaveEmp,type=card.querySelector('.absence-type').value,start=card.querySelector('.absence-start').value,end=card.querySelector('.absence-end').value;
+    if(!start||!end||end<start)throw new Error('حدد تاريخ بداية وعودة صحيحًا.');
+    button.disabled=true;button.textContent='جارٍ الحفظ...';
+    if(type==='mission'){
+      const destination=card.querySelector('.mission-destination').value.trim(),notes=card.querySelector('.mission-notes').value.trim();
+      if(!destination)throw new Error('اكتب جهة أو مكان المأمورية.');
+      if(!notes)throw new Error('اكتب تفاصيل المأمورية والأعمال المطلوبة.');
+      const result=await call('savemission',{employee_id:emp,start_date:start,end_date:end,destination:destination,responsible_person:card.querySelector('.mission-responsible').value.trim(),vehicle_id:card.querySelector('.mission-vehicle').value,notes:notes,status:'approved'});
+      const saved=Object.assign({employee_id:emp,start_date:start,end_date:end,destination:destination,notes:notes,status:'approved'},(result&&result.mission)||{});
+      WDATA.missions=[saved].concat((WDATA.missions||[]).filter(item=>String(item.mission_id||'')!==String(saved.mission_id||'')&&String(item.employee_id)!==String(emp)));
+      WDATA.employees=(WDATA.employees||[]).map(item=>String(item.employee_id)===String(emp)?Object.assign({},item,{current_status:'mission',status:'mission'}):item);
+      feedback('تم تسجيل المأمورية بنجاح وتحديث حالة الموظف مباشرة.',true);
+    }else{
+      const result=await call('saveleave',{employee_id:emp,leave_type:'annual',type:'annual',work_period_from:'',work_period_to:'',start_date:start,end_date:end,return_date:end,expected_return_date:end,status:'approved',reason:'إجازة',coverage_employee_id:card.querySelector('.leave-cover').value,return_residence:card.querySelector('.leave-residence').value});
+      const saved=Object.assign({employee_id:emp,start_date:start,end_date:end,return_date:end,status:'approved'},(result&&result.leave)||{});
+      WDATA.leaves=[saved].concat((WDATA.leaves||[]).filter(item=>String(item.leave_id||'')!==String(saved.leave_id||'')&&String(item.employee_id)!==String(emp)));
+      WDATA.employees=(WDATA.employees||[]).map(item=>String(item.employee_id)===String(emp)?Object.assign({},item,{current_status:'leave',status:'leave'}):item);
+      feedback('تم تسجيل الإجازة بنجاح وتحديث حالة الموظف مباشرة.',true);
+    }
+    renderLeaves();renderPeople();
+  }catch(e){feedback(e.message,false);if(button){button.disabled=false;syncAbsenceType(card)}}
+}
+async function confirmReturn(btn){
+  try{
+    const card=btn.closest('[data-leave-emp]'),date=card.querySelector('.leave-return').value||MountainCore.today();
+    btn.disabled=true;btn.textContent='جارٍ التأكيد...';
+    await call('confirmleavereturn',{leave_id:btn.dataset.leaveId,employee_id:card.dataset.leaveEmp,actual_return_date:date});
+    WDATA.leaves=(WDATA.leaves||[]).filter(item=>String(item.leave_id)!==String(btn.dataset.leaveId));
+    WDATA.employees=(WDATA.employees||[]).map(item=>String(item.employee_id)===String(card.dataset.leaveEmp)?Object.assign({},item,{current_status:'camp_no_work',status:'camp_no_work'}):item);
+    feedback('تم تأكيد عودة الموظف من الإجازة وظهوره في صفحة المهام.',true);renderLeaves();renderPeople();
+  }catch(e){feedback(e.message,false);btn.disabled=false;btn.textContent='تأكيد العودة من الإجازة'}
+}
+async function confirmMissionReturn(btn){
+  try{
+    const card=btn.closest('[data-leave-emp]'),date=card.querySelector('.mission-return').value||MountainCore.today();
+    btn.disabled=true;btn.textContent='جارٍ التأكيد...';
+    await call('confirmmissionreturn',{mission_id:btn.dataset.missionId,employee_id:card.dataset.leaveEmp,actual_return_date:date});
+    WDATA.missions=(WDATA.missions||[]).filter(item=>String(item.mission_id)!==String(btn.dataset.missionId));
+    WDATA.employees=(WDATA.employees||[]).map(item=>String(item.employee_id)===String(card.dataset.leaveEmp)?Object.assign({},item,{current_status:'camp_no_work',status:'camp_no_work'}):item);
+    feedback('تم تأكيد انتهاء المأمورية وعودة الموظف إلى قائمة المتاحين.',true);renderLeaves();renderPeople();
+  }catch(e){feedback(e.message,false);btn.disabled=false;btn.textContent='تأكيد العودة من المأمورية'}
+}
 
 function reportDepartmentLabel(value){
   const values=unique(splitList(value));
