@@ -29,16 +29,16 @@ function dashboardWorkflow(){
   return d&&d.workflow&&Array.isArray(d.workflow.employees)?normalizeWorkflow(d.workflow):null;
 }
 function hasWorkflow(value){return !!(value&&Array.isArray(value.employees)&&value.employees.length)}
-function renderWorkflow(){renderPeople();renderVehicles();renderLeaves();if(window.MountainI18n)window.MountainI18n.apply()}
+function renderWorkflow(){renderPeople();renderVehicles();renderLeaves();renderWorkflowTasks();if(window.MountainI18n)window.MountainI18n.apply()}
 function showWorkflowLoading(){
-  ['w-pane-people','w-pane-vehicles','w-pane-leaves'].forEach(id=>{const el=$(id);if(el)el.innerHTML='<div class="empty">جارٍ تحميل البيانات الحالية...</div>'});
+  ['w-pane-people','w-pane-vehicles','w-pane-leaves','w-pane-tasks'].forEach(id=>{const el=$(id);if(el)el.innerHTML='<div class="empty">جارٍ تحميل البيانات الحالية...</div>'});
 }
 function open(initialPane='people',afterLoad){
   const modal=$('inputModal');
   modal.classList.add('workflow-modal','show');
   $('modalTitle').textContent='الإدخال والتشغيل اليومي';
   $('modalActions').innerHTML='<div id="workflowSaveFeedback" class="save-feedback"></div><button class="btn ghost" id="workflowClose">إغلاق</button>';
-  $('modalBody').innerHTML='<div class="workflow-shell"><div class="workflow-tabs"><button class="workflow-tab active" data-wtab="people">الأفراد والمهام</button><button class="workflow-tab" data-wtab="vehicles">السيارات المتاحة</button><button class="workflow-tab" data-wtab="leaves">الإجازات</button></div><section class="workflow-pane active" id="w-pane-people"></section><section class="workflow-pane" id="w-pane-vehicles"></section><section class="workflow-pane" id="w-pane-leaves"></section></div>';
+  $('modalBody').innerHTML='<div class="workflow-shell"><div class="workflow-tabs"><button class="workflow-tab active" data-wtab="people">الأفراد والمهام</button><button class="workflow-tab" data-wtab="vehicles">السيارات المتاحة</button><button class="workflow-tab" data-wtab="leaves">الإجازات</button><button class="workflow-tab task-close-tab" data-wtab="tasks">إغلاق مهام الخروج</button></div><section class="workflow-pane active" id="w-pane-people"></section><section class="workflow-pane" id="w-pane-vehicles"></section><section class="workflow-pane" id="w-pane-leaves"></section><section class="workflow-pane" id="w-pane-tasks"></section></div>';
   $('workflowClose').onclick=()=>{modal.classList.remove('show','workflow-modal')};
   document.querySelectorAll('[data-wtab]').forEach(b=>b.onclick=()=>switchPane(b.dataset.wtab));
   const snapshot=dashboardWorkflow();
@@ -47,7 +47,7 @@ function open(initialPane='people',afterLoad){
   showWorkflowLoading();switchPane(initialPane);
   return loadWorkflow(true).then(()=>{renderWorkflow();switchPane(initialPane);if(typeof afterLoad==='function')afterLoad();return WDATA}).catch(e=>feedback(e.message,false));
 }
-function switchPane(n){document.querySelectorAll('[data-wtab]').forEach(b=>b.classList.toggle('active',b.dataset.wtab===n));document.querySelectorAll('.workflow-pane').forEach(p=>p.classList.toggle('active',p.id==='w-pane-'+n))}
+function switchPane(n){if(n==='leaves'&&$('w-pane-leaves'))renderLeaves();if(n==='tasks'&&$('w-pane-tasks'))renderWorkflowTasks();document.querySelectorAll('[data-wtab]').forEach(b=>b.classList.toggle('active',b.dataset.wtab===n));document.querySelectorAll('.workflow-pane').forEach(p=>p.classList.toggle('active',p.id==='w-pane-'+n))}
 async function loadWorkflow(force=false){
   const snapshot=!force&&dashboardWorkflow();
   if(snapshot){WDATA=snapshot;workflowLoadedAt=Date.now();return WDATA}
@@ -82,7 +82,7 @@ function renderPeople(){
     '<div class="employee-plan-list">'+
       (emps.length?emps.map(e=>
         '<div class="employee-plan-row" data-plan-employee="'+esc(e.employee_id||e.id)+'">'+
-          '<div class="person"><b>'+esc(e.employee_name||e.name)+'</b><small>'+esc((e.job_title||'—')+' · '+(e.department||'—')+' · '+(e.current_residence_location||'السكن'))+'</small><span class="plan-status-badge hidden"></span></div>'+
+          '<div class="person"><b>'+esc(e.employee_name||e.name)+'</b><small>'+esc((e.job_title||'—')+' · '+(e.department||'—')+' · '+(e.current_residence_location||'السكن'))+'</small><span class="plan-status-badge hidden"></span><button type="button" class="btn ghost compact edit-employee-from-people" data-employee-id="'+esc(e.employee_id||e.id)+'" style="margin-top:8px">تعديل بيانات الموظف</button></div>'+
           '<select class="select plan-action" aria-label="اختيار حالة الموظف">'+actionOptions('')+'</select>'+
           '<div class="plan-details">'+
             '<textarea class="textarea plan-task hidden" placeholder="اكتب المهمة المطلوبة بالتفصيل"></textarea>'+
@@ -115,7 +115,11 @@ function renderPeople(){
     document.querySelectorAll('.plan-leave-start').forEach(i=>{if(!i.value)i.value=selectedDate});
     document.querySelectorAll('.plan-leave-end').forEach(i=>{const start=i.closest('.employee-plan-row').querySelector('.plan-leave-start').value||selectedDate;if(!i.value||i.value<start)i.value=start});
   };
-  $('addWorkflowEmployee').onclick=openEmployeeModal;
+  $('addWorkflowEmployee').onclick=()=>openEmployeeModal();
+  document.querySelectorAll('.edit-employee-from-people').forEach(button=>button.onclick=()=>{
+    const employee=(WDATA.employees||[]).find(item=>String(item.employee_id||item.id)===String(button.dataset.employeeId));
+    if(employee)openEmployeeModal(employee);
+  });
   $('savePeoplePlan').onclick=savePeoplePlan;
   showBlocked();
 }
@@ -149,6 +153,7 @@ function syncPlanRow(row){
 }
 function showBlocked(){const ids=new Set((WDATA.tasks||[]).filter(t=>String(t.task_status||'open')!=='completed').map(t=>String(t.employee_id)));const banner=$('blockedTaskBanner');const rows=[...document.querySelectorAll('[data-plan-employee]')];let count=0;rows.forEach(r=>{if(ids.has(String(r.dataset.planEmployee))){r.classList.add('ineligible');r.querySelector('.plan-action').disabled=true;count++}});banner.innerHTML=count?'<div class="blocked-banner">يوجد '+count+' موظف لديهم مهام قديمة مفتوحة. لا يمكن إضافة مهام جديدة لهم قبل كتابة ما تم وإغلاق أو تحديث المهمة القديمة.</div>':''}
 async function savePeoplePlan(){
+  const saveButton=$('savePeoplePlan');
   try{
     const date=$('workflowDate').value,records=[],leaveRecords=[];
     document.querySelectorAll('[data-plan-employee]').forEach(r=>{
@@ -161,6 +166,9 @@ async function savePeoplePlan(){
         leaveRecords.push({
           employee_id:r.dataset.planEmployee,
           leave_type:'annual',
+          type:'annual',
+          work_period_from:'',
+          work_period_to:'',
           start_date:start,
           end_date:end,
           return_date:end,
@@ -181,15 +189,41 @@ async function savePeoplePlan(){
       records.push({employee_id:r.dataset.planEmployee,plan_date:date,planned_status:status,task_description:task,vehicle_id:r.querySelector('.plan-vehicle').value,mission_destination:destination,mission_end_date:missionEnd,mission_responsible_person:responsible});
     });
     if(!records.length&&!leaveRecords.length)throw new Error('اختر حالة لموظف واحد على الأقل.');
+    if(saveButton)saveButton.disabled=true;
     MountainCore.showLoader('جارٍ الحفظ في Google Sheets...');
-    for(const leave of leaveRecords)await call('saveleave',leave);
+    const savedLeaves=[];
+    for(const leave of leaveRecords){
+      const result=await call('saveleave',leave);
+      savedLeaves.push(Object.assign({},leave,(result&&result.leave)||{}));
+    }
     if(records.length)await call('saveworkflowplan',{date,records});
+
+    const newStatusByEmployee={};
+    records.forEach(record=>{newStatusByEmployee[String(record.employee_id)]=record.planned_status});
+    leaveRecords.forEach(record=>{newStatusByEmployee[String(record.employee_id)]='leave'});
+    WDATA.employees=(WDATA.employees||[]).map(employee=>{
+      const status=newStatusByEmployee[String(employee.employee_id||employee.id)];
+      return status?Object.assign({},employee,{current_status:status,status:status}):employee;
+    });
+    savedLeaves.forEach(leave=>{
+      const index=(WDATA.leaves||[]).findIndex(item=>String(item.leave_id||'')===String(leave.leave_id||'')||(String(item.employee_id)===String(leave.employee_id)&&!item.actual_return_date));
+      if(index>=0)WDATA.leaves[index]=Object.assign({},WDATA.leaves[index],leave);
+      else WDATA.leaves=[leave].concat(WDATA.leaves||[]);
+    });
+    workflowLoadedAt=Date.now();
+    renderPeople();
+    renderLeaves();
+
     const parts=[];
     if(leaveRecords.length)parts.push(leaveRecords.length+' إجازة');
     if(records.length)parts.push(records.length+' حركة أو مأمورية');
-    feedback('تم حفظ '+parts.join(' و ')+' بنجاح في Google Sheets.',true);
-    await loadWorkflow(true);renderPeople();MountainCore.loadData(true);
-  }catch(e){feedback(e.message,false)}finally{MountainCore.hideLoader()}
+    feedback('تم حفظ '+parts.join(' و ')+' بنجاح. تم تحديث قائمة الموظفين والحالات مباشرة.',true);
+
+    Promise.allSettled([MountainCore.loadData(true),loadWorkflow(true)]).then(()=>{
+      if($('w-pane-people'))renderPeople();
+      if($('w-pane-leaves'))renderLeaves();
+    });
+  }catch(e){feedback(e.message,false)}finally{if(saveButton)saveButton.disabled=false;MountainCore.hideLoader()}
 }
 function feedback(msg,ok){const el=$('workflowSaveFeedback');if(!el)return;el.textContent=msg;el.className='save-feedback '+(ok?'success':'error')}
 function splitList(value){
@@ -310,30 +344,37 @@ function refreshRouteBuilder(builder){
   const values=getRouteValues(builder);
   builder.querySelectorAll('.route-step-select').forEach((select,index)=>{select.innerHTML=routeOptionMarkup(values[index]||'')});
 }
-function openEmployeeModal(){
+function openEmployeeModal(employee){
+  const editing=!!(employee&&employee.employee_id);
+  const current=employee||{};
   const cars=registeredVehicles();
+  const selectedDepartments=splitList(current.department);
+  const selectedVehicleIds=splitList(current.drives_vehicle_ids).map(String);
+  const currentResidence=String(current.current_residence_location||'الموقع');
+  const currentExpense=Number(current.daily_residence_expense||(current.expense_rate&&current.expense_rate.camp_daily_rate)||0);
+  const canDrive=current.is_driver===true||String(current.is_driver).toLowerCase()==='true'||String(current.is_driver)==='1';
   const layer=document.createElement('div');
   layer.className='mini-modal-layer';
   layer.innerHTML=
     '<div class="mini-modal-card employee-modal-card">'+
-      '<div class="mini-modal-head"><div><h3>إضافة موظف جديد</h3><p>سجّل البيانات الأساسية وصلاحيات القيادة.</p></div><button class="btn ghost" data-close>✕</button></div>'+
+      '<div class="mini-modal-head"><div><h3>'+(editing?'تعديل بيانات الموظف':'إضافة موظف جديد')+'</h3><p>'+(editing?'عدّل البيانات ثم اضغط حفظ التعديلات.':'سجّل البيانات الأساسية وصلاحيات القيادة.')+'</p></div><button class="btn ghost" data-close>✕</button></div>'+
       '<div class="inline-fields">'+
-        '<div class="field"><label>اسم الموظف</label><input class="input" id="newEmpName" autocomplete="name" placeholder="الاسم بالكامل"></div>'+
-        '<div class="field"><label>رقم التليفون</label><input class="input" id="newEmpPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="01xxxxxxxxx"></div>'+
-        '<div class="field"><label>الوظيفة</label><select class="select" id="newEmpJob">'+JOBS.map(x=>'<option>'+x+'</option>').join('')+'</select></div>'+
-        '<div class="field"><label>مكان السكن</label><select class="select" id="newEmpResidence">'+RESIDENCES.map(x=>'<option>'+x+'</option>').join('')+'</select></div>'+
-        '<div class="field hidden" id="newEmpDailyExpenseWrap"><label>المصروف اليومي في الشقة (جنيه)</label><input class="input" id="newEmpDailyExpense" type="number" min="0" step="0.01" inputmode="decimal" placeholder="مثال: 150"></div>'+
-        '<div class="field"><label>هل يمكنه قيادة سيارة؟</label><select class="select" id="newEmpDriver"><option value="false">لا</option><option value="true">نعم</option></select></div>'+
+        '<div class="field"><label>اسم الموظف</label><input class="input" id="newEmpName" autocomplete="name" placeholder="الاسم بالكامل" value="'+esc(current.employee_name||'')+'"></div>'+
+        '<div class="field"><label>رقم التليفون</label><input class="input" id="newEmpPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="01xxxxxxxxx" value="'+esc(current.phone||'')+'"></div>'+
+        '<div class="field"><label>الوظيفة</label><select class="select" id="newEmpJob">'+JOBS.map(x=>'<option '+(String(current.job_title||JOBS[0])===x?'selected':'')+'>'+x+'</option>').join('')+'</select></div>'+
+        '<div class="field"><label>مكان السكن</label><select class="select" id="newEmpResidence">'+RESIDENCES.map(x=>'<option '+(currentResidence===x?'selected':'')+'>'+x+'</option>').join('')+'</select></div>'+
+        '<div class="field hidden" id="newEmpDailyExpenseWrap"><label>المصروف اليومي في الشقة (جنيه)</label><input class="input" id="newEmpDailyExpense" type="number" min="0" step="0.01" inputmode="decimal" placeholder="مثال: 150" value="'+(currentExpense||'')+'"></div>'+
+        '<div class="field"><label>هل يمكنه قيادة سيارة؟</label><select class="select" id="newEmpDriver"><option value="false" '+(!canDrive?'selected':'')+'>لا</option><option value="true" '+(canDrive?'selected':'')+'>نعم</option></select></div>'+
       '</div>'+
       '<div class="field department-selection">'+
         '<div class="selection-heading"><label>الأقسام المتاحة للموظف</label><label class="select-all-row"><input type="checkbox" id="selectAllDepartments"> اختيار كل الأقسام</label></div>'+
-        '<div class="multi-checks" id="departmentChecks">'+departments().map(x=>'<label><input type="checkbox" data-new-dept value="'+esc(x)+'"> '+esc(x)+'</label>').join('')+'</div>'+
+        '<div class="multi-checks" id="departmentChecks">'+departments().map(x=>'<label><input type="checkbox" data-new-dept value="'+esc(x)+'" '+(selectedDepartments.includes(x)?'checked':'')+'> '+esc(x)+'</label>').join('')+'</div>'+
       '</div>'+
       '<div class="field hidden" id="newEmpVehiclesWrap">'+
         '<label>السيارات المسجلة المتاحة له للقيادة</label>'+
-        (cars.length?'<div class="multi-checks">'+cars.map(v=>'<label><input type="checkbox" data-new-car value="'+esc(v.vehicle_id)+'"> <span>'+esc(vehicleLabel(v))+'</span></label>').join('')+'</div>':'<div class="empty-inline">لا توجد سيارات مسجلة حاليًا. أضف السيارة أولًا من تبويب السيارات.</div>')+
+        (cars.length?'<div class="multi-checks">'+cars.map(v=>'<label><input type="checkbox" data-new-car value="'+esc(v.vehicle_id)+'" '+(selectedVehicleIds.includes(String(v.vehicle_id))?'checked':'')+'> <span>'+esc(vehicleLabel(v))+'</span></label>').join('')+'</div>':'<div class="empty-inline">لا توجد سيارات مسجلة حاليًا. أضف السيارة أولًا من تبويب السيارات.</div>')+
       '</div>'+
-      '<div class="workflow-topline modal-save-row"><span id="employeeModalFeedback" class="save-feedback"></span><button class="btn primary" id="saveNewEmployee">حفظ الموظف</button></div>'+
+      '<div class="workflow-topline modal-save-row"><span id="employeeModalFeedback" class="save-feedback"></span><button class="btn primary" id="saveNewEmployee">'+(editing?'حفظ التعديلات':'حفظ الموظف')+'</button></div>'+
     '</div>';
   document.body.appendChild(layer);
   layer.querySelector('[data-close]').onclick=()=>layer.remove();
@@ -341,11 +382,12 @@ function openEmployeeModal(){
   const syncDailyExpense=()=>{$('newEmpDailyExpenseWrap').classList.toggle('hidden',!apartmentSelected());if(!apartmentSelected())$('newEmpDailyExpense').value=''};
   const syncDriverCars=()=>{$('newEmpVehiclesWrap').classList.toggle('hidden',$('newEmpDriver').value!=='true')};
   const deptBoxes=()=>[...layer.querySelectorAll('[data-new-dept]')];
+  const syncDepartmentSelectAll=()=>{const boxes=deptBoxes(),checked=boxes.filter(x=>x.checked).length;$('selectAllDepartments').checked=boxes.length>0&&checked===boxes.length;$('selectAllDepartments').indeterminate=checked>0&&checked<boxes.length};
   $('selectAllDepartments').onchange=()=>deptBoxes().forEach(box=>box.checked=$('selectAllDepartments').checked);
-  deptBoxes().forEach(box=>box.onchange=()=>{const boxes=deptBoxes(),checked=boxes.filter(x=>x.checked).length;$('selectAllDepartments').checked=checked===boxes.length;$('selectAllDepartments').indeterminate=checked>0&&checked<boxes.length});
+  deptBoxes().forEach(box=>box.onchange=syncDepartmentSelectAll);
   $('newEmpResidence').onchange=syncDailyExpense;
   $('newEmpDriver').onchange=syncDriverCars;
-  syncDailyExpense();syncDriverCars();
+  syncDailyExpense();syncDriverCars();syncDepartmentSelectAll();
   $('saveNewEmployee').onclick=async()=>{
     const feedbackEl=$('employeeModalFeedback'),saveButton=$('saveNewEmployee');
     try{
@@ -355,27 +397,30 @@ function openEmployeeModal(){
       if(!phone)throw new Error('اكتب رقم تليفون الموظف.');
       if(!deps.length)throw new Error('اختر قسمًا واحدًا على الأقل أو اضغط اختيار كل الأقسام.');
       if(apartmentSelected()&&$('newEmpDailyExpense').value==='')throw new Error('اكتب المصروف اليومي للموظف في الشقة.');
-      const canDrive=$('newEmpDriver').value==='true';
-      const selectedCarIds=canDrive?[...layer.querySelectorAll('[data-new-car]:checked')].map(x=>x.value):[];
+      const canDriveNow=$('newEmpDriver').value==='true';
+      const selectedCarIds=canDriveNow?[...layer.querySelectorAll('[data-new-car]:checked')].map(x=>x.value):[];
       const selectedCarNames=cars.filter(v=>selectedCarIds.includes(String(v.vehicle_id))).map(vehicleLabel);
-      const mineId=defaultMineForNewEmployee();
+      const mineId=current.mine_id||defaultMineForNewEmployee();
       const payload={
-        employee_name:name,phone:phone,job_title:$('newEmpJob').value,department:deps.join(' | '),mine_id:mineId,mine_name:mineId,mine_ids:mineId,
+        employee_name:name,phone:phone,job_title:$('newEmpJob').value,department:deps.join(' | '),mine_id:mineId,mine_name:current.mine_name||mineId,mine_ids:current.mine_ids||mineId,
         current_residence_location:$('newEmpResidence').value,daily_residence_expense:apartmentSelected()?Number($('newEmpDailyExpense').value||0):0,daily_expense_currency:'EGP',
-        expense_rate:apartmentSelected()?{camp_daily_rate:Number($('newEmpDailyExpense').value||0),currency:'EGP',effective_from:(window.MountainCore&&MountainCore.today?MountainCore.today():new Date().toISOString().slice(0,10)),notes:'Daily apartment expense set during employee creation'}:{},
-        is_driver:canDrive,drives_vehicle_ids:selectedCarIds.join('|'),drives_vehicle_names:selectedCarNames.join('|'),active:true
+        expense_rate:apartmentSelected()?{camp_daily_rate:Number($('newEmpDailyExpense').value||0),currency:'EGP',effective_from:(window.MountainCore&&MountainCore.today?MountainCore.today():new Date().toISOString().slice(0,10)),notes:'Daily apartment expense set from employee form'}:{},
+        is_driver:canDriveNow,drives_vehicle_ids:selectedCarIds.join('|'),drives_vehicle_names:selectedCarNames.join('|'),active:current.active===undefined?true:current.active
       };
-      feedbackEl.textContent='جارٍ حفظ الموظف...';feedbackEl.className='save-feedback';
+      if(editing)payload.employee_id=current.employee_id;
+      feedbackEl.textContent=editing?'جارٍ حفظ التعديلات...':'جارٍ حفظ الموظف...';feedbackEl.className='save-feedback';
       saveButton.disabled=true;
       const result=await call('saveemployee',payload);
-      const savedEmployee=Object.assign({},payload,(result&&result.employee)||{}, {current_status:'camp_no_work',status:'camp_no_work'});
+      const savedEmployee=Object.assign({},current,payload,(result&&result.employee)||{}, {current_status:current.current_status||'camp_no_work',status:current.status||'camp_no_work'});
       upsertLocalEmployee(savedEmployee);
       layer.remove();
       renderPeople();
-      feedback('تم حفظ الموظف بنجاح، وظهر الآن ضمن الموظفين المتاحين في السكن.',true);
+      renderLeaves();
+      feedback(editing?'تم تعديل بيانات الموظف بنجاح.':'تم حفظ الموظف بنجاح، وظهر الآن ضمن الموظفين المتاحين في السكن.',true);
       Promise.allSettled([MountainCore.loadData(true),loadWorkflow(true)]).then(()=>{
         if(!(WDATA.employees||[]).some(e=>String(e.employee_id)===String(savedEmployee.employee_id)))upsertLocalEmployee(savedEmployee);
         if($('w-pane-people'))renderPeople();
+        if($('w-pane-leaves'))renderLeaves();
       });
     }catch(e){feedbackEl.textContent=e.message;feedbackEl.className='save-feedback error';if(saveButton)saveButton.disabled=false}
   };
@@ -527,11 +572,186 @@ function openRoutePointsModal(onSaved){
   };
 }
 
-function renderLeaves(){const emps=WDATA.employees.slice().sort((a,b)=>String(a.department||'').localeCompare(String(b.department||''),'ar'));$('w-pane-leaves').innerHTML='<div class="workflow-topline"><div><h3>إدارة الإجازات والعودة</h3><p>الموظفون مرتبون حسب الأقسام، ويمكن تحديد البديل وتأكيد العودة والسكن.</p></div></div><div class="leave-workflow-list">'+emps.map(e=>{const leave=(WDATA.leaves||[]).find(l=>String(l.employee_id)===String(e.employee_id)&&!l.actual_return_date);const days=e.current_cycle_start?Math.max(0,Math.floor((new Date()-new Date(e.current_cycle_start))/86400000)):0;return '<div class="leave-person-card" data-leave-emp="'+esc(e.employee_id)+'"><div class="workflow-topline"><div><b>'+esc(e.employee_name)+'</b><div>'+esc(e.department||'—')+' · '+esc(e.job_title||'—')+'</div></div><span>'+(leave?'إجازة من '+esc(leave.start_date)+' إلى '+esc(leave.end_date):'في العمل منذ '+days+' يوم')+'</span></div><div class="inline-fields">'+(leave?'<div class="field"><label>تعديل تاريخ العودة</label><input class="input leave-return" type="date" value="'+esc(leave.return_date||leave.expected_return_date||leave.end_date)+'"></div><div class="field"><label>تأكيد الحضور</label><button class="btn primary confirm-return" data-leave-id="'+esc(leave.leave_id)+'">تأكيد العودة</button></div>':'<div class="field"><label>تاريخ الذهاب</label><input class="input leave-start" type="date"></div><div class="field"><label>تاريخ العودة</label><input class="input leave-end" type="date"></div><div class="field"><label>البديل أثناء الإجازة</label><select class="select leave-cover"><option value="">اختر البديل</option>'+WDATA.employees.filter(x=>x.employee_id!==e.employee_id).map(x=>'<option value="'+esc(x.employee_id)+'">'+esc(x.employee_name)+'</option>').join('')+'</select></div><div class="field"><label>مكان السكن عند العودة</label><select class="select leave-residence">'+RESIDENCES.map(x=>'<option>'+x+'</option>').join('')+'</select></div><button class="btn primary save-leave">إضافة الإجازة</button>')+'</div></div>'}).join('')+'</div>';document.querySelectorAll('.save-leave').forEach(b=>b.onclick=()=>saveLeave(b.closest('[data-leave-emp]')));document.querySelectorAll('.confirm-return').forEach(b=>b.onclick=()=>confirmReturn(b))}
-async function saveLeave(card){try{const emp=card.dataset.leaveEmp,start=card.querySelector('.leave-start').value,end=card.querySelector('.leave-end').value;if(!start||!end)throw new Error('حدد تاريخ الذهاب والعودة.');await call('saveleave',{employee_id:emp,leave_type:'rotation_leave',start_date:start,end_date:end,return_date:end,status:'approved',reason:'إجازة دورية',coverage_employee_id:card.querySelector('.leave-cover').value,return_residence:card.querySelector('.leave-residence').value});feedback('تم حفظ الإجازة والبديل.',true);await loadWorkflow(true);renderLeaves()}catch(e){feedback(e.message,false)}}
+function renderLeaves(){
+  const emps=(WDATA.employees||[]).slice().sort((a,b)=>String(a.department||'').localeCompare(String(b.department||''),'ar'));
+  $('w-pane-leaves').innerHTML='<div class="workflow-topline"><div><h3>إدارة الإجازات والعودة</h3><p>كل الموظفين المسجلين يظهرون هنا، ويمكن تعديل بيانات الموظف أو تسجيل إجازته.</p></div></div><div class="leave-workflow-list">'+(emps.length?emps.map(e=>{
+    const leave=(WDATA.leaves||[]).find(l=>String(l.employee_id)===String(e.employee_id)&&!l.actual_return_date&&!['cancelled','rejected','completed'].includes(String(l.status||'').toLowerCase()));
+    const days=e.current_cycle_start?Math.max(0,Math.floor((new Date()-new Date(e.current_cycle_start))/86400000)):0;
+    return '<div class="leave-person-card" data-leave-emp="'+esc(e.employee_id)+'"><div class="workflow-topline"><div><b>'+esc(e.employee_name)+'</b><div>'+esc(e.department||'—')+' · '+esc(e.job_title||'—')+'</div></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span>'+(leave?'إجازة من '+esc(leave.start_date)+' إلى '+esc(leave.end_date):'في العمل منذ '+days+' يوم')+'</span><button type="button" class="btn ghost compact edit-employee-from-leaves" data-employee-id="'+esc(e.employee_id)+'">تعديل بيانات الموظف</button></div></div><div class="inline-fields">'+(leave?'<div class="field"><label>تعديل تاريخ العودة</label><input class="input leave-return" type="date" value="'+esc(leave.return_date||leave.expected_return_date||leave.end_date)+'"></div><div class="field"><label>تأكيد الحضور</label><button class="btn primary confirm-return" data-leave-id="'+esc(leave.leave_id)+'">تأكيد العودة</button></div>':'<div class="field"><label>تاريخ الذهاب</label><input class="input leave-start" type="date"></div><div class="field"><label>تاريخ العودة</label><input class="input leave-end" type="date"></div><div class="field"><label>البديل أثناء الإجازة</label><select class="select leave-cover"><option value="">اختر البديل</option>'+WDATA.employees.filter(x=>x.employee_id!==e.employee_id).map(x=>'<option value="'+esc(x.employee_id)+'">'+esc(x.employee_name)+'</option>').join('')+'</select></div><div class="field"><label>مكان السكن عند العودة</label><select class="select leave-residence">'+RESIDENCES.map(x=>'<option>'+x+'</option>').join('')+'</select></div><button class="btn primary save-leave">إضافة الإجازة</button>')+'</div></div>';
+  }).join(''):'<div class="empty">لا يوجد موظفون مسجلون حاليًا.</div>')+'</div>';
+  document.querySelectorAll('.save-leave').forEach(b=>b.onclick=()=>saveLeave(b.closest('[data-leave-emp]')));
+  document.querySelectorAll('.confirm-return').forEach(b=>b.onclick=()=>confirmReturn(b));
+  document.querySelectorAll('.edit-employee-from-leaves').forEach(button=>button.onclick=()=>{
+    const employee=(WDATA.employees||[]).find(item=>String(item.employee_id||item.id)===String(button.dataset.employeeId));
+    if(employee)openEmployeeModal(employee);
+  });
+}
+async function saveLeave(card){try{const emp=card.dataset.leaveEmp,start=card.querySelector('.leave-start').value,end=card.querySelector('.leave-end').value;if(!start||!end)throw new Error('حدد تاريخ الذهاب والعودة.');const result=await call('saveleave',{employee_id:emp,leave_type:'annual',type:'annual',work_period_from:'',work_period_to:'',start_date:start,end_date:end,return_date:end,expected_return_date:end,status:'approved',reason:'إجازة',coverage_employee_id:card.querySelector('.leave-cover').value,return_residence:card.querySelector('.leave-residence').value});const saved=Object.assign({employee_id:emp,start_date:start,end_date:end,return_date:end,status:'approved'},(result&&result.leave)||{});WDATA.leaves=[saved].concat((WDATA.leaves||[]).filter(item=>String(item.leave_id||'')!==String(saved.leave_id||'')&&String(item.employee_id)!==String(emp)));WDATA.employees=(WDATA.employees||[]).map(item=>String(item.employee_id)===String(emp)?Object.assign({},item,{current_status:'leave',status:'leave'}):item);feedback('تم حفظ الإجازة والبديل، وتحديث حالة الموظف مباشرة.',true);renderLeaves();renderPeople();Promise.allSettled([loadWorkflow(true),MountainCore.loadData(true)]).then(()=>{if($('w-pane-leaves'))renderLeaves();if($('w-pane-people'))renderPeople()})}catch(e){feedback(e.message,false)}}
 async function confirmReturn(btn){try{const card=btn.closest('[data-leave-emp]');await call('confirmleavereturn',{leave_id:btn.dataset.leaveId,employee_id:card.dataset.leaveEmp,actual_return_date:card.querySelector('.leave-return').value||MountainCore.today()});feedback('تم تأكيد عودة الموظف وظهوره في صفحة المهام.',true);await loadWorkflow(true);renderLeaves()}catch(e){feedback(e.message,false)}}
+
+function reportDepartmentLabel(value){
+  const values=unique(splitList(value));
+  return values.length?values.join(' / '):'غير محدد';
+}
+function reportDate(tasks){
+  const raw=(tasks||[]).map(task=>task.plan_date).find(Boolean)||($('workflowDate')&&$('workflowDate').value)||MountainCore.today();
+  const date=new Date(String(raw).slice(0,10)+'T12:00:00');
+  if(Number.isNaN(date.getTime()))return String(raw||'—');
+  try{return date.toLocaleDateString('ar-EG',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}catch(_){return String(raw||'—')}
+}
+function openReportTasks(tasks){
+  return (tasks||[]).filter(task=>String(task.task_status||'open').toLowerCase()!=='completed');
+}
+function buildProfessionalEntryPlanReport(tasks){
+  const rows=openReportTasks(tasks);
+  const departmentsMap=new Map();
+  rows.forEach(task=>{
+    const department=reportDepartmentLabel(task.department);
+    const description=String(task.task_description||'مهمة غير موضحة').trim()||'مهمة غير موضحة';
+    const employee=String(task.employee_name||'غير محدد').trim()||'غير محدد';
+    if(!departmentsMap.has(department))departmentsMap.set(department,new Map());
+    const taskMap=departmentsMap.get(department);
+    if(!taskMap.has(description))taskMap.set(description,[]);
+    taskMap.get(description).push(employee);
+  });
+  const lines=[
+    'السلام عليكم ورحمة الله وبركاته،',
+    'تحية طيبة وبعد،',
+    '',
+    'خطة الأعمال المطلوبة لدخول الموقع',
+    'التاريخ: '+reportDate(rows),
+    '',
+    'يرجى التكرم بالاطلاع على توزيع الأعمال والمسؤوليات التالية:'
+  ];
+  if(!rows.length){
+    lines.push('','لا توجد أعمال مفتوحة مسجلة في الخطة الحالية.');
+  }else{
+    departmentsMap.forEach((taskMap,department)=>{
+      lines.push('','━━━━━━━━━━━━━━━━━━━━','القسم: '+department,'','الأعمال المطلوبة:');
+      let index=1;
+      taskMap.forEach((employees,description)=>{
+        const names=unique(employees);
+        lines.push(index+'. '+description,'   المسؤول'+(names.length>1?'ون':'')+' عن التنفيذ: '+names.join('، '));
+        index++;
+      });
+    });
+  }
+  lines.push('','يرجى من جميع الزملاء الالتزام بالأعمال المكلفين بها، وإبلاغ المسؤول المباشر فورًا بأي معوقات تؤثر على التنفيذ.','','مع خالص التحية والتقدير.');
+  return lines.join('\n');
+}
+function buildProfessionalExitReport(tasks){
+  const rows=(tasks||[]).filter(task=>task&&task.employee_name);
+  const departmentsMap=new Map();
+  rows.forEach(task=>{
+    const department=reportDepartmentLabel(task.department);
+    if(!departmentsMap.has(department))departmentsMap.set(department,[]);
+    departmentsMap.get(department).push(task);
+  });
+  const statusLabel=status=>{
+    const value=String(status||'').toLowerCase();
+    if(value==='completed')return 'تم الإنجاز بالكامل';
+    if(value==='blocked')return 'متوقفة على معوق';
+    return 'تم تنفيذ جزء منها وما زالت مستمرة';
+  };
+  const lines=[
+    'السلام عليكم ورحمة الله وبركاته،',
+    'تحية طيبة وبعد،',
+    '',
+    'تقرير متابعة الأعمال بعد الخروج من الموقع',
+    'التاريخ: '+reportDate(rows),
+    '',
+    'فيما يلي موقف الأعمال المكلف بها فريق العمل:'
+  ];
+  if(!rows.length){
+    lines.push('','لا توجد مهام مسجلة لإعداد التقرير.');
+  }else{
+    departmentsMap.forEach((departmentTasks,department)=>{
+      lines.push('','━━━━━━━━━━━━━━━━━━━━','القسم: '+department);
+      departmentTasks.forEach((task,index)=>{
+        lines.push(
+          '',
+          (index+1)+'. العمل المطلوب: '+String(task.task_description||'—'),
+          '   المسؤول عن التنفيذ: '+String(task.employee_name||'—'),
+          '   ما تم تنفيذه: '+String(task.progress_notes||'لم يتم تسجيل تحديث حتى الآن'),
+          '   حالة العمل: '+statusLabel(task.task_status)
+        );
+        if(task.blocker_details)lines.push('   المعوقات أو المطلوب للاستكمال: '+String(task.blocker_details));
+      });
+    });
+  }
+  lines.push('','يرجى مراجعة الأعمال المتبقية واتخاذ اللازم لاستكمالها في الموعد المحدد.','','مع خالص التحية والتقدير.');
+  return lines.join('\n');
+}
+
+function renderWorkflowTasks(){
+  const pane=$('w-pane-tasks');
+  if(!pane)return;
+  const allTasks=(WDATA.tasks||[]).filter(task=>String(task.task_status||'open').toLowerCase()!=='completed');
+  const departments=unique(allTasks.map(task=>task.department).filter(Boolean));
+  pane.innerHTML=
+    '<div class="workflow-topline workflow-task-heading">'+
+      '<div><h3>تسجيل ما تم بعد الخروج من الجبل</h3><p>اكتب نتيجة كل مهمة قبل تكليف نفس الموظف بمهمة جديدة. لو المهمة متوقفة، اكتب ما تم وسبب التوقف وما المطلوب لاستكمالها.</p></div>'+
+      '<div class="workflow-task-actions"><button class="btn ghost" type="button" id="workflowCopyEntryPlan">نسخ بلان الدخول</button><button class="btn primary" type="button" id="workflowCopyExitReport">نسخ تقرير الخروج</button></div>'+
+    '</div>'+
+    '<div class="workflow-task-filter"><div class="field"><label>القسم</label><select class="select" id="workflowTaskDepartment"><option value="">كل الأقسام</option>'+departments.map(dep=>'<option value="'+esc(dep)+'">'+esc(dep)+'</option>').join('')+'</select></div><span class="workflow-task-count" id="workflowTaskCount"></span></div>'+
+    '<div class="workflow-task-list" id="workflowTaskList"></div>';
+
+  const draw=()=>{
+    const department=$('workflowTaskDepartment').value;
+    const tasks=allTasks.filter(task=>!department||String(task.department)===department);
+    $('workflowTaskCount').textContent=tasks.length+' مهمة مفتوحة';
+    $('workflowTaskList').innerHTML=tasks.length?tasks.map(task=>{
+      const status=String(task.task_status||'in_progress').toLowerCase();
+      const selectedStatus=status==='blocked'?'blocked':'in_progress';
+      return '<article class="workflow-task-card" data-workflow-task="'+esc(task.task_id)+'">'+
+        '<div class="workflow-task-meta"><div><b>'+esc(task.employee_name||'—')+'</b><span>'+esc(task.department||'—')+' · '+esc(task.plan_date||'—')+'</span></div><span class="workflow-task-state">مهمة مفتوحة</span></div>'+
+        '<div class="workflow-task-description"><label>المهمة المطلوبة</label><p>'+esc(task.task_description||'—')+'</p></div>'+
+        '<div class="workflow-task-form">'+
+          '<div class="field task-progress-field"><label>ما تم عمله فعليًا *</label><textarea class="textarea workflow-task-progress" placeholder="مثال: تم فحص المعدة وتغيير الجزء التالف...">'+esc(task.progress_notes||'')+'</textarea></div>'+
+          '<div class="field"><label>حالة المهمة</label><select class="select workflow-task-status"><option value="completed">تم إنجازها بالكامل</option><option value="in_progress" '+(selectedStatus==='in_progress'?'selected':'')+'>تم تنفيذ جزء منها ومستمر</option><option value="blocked" '+(selectedStatus==='blocked'?'selected':'')+'>متوقفة على شيء</option></select></div>'+
+          '<div class="field workflow-task-blocker-field '+(selectedStatus==='blocked'?'':'hidden')+'"><label>متوقفة على ماذا؟ *</label><textarea class="textarea workflow-task-blocker" placeholder="اكتب سبب التوقف وما المطلوب لاستكمال المهمة">'+esc(task.blocker_details||'')+'</textarea></div>'+
+        '</div>'+
+        '<div class="workflow-task-save-row"><button class="btn primary workflow-save-task" type="button">حفظ تحديث المهمة</button></div>'+
+      '</article>';
+    }).join(''):'<div class="empty workflow-task-empty">لا توجد مهام مفتوحة. كل المهام تم تحديثها أو إغلاقها.</div>';
+
+    document.querySelectorAll('#workflowTaskList .workflow-task-status').forEach(select=>select.onchange=()=>{
+      const card=select.closest('[data-workflow-task]');
+      card.querySelector('.workflow-task-blocker-field').classList.toggle('hidden',select.value!=='blocked');
+    });
+    document.querySelectorAll('#workflowTaskList .workflow-save-task').forEach(button=>button.onclick=()=>closeWorkflowTaskCard(button.closest('[data-workflow-task]')));
+  };
+  $('workflowTaskDepartment').onchange=draw;
+  $('workflowCopyEntryPlan').onclick=()=>copyText(buildProfessionalEntryPlanReport(allTasks),'تم نسخ تقرير خطة الدخول بشكل احترافي');
+  $('workflowCopyExitReport').onclick=()=>copyText(buildProfessionalExitReport(allTasks),'تم نسخ تقرير الخروج بشكل احترافي');
+  draw();
+}
+
+async function closeWorkflowTaskCard(card){
+  const button=card.querySelector('.workflow-save-task');
+  try{
+    const taskId=card.dataset.workflowTask;
+    const progress=card.querySelector('.workflow-task-progress').value.trim();
+    const status=card.querySelector('.workflow-task-status').value;
+    const blocker=card.querySelector('.workflow-task-blocker').value.trim();
+    if(!progress)throw new Error('اكتب ما تم عمله فعليًا في المهمة.');
+    if(status==='blocked'&&!blocker)throw new Error('اكتب سبب توقف المهمة وما المطلوب لاستكمالها.');
+    button.disabled=true;button.textContent='جارٍ الحفظ...';
+    await call('closetask',{task_id:taskId,progress_notes:progress,task_status:status,blocker_details:blocker});
+    WDATA.tasks=(WDATA.tasks||[]).map(task=>String(task.task_id)===String(taskId)?Object.assign({},task,{progress_notes:progress,task_status:status,blocker_details:blocker}):task);
+    feedback(status==='completed'?'تم إنجاز المهمة وإغلاقها بنجاح.':'تم حفظ ما تم في المهمة، وستظل مفتوحة للمتابعة.',true);
+    renderWorkflowTasks();
+    renderPeople();
+    Promise.allSettled([loadWorkflow(true),MountainCore.loadData(true)]).then(()=>{
+      if($('w-pane-tasks'))renderWorkflowTasks();
+      if($('w-pane-people'))renderPeople();
+      renderTaskPage();
+    });
+  }catch(error){feedback(error.message,false);button.disabled=false;button.textContent='حفظ تحديث المهمة'}
+}
+
 async function loadTasks(){const snapshot=dashboardWorkflow();if(snapshot){WDATA=snapshot;renderTaskPage()}try{await loadWorkflow(!snapshot);renderTaskPage()}catch(e){if(!snapshot&&$('openTasksBody'))$('openTasksBody').innerHTML='<tr><td colspan="8" class="empty">'+esc(e.message)+'</td></tr>'}}
-function renderTaskPage(){if(!$('openTasksBody'))return;const deps=[...new Set((WDATA.tasks||[]).map(t=>t.department).filter(Boolean))];$('taskDepartmentFilter').innerHTML='<option value="">كل الأقسام</option>'+deps.map(x=>'<option>'+esc(x)+'</option>').join('');const render=()=>{const dep=$('taskDepartmentFilter').value,rows=(WDATA.tasks||[]).filter(t=>!dep||t.department===dep).filter(t=>String(t.task_status||'open')!=='completed');$('openTaskCount').textContent=rows.length+' مهمة مفتوحة';$('openTasksBody').innerHTML=rows.length?rows.map(t=>'<tr data-task="'+esc(t.task_id)+'"><td>'+esc(t.plan_date)+'</td><td><b>'+esc(t.employee_name)+'</b></td><td>'+esc(t.department)+'</td><td>'+esc(t.task_description)+'</td><td><textarea class="textarea task-progress" placeholder="اكتب ما تم عمله">'+esc(t.progress_notes||'')+'</textarea></td><td><select class="select task-status-select"><option value="completed">تم بالكامل</option><option value="blocked">متوقفة على شيء</option><option value="in_progress">تم جزء منها ومستمر</option></select></td><td><textarea class="textarea task-blocker" placeholder="سبب التوقف أو المطلوب لاستكمالها"></textarea></td><td><button class="btn primary save-task-close">حفظ</button></td></tr>').join(''):'<tr><td colspan="8" class="empty">لا توجد مهام مفتوحة.</td></tr>';document.querySelectorAll('.save-task-close').forEach(b=>b.onclick=()=>closeTaskRow(b.closest('tr')))};$('taskDepartmentFilter').onchange=render;render();$('copyEntryPlan').onclick=()=>copyText((WDATA.tasks||[]).map(t=>t.employee_name+' — '+t.task_description).join('\n'),'تم نسخ بلان الدخول');$('copyExitReport').onclick=()=>copyText((WDATA.tasks||[]).map(t=>t.employee_name+' — '+(t.progress_notes||'لم يتم تحديثها')+' — '+(t.blocker_details||'')).join('\n'),'تم نسخ تقرير الخروج')}
+function renderTaskPage(){if(!$('openTasksBody'))return;const deps=[...new Set((WDATA.tasks||[]).map(t=>t.department).filter(Boolean))];$('taskDepartmentFilter').innerHTML='<option value="">كل الأقسام</option>'+deps.map(x=>'<option>'+esc(x)+'</option>').join('');const render=()=>{const dep=$('taskDepartmentFilter').value,rows=(WDATA.tasks||[]).filter(t=>!dep||t.department===dep).filter(t=>String(t.task_status||'open')!=='completed');$('openTaskCount').textContent=rows.length+' مهمة مفتوحة';$('openTasksBody').innerHTML=rows.length?rows.map(t=>'<tr data-task="'+esc(t.task_id)+'"><td>'+esc(t.plan_date)+'</td><td><b>'+esc(t.employee_name)+'</b></td><td>'+esc(t.department)+'</td><td>'+esc(t.task_description)+'</td><td><textarea class="textarea task-progress" placeholder="اكتب ما تم عمله">'+esc(t.progress_notes||'')+'</textarea></td><td><select class="select task-status-select"><option value="completed">تم بالكامل</option><option value="blocked">متوقفة على شيء</option><option value="in_progress">تم جزء منها ومستمر</option></select></td><td><textarea class="textarea task-blocker" placeholder="سبب التوقف أو المطلوب لاستكمالها"></textarea></td><td><button class="btn primary save-task-close">حفظ</button></td></tr>').join(''):'<tr><td colspan="8" class="empty">لا توجد مهام مفتوحة.</td></tr>';document.querySelectorAll('.save-task-close').forEach(b=>b.onclick=()=>closeTaskRow(b.closest('tr')))};$('taskDepartmentFilter').onchange=render;render();$('copyEntryPlan').onclick=()=>copyText(buildProfessionalEntryPlanReport(WDATA.tasks||[]),'تم نسخ تقرير خطة الدخول بشكل احترافي');$('copyExitReport').onclick=()=>copyText(buildProfessionalExitReport(WDATA.tasks||[]),'تم نسخ تقرير الخروج بشكل احترافي')}
 async function closeTaskRow(row){try{const progress=row.querySelector('.task-progress').value.trim(),status=row.querySelector('.task-status-select').value,blocker=row.querySelector('.task-blocker').value.trim();if(!progress)throw new Error('يجب كتابة ما تم عمله.');if(status==='blocked'&&!blocker)throw new Error('اكتب سبب توقف المهمة وما المطلوب لاستكمالها.');await call('closetask',{task_id:row.dataset.task,progress_notes:progress,task_status:status,blocker_details:blocker});MountainCore.toast('تم تحديث المهمة في Google Sheets.');await loadTasks()}catch(e){MountainCore.toast(e.message,true)}}
 function copyText(text,msg){navigator.clipboard.writeText(text||'').then(()=>MountainCore.toast(msg)).catch(()=>MountainCore.toast('تعذر النسخ',true))}
 function openQuick(op){const perm=MountainCore.perm,allowed=(op==='site_entry'&&(perm('manage_employees')||perm('record_team')))||(op==='leave'&&perm('manage_leaves'))||(op==='employee'&&perm('manage_employees'))||(op==='company_vehicle'&&perm('manage_vehicles'));if(!allowed){MountainCore.toast('لا توجد صلاحية لفتح هذا الإجراء.',true);return}if(op==='site_entry')return open('people');if(op==='leave')return open('leaves');if(op==='employee')return open('people',openEmployeeModal);if(op==='company_vehicle')return open('vehicles',()=>openVehicleModal())}
