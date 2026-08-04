@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07101d">
+  <meta name="description" content="إدارة النشاطات والحضور والإجازات والموظفين والسيارات والخطط والمصروفات.">
+  <script>
+  (function(){
+    try{
+      var q=new URLSearchParams(location.search),saved=q.get('lang')||localStorage.getItem('ait_lang')||'ar';
+      var lang=String(saved).toLowerCase().indexOf('en')===0?'en':'ar';
+      document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';
+      var theme=q.get('theme')||localStorage.getItem('ait_theme')||'dark';
+      if(theme==='dark'||theme==='light')document.documentElement.setAttribute('data-theme',theme);
+    }catch(e){}
+  })();
+  </script>
+  <title>AIT — إدارة الموقع وقوة العمل</title>
+  <link rel="stylesheet" href="ait-dashboard-theme.css">
+  <link rel="stylesheet" href="mountain-entry.css?v=4.1.0">
+  <script src="dashboard-common.js" defer></script>
+  <script src="mountain-entry-i18n.js?v=4.1.0" defer></script>
+  <script src="mountain-entry.js?v=4.1.0" defer></script>
+</head>
+<body>
+<div class="mtn-page">
+  <header class="mtn-topbar">
+    <div class="mtn-brand">
+      <img src="ait-logo.svg" alt="AIT">
+      <div>
+        <span class="eyebrow" data-i18n="brandKicker">AIT OPERATIONS</span>
+        <h1 data-i18n="pageTitle">إدارة الموقع وقوة العمل</h1>
+        <p data-i18n="pageSubtitle">النشاطات والحضور والإجازات والخطط والسيارات والمصروفات في شاشة واحدة</p>
+      </div>
+    </div>
+    <div class="mtn-actions">
+      <span class="sync-state"><i></i><span id="lastUpdated">—</span></span>
+      <button class="icon-btn" id="langBtn" type="button" title="Language">EN</button>
+      <button class="icon-btn" id="themeBtn" type="button" title="Theme">☾</button>
+      <button class="btn secondary" id="refreshBtn" type="button"><span>↻</span><span data-i18n="refresh">تحديث</span></button>
+      <button class="btn primary" id="quickAddBtn" type="button"><span>＋</span><span data-i18n="newEntry">إضافة جديدة</span></button>
+    </div>
+  </header>
+
+  <section class="hero-card">
+    <div>
+      <span class="eyebrow" data-i18n="todayOverview">ملخص التشغيل</span>
+      <h2 id="heroDate">—</h2>
+      <p data-i18n="expenseRuleNotice">المصروف اليومي يُحسب فقط للمقيم في شقة خارج الموقع، ولا يُحسب عند توفير الوجبات داخل الموقع.</p>
+    </div>
+    <div class="hero-actions">
+      <button type="button" class="hero-action" data-open-form="attendance"><b>✓</b><span data-i18n="recordAttendance">تسجيل حضور وحركة</span></button>
+      <button type="button" class="hero-action" data-open-form="leave"><b>◷</b><span data-i18n="recordLeave">تسجيل أو تعديل إجازة</span></button>
+      <button type="button" class="hero-action" data-open-form="plan"><b>▦</b><span data-i18n="createPlan">إضافة بلان</span></button>
+      <button type="button" class="hero-action" data-open-form="expense"><b>£</b><span data-i18n="calculateExpenses">حساب المصروفات</span></button>
+    </div>
+  </section>
+
+  <section class="filter-card" aria-label="Filters">
+    <div class="filter-head">
+      <div><span class="eyebrow" data-i18n="filters">الفلاتر</span><h2 data-i18n="selectRange">حدد الفترة والنطاق</h2></div>
+      <button class="btn ghost" id="clearFiltersBtn" type="button" data-i18n="clearFilters">مسح الفلاتر</button>
+    </div>
+    <div class="filter-grid">
+      <label><span data-i18n="fromDate">من تاريخ</span><input id="fromDate" type="date"></label>
+      <label><span data-i18n="toDate">إلى تاريخ</span><input id="toDate" type="date"></label>
+      <label><span data-i18n="employee">الموظف</span><select id="employeeFilter"><option value="" data-i18n="allEmployees">كل الموظفين</option></select></label>
+      <label><span data-i18n="department">الإدارة</span><select id="departmentFilter"><option value="" data-i18n="allDepartments">كل الإدارات</option></select></label>
+      <label><span data-i18n="apartment">الشقة</span><select id="residenceFilter"><option value="" data-i18n="allApartments">كل الشقق</option></select></label>
+      <label><span data-i18n="status">الحالة</span><select id="statusFilter"><option value="" data-i18n="allStatuses">كل الحالات</option></select></label>
+    </div>
+  </section>
+
+  <section class="kpi-grid" id="kpiGrid"></section>
+
+  <nav class="mtn-tabs" id="tabs" aria-label="Sections">
+    <button class="tab-btn active" data-tab="overview" data-i18n="tabOverview">نظرة عامة</button>
+    <button class="tab-btn" data-tab="activities" data-i18n="tabActivities">النشاطات</button>
+    <button class="tab-btn" data-tab="attendance" data-i18n="tabAttendance">الحضور والإجازات</button>
+    <button class="tab-btn" data-tab="employees" data-i18n="tabEmployees">الموظفون والمصروف اليومي</button>
+    <button class="tab-btn" data-tab="vehicles" data-i18n="tabVehicles">السيارات</button>
+    <button class="tab-btn" data-tab="plans" data-i18n="tabPlans">البلان اليومي</button>
+    <button class="tab-btn" data-tab="expenses" data-i18n="tabExpenses">تقارير المصروفات</button>
+    <button class="tab-btn" data-tab="audit" data-i18n="tabAudit">سجل التعديلات</button>
+  </nav>
+
+  <main>
+    <section class="tab-panel active" id="tab-overview">
+      <div class="content-grid">
+        <article class="panel span-2">
+          <div class="panel-head"><div><h3 data-i18n="statusCalendar">تقويم حالات الموظفين</h3><p data-i18n="statusCalendarHint">لون واحد لكل موظف في كل يوم، ويظهر النزول والعودة بدرجة أغمق من لون الإجازة.</p></div></div>
+          <div class="status-legend" id="statusLegend"></div>
+          <div class="matrix-wrap" id="statusMatrix"></div>
+        </article>
+        <article class="panel">
+          <div class="panel-head"><div><h3 data-i18n="upcomingPlans">الخطط القادمة</h3><p data-i18n="upcomingPlansHint">خطط اليوم والأيام المقبلة.</p></div></div>
+          <div class="stack-list" id="upcomingPlans"></div>
+        </article>
+        <article class="panel">
+          <div class="panel-head"><div><h3 data-i18n="latestActivities">آخر النشاطات</h3><p data-i18n="latestActivitiesHint">آخر ما تم تنفيذه والمعوقات.</p></div></div>
+          <div class="stack-list" id="latestActivities"></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="tab-activities">
+      <article class="panel">
+        <div class="panel-head">
+          <div><h3 data-i18n="activitiesTitle">سجل النشاطات</h3><p data-i18n="activitiesHint">ما تم عمله، نسبة الإنجاز، المعوقات، والخطوة التالية.</p></div>
+          <button class="btn primary" id="addActivityBtn" type="button">＋ <span data-i18n="addActivity">إضافة نشاط</span></button>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th data-i18n="date">التاريخ</th><th data-i18n="activity">النشاط</th><th data-i18n="employees">الموظفون</th><th data-i18n="department">الإدارة</th><th data-i18n="result">النتيجة</th><th data-i18n="completion">الإنجاز</th><th data-i18n="blockers">المعوقات</th><th data-i18n="nextAction">التالي</th><th data-i18n="enteredBy">أدخل بواسطة</th><th></th></tr></thead><tbody id="activitiesBody"></tbody></table></div>
+      </article>
+    </section>
+
+    <section class="tab-panel" id="tab-attendance">
+      <div class="content-grid">
+        <article class="panel span-2">
+          <div class="panel-head">
+            <div><h3 data-i18n="attendanceTitle">الحضور والانصراف ودخول الموقع</h3><p data-i18n="attendanceHint">الحالة اليومية، مكان الإقامة، الوجبات، وسيلة الانتقال، ومن أدخل أو عدّل البيانات.</p></div>
+            <div class="inline-actions"><button class="btn secondary" id="addLeaveBtn" type="button">◷ <span data-i18n="addLeave">إجازة</span></button><button class="btn primary" id="addAttendanceBtn" type="button">＋ <span data-i18n="addDailyStatus">حالة يومية</span></button></div>
+          </div>
+          <div class="table-wrap"><table><thead><tr><th data-i18n="date">التاريخ</th><th data-i18n="employee">الموظف</th><th data-i18n="status">الحالة</th><th data-i18n="location">المكان</th><th data-i18n="residence">السكن</th><th data-i18n="meals">وجبات</th><th data-i18n="checkIn">حضور</th><th data-i18n="mountainEntry">دخول الموقع</th><th data-i18n="mountainExit">خروج الموقع</th><th data-i18n="checkOut">انصراف</th><th data-i18n="vehicle">السيارة</th><th data-i18n="transport">الانتقال</th><th data-i18n="expenseEligible">يستحق مصروف</th><th data-i18n="enteredBy">أدخل بواسطة</th><th data-i18n="lastEdit">آخر تعديل</th><th></th></tr></thead><tbody id="attendanceBody"></tbody></table></div>
+        </article>
+        <article class="panel span-2">
+          <div class="panel-head"><div><h3 data-i18n="leaveCycles">دورات الإجازات</h3><p data-i18n="leaveCyclesHint">يمكن تعديل الإجازة السابقة، ويُستبعد يوم النزول ويوم العودة من أيام الإجازة.</p></div></div>
+          <div class="table-wrap"><table><thead><tr><th data-i18n="employee">الموظف</th><th data-i18n="leaveType">نوع الإجازة</th><th data-i18n="departureDay">يوم النزول</th><th data-i18n="leaveDays">أيام الإجازة</th><th data-i18n="expectedReturn">العودة المتوقعة</th><th data-i18n="actualReturn">العودة الفعلية</th><th data-i18n="departureTransport">وسيلة النزول</th><th data-i18n="returnTransport">وسيلة العودة</th><th data-i18n="returnTransportCost">مواصلات العودة</th><th data-i18n="lastEdit">آخر تعديل</th><th></th></tr></thead><tbody id="leavesBody"></tbody></table></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="tab-employees">
+      <article class="panel">
+        <div class="panel-head">
+          <div><h3 data-i18n="employeesTitle">بيانات الموظفين والمصروف اليومي</h3><p data-i18n="employeesHint">المقيم في شقة خارج الموقع فقط هو المؤهل، ما لم تكن الحالة غير مستحقة أو توجد وجبات.</p></div>
+          <button class="btn primary" id="addEmployeeBtn" type="button">＋ <span data-i18n="addEmployee">إضافة موظف</span></button>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th data-i18n="employee">الموظف</th><th data-i18n="department">الإدارة</th><th data-i18n="jobTitle">الوظيفة</th><th data-i18n="mine">الموقع</th><th data-i18n="residenceType">نوع السكن</th><th data-i18n="residence">السكن</th><th data-i18n="mealsDefault">وجبات افتراضيًا</th><th data-i18n="expenseEligible">مؤهل للمصروف</th><th data-i18n="dailyRate">قيمة اليوم</th><th data-i18n="missionRate">قيمة المأمورية</th><th data-i18n="phone">الهاتف</th><th data-i18n="lastEdit">آخر تعديل</th><th></th></tr></thead><tbody id="employeesBody"></tbody></table></div>
+      </article>
+    </section>
+
+    <section class="tab-panel" id="tab-vehicles">
+      <article class="panel">
+        <div class="panel-head"><div><h3 data-i18n="vehiclesTitle">بيانات السيارات</h3><p data-i18n="vehiclesHint">السعة والسائق والحالة والموقع والمسار.</p></div><button class="btn primary" id="addVehicleBtn" type="button">＋ <span data-i18n="addVehicle">إضافة سيارة</span></button></div>
+        <div class="vehicle-grid" id="vehicleCards"></div>
+      </article>
+    </section>
+
+    <section class="tab-panel" id="tab-plans">
+      <article class="panel">
+        <div class="panel-head">
+          <div><h3 data-i18n="plansTitle">البلان اليومي والمستقبلي</h3><p data-i18n="plansHint">أنشئ خطة لأي يوم، أضف أكثر من بند، واختر أكثر من موظف لكل مهمة.</p></div>
+          <div class="inline-actions"><input id="planDateFilter" type="date"><button class="btn primary" id="addPlanBtn" type="button">＋ <span data-i18n="addPlan">إضافة بلان</span></button></div>
+        </div>
+        <div class="plans-list" id="plansList"></div>
+      </article>
+    </section>
+
+    <section class="tab-panel" id="tab-expenses">
+      <div class="content-grid">
+        <article class="panel span-2 expense-builder">
+          <div class="panel-head"><div><h3 data-i18n="expensePeriods">فترات المصروفات</h3><p data-i18n="expensePeriodsHint">حدد الفترة والشقة ثم احسب، راجع المواصلات، اعتمد، وسجل الصرف لبدء فترة جديدة.</p></div></div>
+          <div class="expense-controls">
+            <label><span data-i18n="fromDate">من تاريخ</span><input id="expenseFrom" type="date"></label>
+            <label><span data-i18n="toDate">إلى تاريخ</span><input id="expenseTo" type="date"></label>
+            <label><span data-i18n="apartment">الشقة</span><select id="expenseResidence"><option value="" data-i18n="allApartments">كل الشقق</option></select></label>
+            <label><span data-i18n="mine">الموقع</span><select id="expenseMine"><option value="" data-i18n="allMines">كل المواقع</option></select></label>
+            <button class="btn primary" id="generateExpenseBtn" type="button">⌁ <span data-i18n="calculateExpenses">حساب المصروفات</span></button>
+          </div>
+          <div class="table-wrap"><table><thead><tr><th data-i18n="periodId">رقم الفترة</th><th data-i18n="period">الفترة</th><th data-i18n="apartment">الشقة</th><th data-i18n="employees">الموظفون</th><th data-i18n="dailyExpense">مصروف يومي</th><th data-i18n="transportCost">مواصلات</th><th data-i18n="adjustments">تسويات</th><th data-i18n="total">الإجمالي</th><th data-i18n="status">الحالة</th><th data-i18n="paidBy">الصرف بواسطة</th><th></th></tr></thead><tbody id="periodsBody"></tbody></table></div>
+        </article>
+
+        <article class="panel span-2" id="selectedPeriodPanel" hidden>
+          <div class="panel-head">
+            <div><h3 id="selectedPeriodTitle">—</h3><p id="selectedPeriodMeta">—</p></div>
+            <div class="inline-actions wrap-actions">
+              <button class="btn secondary" id="exportExcelBtn" type="button">Excel</button>
+              <button class="btn secondary" id="exportCombinedPdfBtn" type="button" data-i18n="combinedPdf">PDF مجمع</button>
+              <button class="btn secondary" id="exportZipBtn" type="button" data-i18n="individualPdfs">PDF لكل موظف</button>
+              <button class="btn warning" id="approvePeriodBtn" type="button" data-i18n="approvePeriod">اعتماد</button>
+              <button class="btn ghost" id="unlockPeriodBtn" type="button" data-i18n="unlockPeriod">إعادة فتح</button>
+              <button class="btn primary" id="markPaidBtn" type="button" data-i18n="markPaid">تم الصرف</button>
+            </div>
+          </div>
+          <h4 data-i18n="employeePayments">مستحقات الموظفين</h4>
+          <div class="table-wrap"><table><thead><tr><th data-i18n="employee">الموظف</th><th data-i18n="apartment">الشقة</th><th data-i18n="eligibleDays">الأيام المستحقة</th><th data-i18n="dailyExpense">مصروف يومي</th><th data-i18n="transportCost">مواصلات</th><th data-i18n="adjustments">تسويات</th><th data-i18n="requiredAmount">المستحق</th><th data-i18n="status">الحالة</th><th>PDF</th></tr></thead><tbody id="paymentsBody"></tbody></table></div>
+          <h4 data-i18n="expenseDetails">تفاصيل الأيام والمواصلات</h4>
+          <div class="table-wrap"><table><thead><tr><th data-i18n="date">التاريخ</th><th data-i18n="employee">الموظف</th><th data-i18n="status">الحالة</th><th data-i18n="residence">السكن</th><th data-i18n="dailyRate">السعر</th><th data-i18n="dailyExpense">مصروف اليوم</th><th data-i18n="transportCost">المواصلات</th><th data-i18n="adjustments">التسوية</th><th data-i18n="total">الإجمالي</th><th data-i18n="rule">القاعدة</th><th></th></tr></thead><tbody id="expenseLinesBody"></tbody></table></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="tab-audit">
+      <article class="panel">
+        <div class="panel-head"><div><h3 data-i18n="auditTitle">سجل من أدخل وعدّل البيانات</h3><p data-i18n="auditHint">اسم المستخدم والتاريخ والوقت والقيمة القديمة والجديدة وسبب التعديل.</p></div><button class="btn secondary" id="loadAuditBtn" type="button" data-i18n="loadAudit">تحميل السجل</button></div>
+        <div class="table-wrap"><table><thead><tr><th data-i18n="dateTime">التاريخ والوقت</th><th data-i18n="user">المستخدم</th><th data-i18n="action">الإجراء</th><th data-i18n="sheet">الجدول</th><th data-i18n="employee">الموظف</th><th data-i18n="department">الإدارة</th><th data-i18n="reason">السبب</th><th data-i18n="notes">ملاحظات</th><th></th></tr></thead><tbody id="auditBody"></tbody></table></div>
+      </article>
+    </section>
+  </main>
+</div>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-card">
+    <div class="modal-head"><div><span class="eyebrow" id="modalKicker">AIT</span><h2 id="modalTitle">—</h2></div><button class="icon-btn" id="closeModalBtn" type="button">✕</button></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-actions" id="modalActions"></div>
+  </div>
+</div>
+
+<div class="loader" id="loader"><div class="loader-card"><span class="spinner"></span><b id="loaderText">جارٍ التحميل...</b></div></div>
+<div class="toast" id="toast"></div>
+</body>
+</html>
