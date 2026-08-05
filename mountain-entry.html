@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07101d">
+<meta name="description" content="Unified interface for mountain entry, workforce, transport, leaves and expenses.">
+<script>(function(){try{var q=new URLSearchParams(location.search),l=q.get('lang')||localStorage.getItem('ait_lang'),t=q.get('theme')||localStorage.getItem('ait_theme');if(l){l=String(l).toLowerCase().startsWith('ar')?'ar':'en';document.documentElement.lang=l;document.documentElement.dir=l==='ar'?'rtl':'ltr'}if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}})();</script>
+<title>AIT — Mountain Entry & Workforce Management</title>
+<link rel="stylesheet" href="ait-dashboard-theme.css">
+<link rel="stylesheet" href="mountain-entry.css?v=4.4.0">
+<link rel="stylesheet" href="mountain-workflow.css?v=4.4.0">
+<script src="dashboard-common.js" defer></script>
+<script src="mountain-entry-i18n.js?v=4.4.0" defer></script>
+<script src="mountain-entry.js?v=4.4.0" defer></script>
+<script src="mountain-workflow.js?v=4.4.0" defer></script>
+<script src="mountain-ui-enhancements.js?v=4.4.0" defer></script>
+</head>
+<body class="permissions-pending">
+<div class="page">
+  <header class="topbar app-commandbar">
+    <div class="brand command-brand">
+      <img src="ait-logo.svg" alt="AIT">
+      <div class="brand-copy"><div class="eyebrow">AIT OPERATIONS</div><h1>دخول الجبل وإدارة قوة الموقع</h1><p>متابعة الحضور، النقل، الإجازات والمصروفات من شاشة واحدة</p></div>
+    </div>
+    <div class="command-meta" aria-label="تاريخ اليوم"><span class="live-dot" aria-hidden="true"></span><span id="todayLabel">—</span></div>
+    <div class="actions mountain-toolbar" role="toolbar" aria-label="أدوات صفحة دخول الجبل">
+      <button class="icon-button" id="langBtn" type="button" aria-label="تغيير اللغة" title="تغيير اللغة">EN</button>
+      <button class="icon-button" id="themeBtn" type="button" aria-label="تغيير المظهر" title="تغيير المظهر">☾</button>
+      <button class="toolbar-button secondary" id="excelBtn" type="button"><span aria-hidden="true">⇩</span><span>Excel</span></button>
+      <button class="toolbar-button secondary" id="refreshBtn" type="button"><span aria-hidden="true">↻</span><span>تحديث</span></button>
+      <button class="toolbar-button primary" id="inputBtn" type="button"><span aria-hidden="true">＋</span><span>إدخال جديد</span></button>
+    </div>
+  </header>
+
+  <section class="welcome-panel" aria-label="البدء السريع">
+    <div class="welcome-copy"><span class="section-kicker">بدء سريع</span><h2>ما الذي تريد تنفيذه اليوم؟</h2><p>اختر الإجراء مباشرة، أو استخدم الفلاتر لمراجعة بيانات فترة أو فريق محدد.</p></div>
+    <div class="quick-actions">
+      <button type="button" class="quick-action primary" data-quick-op="site_entry"><span class="quick-icon">↗</span><span><b>دخول الموقع غدًا</b><small>تحديد الأفراد والعربيات</small></span></button>
+      <button type="button" class="quick-action" data-quick-op="leave"><span class="quick-icon">◷</span><span><b>تسجيل حالة</b><small>إجازة أو راحة أو غياب أو مأمورية</small></span></button>
+      <button type="button" class="quick-action" data-quick-op="employee"><span class="quick-icon">＋</span><span><b>موظف جديد</b><small>بيانات العمل والصلاحيات</small></span></button>
+      <button type="button" class="quick-action" data-quick-op="company_vehicle"><span class="quick-icon">▣</span><span><b>سيارة جديدة</b><small>السعة والسائق والمسار</small></span></button>
+    </div>
+  </section>
+
+  <div class="scope-bar" id="scopeBar"><b>نطاق الصلاحية:</b><span>جارٍ التحميل...</span></div>
+
+  <section class="filters filter-card" aria-label="فلاتر الصفحة">
+    <div class="filters-head">
+      <div><span class="section-kicker">تصفية البيانات</span><h2>حدد النطاق المطلوب</h2></div>
+      <div class="filters-head-actions"><span class="filter-count">الفلاتر النشطة <b id="activeFilterCount">0</b></span><button class="btn ghost filter-toggle" id="filterToggleBtn" type="button" aria-expanded="false" aria-controls="advancedFilters"><span data-toggle-label>إظهار الفلاتر الإضافية</span><span aria-hidden="true">⌄</span></button></div>
+    </div>
+    <div class="filter-grid primary-filter-grid">
+      <div class="field"><label>من تاريخ</label><input class="input" type="date" id="fromDate"></div>
+      <div class="field"><label>إلى تاريخ</label><input class="input" type="date" id="toDate"></div>
+      <div class="field"><label>تاريخ الكروت</label><input class="input" type="date" id="cardDate"></div>
+      <div class="field"><label>المنجم</label><select class="select" id="mineFilter"><option value="">كل المناجم</option></select></div>
+      <div class="field"><label>القسم</label><select class="select" id="departmentFilter"><option value="">كل الأقسام</option></select></div>
+      <div class="field search-field"><label>بحث سريع</label><input class="input" type="search" id="searchFilter" placeholder="اكتب اسم الموظف أو رقم الهاتف"></div>
+    </div>
+    <div class="filter-grid advanced-filter-grid" id="advancedFilters" hidden>
+      <div class="field"><label>الوظيفة</label><select class="select" id="jobFilter"><option value="">كل الوظائف</option></select></div>
+      <div class="field"><label>الموظف</label><select class="select" id="employeeFilter"><option value="">كل الموظفين</option></select></div>
+      <div class="field"><label>الحالة</label><select class="select" id="statusFilter"><option value="">كل الحالات</option></select></div>
+      <div class="field"><label>العربية</label><select class="select" id="vehicleFilter"><option value="">كل العربيات</option></select></div>
+      <div class="filter-actions"><button class="btn ghost" id="clearFilters" type="button"><span aria-hidden="true">×</span> مسح الفلاتر</button></div>
+    </div>
+  </section>
+
+  <div class="alert-strip" id="alertStrip"></div>
+
+  <section class="kpis" id="kpiGrid"></section>
+
+  <nav class="tabs" id="tabs">
+    <button class="tab-btn active" data-tab="today" data-mountain-view="view_overview">تشغيل اليوم</button>
+    <button class="tab-btn" data-tab="activities" data-mountain-view="view_activities">النشاطات</button>
+    <button class="tab-btn" data-tab="attendance" data-mountain-view-any="view_attendance|view_leaves">الحضور والانصراف والإجازات</button>
+    <button class="tab-btn" data-tab="employees" data-mountain-view="view_employees">الموظفون والمصروف اليومي</button>
+    <button class="tab-btn" data-tab="vehicles" data-mountain-view="view_vehicles">العربيات والنقل</button>
+    <button class="tab-btn" data-tab="plans" data-mountain-view="view_plans">البلان اليومي</button>
+    <button class="tab-btn" data-tab="expenses" id="expensesTab" data-mountain-view="view_expenses">المصروفات والتقارير</button>
+    <button class="tab-btn" data-tab="tasks" id="tasksTab" data-mountain-view="view_tasks">متابعة تنفيذ المهام</button>
+    <button class="tab-btn" data-tab="reports" data-mountain-view="view_audit">سجل التعديلات</button>
+  </nav>
+
+  <section class="tab-panel active" id="tab-today" data-mountain-view="view_overview">
+    <div class="grid">
+      <article class="card wide monthly-status-card">
+        <div class="card-head monthly-status-head">
+          <div><h3>حالة الأفراد من بداية الفترة</h3><span id="monthlyRangeLabel">—</span></div>
+          <div class="matrix-summary"><span id="matrixCount">—</span></div>
+        </div>
+        <div class="status-legend" id="statusLegend"></div>
+        <div class="monthly-status-matrix" id="monthlyStatusMatrix"></div>
+      </article>
+      <article class="card"><div class="card-head"><div><h3>توزيع قوة الموقع اليوم</h3><span>الموقع، السكن، الإجازات والراحة</span></div></div><div class="chart"><canvas id="statusChart"></canvas></div></article>
+      <article class="card"><div class="card-head"><div><h3>إشغال العربيات</h3><span>الركاب مقابل السعة</span></div></div><div class="chart"><canvas id="vehicleChart"></canvas></div></article>
+      <article class="card wide"><div class="card-head"><div><h3>العربيات النشطة وتوزيع الركاب</h3><span id="vehicleCardSummary">—</span></div></div><div class="vehicle-grid" id="vehicleCards"></div></article>
+      <article class="table-card wide"><div class="table-head"><div><h3>ملخص حركة الأفراد</h3><span id="employeeSummaryCount">—</span></div></div><div class="table-wrap employee-summary-wrap"><table class="employee-summary-table"><thead><tr><th>الموظف</th><th>المنجم</th><th>الإدارة</th><th>الوظيفة</th><th>مرات نزول الموقع</th><th>أيام الموقع</th><th>عمل من السكن</th><th>السكن بدون عمل</th><th>الراحة</th><th>الإجازة</th><th>المرضي</th><th>الغياب</th><th>آخر عودة</th><th>أيام منذ العودة</th><th>الحالة الحالية</th></tr></thead><tbody id="employeeSummaryBody"></tbody></table></div></article>
+      <article class="table-card wide"><div class="table-head"><div><h3>حالة الموظفين في تاريخ الكروت</h3><span id="todayCount">—</span></div></div><div class="table-wrap"><table><thead><tr><th>الموظف</th><th>القسم</th><th>الوظيفة</th><th>الحالة</th><th>العربية</th><th>نقطة الركوب</th><th>المصروف المتوقع</th></tr></thead><tbody id="todayBody"></tbody></table></div></article>
+    </div>
+  </section>
+
+  <section class="tab-panel" id="tab-activities" data-mountain-view="view_activities">
+    <div class="grid">
+      <article class="table-card wide">
+        <div class="table-head"><div><h3>سجل النشاطات والتنفيذ الفعلي</h3><span id="activityCount">—</span></div><button class="btn primary" id="addActivityBtn" type="button">＋ إضافة نشاط</button></div>
+        <div class="table-wrap"><table><thead><tr><th>التاريخ</th><th>النشاط</th><th>الموظفون</th><th>الإدارة</th><th>ما تم</th><th>الإنجاز</th><th>المعوقات</th><th>الخطوة التالية</th><th>أدخل بواسطة</th><th>الإجراءات</th></tr></thead><tbody id="activitiesBody"></tbody></table></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="tab-panel" id="tab-employees" data-mountain-view="view_employees">
+    <div class="grid">
+      <article class="table-card wide">
+        <div class="table-head"><div><h3>بيانات الموظفين والمصروف اليومي</h3><span id="employeeMasterCount">—</span></div><button class="btn primary" id="addEmployeeAdvancedBtn" type="button">＋ إضافة موظف</button></div>
+        <div class="permission-note">المصروف يُحسب للمقيم في شقة خارج الموقع فقط، ولا يُحسب عند توفير الوجبات داخل الموقع. المرضي والراحة والنزول والعودة والمأمورية تُحسب عند تحقق شرط السكن وعدم توفير الوجبات.</div>
+        <div class="table-wrap"><table><thead><tr><th>الموظف</th><th>الإدارة</th><th>الوظيفة</th><th>الموقع</th><th>نوع السكن</th><th>اسم السكن</th><th>وجبات</th><th>مستحق</th><th>سعر اليوم</th><th>سعر المأمورية</th><th>الهاتف</th><th>آخر تعديل</th><th>الإجراءات</th></tr></thead><tbody id="employeesMasterBody"></tbody></table></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="tab-panel" id="tab-attendance" data-mountain-view-any="view_attendance|view_leaves">
+    <div class="grid">
+      <article class="card wide" data-mountain-section="view_attendance"><div class="card-head"><div><h3>تغير قوة الموقع يوميًا</h3><span>الحالات خلال الفترة</span></div></div><div class="chart"><canvas id="dailyChart"></canvas></div></article>
+      <article class="card" data-mountain-section="view_attendance"><div class="card-head"><div><h3>مقارنة الأقسام</h3><span>حالة كل قسم في تاريخ الكروت</span></div></div><div class="chart"><canvas id="departmentChart"></canvas></div></article>
+      <article class="card" data-mountain-section="view_attendance"><div class="card-head"><div><h3>انضباط الحضور والانصراف</h3><span>مكتمل، تأخير، غياب، وعدم انصراف</span></div></div><div class="chart"><canvas id="disciplineChart"></canvas></div></article>
+      <article class="table-card wide" data-mountain-section="view_attendance"><div class="table-head"><div><h3>جميع الأيام والموظفين</h3><span id="tableCount">—</span></div><div class="pagination"><button class="btn ghost" id="prevPage">السابق</button><span id="pageInfo">1 / 1</span><button class="btn ghost" id="nextPage">التالي</button></div></div><div class="table-wrap"><table><thead><tr><th>التاريخ</th><th>الموظف</th><th>المنجم</th><th>القسم</th><th>الوظيفة</th><th>الحالة</th><th>الحضور</th><th>دخول الجبل</th><th>الخروج</th><th>الانصراف</th><th>الساعات</th><th>التأخير</th><th>العربية</th><th>السكن</th><th>المصروف</th><th>أدخل بواسطة</th><th>آخر تعديل</th><th>ملاحظات</th><th>الإجراءات</th></tr></thead><tbody id="detailBody"></tbody></table></div></article>
+
+      <article class="card wide" data-mountain-section="view_leaves"><div class="card-head"><div><h3>تقويم الإجازات</h3><span>الدورية أخضر فسفوري، السنوية أخضر غامق، الاعتيادية برتقالي، المرضية أصفر، الراحة رمادي، ويظهر النزول والعودة بدرجة أغمق</span></div></div><div class="leave-legend"><span><i class="legend-dot rotation"></i>إجازة دورية</span><span><i class="legend-dot annual"></i>سنوي</span><span><i class="legend-dot casual"></i>اعتيادي</span><span><i class="legend-dot rest"></i>راحة</span><span><i class="legend-dot sick"></i>مرضي</span><span><i class="legend-dot absent"></i>غياب</span><span><i class="legend-return"></i>عودة</span></div><div class="leave-calendar" id="leaveCalendar"></div></article>
+      <article class="table-card wide" data-mountain-section="view_leaves"><div class="table-head"><div><h3>طلبات الإجازات والمأموريات</h3><span id="leaveCount">—</span></div></div><div class="table-wrap"><table><thead><tr><th>الموظف</th><th>القسم</th><th>النوع</th><th>يوم النزول</th><th>أيام الإجازة</th><th>عدد الأيام</th><th>يوم العودة</th><th>وسيلة النزول</th><th>وسيلة العودة</th><th>مواصلات العودة</th><th>الحالة</th><th>أدخل/عُدّل بواسطة</th><th>الإجراءات</th></tr></thead><tbody id="leaveBody"></tbody></table></div></article>
+        </div>
+  </section>
+
+  <section class="tab-panel" id="tab-vehicles" data-mountain-view="view_vehicles">
+    <div class="grid">
+      <article class="card wide"><div class="card-head"><div><h3>العربيات والمسارات</h3><span>السعة، السائق، أقرب سكن ونقاط التجميع</span></div><button class="btn primary" id="addCompanyVehicleBtn" type="button">＋ إضافة عربية شركة</button></div><div class="vehicle-grid" id="vehicleMasterCards"></div></article>
+      <article class="card wide"><div class="card-head"><div><h3>نسبة استغلال العربيات يوميًا</h3><span>عدد المقاعد المستخدمة والمتاحة</span></div></div><div class="chart"><canvas id="vehicleTrendChart"></canvas></div></article>
+      <article class="table-card wide"><div class="table-head"><div><h3>طلبات زيادة أو إلغاء عربية</h3><span id="requestCount">—</span></div></div><div class="table-wrap"><table><thead><tr><th>التاريخ</th><th>المنجم</th><th>نوع الطلب</th><th>العربية</th><th>ميعاد التحرك</th><th>السبب</th><th>الحالة</th><th>الطالب</th></tr></thead><tbody id="requestBody"></tbody></table></div></article>
+    </div>
+  </section>
+
+  <section class="tab-panel" id="tab-plans" data-mountain-view="view_plans">
+    <div class="grid">
+      <article class="card wide">
+        <div class="card-head"><div><h3>بلان الصيانة اليومي</h3><span>اختر اليوم، أضف تسكات متعددة، وحدد فريق كل تسك من مشرف الصيانة وفني التشغيل وفني الصيانة واللحام.</span></div><div class="task-toolbar"><input class="input" id="planDateFilter" type="date" title="عرض بلان يوم محدد"><input class="input compact-date" id="planPeriodFrom" type="date" title="تقرير الفترة من"><input class="input compact-date" id="planPeriodTo" type="date" title="تقرير الفترة إلى"><button class="btn ghost" id="copyPlanPeriodReportBtn" type="button">نسخ تقرير الفترة</button><button class="btn primary" id="addPlanBtn" type="button">＋ إضافة بلان</button></div></div>
+        <div class="plans-list" id="plansList"></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="tab-panel" id="tab-expenses" data-mountain-view="view_expenses">
+    <div class="grid">
+      <article class="table-card wide rental-summary-card"><div class="table-head"><div><h3>احتياج عربيات الإيجار لدخول الموقع</h3><span id="rentalNeedCount">يتم التحميل...</span></div></div><div class="table-wrap"><table><thead><tr><th>تاريخ البلان</th><th>البلان</th><th>عربيات الشركة</th><th>عربيات الإيجار</th><th>إجمالي الرحلات</th><th>الركاب</th><th>نقاط التحرك</th><th>الحالة</th></tr></thead><tbody id="rentalNeedBody"><tr><td colspan="8" class="empty">لا توجد بيانات بعد</td></tr></tbody></table></div></article>
+      <article class="card wide expense-builder-card">
+        <div class="card-head"><div><h3>حساب فترة مصروفات</h3><span>حدد الفترة والشقة، راجع المواصلات والتسويات، ثم اعتمد وسجل الصرف.</span></div></div>
+        <div class="expense-builder-grid"><div class="field"><label>من تاريخ</label><input class="input" id="expenseFrom" type="date"></div><div class="field"><label>إلى تاريخ</label><input class="input" id="expenseTo" type="date"></div><div class="field"><label>الشقة</label><select class="select" id="expenseResidence"><option value="">كل الشقق</option></select></div><div class="field"><label>المنجم</label><select class="select" id="expenseMine"><option value="">كل المناجم</option></select></div><div class="field"><label>&nbsp;</label><button class="btn primary" id="generateExpenseAdvancedBtn" type="button">حساب المصروفات</button></div></div>
+      </article>
+      <article class="card wide"><div class="card-head"><div><h3>المصروفات اليومية حسب الحالة</h3><span>الموقع والسكن والمأموريات والإجازات</span></div></div><div class="chart"><canvas id="expenseDailyChart"></canvas></div></article>
+      <article class="card"><div class="card-head"><div><h3>توزيع المصروفات</h3><span>حسب الحالة</span></div></div><div class="chart"><canvas id="expenseStatusChart"></canvas></div></article>
+      <article class="card"><div class="card-head"><div><h3>الموقع مقابل السكن</h3><span>إجمالي الفترة المختارة</span></div></div><div class="chart"><canvas id="expenseSiteCampChart"></canvas></div></article>
+      <article class="card"><div class="card-head"><div><h3>أعلى الموظفين مصروفًا</h3><span>حسب الفترة والفلاتر</span></div></div><div class="chart"><canvas id="expenseEmployeeChart"></canvas></div></article>
+      <article class="card"><div class="card-head"><div><h3>المصروفات حسب القسم</h3><span>مقارنة الأقسام</span></div></div><div class="chart"><canvas id="expenseDepartmentChart"></canvas></div></article>
+      <article class="card"><div class="card-head"><div><h3>المصروفات حسب المنجم</h3><span>مقارنة المواقع</span></div></div><div class="chart"><canvas id="expenseMineChart"></canvas></div></article>
+      <article class="card"><div class="card-head"><div><h3>مقارنة الفترة</h3><span>الحالية مقابل السابقة</span></div></div><div class="chart"><canvas id="expenseCompareChart"></canvas></div></article>
+      <article class="table-card wide"><div class="table-head"><div><h3>فترات المصروفات</h3><span id="periodCount">—</span></div></div><div class="table-wrap"><table><thead><tr><th>الفترة</th><th>من</th><th>إلى</th><th>المنجم</th><th>القسم</th><th>السجلات</th><th>الإجمالي</th><th>الحالة</th><th>مقفلة</th><th>الإجراءات</th></tr></thead><tbody id="periodBody"></tbody></table></div></article>
+      <article class="table-card wide"><div class="table-head"><div><h3>سجل المصروفات</h3><span id="expenseCount">—</span></div></div><div class="table-wrap"><table><thead><tr><th>التاريخ</th><th>الموظف</th><th>القسم</th><th>الحالة</th><th>الأساسي</th><th>الانتقال</th><th>التعديل</th><th>الإجمالي</th><th>العملة</th><th>الاعتماد</th><th>السبب</th><th>إجراء</th></tr></thead><tbody id="expenseBody"></tbody></table></div></article>
+      <article class="table-card wide hidden" id="selectedPeriodPanel">
+        <div class="table-head"><div><h3 id="selectedPeriodTitle">تفاصيل فترة المصروفات</h3><span id="selectedPeriodMeta">—</span></div><div class="task-toolbar"><button class="btn ghost" id="exportPeriodExcel">Excel</button><button class="btn ghost" id="exportPeriodPdf">PDF مجمع</button><button class="btn ghost" id="exportPeriodZip">PDF لكل موظف</button><button class="btn primary" id="approveSelectedPeriod">اعتماد</button><button class="btn ghost" id="unlockSelectedPeriod">إعادة فتح</button><button class="btn primary" id="markSelectedPaid">تم الصرف</button></div></div>
+        <h4 class="subsection-title">مستحقات الموظفين</h4><div class="table-wrap"><table><thead><tr><th>الموظف</th><th>الشقة</th><th>الأيام</th><th>المصروف اليومي</th><th>المواصلات</th><th>التسويات</th><th>المستحق</th><th>الحالة</th><th>PDF</th></tr></thead><tbody id="periodPaymentsBody"></tbody></table></div>
+        <h4 class="subsection-title">تفاصيل الأيام والمواصلات</h4><div class="table-wrap"><table><thead><tr><th>التاريخ</th><th>الموظف</th><th>الحالة</th><th>السكن</th><th>السعر</th><th>مصروف اليوم</th><th>المواصلات</th><th>التسوية</th><th>الإجمالي</th><th>قاعدة الاستحقاق</th><th>الإجراء</th></tr></thead><tbody id="periodLinesBody"></tbody></table></div>
+      </article>
+
+    </div>
+  </section>
+
+
+  <section class="tab-panel" id="tab-tasks" data-mountain-view="view_tasks">
+    <div class="grid">
+      <article class="table-card wide">
+        <div class="table-head"><div><h3>متابعة تنفيذ تسكات الصيانة</h3><span id="openTaskCount">يتم التحميل...</span></div><div class="task-toolbar"><input class="input compact-date" id="taskPeriodFrom" type="date" title="تقرير الفترة من"><input class="input compact-date" id="taskPeriodTo" type="date" title="تقرير الفترة إلى"><button class="btn ghost" id="copyTaskPeriodReport">نسخ تقرير الفترة</button><input class="input compact-date" id="finalReportDate" type="date" title="تاريخ التقرير النهائي بعد الخروج"><button class="btn primary" id="copyExitReport">نسخ التقرير النهائي بعد الخروج</button><select class="select" id="taskDepartmentFilter"><option value="">كل الأقسام</option></select><select class="select" id="taskStatusFilter"><option value="">كل التسكات المفتوحة</option><option value="blocked">المتوقفة فقط</option><option value="planned">لم يبدأ تنفيذها</option></select></div></div>
+        <div class="task-followup-list" id="openTasksBody"><div class="empty">يتم تحميل المهام...</div></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="tab-panel" id="tab-reports" data-mountain-view="view_audit">
+    <div class="grid">
+      <article class="card"><div class="card-head"><div><h3>ملخص التقرير</h3><span>نطاق البيانات الظاهرة</span></div></div><div id="reportSummary" class="permission-note"></div></article>
+      <article class="card"><div class="card-head"><div><h3>حالة جودة البيانات</h3><span>البيانات غير المكتملة</span></div></div><div id="qualitySummary" class="permission-note"></div></article>
+      <article class="table-card wide"><div class="table-head"><div><h3>سجل التعديلات</h3><span id="auditCount">يتطلب صلاحية</span></div><button class="btn ghost" id="loadAuditBtn">تحميل السجل</button></div><div class="table-wrap"><table><thead><tr><th>الوقت</th><th>المستخدم</th><th>الدور</th><th>العملية</th><th>الجدول</th><th>المعرف</th><th>الموظف</th><th>القسم</th><th>ملاحظات</th></tr></thead><tbody id="auditBody"></tbody></table></div></article>
+    </div>
+  </section>
+</div>
+
+<div class="modal" id="inputModal" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <div class="modal-head"><h2 id="modalTitle">إدخال</h2><button class="btn ghost" id="closeModal">✕</button></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-actions" id="modalActions"></div>
+  </div>
+</div>
+
+<div class="loader" id="loader"><div class="loader-card"><div class="spinner"></div><b id="loaderText">جارٍ تحميل البيانات...</b></div></div>
+<div class="toast" id="toast"></div>
+</body>
+</html>
