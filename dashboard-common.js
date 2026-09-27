@@ -1,6 +1,6 @@
 (function(){
   'use strict';
-  var CANONICAL_API_URL = 'https://script.google.com/macros/s/AKfycbxfl8DMsgy__jtquMmQX0-RByrW2qIL45nzH8imv-slUdUkJm8XwTJjsz6gphtua-LJiw/exec';
+  var CANONICAL_API_URL = 'https://script.google.com/macros/s/AKfycbyGHbYsQ-2JH0ie5zkRWFkSUKrpO3uqM66cz6ewksVxAQZtUHjbmusLonxHURTytPfb/exec';
   var LEGACY_API_URLS = ['https://script.google.com/macros/s/AKfycbxFJroZzKQT1N0c70ktzFISQkWIkT7w_pyi7eAFxuDPx88icN-WvT2IGkrJ8W-Lt1uz/exec'];
   var query = new URLSearchParams(window.location.search || '');
   var EMBEDDED = query.get('embedded') === '1' || window.parent !== window;

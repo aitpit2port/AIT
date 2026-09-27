@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var FALLBACK_API = 'https://script.google.com/macros/s/AKfycbxfl8DMsgy__jtquMmQX0-RByrW2qIL45nzH8imv-slUdUkJm8XwTJjsz6gphtua-LJiw/exec';
+  var FALLBACK_API = 'https://script.google.com/macros/s/AKfycbyGHbYsQ-2JH0ie5zkRWFkSUKrpO3uqM66cz6ewksVxAQZtUHjbmusLonxHURTytPfb/exec';
   var COLORS = ['#ff5a1f','#38bdf8','#22c55e','#f59e0b','#a78bfa','#2dd4bf','#ef4444','#ec4899','#84cc16','#f97316','#06b6d4','#8b5cf6','#eab308','#14b8a6','#fb7185','#60a5fa'];
   var DEFAULT_STAGES = [
     { key:'lot_before_crusher_ton', label:'Before Crusher / Zone', ar:'قبل الكسارة من الزون' },

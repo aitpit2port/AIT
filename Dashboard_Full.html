@@ -127,7 +127,7 @@ const SHELL_AR={
 function shellLang(){return (safeStoreGet('ait_lang')||'en')==='ar'?'ar':'en'}
 function pageText(key,field){const p=PAGES[key]||{};if(shellLang()==='ar'&&SHELL_AR.pages[key])return SHELL_AR.pages[key][field==='title'?0:1];return p[field]||''}
 function groupText(group){return shellLang()==='ar'?(SHELL_AR.groups[group]||group):group}
-const DEFAULT_API_URL='https://script.google.com/macros/s/AKfycbxfl8DMsgy__jtquMmQX0-RByrW2qIL45nzH8imv-slUdUkJm8XwTJjsz6gphtua-LJiw/exec';
+const DEFAULT_API_URL='https://script.google.com/macros/s/AKfycbyGHbYsQ-2JH0ie5zkRWFkSUKrpO3uqM66cz6ewksVxAQZtUHjbmusLonxHURTytPfb/exec';
 const __apiQs=new URLSearchParams(location.search);
 const safeStoreGet=(key)=>{try{return localStorage.getItem(key)||''}catch(e){return ''}};
 const safeStoreSet=(key,value)=>{try{localStorage.setItem(key,value);return true}catch(e){return false}};

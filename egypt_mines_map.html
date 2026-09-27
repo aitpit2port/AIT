@@ -275,7 +275,7 @@ html,body{max-width:100%;min-width:0;-webkit-text-size-adjust:100%}
 // SECURE DASHBOARD ACCESS GUARD - dedicated goldmap permission
 // ================================================================
 const MAP_PAGE_KEY = 'goldmap';
-const MAP_AUTH_API_URL = new URLSearchParams(location.search).get('api') || 'https://script.google.com/macros/s/AKfycbxfl8DMsgy__jtquMmQX0-RByrW2qIL45nzH8imv-slUdUkJm8XwTJjsz6gphtua-LJiw/exec';
+const MAP_AUTH_API_URL = new URLSearchParams(location.search).get('api') || 'https://script.google.com/macros/s/AKfycbyGHbYsQ-2JH0ie5zkRWFkSUKrpO3uqM66cz6ewksVxAQZtUHjbmusLonxHURTytPfb/exec';
 const MAP_TOKEN = new URLSearchParams(location.search).get('token') || '';
 let MAP_ACCESS_GRANTED = false;
 let MAP_AUTH_READY = false;
@@ -948,7 +948,7 @@ map.on('zoomend', rebuildActiveLayers);
 // نفس رابط الـ API المستخدم في Dashboard_Full.html (repo: aitpit2port-coder/AIT)
 // ================================================================
 // API URL can be overridden via window.AIT_API_URL before loading this script
-const API_URL = window.AIT_API_URL || (new URLSearchParams(location.search).get('api') || 'https://script.google.com/macros/s/AKfycbxfl8DMsgy__jtquMmQX0-RByrW2qIL45nzH8imv-slUdUkJm8XwTJjsz6gphtua-LJiw/exec');
+const API_URL = window.AIT_API_URL || (new URLSearchParams(location.search).get('api') || 'https://script.google.com/macros/s/AKfycbyGHbYsQ-2JH0ie5zkRWFkSUKrpO3uqM66cz6ewksVxAQZtUHjbmusLonxHURTytPfb/exec');
 
 // normalize free-text values from the sheet to the codes the map expects
 function normMat(v){
